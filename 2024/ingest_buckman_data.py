@@ -38,10 +38,10 @@ import pandas as pd
 
 # OCR confidence threshold: values below this are flagged as unreliable
 # Tesseract returns confidence scores 0-100, with -1 meaning "invalid/no data"
-OCR_CONFIDENCE_THRESHOLD = 95
+OCR_CONFIDENCE_THRESHOLD = 80  # Lowered from 95 - too strict for mixed graphic/text documents
 
 # Image cropping ratios for targeting specific regions of the PDF page
-HEADER_CROP_RATIO = 0.25  # Top 25% of page contains header/date info
+HEADER_CROP_RATIO = 0.35  # Top 35% of page contains header/date info (increased from 25%)
 TABLE_CROP_RATIO = 0.50   # Bottom 50% of page contains well data table
 
 # Line grouping tolerance for OCR table reconstruction
@@ -360,6 +360,54 @@ def extract_date_from_pdf(
         print(f"  Exception type: {type(e).__name__}")
         print(f"  Message: {str(e)}")
         return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+
+def extract_date_from_filename(filename: str) -> Tuple[int, str, str, str]:
+    """
+    Extract year and month from PDF filename as fallback when OCR fails.
+
+    This function parses the filename to extract date information when the
+    OCR-based extraction from the PDF header is unsuccessful.
+
+    Expected filename format: "YYYY MM MonthName - ..."
+    Example: "2024 01 January - City of Santa Fe Water - Meter Reports.pdf"
+
+    Args:
+        filename: The PDF filename (with or without path)
+
+    Returns:
+        Tuple of (year, month_name, month_numeric, month_abbrev)
+        Example: (2024, "January", "01", "JAN")
+        Returns (0, "NOT_OK", "NOT_OK", "NOT_OK") if pattern not found
+    """
+    # Pattern: 4-digit year, space, 2-digit month, space, month name, then " -"
+    pattern = r"(\d{4})\s+(\d{2})\s+(\w+)\s*-"
+    match = re.search(pattern, filename)
+
+    if not match:
+        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+    year_str = match.group(1)
+    month_numeric = match.group(2)
+    month_name = match.group(3)
+
+    # Validate month name exists in our mapping
+    if month_name not in MONTH_NAME_TO_NUMERIC:
+        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+    # Validate month numeric matches name (sanity check)
+    expected_numeric = MONTH_NAME_TO_NUMERIC[month_name]
+    if month_numeric != expected_numeric:
+        print(f"    [WARN] Filename month mismatch: {month_numeric} vs {month_name}")
+
+    # Parse year as integer
+    try:
+        year = int(year_str)
+    except ValueError:
+        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+    month_abbrev = MONTH_NAME_TO_ABBREV[month_name]
+    return (year, month_name, month_numeric, month_abbrev)
 
 
 def extract_buckman_wells_data(image: Image) -> Tuple[List[WellData], Optional[WellData]]:
@@ -1318,9 +1366,9 @@ def extract_date_from_pdf_quick(pdf_path: str) -> Tuple[Optional[int], Optional[
         if image is None:
             return (None, None)
 
-        # Crop to header area (top quarter of the page)
+        # Crop to header area (uses configured ratio instead of hardcoded 1/4)
         width, height = image.size
-        header_height = height // 4
+        header_height = int(height * HEADER_CROP_RATIO)
         header_image = image.crop((0, 0, width, header_height))
 
         # OCR the header area
@@ -1413,15 +1461,20 @@ def validate_and_prepare_pdfs(target_year: int, input_dir: str = "./input/pdfs/"
         progress = f"({idx}/{total_pdfs})"
         print(f"  {progress} Scanning: {filename[:45]}...")
 
-        # Extract date from PDF content
+        # Extract date from PDF content (OCR-based)
         year, month_name = extract_date_from_pdf_quick(pdf_path)
 
         if year is None or month_name is None:
-            # OCR failed to extract date
-            report["unreadable"].append(filename)
-            report["issues_count"] += 1
-            print(f"    [WARN] Could not extract date from header")
-            continue
+            # OCR failed - try fallback to filename extraction
+            year, month_name, _, _ = extract_date_from_filename(filename)
+            if month_name == "NOT_OK":
+                # Both OCR and filename extraction failed
+                report["unreadable"].append(filename)
+                report["issues_count"] += 1
+                print(f"    [WARN] Could not extract date from header or filename")
+                continue
+            else:
+                print(f"    [INFO] Date extracted from filename: {month_name} {year}")
 
         if year != target_year:
             # Wrong year
