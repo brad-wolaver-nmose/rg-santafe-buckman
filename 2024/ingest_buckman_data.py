@@ -69,6 +69,10 @@ MONTHS_ORDERED: Tuple[Tuple[str, str], ...] = (
     ("09", "SEP"), ("10", "OCT"), ("11", "NOV"), ("12", "DEC"),
 )
 
+# Pattern for standardized PDF filenames (created by this script)
+# Format: YYYY_MM_ABBREV.pdf (e.g., 2024_01_JAN.pdf)
+STANDARDIZED_PDF_PATTERN = re.compile(r"^\d{4}_\d{2}_[A-Z]{3}\.pdf$")
+
 
 def check_system_dependencies() -> bool:
     """
@@ -1450,12 +1454,23 @@ def validate_and_prepare_pdfs(target_year: int, input_dir: str = "./input/pdfs/"
         report["missing_months"] = [f"{i:02d}" for i in range(1, 13)]
         return report
 
-    total_pdfs = len(pdf_files)
+    # Filter out previously-created standardized copies to avoid false duplicates
+    original_files = [
+        f for f in pdf_files
+        if not STANDARDIZED_PDF_PATTERN.match(os.path.basename(f))
+    ]
+
+    # Update count for display
+    skipped_count = len(pdf_files) - len(original_files)
+    if skipped_count > 0:
+        print(f"  (Skipping {skipped_count} previously standardized file(s))")
+
+    total_pdfs = len(original_files)
     print(f"\nScanning {total_pdfs} PDF file(s) for date information...")
     print("-" * 50)
 
     # Process each PDF with progress indicator
-    for idx, pdf_path in enumerate(pdf_files, start=1):
+    for idx, pdf_path in enumerate(original_files, start=1):
         filename = os.path.basename(pdf_path)
         # Show progress as (current/total) with truncated filename
         progress = f"({idx}/{total_pdfs})"
