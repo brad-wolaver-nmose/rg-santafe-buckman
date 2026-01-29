@@ -577,6 +577,196 @@ def mg_to_af(mg_value: Optional[float]) -> Optional[float]:
         return None
 
 
+def extract_buckman_data_pdftotext(pdf_path: str) -> Tuple[List["WellData"], Optional["WellData"]]:
+    """
+    Extract Buckman well data from a PDF using pdftotext.
+
+    This function is designed for PDFs that have embedded text (either native
+    text-based PDFs or scanned PDFs that have been processed with OCR tools
+    like ocrmypdf or Adobe Acrobat's "Paper Capture" feature).
+
+    Advantages over inline Tesseract OCR:
+    - Much faster (no image conversion needed)
+    - More accurate (text is already embedded, no re-OCR degradation)
+    - Works with pre-OCR'd PDFs
+
+    Args:
+        pdf_path: Path to the PDF file with embedded text
+
+    Returns:
+        Tuple of (wells_list, total_row) where:
+        - wells_list: List of WellData objects for Buckman #1 through #13
+        - total_row: WellData object for total row, or None if not found
+    """
+    wells_list: List[WellData] = []
+    total_row: Optional[WellData] = None
+
+    try:
+        # Extract text from PDF using pdftotext with layout preservation
+        result = subprocess.run(
+            ["pdftotext", "-layout", pdf_path, "-"],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        if result.returncode != 0:
+            print(f"Error: pdftotext failed for '{pdf_path}'")
+            print(f"  stderr: {result.stderr[:200]}")
+            return ([], None)
+
+        text = result.stdout
+
+        # Check if we got meaningful text
+        if len(text) < 100:
+            print(f"Warning: PDF '{pdf_path}' has little/no extractable text")
+            print(f"  Hint: Run 'ocrmypdf --skip-text \"{pdf_path}\" \"{pdf_path}\"' first")
+            return ([], None)
+
+        # Parse Buckman well data using regex
+        # Pattern handles OCR variations:
+        # - OSE: RG-20516-S or RG-20516-S-2 through RG-20516-S-13 (case insensitive)
+        # - Well: "Buckman #1" or "Buckman *12" (# or * from OCR errors)
+        # - Numbers: can have comma (0,027) instead of period (0.027)
+        # - Whitespace varies due to layout extraction
+
+        # Pattern: OSE_number  Buckman #N  MG_value  AF_value  meter_reading
+        # Note: OCR may render:
+        #   - "11" as "ll" or "1l" or "l1"
+        #   - "S" as "8" or "s"
+        #   - "Buckman" as "Buclcman" or "Buclcm.an"
+        #   - "0.00" as "o.oo" (lowercase o)
+        #   - numbers with spaces like "0 . 000"
+        well_pattern = re.compile(
+            r"(RG-20516-[Ss8](?:-[\dls8]+)?)\s+"     # OSE number (S/s/8 variations)
+            r"Buc[kl][ckmn]+[.\s]*[#*]\s*(\d+)\s+"   # Well name variations
+            r"([\doO]+\s*[,\.]\s*[\doO]+)\s+"        # MG value (o for 0, spaces allowed)
+            r"([\doO]+\s*[,\.]\s*[\doO]+)\s+"        # AF value
+            r"([\d\"]+)",                             # Meter reading (may have quote marks)
+            re.IGNORECASE
+        )
+
+        for match in well_pattern.finditer(text):
+            well = WellData()
+            # Normalize OSE number: uppercase and fix common OCR errors
+            # - "ll"/"l1"/"1l" -> "11"
+            # - "8" -> "S" when it appears after RG-20516-
+            ose = match.group(1).upper()
+            ose = ose.replace("LL", "11").replace("L1", "11").replace("1L", "11")
+            # Fix "8" misread as "S" in OSE suffix
+            ose = re.sub(r'^(RG-20516-)8', r'\1S', ose)
+            ose = ose.replace("-8-", "-S-")  # Also fix internal 8s
+            well.ose_number = ose
+            well.well_name = f"Buckman #{match.group(2)}"
+
+            # Parse MG value (handle comma, spaces, lowercase o for 0)
+            mg_str = match.group(3).replace(",", ".").replace(" ", "")
+            mg_str = mg_str.replace("o", "0").replace("O", "0")
+            well.mg_value = float(mg_str)
+
+            # Parse AF value
+            af_str = match.group(4).replace(",", ".").replace(" ", "")
+            af_str = af_str.replace("o", "0").replace("O", "0")
+            well.af_value = float(af_str)
+
+            # Parse meter reading (remove quote marks and other artifacts)
+            meter_str = re.sub(r'[^\d]', '', match.group(5))
+            well.meter_reading = int(meter_str) if meter_str else 0
+
+            # Set high confidence since text extraction is reliable
+            well.ose_number_conf = 100
+            well.well_name_conf = 100
+            well.mg_conf = 100
+            well.af_conf = 100
+            well.meter_conf = 100
+
+            wells_list.append(well)
+
+        # Parse total row
+        total_pattern = re.compile(
+            r"TOTAL\s+BUCKMAN\s+WELLS\s+"
+            r"(\d+[,\.]\d+)\s+"              # Total MG
+            r"(\d+[,\.]\d+)",                # Total AF
+            re.IGNORECASE
+        )
+
+        total_match = total_pattern.search(text)
+        if total_match:
+            total_row = WellData()
+            total_row.mg_value = float(total_match.group(1).replace(",", "."))
+            total_row.af_value = float(total_match.group(2).replace(",", "."))
+            total_row.mg_conf = 100
+            total_row.af_conf = 100
+
+        # Log extraction results
+        if wells_list:
+            print(f"  Extracted {len(wells_list)} wells via pdftotext")
+        else:
+            print(f"  Warning: No wells found in PDF text")
+
+        return (wells_list, total_row)
+
+    except subprocess.TimeoutExpired:
+        print(f"Error: pdftotext timed out for '{pdf_path}'")
+        return ([], None)
+    except Exception as e:
+        print(f"Error extracting data via pdftotext from '{pdf_path}':")
+        print(f"  Exception type: {type(e).__name__}")
+        print(f"  Message: {str(e)}")
+        return ([], None)
+
+
+def extract_date_pdftotext(pdf_path: str) -> Tuple[int, str, str, str]:
+    """
+    Extract year and month from PDF using pdftotext.
+
+    Looks for the pattern "Re: Diversion Report for {Month} {Year}" in the PDF text.
+
+    Args:
+        pdf_path: Path to the PDF file
+
+    Returns:
+        Tuple of (year, month_name, month_numeric, month_abbrev)
+        Returns (0, "NOT_OK", "NOT_OK", "NOT_OK") if extraction fails
+    """
+    try:
+        result = subprocess.run(
+            ["pdftotext", "-layout", pdf_path, "-"],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        if result.returncode != 0:
+            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+        text = result.stdout
+
+        # Look for date pattern in header
+        pattern = r"Re:\s*Diversion\s+Report\s+for\s+(\w+)\s+(\d{4})"
+        match = re.search(pattern, text, re.IGNORECASE)
+
+        if not match:
+            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+        month_name = match.group(1).strip()
+        year_str = match.group(2).strip()
+
+        # Validate month name
+        if month_name not in MONTH_NAME_TO_NUMERIC:
+            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+        year = int(year_str)
+        month_numeric = MONTH_NAME_TO_NUMERIC[month_name]
+        month_abbrev = MONTH_NAME_TO_ABBREV[month_name]
+
+        return (year, month_name, month_numeric, month_abbrev)
+
+    except Exception as e:
+        print(f"Error extracting date via pdftotext: {e}")
+        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+
+
 def _normalize_well_name(raw_name: str) -> str:
     """
     Normalize well name to consistent 'Buckman #N' format.
@@ -1263,22 +1453,23 @@ def process_single_month(
 
         print(f"Processing {month_abbrev} {year}...")
 
-        # Convert PDF to image
-        image = pdf_to_image(input_path)
-        if image is None:
-            print(f"Error: Could not convert PDF for {month_abbrev} {year}")
-            return (False, [])
-
-        # Extract date info
-        extracted_year, month_name, _, _ = extract_date_from_pdf(image)
+        # Extract date info using pdftotext (faster and more reliable than OCR)
+        extracted_year, month_name, _, _ = extract_date_pdftotext(input_path)
         if month_name == "NOT_OK":
-            print(f"Warning: Could not extract date for {month_abbrev} {year}")
-            return (False, [])
+            # Fallback: try filename-based extraction
+            extracted_year, month_name, _, _ = extract_date_from_filename(
+                os.path.basename(input_path)
+            )
+            if month_name == "NOT_OK":
+                print(f"Warning: Could not extract date for {month_abbrev} {year}")
+                return (False, [])
+            print(f"  Date extracted from filename: {month_name} {extracted_year}")
 
-        # Extract well data
-        wells, total_row = extract_buckman_wells_data(image)
+        # Extract well data using pdftotext (requires pre-OCR'd PDFs)
+        wells, total_row = extract_buckman_data_pdftotext(input_path)
         if not wells:
             print(f"Warning: Could not extract well data for {month_abbrev} {year}")
+            print(f"  Hint: Ensure PDF has embedded text (run ocrmypdf if needed)")
             return (False, [])
 
         # Generate monthly CSV
@@ -1524,20 +1715,75 @@ def validate_and_prepare_pdfs(target_year: int, input_dir: str = "./input/pdfs/"
             report["issues_count"] += 1
 
         elif len(files) == 1:
-            # Single file - create standardized copy
+            # Single file - create standardized copy with OCR if needed
             original_path = files[0]
             original_filename = os.path.basename(original_path)
             standard_filename = f"{target_year}_{month_numeric}_{month_abbrev}.pdf"
             standard_path = os.path.join(input_dir, standard_filename)
 
-            # Copy file (skip if already exists with same name)
+            # Check if standardized file exists AND has text (not just copied)
+            if os.path.exists(standard_path):
+                # Verify it has extractable text
+                result = subprocess.run(
+                    ["pdftotext", "-layout", standard_path, "-"],
+                    capture_output=True, text=True
+                )
+                if len(result.stdout) > 100:
+                    print(f"  {month_abbrev}: Using existing {standard_filename} (text OK)")
+                    report["valid_months"].append(month_numeric)
+                    continue
+                else:
+                    # Existing file but no text - needs OCR
+                    print(f"  {month_abbrev}: Existing file needs OCR...")
+
+            # Extract page 1 and OCR if needed
             if original_path != standard_path:
-                shutil.copy2(original_path, standard_path)
+                # Extract page 1 only using pdfseparate
+                temp_page1 = f"/tmp/page1_{month_abbrev}.pdf"
+                temp_pattern = f"/tmp/page_{month_abbrev}_%d.pdf"
+                actual_temp = f"/tmp/page_{month_abbrev}_1.pdf"
+
+                subprocess.run(
+                    ["pdfseparate", "-f", "1", "-l", "1", original_path, temp_pattern],
+                    capture_output=True, text=True
+                )
+
+                if not os.path.exists(actual_temp):
+                    print(f"  {month_abbrev}: ERROR extracting page 1")
+                    report["issues_count"] += 1
+                    continue
+
+                # Check if page 1 has text
+                result = subprocess.run(
+                    ["pdftotext", "-layout", actual_temp, "-"],
+                    capture_output=True, text=True
+                )
+
+                if len(result.stdout) > 100:
+                    # Already has text - just copy
+                    shutil.move(actual_temp, standard_path)
+                    print(f"  {month_abbrev}: {original_filename[:40]}... → {standard_filename}")
+                else:
+                    # Needs OCR
+                    print(f"  {month_abbrev}: Running OCR...", end="", flush=True)
+                    ocr_result = subprocess.run(
+                        ["ocrmypdf", "--output-type", "pdf", actual_temp, standard_path],
+                        capture_output=True, text=True
+                    )
+                    if os.path.exists(actual_temp):
+                        os.remove(actual_temp)
+
+                    if ocr_result.returncode == 0:
+                        print(f" done → {standard_filename}")
+                    else:
+                        print(f" ERROR: {ocr_result.stderr[:80]}")
+                        report["issues_count"] += 1
+                        continue
+
                 report["standardized"].append({
                     "original": original_filename,
                     "standard": standard_filename,
                 })
-                print(f"  {month_abbrev}: {original_filename[:40]}... → {standard_filename}")
             else:
                 print(f"  {month_abbrev}: Already standardized")
 
