@@ -29,8 +29,9 @@ Approach every conversation as an experienced software engineer who is an expert
 6. Generate a structured PRD based on answers
 7. Save to `PRD.md`
 8. Create empty `progress.txt`
+9. Create initial smoke test file(s) if Python project
 
-**Important:** Do NOT start implementing. Just create the PRD.
+**Important:** Do NOT start implementing. Just create the PRD and test scaffolding.
 
 ---
 
@@ -444,6 +445,118 @@ Code quality stories should be placed:
 
 ---
 
+## Step 10: Smoke Test Scaffolding (Python Projects)
+
+For Python projects, create a basic smoke test file alongside the PRD. These tests verify code RUNS—they don't verify calculations are correct (that's the domain expert's job).
+
+### Why Smoke Tests Matter
+
+Ralph Enhanced uses pytest to verify each task before marking it complete. Without test files:
+- Ralph falls back to syntax checking only (py_compile)
+- Runtime errors won't be caught until manual testing
+- The iterate-until-pass loop has no safety net
+
+### What Smoke Tests Check
+
+| Test Type | What It Catches |
+|-----------|-----------------|
+| Import test | Syntax errors, missing dependencies |
+| Function exists test | Claude renamed or deleted something |
+| Runs without error test | Runtime crashes on basic input |
+| Basic sanity test | Output is completely wrong magnitude |
+
+### What Smoke Tests DON'T Check
+
+- **Calculation correctness** — You verify the hydrology/science
+- **Edge cases** — These are minimal viability tests
+- **Integration** — Tests run functions in isolation
+
+### When to Create Smoke Tests
+
+Create a `test_<module>.py` file for each Python module that will be created. Match the module structure from your user stories.
+
+**Example:** If US-001 creates `discharge_calc.py`, also create `test_discharge_calc.py`
+
+### Smoke Test Template
+
+```python
+"""
+Smoke tests for [module_name].
+Verifies code RUNS - domain expert must verify calculations independently.
+
+These tests support the Ralph Enhanced iterate-until-pass loop.
+They catch mechanical failures, not logical errors.
+"""
+import pytest
+
+
+def test_module_imports():
+    """Verify module imports without syntax errors."""
+    import module_name  # Replace with actual module name
+
+
+def test_main_function_exists():
+    """Verify expected function exists and is callable."""
+    from module_name import main_function  # Replace with actual names
+    assert callable(main_function)
+
+
+def test_runs_without_error():
+    """Verify function executes with basic inputs without crashing."""
+    from module_name import main_function
+    
+    # Use simple, realistic inputs - not edge cases
+    result = main_function(simple_input)
+    
+    # Just verify it returns SOMETHING of the right type
+    assert result is not None
+    assert isinstance(result, (int, float, list, dict))  # Adjust expected type
+
+
+def test_basic_sanity():
+    """
+    Verify output is in reasonable range for known input.
+    
+    This is NOT a precision test. It catches order-of-magnitude errors
+    like returning 0 when it should return 1000, or vice versa.
+    """
+    from module_name import main_function
+    
+    # Use input where you know the APPROXIMATE output
+    result = main_function(known_input)
+    
+    # Wide bounds - just catching catastrophic errors
+    # Example: if calculating discharge around 50 cfs, bounds might be 1-500
+    assert lower_bound < result < upper_bound, \
+        f"Result {result} outside expected range [{lower_bound}, {upper_bound}]"
+```
+
+### Adapting the Template
+
+When generating test files:
+
+1. **Replace placeholders** with actual module/function names from user stories
+2. **Choose realistic simple inputs** based on the domain (e.g., typical stream measurements)
+3. **Set wide sanity bounds** — these catch "completely broken," not "slightly off"
+4. **Match return types** to what the function actually returns
+
+### Test File Naming
+
+| Module | Test File |
+|--------|-----------|
+| `discharge_calc.py` | `test_discharge_calc.py` |
+| `data_validator.py` | `test_data_validator.py` |
+| `report_generator.py` | `test_report_generator.py` |
+
+### Placement in PRD Workflow
+
+1. Generate PRD with user stories
+2. Identify which user stories create new Python modules
+3. Create corresponding `test_<module>.py` files with smoke tests
+4. Save all files before finishing
+
+---
+
 ## PRD Structure
 
 Generate the PRD with these sections:
@@ -472,6 +585,9 @@ Each story needs:
 - [ ] Typecheck passes
 - [ ] [UI stories] Verify changes work in browser
 ```
+
+**For Python modules, pair with smoke test:**
+When a story creates a new `.py` module, the corresponding `test_<module>.py` should also be created. See Step 10 for the smoke test template.
 
 ### 4. Non-Goals
 What this feature will NOT include. Critical for scope.
@@ -873,6 +989,72 @@ Process monthly CSV files from multiple sources, validate data integrity, and ge
 - [ ] Display final summary with total rows processed and error count
 - [ ] Typecheck passes
 
+## Smoke Test File: test_sales_aggregator.py
+
+Created alongside PRD to support Ralph Enhanced verification loop.
+
+```python
+"""
+Smoke tests for sales_aggregator module.
+Verifies code RUNS - user must verify calculations independently.
+
+These tests support the Ralph Enhanced iterate-until-pass loop.
+They catch mechanical failures, not logical errors.
+"""
+import pytest
+import os
+
+
+def test_module_imports():
+    """Verify module imports without syntax errors."""
+    import sales_aggregator
+
+
+def test_parse_csv_exists():
+    """Verify parse function exists."""
+    from sales_aggregator import parse_monthly_csv
+    assert callable(parse_monthly_csv)
+
+
+def test_validate_row_exists():
+    """Verify validation function exists."""
+    from sales_aggregator import validate_row
+    assert callable(validate_row)
+
+
+def test_validate_row_runs():
+    """Verify validate_row executes without crashing."""
+    from sales_aggregator import validate_row
+    
+    # Simple valid row - realistic but not edge case
+    test_row = {
+        'date': '2024-01-15',
+        'SKU': 'ABC1234',
+        'quantity': 10,
+        'price': 5.00,
+        'total': 50.00
+    }
+    
+    result = validate_row(test_row)
+    assert result is not None
+    # Should return tuple of (bool, str)
+    assert isinstance(result, tuple)
+    assert len(result) == 2
+
+
+def test_aggregate_returns_tuple():
+    """Verify aggregate function returns expected structure."""
+    from sales_aggregator import aggregate_all_months
+    
+    # This may return empty results if no test files exist
+    # We're just checking it doesn't crash and returns right type
+    result = aggregate_all_months('./test_input/')
+    
+    assert result is not None
+    assert isinstance(result, tuple)
+    assert len(result) == 2  # (dataframe, validation_report)
+```
+
 ## Non-Goals
 
 - No database integration (CSV only)
@@ -965,3 +1147,10 @@ Also create `progress.txt`:
 - [ ] Non-goals section defines clear boundaries
 - [ ] Technical Considerations includes constants, patterns, helper functions (if applicable)
 - [ ] Saved PRD.md and progress.txt
+
+### Smoke Tests (Python Projects)
+- [ ] Identified which user stories create new Python modules
+- [ ] Created test_<module>.py for each new module
+- [ ] Test files use smoke test template (import, exists, runs, sanity)
+- [ ] Test inputs are realistic for the domain
+- [ ] Sanity bounds are wide (catching catastrophic errors, not precision)

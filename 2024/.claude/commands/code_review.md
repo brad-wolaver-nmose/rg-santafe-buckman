@@ -391,16 +391,18 @@ After generating the checklist:
 
 ## Next Steps
 
-**This checklist has [N] stories.** Run Ralph with at least [N+5] iterations:
+**This checklist has [N] stories.** Run Ralph Enhanced with at least [N+5] iterations:
 
 ```bash
-./ralph.sh [N+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph_enhanced.sh [N+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 For example, if 50 stories were generated, run:
 ```bash
-./ralph.sh 55 2 CODE_REVIEW_CHECKLIST.md
+./ralph_enhanced.sh 55 2 CODE_REVIEW_CHECKLIST.md
 ```
+
+**Note on protection levels:** Ralph Enhanced auto-detects your test setup. For code review tasks (which read but don't create code), it will use `py_compile` for syntax verification. This is appropriate—review stories document findings rather than create new modules.
 
 After review completes, read REVIEW_FINDINGS.md to see results.
 
@@ -475,18 +477,27 @@ This PRD contains fixes for issues identified during code review. Each user stor
 
 Review CODE_FIXES_PRD.md to confirm the fixes look correct.
 
-**This fix PRD has [N] stories.** Run Ralph with at least [N+5] iterations:
+**This fix PRD has [N] stories.** Run Ralph Enhanced with at least [N+5] iterations:
 
 ```bash
-./ralph.sh [N+5] 2 CODE_FIXES_PRD.md
+./ralph_enhanced.sh [N+5] 2 CODE_FIXES_PRD.md
 ```
 
 After fixes are complete, consider re-running the code review to verify:
 ```bash
 claude /code_review
-./ralph.sh [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph_enhanced.sh [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 ```
+
+### Smoke Tests for Fix Stories
+
+Most fix stories modify existing code rather than create new modules. However, if a fix story creates a **new Python module** (new `.py` file with functions), also generate a corresponding smoke test file.
+
+**Cross-reference:** See `/prd_create` Step 10 for the smoke test template and guidance. The same principles apply:
+- Smoke tests verify code *runs*, not that it's *correct*
+- Create `test_<module>.py` for each new module
+- Use the four-test pattern: import, exists, runs, sanity
 
 ---
 
@@ -505,6 +516,7 @@ claude /code_review
 - [ ] Parsed findings by severity
 - [ ] Generated CODE_FIXES_PRD.md with prioritized fix stories
 - [ ] Excluded low-priority items from fix stories
+- [ ] If any fix creates a new module, added smoke test file (see prd_create Step 10)
 - [ ] Provided clear next steps
 
 ---
