@@ -73,6 +73,57 @@ MONTHS_ORDERED: Tuple[Tuple[str, str], ...] = (
 # Format: YYYY_MM_ABBREV.pdf (e.g., 2024_01_JAN.pdf)
 STANDARDIZED_PDF_PATTERN = re.compile(r"^\d{4}_\d{2}_[A-Z]{3}\.pdf$")
 
+# =============================================================================
+# CSV INGESTION CONSTANTS (US-001)
+# =============================================================================
+
+# Path pattern for source CSV file — replace {year} with actual year at runtime
+INPUT_CSV_PATH: str = "./input/csv/Buckman_Well_Prod_{year}.csv"
+
+# Output directory for all generated CSV files (monthly, annual summary, QA)
+OUTPUT_DIR: str = "./output/ingested_data"
+
+# USGS conversion factor: 1 million gallons = 3.06889 acre-feet
+# Source: 1 acre-foot = 325,851 gallons → 1,000,000 / 325,851 = 3.06889
+MG_TO_AF_FACTOR: float = 3.06889
+
+# Tolerance for daily BWP total verification (MGD)
+# Each day's per-well sum is compared to the BWP formula column
+DAILY_SUM_TOLERANCE: float = 0.001
+
+# Tolerance for annual Sum row verification (MG)
+# Our 12-month totals are compared to the CSV's Sum row per well
+ANNUAL_SUM_TOLERANCE: float = 0.01
+
+# Well-to-OSE number mapping: well number (1-13) → OSE permit number
+# These are the State Engineer office permit numbers for each Buckman well
+WELL_OSE_MAP: Dict[int, str] = {
+    1: "RG-20516-S-5",
+    2: "RG-20516-S-6",
+    3: "RG-20516-S",
+    4: "RG-20516-S-2",
+    5: "RG-20516-S-3",
+    6: "RG-20516-S-4",
+    7: "RG-20516-S-7",
+    8: "RG-20516-S-8",
+    9: "RG-20516-S-9",
+    10: "RG-20516-S-10",
+    11: "RG-20516-S-11",
+    12: "RG-20516-S-12",
+    13: "RG-20516-S-13",
+}
+
+# CSV column headers for wells 1-13 (as they appear in the source CSV)
+CSV_WELL_COLUMNS: List[str] = [
+    "BWell 1", "BWell 2", "BWell 3", "BWell 4", "BWell 5",
+    "BWell 6", "BWell 7", "BWell 8", "BWell 9", "BWell 10",
+    "BWell 11", "BWell 12", "BWell 13",
+]
+
+# Header name for the total/formula column in the source CSV
+# This column contains the daily total production across all wells
+CSV_TOTAL_COLUMN: str = "BWP|Flow Mgd|MGD|Formula"
+
 
 def check_system_dependencies() -> bool:
     """
