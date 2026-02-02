@@ -21,6 +21,7 @@ Approach every conversation as an experienced software engineer who is an expert
 
 ## The Job
 
+0. Check for existing PRD outputs and archive to `prd/` if found (Step 0)
 1. Receive a feature description from the user
 2. Acknowledge understanding of what the user has shared
 3. Explain how many questions you'll ask, why that number, and what topic areas you'll cover
@@ -32,6 +33,51 @@ Approach every conversation as an experienced software engineer who is an expert
 9. Create initial smoke test file(s) if Python project
 
 **Important:** Do NOT start implementing. Just create the PRD and test scaffolding.
+
+---
+
+## Step 0: Archive Existing Outputs
+
+Before generating any new files, check if previous PRD outputs exist and archive them to preserve version history.
+
+### Archive Check
+
+1. Check if `PRD.md` exists in the current directory
+2. If it does NOT exist, skip this step entirely and proceed to Step 1
+3. If it DOES exist, perform the archive procedure below
+
+### Archive Procedure
+
+1. **Detect next version number:**
+   - List all files in `prd/` matching pattern `PRD_v*.md`
+   - Extract version numbers (e.g., `PRD_v1.0.md` → 1, `PRD_v2.0.md` → 2)
+   - Set N = highest version found + 1 (or N = 1 if no versions exist)
+
+2. **Move PRD.md:**
+   - Move `PRD.md` → `prd/PRD_vN.0.md`
+
+3. **Move progress.txt (if exists):**
+   - Move `progress.txt` → `prd/progress_vN.0.txt`
+
+4. **Move test scaffolding files (if any):**
+   - Find all `test_*.py` files at root that were generated as PRD scaffolding
+   - Move each `test_<name>.py` → `prd/test_<name>_vN.0.py`
+
+5. **Confirm archive:**
+   ```
+   Archived previous PRD outputs to prd/ as version N.0:
+   - prd/PRD_vN.0.md
+   - prd/progress_vN.0.txt
+   - prd/test_<name>_vN.0.py (if any)
+
+   Proceeding with new PRD generation.
+   ```
+
+### Important Notes
+- The `prd/` directory must already exist (create it if missing)
+- Use whole-number versions only (v1.0, v2.0, v3.0) — no minor versions
+- Archive ALL related files with the SAME version number to keep them grouped
+- Do NOT delete any files — move only
 
 ---
 
@@ -1102,6 +1148,8 @@ def validate_row(row: dict) -> Tuple[bool, str]:
 
 Save to `PRD.md` in the current directory.
 
+**Note:** If a previous `PRD.md` existed, it was already archived to `prd/` in Step 0.
+
 Also create `progress.txt`:
 ```markdown
 # Progress Log
@@ -1115,6 +1163,11 @@ Also create `progress.txt`:
 ---
 
 ## Checklist Before Saving
+
+### Archive
+- [ ] Checked if `PRD.md` already existed before generating
+- [ ] If existed: archived `PRD.md`, `progress.txt`, and `test_*.py` to `prd/` with correct version number
+- [ ] All archived files use the same version number
 
 ### Question Process
 - [ ] Acknowledged understanding of user's initial description

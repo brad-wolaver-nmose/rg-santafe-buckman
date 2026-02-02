@@ -23,6 +23,7 @@ The review process has two phases:
 
 ### Standard Mode (No Flags)
 
+0. Check for existing review outputs and archive to `review/` if found (Step 0)
 1. Identify PRD.md and code files in the project
 2. Ask 1-2 minimal questions (problem areas, review depth)
 3. Generate CODE_REVIEW_CHECKLIST.md with review user stories
@@ -31,10 +32,64 @@ The review process has two phases:
 
 ### Fix Generation Mode (--generate-fixes)
 
+0. Check for existing CODE_FIXES_PRD.md and archive to `review/` if found (Step 0)
 1. Read REVIEW_FINDINGS.md
 2. Parse all findings by severity
 3. Generate CODE_FIXES_PRD.md with fix user stories
 4. Explain how to run ralph on the fix PRD
+
+---
+
+## Step 0: Archive Existing Outputs
+
+Before generating any new files, check if previous review outputs exist and archive them to preserve version history.
+
+### Standard Mode Archive Check
+
+1. Check if `CODE_REVIEW_CHECKLIST.md` exists in the current directory
+2. If it does NOT exist, skip this step entirely and proceed to Step 1
+3. If it DOES exist, perform the archive procedure below
+
+### Standard Mode Archive Procedure
+
+1. **Detect next version number:**
+   - List all files in `review/` matching pattern `CODE_REVIEW_CHECKLIST_v*.md`
+   - Extract version numbers (e.g., `CODE_REVIEW_CHECKLIST_v1.0.md` → 1)
+   - Set N = highest version found + 1 (or N = 1 if no versions exist)
+
+2. **Move CODE_REVIEW_CHECKLIST.md:**
+   - Move `CODE_REVIEW_CHECKLIST.md` → `review/CODE_REVIEW_CHECKLIST_vN.0.md`
+
+3. **Move REVIEW_FINDINGS.md (if exists):**
+   - Move `REVIEW_FINDINGS.md` → `review/REVIEW_FINDINGS_vN.0.md`
+
+4. **Move CODE_FIXES_PRD.md (if exists):**
+   - Move `CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
+
+5. **Confirm archive:**
+   ```
+   Archived previous review outputs to review/ as version N.0:
+   - review/CODE_REVIEW_CHECKLIST_vN.0.md
+   - review/REVIEW_FINDINGS_vN.0.md (if existed)
+   - review/CODE_FIXES_PRD_vN.0.md (if existed)
+
+   Proceeding with new review generation.
+   ```
+
+### Fix Generation Mode Archive Check
+
+When running in `--generate-fixes` mode:
+
+1. Check if `CODE_FIXES_PRD.md` exists in the current directory
+2. If it exists, determine version: use the same version number as the most recently archived `CODE_REVIEW_CHECKLIST` in `review/` (if no checklist archived yet, use version 1)
+3. Move `CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
+4. Proceed with fix generation
+
+### Important Notes
+- The `review/` directory must already exist (create it if missing)
+- Use whole-number versions only (v1.0, v2.0, v3.0) — no minor versions
+- Archive ALL related review files with the SAME version number to keep them grouped
+- Do NOT delete any files — move only
 
 ---
 
@@ -501,26 +556,6 @@ Most fix stories modify existing code rather than create new modules. However, i
 
 ---
 
-## Checklist Before Saving
-
-### Standard Mode
-- [ ] Identified PRD.md and code files
-- [ ] Asked 1-2 questions (or skipped if obvious)
-- [ ] Generated CODE_REVIEW_CHECKLIST.md with atomic review stories (see story count guidelines)
-- [ ] Each story passes the "one sentence without and" test
-- [ ] Created REVIEW_FINDINGS.md template
-- [ ] Provided clear next steps
-
-### Fix Generation Mode
-- [ ] Read REVIEW_FINDINGS.md successfully
-- [ ] Parsed findings by severity
-- [ ] Generated CODE_FIXES_PRD.md with prioritized fix stories
-- [ ] Excluded low-priority items from fix stories
-- [ ] If any fix creates a new module, added smoke test file (see prd_create Step 10)
-- [ ] Provided clear next steps
-
----
-
 ## Severity Definitions
 
 | Severity | Definition | Action |
@@ -529,3 +564,30 @@ Most fix stories modify existing code rather than create new modules. However, i
 | **High** | Significant bug, PRD non-compliance, or reliability issue | Should fix in current sprint |
 | **Medium** | Code quality issue, minor bug, or maintainability concern | Fix when convenient |
 | **Low** | Style issue, minor optimization, or nice-to-have improvement | Optional |
+
+---
+
+## Checklist Before Saving
+
+### Archive
+- [ ] Checked if `CODE_REVIEW_CHECKLIST.md` already existed before generating
+- [ ] If existed: archived checklist, findings, and fixes PRD to `review/` with correct version number
+- [ ] All archived files use the same version number
+
+### Standard Mode
+- [ ] Identified PRD.md and code files
+- [ ] Asked 1-2 questions (or skipped if obvious)
+- [ ] Generated CODE_REVIEW_CHECKLIST.md with atomic review stories (see story count guidelines)
+- [ ] Each story passes the "one sentence without and" test
+- [ ] Created REVIEW_FINDINGS.md template
+- [ ] Provided clear next steps referencing `ralph_enhanced.sh`
+
+### Fix Generation Mode
+- [ ] Checked if `CODE_FIXES_PRD.md` already existed before generating
+- [ ] If existed: archived to `review/` with correct version number
+- [ ] Read REVIEW_FINDINGS.md successfully
+- [ ] Parsed findings by severity
+- [ ] Generated CODE_FIXES_PRD.md with prioritized fix stories
+- [ ] Excluded low-priority items from fix stories
+- [ ] If any fix creates a new module, added smoke test file (see prd_create Step 10)
+- [ ] Provided clear next steps

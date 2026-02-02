@@ -16,7 +16,7 @@ Claude Code commands for PRD-driven development with automated code generation a
 
 ## Quick Start
 
-See [QUICK_START.md](QUICK_START.md) for the 5-step workflow.
+See [QUICK_START.md](docs/QUICK_START.md) for the 5-step workflow.
 
 ## Installation
 
@@ -102,8 +102,8 @@ The automation engine. Loops through user stories, implementing one per iteratio
 
 ## Documentation
 
-- [QUICK_START.md](QUICK_START.md) - 5-minute getting started
-- [WORKFLOW_QUICKSTART.md](WORKFLOW_QUICKSTART.md) - Detailed workflow reference
+- [QUICK_START.md](docs/QUICK_START.md) - 5-minute getting started
+- [WORKFLOW_QUICKSTART.md](docs/WORKFLOW_QUICKSTART.md) - Detailed workflow reference
 
 ## License
 
