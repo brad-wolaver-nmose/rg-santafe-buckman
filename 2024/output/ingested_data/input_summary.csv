@@ -1,0 +1,22 @@
+Year,Month,Well,Field,Issue
+2024,JAN,Buckman #1,AF_Verification,Low OCR confidence or verification failure
+2024,JAN,,MG_Month,Low OCR confidence or verification failure
+2024,JAN,,AF_Calculated,Low OCR confidence or verification failure
+2024,FEB,,AF_Calculated,Low OCR confidence or verification failure
+2024,MAR,Buckman #3,AF_Verification,Low OCR confidence or verification failure
+2024,MAR,Buckman #8,AF_Verification,Low OCR confidence or verification failure
+2024,MAR,,AF_Calculated,Low OCR confidence or verification failure
+2024,MAY,Buckman #4,AF_Verification,Low OCR confidence or verification failure
+2024,MAY,,MG_Month,Low OCR confidence or verification failure
+2024,MAY,,AF_Calculated,Low OCR confidence or verification failure
+2024,JUL,,,Missing PDF file
+2024,AUG,,AF_Calculated,Low OCR confidence or verification failure
+2024,SEP,Buckman #1,AF_Verification,Low OCR confidence or verification failure
+2024,SEP,Buckman #4,AF_Verification,Low OCR confidence or verification failure
+2024,SEP,,MG_Month,Low OCR confidence or verification failure
+2024,SEP,,AF_Calculated,Low OCR confidence or verification failure
+2024,OCT,Buckman #1,AF_Verification,Low OCR confidence or verification failure
+2024,OCT,,MG_Month,Low OCR confidence or verification failure
+2024,OCT,,AF_Calculated,Low OCR confidence or verification failure
+2024,DEC,,MG_Month,Low OCR confidence or verification failure
+2024,DEC,,AF_Calculated,Low OCR confidence or verification failure

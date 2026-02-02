@@ -1,0 +1,9 @@
+OSE_Number,Well_Name,MG_Month,AF_Calculated,AF_Reported,AF_Verification,Meter_Reading
+RG-20516-S-7,Buckman #7,0.000,0.00000,0.00,OK,4567
+RG-20516-S-8,Buckman #8,15.477,47.49717,47.50,OK,1
+RG-20516-S-9,Buckman #9,0.000,0.00000,0.00,OK,15003
+RG-20516-S-10,Buckman #10,3.987,12.23565,12.24,OK,91797
+RG-20516-S-11,Buckman #11,0.830,2.54718,2.55,OK,38557
+RG-20516-S-13,Buckman #13,0.666,2.04388,2.04,OK,278787
+Calculated_Sum,,20.960,64.33000,,,
+Total_Verification,,NOT_OK,NOT_OK,,,

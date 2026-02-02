@@ -220,9 +220,47 @@ log_event() {
     local event_type="$1"
     local message="$2"
     local details="${3:-{}}"  # Default to empty JSON object if not provided
-    
+
     # The '>>' means "append to file" (don't overwrite previous entries)
     echo "{\"timestamp\":\"$(timestamp)\",\"event\":\"$event_type\",\"message\":\"$message\",\"details\":$details}" >> "$LOG_FILE"
+}
+
+# -----------------------------------------------------------------------------
+# check_dependencies() - Verify required system tools are installed
+# -----------------------------------------------------------------------------
+# Checks for required external dependencies before running the main workflow.
+# This fails fast with helpful installation instructions if dependencies are missing.
+#
+# Required dependencies:
+#   - jq: JSON processor (used for state management)
+#
+# Returns: 0 if all dependencies are available, 1 if any are missing (and exits)
+check_dependencies() {
+    local missing_deps=()
+
+    # Check for jq (JSON processor)
+    if ! command -v jq &> /dev/null; then
+        missing_deps+=("jq")
+    fi
+
+    # If any dependencies are missing, show error and exit
+    if [[ ${#missing_deps[@]} -gt 0 ]]; then
+        echo ""
+        status "$RED" "ERROR" "Missing required system dependencies"
+        echo ""
+
+        for dep in "${missing_deps[@]}"; do
+            echo "  Required: $dep"
+        done
+
+        echo ""
+        echo "Installation instructions:"
+        echo "  - Linux/Ubuntu: sudo apt-get install ${missing_deps[@]}"
+        echo "  - macOS:        brew install ${missing_deps[@]}"
+        echo ""
+
+        exit 1
+    fi
 }
 
 # -----------------------------------------------------------------------------
@@ -354,7 +392,12 @@ get_current_task() {
 # Used for progress display: "3 tasks remaining"
 count_remaining_tasks() {
     # grep -c = count matching lines instead of showing them
-    grep -c '\- \[ \]' "$DOC_PATH" 2>/dev/null || echo "0"
+    # Note: grep -c outputs "0" AND returns exit code 1 when no matches found,
+    # so we capture the output first, then use the fallback only if grep fails
+    # to produce any output at all (e.g., file not found).
+    local count
+    count=$(grep -c '\- \[ \]' "$DOC_PATH" 2>/dev/null) || true
+    echo "${count:-0}"
 }
 
 # -----------------------------------------------------------------------------
@@ -363,7 +406,12 @@ count_remaining_tasks() {
 # Counts lines containing "- [x]" (checked boxes)
 # Used for progress display: "5 tasks completed"
 count_completed_tasks() {
-    grep -c '\- \[x\]' "$DOC_PATH" 2>/dev/null || echo "0"
+    # Note: grep -c outputs "0" AND returns exit code 1 when no matches found,
+    # so we capture the output first, then use the fallback only if grep fails
+    # to produce any output at all (e.g., file not found).
+    local count
+    count=$(grep -c '\- \[x\]' "$DOC_PATH" 2>/dev/null) || true
+    echo "${count:-0}"
 }
 
 # -----------------------------------------------------------------------------
@@ -551,6 +599,9 @@ echo "  Ralph Enhanced - Autonomous Coding Agent"
 echo "==========================================="
 echo ""
 
+# Check system dependencies before proceeding
+check_dependencies
+
 # -----------------------------------------------------------------------------
 # STEP 1: Validate inputs before doing anything
 # -----------------------------------------------------------------------------
@@ -683,7 +734,9 @@ for ((i=1; i<=ITERATIONS; i++)); do
     fi
     
     # Increment the attempt counter for this task
-    ((TASK_ATTEMPTS++))
+    # Note: using "|| true" because ((0++)) evaluates to 0 (falsy) which
+    # causes set -e to kill the script when TASK_ATTEMPTS starts at 0
+    ((TASK_ATTEMPTS++)) || true
     
     # -------------------------------------------------------------------------
     # LOOP STEP 4: Check if we've tried too many times (stuck detection)
