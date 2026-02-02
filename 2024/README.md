@@ -1,6 +1,6 @@
-# create_prd
+# Ralph
 
-Claude Code commands for PRD-driven development with automated code generation and review.
+PRD-driven development with automated code generation and review for Claude Code.
 
 ## Commands
 

@@ -102,16 +102,16 @@ Process monthly CSV files from multiple sources, validate data integrity, and ge
 - [ ] Display final summary with total rows processed and error count
 - [ ] Typecheck passes
 
-## Smoke Test File: test_sales_aggregator.py
+## Smoke Test File: tests/test_sales_aggregator.py
 
-Created alongside PRD to support Ralph Enhanced verification loop.
+Created alongside PRD to support the Ralph verification loop.
 
 ```python
 """
 Smoke tests for sales_aggregator module.
 Verifies code RUNS - user must verify calculations independently.
 
-These tests support the Ralph Enhanced iterate-until-pass loop.
+These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
 import pytest

@@ -3,7 +3,7 @@ name: prd-generator
 description: >
   Generate a Product Requirements Document (PRD) for a new feature, project,
   or enhancement. Creates structured dev/PRD.md files with user stories sized for
-  the Ralph Enhanced autonomous implementation loop. Use when the user asks to
+  the Ralph autonomous implementation loop. Use when the user asks to
   create a PRD, write a PRD for something, plan a feature, define requirements
   for a project, spec out a feature, or draft a product spec. Triggers on:
   create a prd, write prd for, plan this feature, requirements for, spec out,
@@ -199,7 +199,7 @@ Would you like Quick Mode, or shall we do the thorough exploration? (The thoroug
 
 **Each story must be completable in ONE context window (~10 min of AI work).**
 
-Ralph Wiggums Loop spawns a fresh instance per iteration with no memory of previous work. If a story is too big, the AI runs out of context before finishing and produces broken code.
+The Ralph loop spawns a fresh instance per iteration with no memory of previous work. If a story is too big, the AI runs out of context before finishing and produces broken code.
 
 ### Right-sized stories:
 - Add a database column and migration
@@ -257,7 +257,7 @@ For templates and guidance on when to include them, read [code_quality_stories.m
 
 ## Step 10: Smoke Test Scaffolding
 
-For Python projects, create `test_<module>.py` smoke test files alongside the PRD. These verify code RUNS (not correctness) and support Ralph Enhanced's pytest verification loop.
+For Python projects, create `tests/test_<module>.py` smoke test files alongside the PRD. These verify code RUNS (not correctness) and support Ralph's pytest verification loop.
 
 For the smoke test template, naming conventions, and creation guidelines, read [smoke_test_scaffolding.md](reference/smoke_test_scaffolding.md).
 

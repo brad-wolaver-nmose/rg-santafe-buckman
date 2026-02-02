@@ -2,7 +2,7 @@
 Smoke tests for ingest_buckman_data.py (CSV ingestion version).
 Verifies code RUNS - domain expert must verify calculations independently.
 
-These tests support the Ralph Enhanced iterate-until-pass loop.
+These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
 import pytest

@@ -76,6 +76,13 @@ DOC_PATH=${3:-dev/PRD.md}
 MAX_TASK_TRIES=${4:-3}
 TEST_CMD=${5:-""}
 
+# Mode-aware progress file path
+if [[ "$MODE" == "review" ]]; then
+    PROGRESS_FILE="review/progress.txt"
+else
+    PROGRESS_FILE="dev/progress.txt"
+fi
+
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
@@ -86,7 +93,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-PROGRESS_FILE="progress.txt"
+# PROGRESS_FILE set after mode parsing (mode-aware path)
 STATE_FILE=".ralph_state.json"
 LOG_FILE=".ralph_log.jsonl"
 TEST_OUTPUT_FILE=".ralph_test_output.txt"
@@ -114,7 +121,8 @@ log_event() {
     local event_type="$1"
     local message="$2"
     local details="${3:-{}}"
-    echo "{\"timestamp\":\"$(timestamp)\",\"event\":\"$event_type\",\"message\":\"$message\",\"details\":$details}" >> "$LOG_FILE"
+    jq -nc --arg ts "$(timestamp)" --arg ev "$event_type" --arg msg "$message" --argjson det "$details" \
+        '{timestamp: $ts, event: $ev, message: $msg, details: $det}' >> "$LOG_FILE"
 }
 
 status() {
@@ -267,14 +275,10 @@ init_state() {
 }
 
 save_state() {
-    cat > "$STATE_FILE" << EOF
-{
-    "current_task": "$CURRENT_TASK",
-    "task_attempts": $TASK_ATTEMPTS,
-    "skipped_tasks": $SKIPPED_TASKS,
-    "last_updated": "$(timestamp)"
-}
-EOF
+    jq -nc --arg task "$CURRENT_TASK" --argjson attempts "$TASK_ATTEMPTS" \
+        --argjson skipped "$SKIPPED_TASKS" --arg updated "$(timestamp)" \
+        '{current_task: $task, task_attempts: $attempts, skipped_tasks: $skipped, last_updated: $updated}' \
+        > "$STATE_FILE"
 }
 
 skip_task() {
@@ -357,6 +361,19 @@ has_code_changes() {
 }
 
 # -----------------------------------------------------------------------------
+# should_run_tests() - Decide whether to run tests based on mode and changes
+# -----------------------------------------------------------------------------
+# Dev mode: always verify tests
+# Review mode: only verify if code was actually changed
+should_run_tests() {
+    if [[ "$MODE" == "dev" ]]; then
+        return 0  # Always run in dev mode
+    fi
+    # Review mode: check for code changes
+    has_code_changes
+}
+
+# -----------------------------------------------------------------------------
 # check_all_complete() - Check if all tasks done, exit if so
 # -----------------------------------------------------------------------------
 # Deduplicates the completion-and-exit logic used in multiple verification paths.
@@ -393,7 +410,7 @@ cleanup() {
     exit $exit_code
 }
 
-trap cleanup INT TERM
+trap cleanup INT TERM ERR
 
 # =============================================================================
 # MAIN EXECUTION
@@ -513,7 +530,7 @@ for ((i=1; i<=ITERATIONS; i++)); do
 ## IMPORTANT: This is attempt $TASK_ATTEMPTS of $MAX_TASK_TRIES for this task!
 
 Previous attempts failed. Before making changes:
-1. Read the last 100 lines of progress.txt - see what went wrong before
+1. Read the last 100 lines of $PROGRESS_FILE - see what went wrong before
 2. Try a DIFFERENT approach than previous attempts
 3. If the same approach keeps failing, the task may need to be broken down
 
@@ -535,7 +552,7 @@ Do NOT repeat the same fix that already failed."
 1. Read $DOC_PATH and find the first story that is NOT complete.
    - Look for story sections (### US-XXX) with unchecked items (\[ \])
    - Work on the FIRST incomplete story, not individual checkboxes
-2. Read ONLY the last 100 lines of progress.txt (use offset/limit or tail). Do NOT read the entire file.
+2. Read ONLY the last 100 lines of $PROGRESS_FILE (use offset/limit or tail). Do NOT read the entire file.
 3. Implement that ONE story only - complete ALL its acceptance criteria.
 4. Implement the changes, run builds/tests as needed, and report results accurately.
 $FAILURE_CONTEXT
@@ -547,7 +564,7 @@ $FAILURE_CONTEXT
 - Do not delete or modify tests to make them pass.
 
 ### Failure Logging
-If the task fails, append to progress.txt (MAX 4 lines):
+If the task fails, append to $PROGRESS_FILE (MAX 4 lines):
 \`\`\`
 ## Iteration $i - FAILED (Attempt $TASK_ATTEMPTS) | [story ID]
 - Error: [one sentence]
@@ -556,7 +573,7 @@ If the task fails, append to progress.txt (MAX 4 lines):
 \`\`\`
 
 ### Success Logging
-If the task succeeds, append to progress.txt (MAX 2 lines):
+If the task succeeds, append to $PROGRESS_FILE (MAX 2 lines):
 \`\`\`
 ## Iteration $i - OK | [story ID] | [PASS/FAIL/ACCEPTABLE] | [one-sentence finding]
 ---
@@ -577,7 +594,7 @@ After completing work:
 1. Read $DOC_PATH and find the first user story that is NOT complete.
    - Look for story sections (### US-XXX) with unchecked criteria (\[ \])
    - Work on the FIRST incomplete story, not individual checkboxes
-2. Read ONLY the last 100 lines of progress.txt (use offset/limit or tail). Do NOT read the entire file.
+2. Read ONLY the last 100 lines of $PROGRESS_FILE (use offset/limit or tail). Do NOT read the entire file.
    Check Learnings section for patterns from previous iterations.
 3. Implement that ONE story only - complete ALL its acceptance criteria.
 4. Run the project's test suite to verify your changes work.
@@ -600,7 +617,7 @@ $FAILURE_CONTEXT
 - Do not mark tasks complete without running tests
 
 ### Rule 4: Learn From Failures
-If tests fail, append to progress.txt:
+If tests fail, append to $PROGRESS_FILE:
 \`\`\`
 ## Iteration $i - FAILED (Attempt $TASK_ATTEMPTS)
 - Story attempted:
@@ -611,7 +628,7 @@ If tests fail, append to progress.txt:
 \`\`\`
 
 ### Rule 5: Success Logging
-If tests pass, append to progress.txt:
+If tests pass, append to $PROGRESS_FILE:
 \`\`\`
 ## Iteration $i - SUCCESS
 - Story completed:
@@ -681,17 +698,6 @@ After completing work:
     # -------------------------------------------------------------------------
     # POST-EXECUTION VERIFICATION
     # -------------------------------------------------------------------------
-
-    # Decide whether to run tests based on mode and code changes
-    # Dev mode: always verify tests
-    # Review mode: only verify if code was actually changed
-    should_run_tests() {
-        if [[ "$MODE" == "dev" ]]; then
-            return 0  # Always run in dev mode
-        fi
-        # Review mode: check for code changes
-        has_code_changes
-    }
 
     # CHECK 1: Did Claude claim everything is done?
     if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then

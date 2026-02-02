@@ -1,0 +1,16 @@
+# Ruff linter and formatter configuration
+# https://docs.astral.sh/ruff/
+
+line-length = 99
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+]

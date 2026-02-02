@@ -60,8 +60,8 @@ Before generating any new files, check if previous PRD outputs exist and archive
    - Move `dev/progress.txt` → `dev/progress_vN.0.txt`
 
 4. **Move test scaffolding files (if any):**
-   - Find all `test_*.py` files at root that were generated as PRD scaffolding
-   - Move each `test_<name>.py` → `dev/test_<name>_vN.0.py`
+   - Find all `tests/test_*.py` files that were generated as PRD scaffolding
+   - Move each `tests/test_<name>.py` → `dev/test_<name>_vN.0.py`
 
 5. **Confirm archive:**
    ```
@@ -321,7 +321,7 @@ Would you like Quick Mode, or shall we do the thorough exploration? (The thoroug
 
 **Each story must be completable in ONE context window (~10 min of AI work).**
 
-Ralph Wiggums Loop spawns a fresh instance per iteration with no memory of previous work. If a story is too big, the AI runs out of context before finishing and produces broken code.
+The Ralph loop spawns a fresh instance per iteration with no memory of previous work. If a story is too big, the AI runs out of context before finishing and produces broken code.
 
 ### Right-sized stories:
 - Add a database column and migration
@@ -497,7 +497,7 @@ For Python projects, create a basic smoke test file alongside the PRD. These tes
 
 ### Why Smoke Tests Matter
 
-Ralph Enhanced uses pytest to verify each task before marking it complete. Without test files:
+Ralph uses pytest to verify each task before marking it complete. Without test files:
 - Ralph falls back to syntax checking only (py_compile)
 - Runtime errors won't be caught until manual testing
 - The iterate-until-pass loop has no safety net
@@ -519,9 +519,9 @@ Ralph Enhanced uses pytest to verify each task before marking it complete. Witho
 
 ### When to Create Smoke Tests
 
-Create a `test_<module>.py` file for each Python module that will be created. Match the module structure from your user stories.
+Create a `tests/test_<module>.py` file for each Python module that will be created. Match the module structure from your user stories.
 
-**Example:** If US-001 creates `discharge_calc.py`, also create `test_discharge_calc.py`
+**Example:** If US-001 creates `discharge_calc.py`, also create `tests/test_discharge_calc.py`
 
 ### Smoke Test Template
 
@@ -530,7 +530,7 @@ Create a `test_<module>.py` file for each Python module that will be created. Ma
 Smoke tests for [module_name].
 Verifies code RUNS - domain expert must verify calculations independently.
 
-These tests support the Ralph Enhanced iterate-until-pass loop.
+These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
 import pytest
@@ -590,15 +590,15 @@ When generating test files:
 
 | Module | Test File |
 |--------|-----------|
-| `discharge_calc.py` | `test_discharge_calc.py` |
-| `data_validator.py` | `test_data_validator.py` |
-| `report_generator.py` | `test_report_generator.py` |
+| `discharge_calc.py` | `tests/test_discharge_calc.py` |
+| `data_validator.py` | `tests/test_data_validator.py` |
+| `report_generator.py` | `tests/test_report_generator.py` |
 
 ### Placement in PRD Workflow
 
 1. Generate PRD with user stories
 2. Identify which user stories create new Python modules
-3. Create corresponding `test_<module>.py` files with smoke tests
+3. Create corresponding `tests/test_<module>.py` files with smoke tests
 4. Save all files before finishing
 
 ---
@@ -633,7 +633,7 @@ Each story needs:
 ```
 
 **For Python modules, pair with smoke test:**
-When a story creates a new `.py` module, the corresponding `test_<module>.py` should also be created. See Step 10 for the smoke test template.
+When a story creates a new `.py` module, the corresponding `tests/test_<module>.py` should also be created. See Step 10 for the smoke test template.
 
 ### 4. Non-Goals
 What this feature will NOT include. Critical for scope.
@@ -1035,16 +1035,16 @@ Process monthly CSV files from multiple sources, validate data integrity, and ge
 - [ ] Display final summary with total rows processed and error count
 - [ ] Typecheck passes
 
-## Smoke Test File: test_sales_aggregator.py
+## Smoke Test File: tests/test_sales_aggregator.py
 
-Created alongside PRD to support Ralph Enhanced verification loop.
+Created alongside PRD to support the Ralph verification loop.
 
 ```python
 """
 Smoke tests for sales_aggregator module.
 Verifies code RUNS - user must verify calculations independently.
 
-These tests support the Ralph Enhanced iterate-until-pass loop.
+These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
 import pytest
@@ -1203,7 +1203,7 @@ Also create `dev/progress.txt`:
 
 ### Smoke Tests (Python Projects)
 - [ ] Identified which user stories create new Python modules
-- [ ] Created test_<module>.py for each new module
+- [ ] Created tests/test_<module>.py for each new module
 - [ ] Test files use smoke test template (import, exists, runs, sanity)
 - [ ] Test inputs are realistic for the domain
 - [ ] Sanity bounds are wide (catching catastrophic errors, not precision)

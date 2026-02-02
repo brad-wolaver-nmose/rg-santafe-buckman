@@ -4,7 +4,7 @@ For Python projects, create a basic smoke test file alongside the PRD. These tes
 
 ### Why Smoke Tests Matter
 
-Ralph Enhanced uses pytest to verify each task before marking it complete. Without test files:
+Ralph uses pytest to verify each task before marking it complete. Without test files:
 - Ralph falls back to syntax checking only (py_compile)
 - Runtime errors won't be caught until manual testing
 - The iterate-until-pass loop has no safety net
@@ -26,9 +26,9 @@ Ralph Enhanced uses pytest to verify each task before marking it complete. Witho
 
 ### When to Create Smoke Tests
 
-Create a `test_<module>.py` file for each Python module that will be created. Match the module structure from your user stories.
+Create a `tests/test_<module>.py` file for each Python module that will be created. Match the module structure from your user stories.
 
-**Example:** If US-001 creates `discharge_calc.py`, also create `test_discharge_calc.py`
+**Example:** If US-001 creates `discharge_calc.py`, also create `tests/test_discharge_calc.py`
 
 ### Smoke Test Template
 
@@ -37,7 +37,7 @@ Create a `test_<module>.py` file for each Python module that will be created. Ma
 Smoke tests for [module_name].
 Verifies code RUNS - domain expert must verify calculations independently.
 
-These tests support the Ralph Enhanced iterate-until-pass loop.
+These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
 import pytest
