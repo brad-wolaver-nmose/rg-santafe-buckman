@@ -1,0 +1,301 @@
+
+################################################################################
+# Table_2_2024.xlsx
+################################################################################
+
+
+## SHEET: Table_2_2024
+======================================================================
+
+### Structure
+- Dimensions: 17 rows × 20 columns
+- Range: A1:T17
+
+### Column Widths
+  - Q: 10.125
+  - S: 10.25
+  - R: 11.875
+  - B-T (15 cols): 13.0
+  - A, O: 14.75
+
+### Header Row (Row 1)
+Columns:
+  A: 'Well'
+  B: 'JAN'
+  C: 'FEB'
+  D: 'MAR'
+  E: 'APR'
+  F: 'MAY'
+  G: 'JUN'
+  H: 'JUL'
+  I: 'AUG'
+  J: 'SEP'
+  K: 'OCT'
+  L: 'NOV'
+  M: 'DEC'
+  N: 'Total'
+  O: 'Well'
+
+Header Format (A1 example):
+  Font:
+    - Name: Aptos
+    - Size: 11.0
+    - Bold: True
+    - Italic: False
+    - Color: RGB:Values must be of type <class 'str'>
+  Fill:
+    - Type: solid
+    - Start Color: RGB:Values must be of type <class 'str'>
+    - End Color: RGB:Values must be of type <class 'str'>
+  Alignment:
+    - Horizontal: center
+    - Vertical: None
+  Borders: Top: medium, Bottom: medium
+
+### Data Rows (Rows 2-6)
+
+Row 2:
+  A2: '1'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+  B2: 16.89 (float)
+    - Number Format: '#,##0.00'
+  N2: =SUM(B2:M2)
+
+Row 3:
+  A3: '2'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B3: 0 (int)
+    - Number Format: '#,##0.00'
+  N3: =SUM(B3:M3)
+
+Row 4:
+  A4: '3'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:FFFFFF00
+    - Bottom Border: hair
+  B4: 0 (int)
+    - Number Format: '#,##0.00'
+  N4: =SUM(B4:M4)
+
+Row 5:
+  A5: '4'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B5: 0 (int)
+    - Number Format: '#,##0.00'
+  N5: =SUM(B5:M5)
+
+Row 6:
+  A6: '5'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B6: 0 (int)
+    - Number Format: '#,##0.00'
+  N6: =SUM(B6:M6)
+
+### Last Row (Row 17)
+  A17: 'None'
+
+### Number Formats Used
+  - '#,##0.00'
+  - '0.0%'
+
+======================================================================
+
+################################################################################
+# Table_1_data_afy_2024.xlsx
+################################################################################
+
+
+## SHEET: Table1_data_afy_2024
+======================================================================
+
+### Structure
+- Dimensions: 48 rows × 21 columns
+- Range: A1:U48
+
+### Column Widths
+  - O: 11.75
+  - A: 12.75
+  - B-U (19 cols): 13.0
+
+### Header Row (Row 1)
+Columns:
+  A: 'Well:'
+  B: '1'
+  C: '2'
+  D: '3/3A'
+  E: '4'
+  F: '5'
+  G: '6'
+  H: '7'
+  I: '8'
+  J: '9'
+  K: '10'
+  L: '11'
+  M: '12'
+  N: '13'
+  O: 'Total'
+  T: 'Total, Sort'
+
+Header Format (A1 example):
+  Font:
+    - Name: Aptos
+    - Size: 11.0
+    - Bold: True
+    - Italic: False
+    - Color: RGB:Values must be of type <class 'str'>
+  Fill:
+    - Type: solid
+    - Start Color: RGB:Values must be of type <class 'str'>
+    - End Color: RGB:Values must be of type <class 'str'>
+  Alignment:
+    - Horizontal: right
+    - Vertical: None
+  Borders: Top: medium, Bottom: medium
+
+### Data Rows (Rows 2-6)
+
+Row 2:
+  A2: '1988'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B2: 547.85 (float)
+    - Number Format: '#,##0.00'
+
+Row 3:
+  A3: '1989'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B3: 563.1 (float)
+    - Number Format: '#,##0.00'
+
+Row 4:
+  A4: '1990'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B4: 333.83 (float)
+    - Number Format: '#,##0.00'
+
+Row 5:
+  A5: '1991'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B5: 200.79 (float)
+    - Number Format: '#,##0.00'
+
+Row 6:
+  A6: '1992'
+    - Number Format: 'General'
+    - Bold: True
+    - Align: center
+    - Fill: solid, Color: RGB:Values must be of type <class 'str'>
+    - Bottom Border: hair
+  B6: 194.44 (float)
+    - Number Format: '#,##0.00'
+
+### Last Row (Row 48)
+  A48: 'None'
+
+### Number Formats Used
+  - '#,##0.00'
+
+======================================================================
+
+## SHEET: Sheet1
+======================================================================
+
+### Structure
+- Dimensions: 38 rows × 2 columns
+- Range: A1:B38
+
+### Column Widths
+  - A, B: 13.0
+
+### Header Row (Row 1)
+Columns:
+  A: '1988'
+  B: '12'
+
+Header Format (A1 example):
+  Font:
+    - Name: Aptos
+    - Size: 11.0
+    - Bold: False
+    - Italic: False
+    - Color: RGB:Values must be of type <class 'str'>
+  Alignment:
+    - Horizontal: None
+    - Vertical: None
+
+### Data Rows (Rows 2-6)
+
+Row 2:
+  A2: '1989'
+    - Number Format: 'General'
+    - Bold: False
+  B2: 12 (int)
+    - Number Format: 'General'
+
+Row 3:
+  A3: '1990'
+    - Number Format: 'General'
+    - Bold: False
+  B3: 12 (int)
+    - Number Format: 'General'
+
+Row 4:
+  A4: '1991'
+    - Number Format: 'General'
+    - Bold: False
+  B4: 12 (int)
+    - Number Format: 'General'
+
+Row 5:
+  A5: '1992'
+    - Number Format: 'General'
+    - Bold: False
+  B5: 12 (int)
+    - Number Format: 'General'
+
+Row 6:
+  A6: '1993'
+    - Number Format: 'General'
+    - Bold: False
+  B6: 12 (int)
+    - Number Format: 'General'
+
+### Last Row (Row 38)
+  A38: 'None'
+  B38: =SUM(B1:B37)
+
+### Number Formats Used
+
+======================================================================

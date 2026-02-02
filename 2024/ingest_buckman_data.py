@@ -25,6 +25,9 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
 import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.utils import get_column_letter
 from pint import UnitRegistry
 
 # Initialize unit registry for dimensional analysis
@@ -760,11 +763,11 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
             mg_qty = well_row['MG_Month']
             af_value = mg_qty.to(ureg.acre_foot).magnitude
 
-            row_data[month_abbrev] = round(af_value, 2)
+            row_data[month_abbrev] = round(af_value, 6)
             annual_total_af += af_value
 
         # 3. Calculate row totals (annual AF per well)
-        row_data['Total'] = round(annual_total_af, 2)
+        row_data['Total'] = round(annual_total_af, 6)
         table_rows.append(row_data)
 
     # 4. Calculate column totals (monthly AF all wells)
@@ -777,10 +780,10 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
         month_total_mg = sum(row['MG_Month'] for _, row in month_df.iterrows())
         month_total_af = month_total_mg.to(ureg.acre_foot).magnitude
 
-        total_row[month_abbrev] = round(month_total_af, 2)
+        total_row[month_abbrev] = round(month_total_af, 6)
         grand_total_af += month_total_af
 
-    total_row['Total'] = round(grand_total_af, 2)
+    total_row['Total'] = round(grand_total_af, 6)
     table_rows.append(total_row)
 
     # Create DataFrame from rows
@@ -795,7 +798,7 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     pct_10_13 = (wells_10_13_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
     wells_10_13_row = {col: '' for col in table2_df.columns}
     wells_10_13_row['Well'] = 'Wells 10-13'
-    wells_10_13_row['JAN'] = f"{wells_10_13_af:.2f}"
+    wells_10_13_row['JAN'] = f"{wells_10_13_af:.6f}"
     wells_10_13_row['FEB'] = f"{pct_10_13:.1f}%"
 
     # 7. Add Wells 1,7,8 statistics row
@@ -803,7 +806,7 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     pct_1_7_8 = (wells_1_7_8_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
     wells_1_7_8_row = {col: '' for col in table2_df.columns}
     wells_1_7_8_row['Well'] = 'Wells 1,7,8'
-    wells_1_7_8_row['JAN'] = f"{wells_1_7_8_af:.2f}"
+    wells_1_7_8_row['JAN'] = f"{wells_1_7_8_af:.6f}"
     wells_1_7_8_row['FEB'] = f"{pct_1_7_8:.1f}%"
 
     # Append summary rows to DataFrame
@@ -814,11 +817,189 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     output_path = Path(output_dir) / f"{year}_Table_2_output.csv"
     table2_df.to_csv(output_path, index=False)
 
-    # 9. Print confirmation
+    # 9. Write Excel (.xlsx) with validation-matching formatting
+    xlsx_path = Path(output_dir) / f"{year}_Table_2_output.xlsx"
+    write_table2_xlsx(table_rows, year, xlsx_path)
+
+    # 10. Print confirmation
     print(f"  Wrote {output_path.name}")
+    print(f"  Wrote {xlsx_path.name}")
     print(f"  Annual total: {grand_total_af:.2f} AFY")
     print(f"  Wells 10-13: {wells_10_13_af:.2f} AFY ({pct_10_13:.1f}%)")
     print(f"  Wells 1,7,8: {wells_1_7_8_af:.2f} AFY ({pct_1_7_8:.1f}%)")
+
+
+def write_table2_xlsx(table_rows: List[Dict], year: int, xlsx_path: Path) -> None:
+    """
+    Write Table 2 as formatted Excel file matching validation/Table_2_2024.xlsx.
+
+    Scientific Basis: USGS volume conversion (1 MG = 3.06889 AF)
+
+    Assumptions:
+    1. table_rows has 14 entries: wells 1-13 (indices 0-12) + Total row (index 13)
+    2. Each row dict has keys: 'Well', 'JAN'-'DEC', 'Total'
+
+    Args:
+        table_rows: List of 14 dicts (13 wells + Total), values in AFY (float, 6 decimals)
+        year: Reporting year (e.g. 2024)
+        xlsx_path: Output path for .xlsx file
+
+    Returns:
+        None (writes file to disk)
+
+    Raises:
+        ValueError: If table_rows length != 14
+        IOError: If output path is not writable
+
+    Example:
+        >>> write_table2_xlsx(rows, 2024, Path('output/2024_Table_2_output.xlsx'))
+        # Creates formatted Excel matching validation Table 2
+
+    Validation: Compare output visually to validation/Table_2_2024.xlsx
+    """
+    month_abbrevs = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+                     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+
+    # Style definitions matching validation file
+    font_normal = Font(name='Aptos', size=11)
+    font_bold = Font(name='Aptos', size=11, bold=True)
+    align_center = Alignment(horizontal='center')
+    white_fill = PatternFill(patternType='solid', fgColor='FFFFFF')
+    num_fmt = '#,##0.00'
+    pct_fmt = '0.0%'
+
+    # Border styles
+    no_border = Border()
+    medium_border = Border(
+        top=Side(style='medium'), bottom=Side(style='medium'))
+    hair_top_bottom = Border(
+        top=Side(style='hair'), bottom=Side(style='hair'))
+    hair_bottom = Border(bottom=Side(style='hair'))
+    hair_top = Border(top=Side(style='hair'))
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Table_2_{year}"
+
+    # Column widths
+    ws.column_dimensions['A'].width = 14.75
+    ws.column_dimensions['O'].width = 14.75
+
+    # --- Row 1: Headers ---
+    headers = ['Well'] + month_abbrevs + ['Total', 'Well']
+    for col_idx, header in enumerate(headers, start=1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = font_bold
+        cell.alignment = align_center
+        cell.fill = white_fill
+        cell.border = medium_border
+
+    # --- Rows 2-14: Well data (wells 1-13) ---
+    for row_offset, row_data in enumerate(table_rows[:13]):
+        excel_row = row_offset + 2
+        well_num = row_data['Well']
+
+        # Determine border for this row
+        if excel_row == 2:
+            row_border = no_border
+        elif excel_row == 14:
+            row_border = no_border
+        elif excel_row == 3:
+            row_border = hair_bottom
+        elif excel_row == 13:
+            row_border = hair_top
+        else:
+            row_border = hair_top_bottom
+
+        # Column A: Well number
+        cell_a = ws.cell(row=excel_row, column=1, value=well_num)
+        cell_a.font = font_bold
+        cell_a.alignment = align_center
+        cell_a.fill = white_fill
+        cell_a.border = row_border
+
+        # Columns B-M: Monthly values
+        for col_offset, month in enumerate(month_abbrevs):
+            col_idx = col_offset + 2
+            value = row_data[month]
+            cell = ws.cell(row=excel_row, column=col_idx, value=value)
+            cell.font = font_normal
+            cell.number_format = num_fmt
+            cell.fill = white_fill
+            cell.border = row_border
+
+        # Column N: Total (SUM formula)
+        cell_n = ws.cell(row=excel_row, column=14,
+                         value=f'=SUM(B{excel_row}:M{excel_row})')
+        cell_n.font = font_normal
+        cell_n.number_format = num_fmt
+        cell_n.fill = white_fill
+        cell_n.border = row_border
+
+        # Column O: Duplicate well number
+        cell_o = ws.cell(row=excel_row, column=15, value=well_num)
+        cell_o.font = font_bold
+        cell_o.alignment = align_center
+        cell_o.fill = white_fill
+        cell_o.border = row_border
+
+    # --- Row 15: Total row ---
+    total_row_excel = 15
+    cell_a = ws.cell(row=total_row_excel, column=1, value='Total')
+    cell_a.font = font_bold
+    cell_a.alignment = align_center
+    cell_a.fill = white_fill
+    cell_a.border = medium_border
+
+    # Columns B-M: SUM formulas for each month
+    for col_idx in range(2, 14):
+        col_letter = get_column_letter(col_idx)
+        cell = ws.cell(row=total_row_excel, column=col_idx,
+                       value=f'=SUM({col_letter}2:{col_letter}14)')
+        cell.font = font_normal
+        cell.number_format = num_fmt
+        cell.fill = white_fill
+        cell.border = medium_border
+
+    # Column N: Grand total
+    cell_n = ws.cell(row=total_row_excel, column=14,
+                     value=f'=SUM(B{total_row_excel}:M{total_row_excel})')
+    cell_n.font = font_normal
+    cell_n.number_format = num_fmt
+    cell_n.fill = white_fill
+    cell_n.border = medium_border
+
+    # Column O: "Total" label
+    cell_o = ws.cell(row=total_row_excel, column=15, value='Total')
+    cell_o.font = font_bold
+    cell_o.alignment = align_center
+    cell_o.fill = white_fill
+    cell_o.border = medium_border
+
+    # --- Summary area (Q14:T15) ---
+    # Row 14 labels
+    ws.cell(row=14, column=17, value='wells 10-13').font = font_normal  # Q14
+    ws.cell(row=14, column=18, value='% total').font = font_normal      # R14
+    ws.cell(row=14, column=19, value='wells 1, 7, 8').font = font_normal  # S14
+
+    # Row 15 formulas
+    cell_q15 = ws.cell(row=15, column=17, value='=SUM(N11:N14)')  # Wells 10-13 sum
+    cell_q15.font = font_normal
+    cell_q15.number_format = num_fmt
+
+    cell_r15 = ws.cell(row=15, column=18, value='=Q15/N15')  # Wells 10-13 %
+    cell_r15.font = font_normal
+    cell_r15.number_format = pct_fmt
+
+    cell_s15 = ws.cell(row=15, column=19, value='=N2+N8+N9')  # Wells 1,7,8 sum
+    cell_s15.font = font_normal
+    cell_s15.number_format = num_fmt
+
+    cell_t15 = ws.cell(row=15, column=20, value='=S15/N15')  # Wells 1,7,8 %
+    cell_t15.font = font_normal
+    cell_t15.number_format = pct_fmt
+
+    wb.save(xlsx_path)
 
 
 def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_dir: str) -> None:
@@ -896,16 +1077,25 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
             col_name = '3/3A'
         else:
             col_name = well_num
-        row_2024[col_name] = round(af_value, 2)
+        row_2024[col_name] = round(af_value, 6)
 
     # Calculate total
     total_afy = sum(year_afy_data.values())
-    row_2024['Total'] = round(total_afy, 2)
+    row_2024['Total'] = round(total_afy, 6)
 
-    # Append 2024 row
+    # Insert or update 2024 row (avoid duplicates if xlsx already has this year)
     new_row_df = pd.DataFrame([row_2024])
     if len(table1_df) > 0:
-        table1_df = pd.concat([table1_df, new_row_df], ignore_index=True)
+        existing_years = table1_df['Well:'].apply(
+            lambda x: isinstance(x, (int, float)) and not pd.isna(x) and int(x) == year)
+        if existing_years.any():
+            # Update existing row with computed values
+            mask = existing_years
+            for col, val in row_2024.items():
+                if col != 'Well:':
+                    table1_df.loc[mask, col] = val
+        else:
+            table1_df = pd.concat([table1_df, new_row_df], ignore_index=True)
     else:
         table1_df = new_row_df
 
@@ -919,7 +1109,7 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
         rank_map = {year_rows_sorted.iloc[i]['Well:']: i + 1 for i in range(len(year_rows_sorted))}
 
         # Add Sort column to main dataframe
-        table1_df['Total, Sort'] = table1_df['Well:'].map(rank_map)
+        table1_df['Total, Sort'] = table1_df['Well:'].map(rank_map).astype(pd.Int64Dtype())
 
     # 3. Add statistics rows
     # Calculate statistics for 2024 (last row with data)
@@ -939,7 +1129,7 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
         # Row: Wells 10-13 sum
         wells_10_13_sum = sum(year_afy_data.get(w, 0.0) for w in [10, 11, 12, 13])
         wells_10_13_row = {'Well:': 'Wells 10-13'}
-        wells_10_13_row[10] = round(wells_10_13_sum, 2)
+        wells_10_13_row[10] = round(wells_10_13_sum, 6)
         stats_rows.append(wells_10_13_row)
 
         # Row: Wells 10-13 % of total
@@ -951,7 +1141,7 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
         # Row: Wells 1,7,8 sum
         wells_1_7_8_sum = sum(year_afy_data.get(w, 0.0) for w in [1, 7, 8])
         wells_1_7_8_row = {'Well:': 'Wells 1,7,8'}
-        wells_1_7_8_row[1] = round(wells_1_7_8_sum, 2)
+        wells_1_7_8_row[1] = round(wells_1_7_8_sum, 6)
         stats_rows.append(wells_1_7_8_row)
 
         # Row: Wells 1,7,8 % of total
@@ -968,12 +1158,287 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
     output_path = Path(output_dir) / "Table_1_updated.csv"
     table1_df.to_csv(output_path, index=False)
 
-    # 6. Print confirmation
+    # 6. Write Excel (.xlsx) with validation-matching formatting
+    xlsx_path = Path(output_dir) / "Table_1_updated.xlsx"
+    write_table1_xlsx(table1_df, year_rows, year, xlsx_path)
+
+    # 7. Print confirmation
     print(f"  Wrote {output_path.name}")
+    print(f"  Wrote {xlsx_path.name}")
     print(f"  2024 total: {total_afy:.2f} AFY")
     if len(year_rows) > 0:
         rank_2024 = rank_map.get(year, 'N/A')
         print(f"  2024 rank: {rank_2024} of {len(year_rows)} years (1=lowest pumping)")
+
+
+def write_table1_xlsx(
+    table1_df: pd.DataFrame,
+    year_rows: pd.DataFrame,
+    year: int,
+    xlsx_path: Path
+) -> None:
+    """
+    Write Table 1 as formatted Excel file matching validation/Table_1_data_afy_2024.xlsx.
+
+    Scientific Basis: USGS volume conversion (1 MG = 3.06889 AF)
+
+    Assumptions:
+    1. table1_df contains year rows (1988-2024) followed by statistics rows
+    2. year_rows contains only numeric year rows (no stats)
+    3. Columns: 'Well:', 1-13 (or '3/3A'), 'Total', 'Total, Sort'
+
+    Args:
+        table1_df: Full DataFrame with year data + statistics rows
+        year_rows: DataFrame subset containing only year data rows
+        year: Current reporting year (e.g. 2024)
+        xlsx_path: Output path for .xlsx file
+
+    Returns:
+        None (writes file to disk)
+
+    Raises:
+        IOError: If output path is not writable
+
+    Example:
+        >>> write_table1_xlsx(df, year_df, 2024, Path('output/Table_1_updated.xlsx'))
+        # Creates formatted Excel matching validation Table 1
+
+    Validation: Compare output visually to validation/Table_1_data_afy_2024.xlsx
+    """
+    # Style definitions matching validation file
+    font_normal = Font(name='Aptos', size=11)
+    font_bold = Font(name='Aptos', size=11, bold=True)
+    align_center = Alignment(horizontal='center')
+    align_right = Alignment(horizontal='right')
+    num_fmt = '#,##0.00'
+    pct_fmt_2 = '0.00%'
+    pct_fmt_1 = '0.0%'
+    pct_fmt_0 = '0%'
+
+    # Border styles
+    medium_border = Border(
+        top=Side(style='medium'), bottom=Side(style='medium'))
+    hair_top_bottom = Border(
+        top=Side(style='hair'), bottom=Side(style='hair'))
+    hair_bottom = Border(bottom=Side(style='hair'))
+    hair_top = Border(top=Side(style='hair'))
+    medium_top_hair_bottom = Border(
+        top=Side(style='medium'), bottom=Side(style='hair'))
+    hair_top_medium_bottom = Border(
+        top=Side(style='hair'), bottom=Side(style='medium'))
+
+    # Well column headers (B=1, C=2, D=3/3A, E=4, ..., N=13)
+    well_headers = [1, 2, '3/3A', 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    # Map from well header to DataFrame column name
+    well_col_map = {}
+    for h in well_headers:
+        well_col_map[h] = h  # DataFrame uses same keys
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = f"Table1_data_afy_{year}"
+
+    # Column widths
+    ws.column_dimensions['A'].width = 12.75
+    ws.column_dimensions['O'].width = 11.75
+
+    # --- Identify year data rows (exclude stats) ---
+    # year_rows is already filtered to numeric years
+    num_year_rows = len(year_rows)
+    last_year_excel_row = num_year_rows + 1  # +1 for header row
+
+    # --- Row 1: Headers ---
+    def write_header_row(excel_row: int) -> None:
+        """Write header row at given Excel row."""
+        # Column A: "Well:"
+        cell = ws.cell(row=excel_row, column=1, value='Well:')
+        cell.font = font_bold
+        cell.alignment = align_right
+        cell.border = medium_border
+
+        # Columns B-N: Well numbers (1-13)
+        for col_offset, header in enumerate(well_headers):
+            col_idx = col_offset + 2
+            cell = ws.cell(row=excel_row, column=col_idx, value=header)
+            cell.font = font_bold
+            cell.alignment = align_center
+            cell.border = medium_border
+
+        # Column O: "Total"
+        cell = ws.cell(row=excel_row, column=15, value='Total')
+        cell.font = font_bold
+        cell.alignment = align_center
+        cell.border = medium_border
+
+    write_header_row(1)
+
+    # Column T header (row 1)
+    cell_t1 = ws.cell(row=1, column=20, value='Total, Sort')
+    cell_t1.font = font_bold
+
+    # --- Year data rows (2 to last_year_excel_row) ---
+    for i in range(num_year_rows):
+        excel_row = i + 2
+        year_val = year_rows.iloc[i]['Well:']
+
+        # Determine border
+        if excel_row == 2:
+            row_border = hair_bottom
+        elif excel_row == last_year_excel_row:
+            row_border = hair_top
+        else:
+            row_border = hair_top_bottom
+
+        # Column A: Year
+        cell_a = ws.cell(row=excel_row, column=1, value=int(year_val))
+        cell_a.font = font_bold
+        cell_a.alignment = align_center
+        cell_a.border = row_border
+
+        # Columns B-N: Well values
+        for col_offset, header in enumerate(well_headers):
+            col_idx = col_offset + 2
+            val = year_rows.iloc[i].get(header)
+            if pd.notna(val):
+                try:
+                    val = float(val)
+                except (ValueError, TypeError):
+                    val = None
+            else:
+                val = None
+            if val is not None:
+                cell = ws.cell(row=excel_row, column=col_idx, value=val)
+                cell.font = font_normal
+                cell.number_format = num_fmt
+                cell.border = row_border
+
+        # Column O: Total
+        total_val = year_rows.iloc[i].get('Total')
+        if pd.notna(total_val):
+            # For the current year row, use a SUM formula
+            if int(year_val) == year:
+                cell_o = ws.cell(row=excel_row, column=15,
+                                 value=f'=SUM(B{excel_row}:N{excel_row})')
+            else:
+                cell_o = ws.cell(row=excel_row, column=15, value=float(total_val))
+            cell_o.font = font_normal
+            cell_o.number_format = num_fmt
+            cell_o.border = row_border
+
+    # --- Column T: All year totals sorted descending ---
+    all_totals = []
+    for i in range(num_year_rows):
+        total_val = year_rows.iloc[i].get('Total')
+        if pd.notna(total_val):
+            all_totals.append(float(total_val))
+    all_totals_sorted = sorted(all_totals, reverse=True)
+
+    # Count years with wells 10-13 (2013 and later) for ranking
+    wells_10_13_start_year = 2013
+    num_ranked_years = sum(
+        1 for i in range(num_year_rows)
+        if int(year_rows.iloc[i]['Well:']) >= wells_10_13_start_year
+    )
+
+    # Write sorted totals in column T, ranks in column U
+    num_totals = len(all_totals_sorted)
+    for i, total_val in enumerate(all_totals_sorted):
+        excel_row = i + 2
+        # Column T: sorted total value
+        cell_t = ws.cell(row=excel_row, column=20, value=total_val)
+        cell_t.font = font_normal
+        cell_t.number_format = num_fmt
+        # Apply hair borders matching data rows
+        if excel_row == 2:
+            cell_t.border = hair_bottom
+        elif excel_row == num_totals + 1:
+            cell_t.border = hair_top
+        else:
+            cell_t.border = hair_top_bottom
+
+        # Column U: Rank for bottom N entries (N = years with wells 10-13)
+        # Ranks assigned to last num_ranked_years entries in sorted list
+        # Position from bottom: num_totals - i (1-based)
+        position_from_bottom = num_totals - i
+        if position_from_bottom <= num_ranked_years:
+            cell_u = ws.cell(row=excel_row, column=21, value=position_from_bottom)
+            cell_u.font = font_normal
+
+    # --- Average rows ---
+    avg_row_1 = last_year_excel_row + 1  # "Average, 1988-2024"
+    avg_row_2 = last_year_excel_row + 2  # "Average, 2022-2024"
+
+    # Average 1988-2024
+    cell_a = ws.cell(row=avg_row_1, column=1, value=f'Average,\n1988\u2013{year}')
+    cell_a.font = font_bold
+    cell_a.alignment = Alignment(wrap_text=True)
+    cell_a.border = medium_top_hair_bottom
+
+    for col_idx in range(2, 16):  # B through O
+        col_letter = get_column_letter(col_idx)
+        cell = ws.cell(row=avg_row_1, column=col_idx,
+                       value=f'=AVERAGE({col_letter}2:{col_letter}{last_year_excel_row})')
+        cell.font = font_normal
+        cell.number_format = num_fmt
+        cell.border = medium_top_hair_bottom
+
+    # Average 2022-2024 (last 3 years)
+    last_3_start = last_year_excel_row - 2  # Row for 2022
+    cell_a = ws.cell(row=avg_row_2, column=1, value=f'Average,\n2022\u2013{year}')
+    cell_a.font = font_bold
+    cell_a.alignment = Alignment(wrap_text=True)
+    cell_a.border = hair_top_medium_bottom
+
+    for col_idx in range(2, 16):
+        col_letter = get_column_letter(col_idx)
+        cell = ws.cell(row=avg_row_2, column=col_idx,
+                       value=f'=AVERAGE({col_letter}{last_3_start}:{col_letter}{last_year_excel_row})')
+        cell.font = font_normal
+        cell.number_format = num_fmt
+        cell.border = hair_top_medium_bottom
+
+    # --- Empty rows 41-43 (avg_row_2 + 1 to avg_row_2 + 3) ---
+    # Just skip, they'll be empty
+
+    # --- Repeat header row (row 44 equivalent) ---
+    stats_header_row = avg_row_2 + 4  # Skip 3 empty rows
+    write_header_row(stats_header_row)
+
+    # --- Percent row (row 45 equivalent) ---
+    pct_row = stats_header_row + 1
+    cell_a = ws.cell(row=pct_row, column=1, value='Pecent')  # Match validation typo
+    cell_a.font = font_normal
+
+    for col_idx in range(2, 15):  # B through N (wells 1-13)
+        col_letter = get_column_letter(col_idx)
+        cell = ws.cell(row=pct_row, column=col_idx,
+                       value=f'={col_letter}{last_year_excel_row}/$O${last_year_excel_row}')
+        cell.font = font_normal
+        cell.number_format = pct_fmt_2
+
+    # Column O: Sum of percentages
+    cell_o = ws.cell(row=pct_row, column=15,
+                     value=f'=SUM(B{pct_row}:N{pct_row})')
+    cell_o.font = font_normal
+    cell_o.number_format = pct_fmt_0
+
+    # --- Empty row 46 ---
+
+    # --- Row 47: Wells 10-13 sum (column N) ---
+    wells_sum_row = pct_row + 2
+    cell_n47 = ws.cell(row=wells_sum_row, column=14,
+                       value=f'=SUM(K{last_year_excel_row}:N{last_year_excel_row})')
+    cell_n47.font = font_normal
+    cell_n47.number_format = num_fmt
+
+    # --- Row 48: Wells 10-13 % (column N) ---
+    wells_pct_row = wells_sum_row + 1
+    cell_n48 = ws.cell(row=wells_pct_row, column=14,
+                       value=f'=K{pct_row}+L{pct_row}+M{pct_row}+N{pct_row}')
+    cell_n48.font = font_normal
+    cell_n48.number_format = pct_fmt_1
+
+    wb.save(xlsx_path)
 
 
 def generate_qa_summary(
