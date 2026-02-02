@@ -446,15 +446,15 @@ After generating the checklist:
 
 ## Next Steps
 
-**This checklist has [N] stories.** Run Ralph Enhanced with at least [N+5] iterations:
+**This checklist has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph_enhanced.sh [N+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [N+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 For example, if 50 stories were generated, run:
 ```bash
-./ralph_enhanced.sh 55 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review 55 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 **Note on protection levels:** Ralph Enhanced auto-detects your test setup. For code review tasks (which read but don't create code), it will use `py_compile` for syntax verification. This is appropriate—review stories document findings rather than create new modules.
@@ -532,16 +532,16 @@ This PRD contains fixes for issues identified during code review. Each user stor
 
 Review CODE_FIXES_PRD.md to confirm the fixes look correct.
 
-**This fix PRD has [N] stories.** Run Ralph Enhanced with at least [N+5] iterations:
+**This fix PRD has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph_enhanced.sh [N+5] 2 CODE_FIXES_PRD.md
+./ralph.sh --mode dev [N+5] 2 CODE_FIXES_PRD.md
 ```
 
 After fixes are complete, consider re-running the code review to verify:
 ```bash
 claude /code_review
-./ralph_enhanced.sh [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 ```
 
@@ -580,7 +580,7 @@ Most fix stories modify existing code rather than create new modules. However, i
 - [ ] Generated CODE_REVIEW_CHECKLIST.md with atomic review stories (see story count guidelines)
 - [ ] Each story passes the "one sentence without and" test
 - [ ] Created REVIEW_FINDINGS.md template
-- [ ] Provided clear next steps referencing `ralph_enhanced.sh`
+- [ ] Provided clear next steps referencing `ralph.sh`
 
 ### Fix Generation Mode
 - [ ] Checked if `CODE_FIXES_PRD.md` already existed before generating

@@ -475,12 +475,12 @@ After generating the checklist:
 **This checklist has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph_less_verbose.sh [N+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [N+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 For example, if 50 stories were generated, run:
 ```bash
-./ralph_less_verbose.sh 55 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review 55 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 After review completes, read REVIEW_FINDINGS.md to see results.
@@ -549,7 +549,7 @@ D. [Default to B if no response]
 This checklist has 18 stories. Run Ralph with at least 23 iterations:
 
 ```bash
-./ralph_less_verbose.sh 23 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review 23 2 CODE_REVIEW_CHECKLIST.md
 ```
 
 ---
@@ -687,13 +687,13 @@ Review CODE_FIXES_PRD.md to confirm the fixes look correct.
 **This fix PRD has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph_less_verbose.sh [N+5] 2 CODE_FIXES_PRD.md
+./ralph.sh --mode dev [N+5] 2 CODE_FIXES_PRD.md
 ```
 
 After fixes are complete, consider re-running the code review to verify:
 ```bash
 claude /code_review_less_verbose
-./ralph_less_verbose.sh [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
 ```
 ```
 
@@ -726,7 +726,7 @@ claude /code_review_less_verbose
 - [ ] Generated CODE_REVIEW_CHECKLIST.md with atomic review stories
 - [ ] Created REVIEW_FINDINGS.md template with Introduction, all category tables, and version metadata
 - [ ] Verbosity constraints included in Instructions for Ralph section
-- [ ] Provided clear next steps referencing `ralph_less_verbose.sh`
+- [ ] Provided clear next steps referencing `ralph.sh`
 
 ### Fix Generation Mode
 - [ ] Checked if `CODE_FIXES_PRD.md` already existed before generating
