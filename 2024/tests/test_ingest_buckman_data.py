@@ -5,10 +5,10 @@ Verifies code RUNS - domain expert must verify calculations independently.
 These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not logical errors.
 """
-import pytest
 import os
-import pandas as pd
 
+import pandas as pd
+import pytest
 
 # ---------------------------------------------------------------------------
 # US-001: Configuration Constants and Well Mapping
@@ -16,7 +16,7 @@ import pandas as pd
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import ingest_buckman_data
+    import ingest_buckman_data  # noqa: F401
 
 
 def test_constants_defined():
@@ -25,8 +25,8 @@ def test_constants_defined():
 
     assert hasattr(m, "OUTPUT_DIR")
     assert hasattr(m, "MG_TO_AF_FACTOR")
-    assert hasattr(m, "DAILY_SUM_TOLERANCE")
-    assert hasattr(m, "ANNUAL_SUM_TOLERANCE")
+    assert hasattr(m, "DAILY_SUM_TOLERANCE_MGD")
+    assert hasattr(m, "ANNUAL_SUM_TOLERANCE_MG")
     assert hasattr(m, "MONTHS_ABBREV")
     assert hasattr(m, "MONTHS_ORDERED")
     assert hasattr(m, "WELL_OSE_MAP")
@@ -67,8 +67,8 @@ def test_mg_to_af_factor():
 
 def test_no_ocr_imports():
     """Verify PDF/OCR imports have been removed."""
+
     import ingest_buckman_data
-    import sys
 
     # These modules should NOT be imported by the script
     module_text = open(ingest_buckman_data.__file__).read()
@@ -162,13 +162,13 @@ def test_generate_monthly_csv_exists():
 
 
 # ---------------------------------------------------------------------------
-# US-008: Generate Annual Summary
+# US-008: Generate Annual Summary (Table 2 output)
 # ---------------------------------------------------------------------------
 
-def test_generate_annual_summary_exists():
-    """Verify generate_annual_summary function exists and is callable."""
-    from ingest_buckman_data import generate_annual_summary
-    assert callable(generate_annual_summary)
+def test_generate_table2_output_exists():
+    """Verify generate_table2_output function exists and is callable."""
+    from ingest_buckman_data import generate_table2_output
+    assert callable(generate_table2_output)
 
 
 # ---------------------------------------------------------------------------
@@ -192,31 +192,29 @@ def test_verify_annual_sums_exists():
 
 
 # ---------------------------------------------------------------------------
-# US-003 + US-006: mg_to_af conversion (kept from original)
+# US-003 + US-006: MG-to-AF conversion via pint
 # ---------------------------------------------------------------------------
 
-def test_mg_to_af_exists():
-    """Verify mg_to_af function exists."""
-    from ingest_buckman_data import mg_to_af
-    assert callable(mg_to_af)
+def test_pint_mg_to_af_conversion():
+    """Verify pint-based MG to AF conversion produces correct result."""
+    from ingest_buckman_data import ureg
+
+    mg_qty = 1.0 * ureg.million_gallon
+    af_qty = mg_qty.to(ureg.acre_foot)
+
+    # 1 MG should be approximately 3.07 AF (USGS: 1,000,000 / 325,851)
+    assert 3.06 < af_qty.magnitude < 3.08, \
+        f"1 MG = {af_qty.magnitude} AF, expected ~3.069"
 
 
-def test_mg_to_af_runs():
-    """Verify mg_to_af executes with basic input."""
-    from ingest_buckman_data import mg_to_af
+def test_pint_mg_to_af_zero():
+    """Verify pint conversion handles zero correctly."""
+    from ingest_buckman_data import ureg
 
-    result = mg_to_af(1.0)
-    assert result is not None
-    # 1 MG should be approximately 3.07 AF
-    assert 3.0 < result < 3.1, f"1 MG = {result} AF, expected ~3.07"
+    mg_qty = 0.0 * ureg.million_gallon
+    af_qty = mg_qty.to(ureg.acre_foot)
 
-
-def test_mg_to_af_zero():
-    """Verify mg_to_af handles zero correctly."""
-    from ingest_buckman_data import mg_to_af
-
-    result = mg_to_af(0.0)
-    assert result == 0.0
+    assert af_qty.magnitude == 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -231,10 +229,10 @@ def test_end_to_end_smoke():
     crashing and produces output files.
     """
     from ingest_buckman_data import (
+        aggregate_monthly,
         read_source_csv,
         validate_daily_data,
         verify_daily_sums,
-        aggregate_monthly,
     )
 
     csv_path = "./input/csv/Buckman_Well_Prod_2024.csv"

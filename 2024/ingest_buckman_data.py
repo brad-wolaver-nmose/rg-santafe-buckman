@@ -19,14 +19,13 @@ PYTHON DEPENDENCIES:
 """
 
 import argparse
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Any
 
 import pandas as pd
 from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from pint import UnitRegistry
 
@@ -69,13 +68,13 @@ DAILY_SUM_TOLERANCE_MGD: float = 0.001
 ANNUAL_SUM_TOLERANCE_MG: float = 0.01
 
 # Month abbreviations in calendar order (used for output filenames and tables)
-MONTHS_ABBREV: Tuple[str, ...] = (
+MONTHS_ABBREV: tuple[str, ...] = (
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 )
 
 # Month tuples for iteration: (numeric string, abbreviation)
-MONTHS_ORDERED: Tuple[Tuple[str, str], ...] = (
+MONTHS_ORDERED: tuple[tuple[str, str], ...] = (
     ("01", "JAN"), ("02", "FEB"), ("03", "MAR"), ("04", "APR"),
     ("05", "MAY"), ("06", "JUN"), ("07", "JUL"), ("08", "AUG"),
     ("09", "SEP"), ("10", "OCT"), ("11", "NOV"), ("12", "DEC"),
@@ -84,7 +83,7 @@ MONTHS_ORDERED: Tuple[Tuple[str, str], ...] = (
 # Well-to-OSE number mapping: well number (1-13) → OSE permit number
 # These are the New Mexico State Engineer office permit numbers for each Buckman well
 # Well 3 is labeled "3/3A" in historical reports (combined wells 3 and 3A)
-WELL_OSE_MAP: Dict[int, str] = {
+WELL_OSE_MAP: dict[int, str] = {
     1: "RG-20516-S-5",
     2: "RG-20516-S-6",
     3: "RG-20516-S",      # Labeled as "3/3A" in reports
@@ -102,7 +101,7 @@ WELL_OSE_MAP: Dict[int, str] = {
 
 # CSV column headers for wells 1-13 (as they appear in the source CSV)
 # Format: "BWell N|Flow Mgd" where N is well number
-CSV_WELL_COLUMNS: List[str] = [
+CSV_WELL_COLUMNS: list[str] = [
     "BWell 1|Flow Mgd", "BWell 2|Flow Mgd", "BWell 3|Flow Mgd", "BWell 4|Flow Mgd", "BWell 5|Flow Mgd",
     "BWell 6|Flow Mgd", "BWell 7|Flow Mgd", "BWell 8|Flow Mgd", "BWell 9|Flow Mgd", "BWell 10|Flow Mgd",
     "BWell 11|Flow Mgd", "BWell 12|Flow Mgd", "BWell 13|Flow Mgd",
@@ -150,7 +149,7 @@ def print_error(what_failed: str, location: str, actual: str, expected: str, con
 # CSV INGESTION FUNCTIONS (US-003 through US-011)
 # =============================================================================
 
-def read_source_csv(csv_path: str) -> Tuple[pd.DataFrame, pd.Series]:
+def read_source_csv(csv_path: str) -> tuple[pd.DataFrame, pd.Series]:
     """
     Read source CSV and extract daily data and annual sum row.
 
@@ -200,7 +199,7 @@ def read_source_csv(csv_path: str) -> Tuple[pd.DataFrame, pd.Series]:
             "CSV file not found",
             csv_path,
             "File does not exist",
-            f"CSV file with daily MGD data (366 rows + 4 summary rows)",
+            "CSV file with daily MGD data (366 rows + 4 summary rows)",
             "Cannot process pumping data - missing source file"
         )
         raise FileNotFoundError(f"CSV file not found: {csv_path}")
@@ -373,7 +372,7 @@ def validate_daily_data(daily_df: pd.DataFrame) -> pd.DataFrame:
         for well_name, count in flag_counts.items():
             print(f"  {well_name}: {count} flagged days")
     else:
-        print(f"Flagged 0 invalid values across 0 wells")
+        print("Flagged 0 invalid values across 0 wells")
 
     # 6. Return flags_df
     return flags_df
@@ -470,7 +469,7 @@ def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_T
     return verification_df
 
 
-def aggregate_monthly(daily_df: pd.DataFrame, flags_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+def aggregate_monthly(daily_df: pd.DataFrame, flags_df: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
     Aggregate daily MGD values into monthly MG totals per well.
 
@@ -585,7 +584,7 @@ def generate_monthly_csv(
     month_df: pd.DataFrame,
     year: int,
     output_dir: str
-) -> List[Dict]:
+) -> list[dict]:
     """
     Generate monthly CSV file with well production data.
 
@@ -695,7 +694,7 @@ def generate_monthly_csv(
     return flagged_wells
 
 
-def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, output_dir: str) -> None:
+def generate_table2_output(monthly_data: dict[str, pd.DataFrame], year: int, output_dir: str) -> None:
     """
     Generate Table 2 output CSV matching validation format.
 
@@ -747,11 +746,12 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
 
     # 1-2. Create 14×14 grid with AF values
     # Initialize data structure: list of rows
-    table_rows = []
+    # Rows contain mixed types (int well nums, float AF values, str labels)
+    table_rows: list[dict[str, Any]] = []
 
     # Build rows for wells 1-13
     for well_num in range(1, 14):
-        row_data = {'Well': well_num}
+        row_data: dict[str, Any] = {'Well': well_num}
 
         # Add monthly AF values
         annual_total_af = 0.0
@@ -771,7 +771,7 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
         table_rows.append(row_data)
 
     # 4. Calculate column totals (monthly AF all wells)
-    total_row = {'Well': 'Total'}
+    total_row: dict[str, Any] = {'Well': 'Total'}
     grand_total_af = 0.0
 
     for month_num, month_abbrev in MONTHS_ORDERED:
@@ -790,13 +790,13 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     table2_df = pd.DataFrame(table_rows)
 
     # 5. Add blank row
-    blank_row = {col: '' for col in table2_df.columns}
+    blank_row: dict[str, Any] = {col: '' for col in table2_df.columns}
     blank_row['Well'] = ''
 
     # 6. Add Wells 10-13 statistics row
     wells_10_13_af = sum(row['Total'] for row in table_rows[9:13])  # Wells 10-13 (indices 9-12)
     pct_10_13 = (wells_10_13_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
-    wells_10_13_row = {col: '' for col in table2_df.columns}
+    wells_10_13_row: dict[str, Any] = {col: '' for col in table2_df.columns}
     wells_10_13_row['Well'] = 'Wells 10-13'
     wells_10_13_row['JAN'] = f"{wells_10_13_af:.6f}"
     wells_10_13_row['FEB'] = f"{pct_10_13:.1f}%"
@@ -804,7 +804,7 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     # 7. Add Wells 1,7,8 statistics row
     wells_1_7_8_af = table_rows[0]['Total'] + table_rows[6]['Total'] + table_rows[7]['Total']
     pct_1_7_8 = (wells_1_7_8_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
-    wells_1_7_8_row = {col: '' for col in table2_df.columns}
+    wells_1_7_8_row: dict[str, Any] = {col: '' for col in table2_df.columns}
     wells_1_7_8_row['Well'] = 'Wells 1,7,8'
     wells_1_7_8_row['JAN'] = f"{wells_1_7_8_af:.6f}"
     wells_1_7_8_row['FEB'] = f"{pct_1_7_8:.1f}%"
@@ -829,7 +829,7 @@ def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, out
     print(f"  Wells 1,7,8: {wells_1_7_8_af:.2f} AFY ({pct_1_7_8:.1f}%)")
 
 
-def write_table2_xlsx(table_rows: List[Dict], year: int, xlsx_path: Path) -> None:
+def write_table2_xlsx(table_rows: list[dict], year: int, xlsx_path: Path) -> None:
     """
     Write Table 2 as formatted Excel file matching validation/Table_2_2024.xlsx.
 
@@ -1002,7 +1002,7 @@ def write_table2_xlsx(table_rows: List[Dict], year: int, xlsx_path: Path) -> Non
     wb.save(xlsx_path)
 
 
-def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_dir: str) -> None:
+def generate_table1_output(year_afy_data: dict[int, float], year: int, output_dir: str) -> None:
     """
     Generate Table 1 output by inserting 2024 row into historical data.
 
@@ -1054,7 +1054,7 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
 
     if not validation_path.exists():
         print(f"  WARNING: Validation file not found: {validation_path}")
-        print(f"  Creating Table 1 with 2024 data only")
+        print("  Creating Table 1 with 2024 data only")
         # Create minimal table with just 2024
         table1_df = pd.DataFrame()
     else:
@@ -1063,16 +1063,17 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
             print(f"  Read {len(table1_df)} historical years from {validation_path.name}")
         except Exception as e:
             print(f"  WARNING: Failed to read Excel file: {e}")
-            print(f"  Creating Table 1 with 2024 data only")
+            print("  Creating Table 1 with 2024 data only")
             table1_df = pd.DataFrame()
 
     # 2. Insert 2024 row with year_afy_data
-    # Build 2024 row
-    row_2024 = {'Well:': year}
+    # Build 2024 row (mixed key types: str 'Well:' + int well nums + str '3/3A')
+    row_2024: dict[Any, Any] = {'Well:': year}
 
     # Add individual well values (wells 1-13)
     # Note: Well 3 should be labeled as "3/3A" in column header (historical convention)
     for well_num, af_value in year_afy_data.items():
+        col_name: str | int
         if well_num == 3:
             col_name = '3/3A'
         else:
@@ -1117,7 +1118,7 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
         stats_rows = []
 
         # Row: Individual well % of annual total
-        well_pct_row = {'Well:': '% of Total'}
+        well_pct_row: dict[Any, Any] = {'Well:': '% of Total'}
         for well_num in range(1, 14):
             af_value = year_afy_data.get(well_num, 0.0)
             pct = (af_value / total_afy * 100) if total_afy > 0 else 0.0
@@ -1128,25 +1129,25 @@ def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_di
 
         # Row: Wells 10-13 sum
         wells_10_13_sum = sum(year_afy_data.get(w, 0.0) for w in [10, 11, 12, 13])
-        wells_10_13_row = {'Well:': 'Wells 10-13'}
+        wells_10_13_row: dict[Any, Any] = {'Well:': 'Wells 10-13'}
         wells_10_13_row[10] = round(wells_10_13_sum, 6)
         stats_rows.append(wells_10_13_row)
 
         # Row: Wells 10-13 % of total
         wells_10_13_pct = (wells_10_13_sum / total_afy * 100) if total_afy > 0 else 0.0
-        wells_10_13_pct_row = {'Well:': 'Wells 10-13 %'}
+        wells_10_13_pct_row: dict[Any, Any] = {'Well:': 'Wells 10-13 %'}
         wells_10_13_pct_row[10] = f"{wells_10_13_pct:.1f}%"
         stats_rows.append(wells_10_13_pct_row)
 
         # Row: Wells 1,7,8 sum
         wells_1_7_8_sum = sum(year_afy_data.get(w, 0.0) for w in [1, 7, 8])
-        wells_1_7_8_row = {'Well:': 'Wells 1,7,8'}
+        wells_1_7_8_row: dict[Any, Any] = {'Well:': 'Wells 1,7,8'}
         wells_1_7_8_row[1] = round(wells_1_7_8_sum, 6)
         stats_rows.append(wells_1_7_8_row)
 
         # Row: Wells 1,7,8 % of total
         wells_1_7_8_pct = (wells_1_7_8_sum / total_afy * 100) if total_afy > 0 else 0.0
-        wells_1_7_8_pct_row = {'Well:': 'Wells 1,7,8 %'}
+        wells_1_7_8_pct_row: dict[Any, Any] = {'Well:': 'Wells 1,7,8 %'}
         wells_1_7_8_pct_row[1] = f"{wells_1_7_8_pct:.1f}%"
         stats_rows.append(wells_1_7_8_pct_row)
 
@@ -1442,7 +1443,7 @@ def write_table1_xlsx(
 
 
 def generate_qa_summary(
-    all_flags: List[Dict],
+    all_flags: list[dict],
     daily_verification: pd.DataFrame,
     year: int,
     output_dir: str
@@ -1541,10 +1542,10 @@ def generate_qa_summary(
 
 
 def verify_annual_sums(
-    monthly_data: Dict[str, pd.DataFrame],
+    monthly_data: dict[str, pd.DataFrame],
     sum_row: pd.Series,
     tolerance_mg: float = ANNUAL_SUM_TOLERANCE_MG
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Verify our calculated annual totals match the CSV Sum row.
 
@@ -1701,7 +1702,7 @@ def main() -> int:
     args = parser.parse_args()
     year = args.year
 
-    print(f"\nBuckman Well Field CSV Data Ingestion")
+    print("\nBuckman Well Field CSV Data Ingestion")
     print(f"Processing year: {year}")
     print("=" * 60)
 
@@ -1751,11 +1752,11 @@ def main() -> int:
 
         # 10. Call generate_table1_output()
         # Build year_afy_data dict from monthly_data
-        year_afy_data = {}
+        year_afy_data: dict[int, float] = {}
         for well_num in range(1, 14):
             annual_mg = 0.0
-            for month_num in range(1, 13):
-                month_str = f"{month_num:02d}"
+            for month_int in range(1, 13):
+                month_str = f"{month_int:02d}"
                 month_df = monthly_data[month_str]
                 well_row = month_df[month_df['Well_Number'] == well_num].iloc[0]
                 annual_mg += well_row['MG_Month'].magnitude
@@ -1787,7 +1788,7 @@ def main() -> int:
 
         ok_count = sum(1 for status in verification.values() if status == "OK")
         if ok_count == 13:
-            print(f"Verification: All OK ✓")
+            print("Verification: All OK ✓")
         else:
             print(f"Verification: {ok_count}/13 wells OK")
 
@@ -1809,7 +1810,7 @@ def main() -> int:
         print("\n" + "=" * 60)
         print("=== ERROR ===")
         print("=" * 60)
-        print(f"Fatal error during processing:")
+        print("Fatal error during processing:")
         print(f"  {type(e).__name__}: {e}")
         print("\nTraceback:")
         import traceback
