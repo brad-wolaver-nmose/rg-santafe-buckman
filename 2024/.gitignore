@@ -2,4 +2,5 @@ __pycache__/
 .mypy_cache/
 .pytest_cache/
 .ralph_log.jsonl
+.ralph_state.json
 .ralph_test_output.txt

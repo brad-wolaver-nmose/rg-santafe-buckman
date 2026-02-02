@@ -21,7 +21,7 @@
 #   --mode         dev (default) or review
 #   ITERATIONS     How many times to loop (default: 10)
 #   SLEEP          Seconds between iterations (default: 2)
-#   DOC_PATH       Task list file (default: PRD.md)
+#   DOC_PATH       Task list file (default: dev/PRD.md)
 #   MAX_TASK_TRIES Retries per task before skipping (default: 3)
 #   TEST_CMD       Test command (default: auto-detect)
 #
@@ -29,13 +29,13 @@
 # ========
 #
 #   # Development - work through PRD
-#   ./ralph.sh 15 2 PRD.md
+#   ./ralph.sh 15 2 dev/PRD.md
 #
 #   # Code review - 60 stories
-#   ./ralph.sh --mode review 65 2 CODE_REVIEW_CHECKLIST.md
+#   ./ralph.sh --mode review 65 2 review/CODE_REVIEW_CHECKLIST.md
 #
 #   # Specify test command
-#   ./ralph.sh --mode dev 15 2 PRD.md 3 "pytest tests/ -v"
+#   ./ralph.sh --mode dev 15 2 dev/PRD.md 3 "pytest tests/ -v"
 #
 # =============================================================================
 
@@ -72,7 +72,7 @@ done
 # Positional arguments (after named args consumed)
 ITERATIONS=${1:-10}
 SLEEP=${2:-2}
-DOC_PATH=${3:-PRD.md}
+DOC_PATH=${3:-dev/PRD.md}
 MAX_TASK_TRIES=${4:-3}
 TEST_CMD=${5:-""}
 

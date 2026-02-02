@@ -1,6 +1,6 @@
 ---
 name: code_review
-description: "Perform comprehensive code review against PRD. Creates CODE_REVIEW_CHECKLIST.md for ralph to execute. Run with --generate-fixes after review to create CODE_FIXES_PRD.md. Triggers on: review code, code review, audit code, check code quality."
+description: "Perform comprehensive code review against PRD. Creates review/CODE_REVIEW_CHECKLIST.md for ralph to execute. Run with --generate-fixes after review to create review/CODE_FIXES_PRD.md. Triggers on: review code, code review, audit code, check code quality."
 ---
 
 # Code Review Generator
@@ -14,7 +14,7 @@ Create a comprehensive code review checklist that can be executed by the Ralph l
 You are a senior software engineer and code quality expert. Your job is to create a thorough, systematic review checklist that leaves nothing to chance. Quality code review is methodical, not rushed.
 
 The review process has two phases:
-1. **Review Phase:** Generate checklist → Ralph executes → REVIEW_FINDINGS.md created
+1. **Review Phase:** Generate checklist → Ralph executes → review/REVIEW_FINDINGS.md created
 2. **Fix Phase (optional):** User reviews findings → Generate fix PRD → Ralph implements fixes
 
 ---
@@ -23,19 +23,21 @@ The review process has two phases:
 
 ### Standard Mode (No Flags)
 
-0. Check for existing review outputs and archive to `review/` if found (Step 0)
-1. Identify PRD.md and code files in the project
+0. Check for existing review outputs and archive in `review/` if found (Step 0)
+1. Identify dev/PRD.md and code files in the project
 2. Ask 1-2 minimal questions (problem areas, review depth)
-3. Generate CODE_REVIEW_CHECKLIST.md with review user stories
-4. Create empty REVIEW_FINDINGS.md template
-5. Explain how to run ralph on the checklist
+3. Review story sizing — each story completable in ONE context window
+4. Review story ordering — dependencies first
+5. Generate review/CODE_REVIEW_CHECKLIST.md with review user stories
+6. Create empty review/REVIEW_FINDINGS.md template
+7. Explain how to run ralph on the checklist
 
 ### Fix Generation Mode (--generate-fixes)
 
-0. Check for existing CODE_FIXES_PRD.md and archive to `review/` if found (Step 0)
-1. Read REVIEW_FINDINGS.md
+0. Check for existing review/CODE_FIXES_PRD.md and archive in `review/` if found (Step 0)
+1. Read review/REVIEW_FINDINGS.md
 2. Parse all findings by severity
-3. Generate CODE_FIXES_PRD.md with fix user stories
+3. Generate review/CODE_FIXES_PRD.md with fix user stories
 4. Explain how to run ralph on the fix PRD
 
 ---
@@ -46,7 +48,7 @@ Before generating any new files, check if previous review outputs exist and arch
 
 ### Standard Mode Archive Check
 
-1. Check if `CODE_REVIEW_CHECKLIST.md` exists in the current directory
+1. Check if `review/CODE_REVIEW_CHECKLIST.md` exists
 2. If it does NOT exist, skip this step entirely and proceed to Step 1
 3. If it DOES exist, perform the archive procedure below
 
@@ -58,17 +60,17 @@ Before generating any new files, check if previous review outputs exist and arch
    - Set N = highest version found + 1 (or N = 1 if no versions exist)
 
 2. **Move CODE_REVIEW_CHECKLIST.md:**
-   - Move `CODE_REVIEW_CHECKLIST.md` → `review/CODE_REVIEW_CHECKLIST_vN.0.md`
+   - Move `review/CODE_REVIEW_CHECKLIST.md` → `review/CODE_REVIEW_CHECKLIST_vN.0.md`
 
 3. **Move REVIEW_FINDINGS.md (if exists):**
-   - Move `REVIEW_FINDINGS.md` → `review/REVIEW_FINDINGS_vN.0.md`
+   - Move `review/REVIEW_FINDINGS.md` → `review/REVIEW_FINDINGS_vN.0.md`
 
 4. **Move CODE_FIXES_PRD.md (if exists):**
-   - Move `CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
+   - Move `review/CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
 
 5. **Confirm archive:**
    ```
-   Archived previous review outputs to review/ as version N.0:
+   Archived previous review outputs as version N.0:
    - review/CODE_REVIEW_CHECKLIST_vN.0.md
    - review/REVIEW_FINDINGS_vN.0.md (if existed)
    - review/CODE_FIXES_PRD_vN.0.md (if existed)
@@ -80,9 +82,9 @@ Before generating any new files, check if previous review outputs exist and arch
 
 When running in `--generate-fixes` mode:
 
-1. Check if `CODE_FIXES_PRD.md` exists in the current directory
+1. Check if `review/CODE_FIXES_PRD.md` exists
 2. If it exists, determine version: use the same version number as the most recently archived `CODE_REVIEW_CHECKLIST` in `review/` (if no checklist archived yet, use version 1)
-3. Move `CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
+3. Move `review/CODE_FIXES_PRD.md` → `review/CODE_FIXES_PRD_vN.0.md`
 4. Proceed with fix generation
 
 ### Important Notes
@@ -100,15 +102,15 @@ First, identify the project structure:
 ```
 I'll review your codebase against the PRD. Let me identify the key files:
 
-**PRD:** PRD.md (found/not found)
-**Main code files:** [list detected Python/JS/etc files]
+**PRD:** dev/PRD.md (found/not found)
+**Main code files:** [list detected source files]
 **Test files:** [list if any]
 **Config files:** [list if any]
 
 Based on this, I'll create a comprehensive review checklist.
 ```
 
-If PRD.md is not found, ask user to specify the requirements document or provide context.
+If dev/PRD.md is not found, ask user to specify the requirements document or provide context.
 
 ---
 
@@ -131,20 +133,20 @@ What review depth do you need?
 
 A. Quick sanity check (5-10 minutes) - High-level verification only
 B. Standard review (15-30 minutes) - All major aspects covered
-C. Thorough pre-release audit (30-60 minutes) - Deep dive into every detail
+C. Thorough pre-release audit (60-120 minutes) - Deep dive into every detail
 D. [Default to B if no response]
 ```
 
 ---
 
-## Step 2.5: Review Story Sizing (THE NUMBER ONE RULE)
+## Step 3: Review Story Sizing (THE NUMBER ONE RULE)
 
 **Each review story must be completable in ONE context window (~10 min of AI work).**
 
 Ralph spawns a fresh instance per story with no memory of previous work. If a story is too big, the AI runs out of context and produces incomplete findings.
 
 ### Right-sized review stories:
-- Run mypy and document type errors
+- Run linter/type checker and document errors
 - Check one specific function for error handling
 - Verify one PRD user story is implemented correctly
 - Check one input source for validation
@@ -164,18 +166,18 @@ Ralph spawns a fresh instance per story with no memory of previous work. If a st
 |-------|---------|-------|
 | Quick (5-10 min) | 5-10 | Type check, critical PRD items, security scan |
 | Standard (15-30 min) | 15-30 | Type check + key functions + quality checks |
-| Thorough (30-60 min) | 40-80+ | Comprehensive atomic review (no cap - granularity is good!) |
+| Thorough (60-120 min) | 40-60 | Comprehensive atomic review (cap at 60 for time control) |
 
-**Note:** More stories = more granularity = better. The iteration count in "Next Steps" will match story count.
+**Note:** More stories = more granularity = better, but cap at 60 to keep total review time under 4 hours.
 
 ---
 
-## Step 2.6: Review Story Ordering
+## Step 4: Review Story Ordering
 
 Stories execute in order. Earlier stories must NOT depend on later ones.
 
 **Correct order:**
-1. Type/syntax checks (mypy, py_compile) - quick pass/fail first
+1. Static analysis checks (linter, type checker, build) - quick pass/fail first
 2. PRD compliance by functional area
 3. Error handling per function
 4. Edge cases and input validation
@@ -191,18 +193,18 @@ US-R02: Review function X
 
 ---
 
-## Step 3: Generate CODE_REVIEW_CHECKLIST.md
+## Step 5: Generate review/CODE_REVIEW_CHECKLIST.md
 
 Create the checklist document with user stories for Ralph to execute.
 
 ### Generating Atomic Stories
 
-When generating CODE_REVIEW_CHECKLIST.md, dynamically create stories based on:
+When generating review/CODE_REVIEW_CHECKLIST.md, dynamically create stories based on:
 
 1. **Count PRD user stories** → Generate 1 review story per 2-3 PRD stories (quick) or 1:1 (thorough)
 2. **Count functions** → Generate error handling stories for critical functions only (quick) or all (thorough)
 3. **Apply one-sentence rule** → If a story needs "and", split it
-4. **Embrace granularity** → More atomic stories = better. 50, 80, or 100+ stories is fine for thorough reviews.
+4. **Respect the cap** → Thorough reviews: max 60 stories. Standard: max 30. Quick: max 10.
 
 ### Atomic Story Format
 
@@ -212,7 +214,7 @@ Each story should be SHORT and follow this format:
 ### US-RXX: [One-sentence task description]
 **Check:** [Single specific thing to verify]
 **Location:** [Exact function name or file:lines]
-**Document:** [Exact table/section in REVIEW_FINDINGS.md]
+**Document:** [Exact table/section in review/REVIEW_FINDINGS.md]
 **Pass if:** [Single measurable criterion]
 ```
 
@@ -222,7 +224,7 @@ Each story should be SHORT and follow this format:
 # Code Review Checklist
 
 Generated: [date]
-PRD: PRD.md
+PRD: dev/PRD.md
 Code files: [list]
 Review depth: [quick/standard/thorough]
 Story count: [N stories]
@@ -234,28 +236,35 @@ Story count: [N stories]
 For each story:
 1. Read ONLY the specified location
 2. Check ONLY the specified criterion
-3. Add ONE row to the specified table in REVIEW_FINDINGS.md
+3. Add ONE row to the specified table in review/REVIEW_FINDINGS.md
 4. Mark [x] when documented
 
 **Keep it focused.** Each story = one check = one finding row.
+
+**OUTPUT CONSTRAINTS (MANDATORY):**
+- Table cells: MAX 150 characters. PASS = "All criteria met." FAIL = state discrepancy only.
+- progress.txt entries: MAX 3 lines (see format in prompt).
+- Do NOT enumerate every line number, method signature, or parameter checked.
+- Do NOT run build/test commands unless the story explicitly says "Run [command]".
+- Do NOT read entire progress.txt — only the last 20 lines.
 
 ---
 
 ## Review Stories
 
-### US-R01: Run type checker
-**Check:** Run `mypy [main_file.py]` and capture output
-**Location:** All .py files
+### US-R01: Run static analysis / linter
+**Check:** Run the project's linter or type checker and capture output
+**Location:** All source files
 **Document:** Add to Type Safety section
 **Pass if:** Zero errors OR each error documented
 
 ---
 
-### US-R02: Run syntax check
-**Check:** Run `python3 -m py_compile [main_file.py]`
-**Location:** All .py files
+### US-R02: Run build / compile check
+**Check:** Run the project's build command and verify it succeeds
+**Location:** All source files
 **Document:** Add to Type Safety section
-**Pass if:** Compiles without errors
+**Pass if:** Builds without errors
 
 ---
 
@@ -293,7 +302,7 @@ For each story:
 
 ### US-RXX: Check for magic numbers
 **Check:** Are there hardcoded values that should be constants?
-**Location:** Scan all .py files for numeric literals
+**Location:** Scan all source files for numeric literals
 **Document:** Add rows to Code Quality table
 **Pass if:** All config values in named constants with comments
 
@@ -301,7 +310,7 @@ For each story:
 
 ### US-RXX: Check for path traversal risks
 **Check:** Can user input influence file paths unsafely?
-**Location:** All file operations (open, shutil, os.path)
+**Location:** All file operations
 **Document:** Add to Security table
 **Pass if:** Paths sanitized OR no user input in paths
 
@@ -323,15 +332,15 @@ When all stories are complete, output: <promise>COMPLETE</promise>
 ### Example: Quick Review (~5 stories)
 
 For a quick sanity check, generate only:
-1. US-R01: Run mypy
-2. US-R02: Run py_compile
+1. US-R01: Run linter / type checker
+2. US-R02: Run build
 3. US-R03: Verify critical PRD requirement
 4. US-R04: Security scan (path traversal, injection)
 5. US-R05: Compile summary
 
 ### Example: Standard Review (~12 stories)
 
-1-2: Type/syntax checks
+1-2: Static analysis / build checks
 3-7: PRD compliance (group 2-3 user stories each)
 8-9: Error handling for main functions
 10: Input validation
@@ -340,7 +349,7 @@ For a quick sanity check, generate only:
 
 ### Example: Thorough Review (~25 stories)
 
-1-2: Type/syntax checks
+1-2: Static analysis / build checks
 3-15: PRD compliance (1 story per PRD user story)
 16-20: Error handling per critical function
 21: Edge cases (empty/null inputs)
@@ -351,17 +360,25 @@ For a quick sanity check, generate only:
 
 ---
 
-## Step 4: Create REVIEW_FINDINGS.md Template
+## Step 6: Create review/REVIEW_FINDINGS.md Template
 
 Keep the findings template simple with one table per category. Each atomic story adds one row.
 
 ```markdown
 # Code Review Findings
 
+**Version:** [auto-populated from archive step, e.g., "v2.0" or "initial"]
 **Generated:** [date]
-**PRD:** PRD.md
+**PRD:** dev/PRD.md
+**Code files:** [list main source files reviewed]
 **Review depth:** [quick/standard/thorough]
 **Stories completed:** _/_
+
+---
+
+## Introduction
+
+This document captures findings from the code review of [project name]. Each section corresponds to a category of review checks. Findings are documented as Ralph executes each review story from review/CODE_REVIEW_CHECKLIST.md.
 
 ---
 
@@ -377,15 +394,15 @@ Keep the findings template simple with one table per category. Each atomic story
 
 | Check | Result | Details |
 |-------|--------|---------|
-| mypy | | |
-| py_compile | | |
+| Linter | | |
+| Build | | |
 
 ---
 
 ## PRD Compliance
 
-| PRD Story | Status | Location | Notes |
-|-----------|--------|----------|-------|
+| PRD Story | Status | Location | Key Finding (1-2 sentences max) |
+|-----------|--------|----------|---------------------------------|
 | US-001 | | | |
 | US-002 | | | |
 [Add rows as needed]
@@ -394,16 +411,16 @@ Keep the findings template simple with one table per category. Each atomic story
 
 ## Error Handling
 
-| Function | Status | Issue (if any) |
-|----------|--------|----------------|
+| Function | Status | Issue (brief) |
+|----------|--------|---------------|
 | | | |
 
 ---
 
 ## Security
 
-| Check | Status | Finding |
-|-------|--------|---------|
+| Check | Status | Finding (1-2 sentences) |
+|-------|--------|-------------------------|
 | Path traversal | | |
 | Command injection | | |
 | Secrets exposure | | |
@@ -412,8 +429,8 @@ Keep the findings template simple with one table per category. Each atomic story
 
 ## Code Quality
 
-| Check | Status | Finding |
-|-------|--------|---------|
+| Check | Status | Finding (1-2 sentences) |
+|-------|--------|-------------------------|
 | Magic numbers | | |
 | DRY violations | | |
 | Dead code | | |
@@ -432,41 +449,174 @@ Keep the findings template simple with one table per category. Each atomic story
 - [ ] _
 ```
 
+### FINDINGS VERBOSITY RULES (CRITICAL)
+1. Table cells: MAX 150 chars. One sentence for PASS, two for FAIL.
+2. PASS entries: "All N criteria met" or "Correct implementation." No line-by-line analysis.
+3. FAIL entries: State what's wrong and expected vs actual only.
+4. CRITICAL/HIGH findings may add ONE bullet below the table (max 2 lines).
+5. NO: line numbers, full code paths, method signatures, parameter lists, exhaustive enumeration.
+
 ---
 
-## Step 5: Provide Next Steps
+## Step 7: Provide Next Steps
 
 After generating the checklist:
 
 ```
 ## Files Created
 
-1. **CODE_REVIEW_CHECKLIST.md** - Review tasks for Ralph to execute
-2. **REVIEW_FINDINGS.md** - Template for documenting findings
+1. **review/CODE_REVIEW_CHECKLIST.md** - Review tasks for Ralph to execute
+2. **review/REVIEW_FINDINGS.md** - Template for documenting findings
 
 ## Next Steps
 
 **This checklist has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph.sh --mode review [N+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [N+5] 2 review/CODE_REVIEW_CHECKLIST.md
 ```
 
 For example, if 50 stories were generated, run:
 ```bash
-./ralph.sh --mode review 55 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review 55 2 review/CODE_REVIEW_CHECKLIST.md
 ```
 
-**Note on protection levels:** Ralph Enhanced auto-detects your test setup. For code review tasks (which read but don't create code), it will use `py_compile` for syntax verification. This is appropriate—review stories document findings rather than create new modules.
-
-After review completes, read REVIEW_FINDINGS.md to see results.
+After review completes, read review/REVIEW_FINDINGS.md to see results.
 
 If fixes are needed, run:
 ```bash
 claude /code_review --generate-fixes
 ```
 
-This will create CODE_FIXES_PRD.md that Ralph can execute to implement fixes.
+This will create review/CODE_FIXES_PRD.md that Ralph can execute to implement fixes.
+```
+
+---
+
+## Comprehensive Example: Standard Review Flow
+
+Here's a condensed example showing the full standard review flow:
+
+---
+
+**User:** /code_review
+
+---
+
+**Claude:**
+
+```
+Archived previous review outputs as version 1.0:
+- review/CODE_REVIEW_CHECKLIST_v1.0.md
+- review/REVIEW_FINDINGS_v1.0.md
+
+Proceeding with new review generation.
+```
+
+I'll review your codebase against the PRD. Let me identify the key files:
+
+**PRD:** dev/PRD.md (found, 8 user stories)
+**Main code files:** data_processor.py (450 lines)
+**Test files:** test_data_processor.py
+**Config files:** mypy.ini
+
+What review depth do you need?
+
+A. Quick sanity check (5-10 minutes) - High-level verification only
+B. Standard review (15-30 minutes) - All major aspects covered
+C. Thorough pre-release audit (60-120 minutes) - Deep dive into every detail
+D. [Default to B if no response]
+
+---
+
+**User:** B
+
+---
+
+**Claude:** Generating review/CODE_REVIEW_CHECKLIST.md with 18 atomic stories for a standard review...
+
+[Generates review/CODE_REVIEW_CHECKLIST.md and review/REVIEW_FINDINGS.md]
+
+## Files Created
+
+1. **review/CODE_REVIEW_CHECKLIST.md** - 18 review stories for Ralph
+2. **review/REVIEW_FINDINGS.md** - Template for documenting findings
+
+## Next Steps
+
+This checklist has 18 stories. Run Ralph with at least 23 iterations:
+
+```bash
+./ralph.sh --mode review 23 2 review/CODE_REVIEW_CHECKLIST.md
+```
+
+---
+
+## Example review/CODE_REVIEW_CHECKLIST.md Output
+
+```markdown
+# Code Review Checklist
+
+Generated: 2025-01-27
+PRD: dev/PRD.md
+Code files: data_processor.py
+Review depth: Standard
+Story count: 18 stories
+
+---
+
+## Instructions for Ralph
+
+For each story:
+1. Read ONLY the specified location
+2. Check ONLY the specified criterion
+3. Add ONE row to the specified table in review/REVIEW_FINDINGS.md
+4. Mark [x] when documented
+
+**Keep it focused.** Each story = one check = one finding row.
+
+**OUTPUT CONSTRAINTS (MANDATORY):**
+- Table cells: MAX 150 characters. PASS = "All criteria met." FAIL = state discrepancy only.
+- progress.txt entries: MAX 3 lines.
+- Do NOT enumerate every line number, method signature, or parameter checked.
+- Do NOT run build/test commands unless the story explicitly says "Run [command]".
+- Do NOT read entire progress.txt — only the last 20 lines.
+
+---
+
+## Review Stories
+
+### US-R01: Run static analysis
+- [x] **Check:** Run `ruff check data_processor.py` and capture output
+**Location:** All source files
+**Document:** Add to Type Safety section
+**Pass if:** Zero errors OR each error documented
+
+---
+
+### US-R02: Verify PRD US-001 — CSV file loading
+- [ ] **Check:** Does load_csv() read Buckman_Well_Prod_2024.csv and return a DataFrame?
+**Location:** load_csv() in data_processor.py
+**Document:** Add row to PRD Compliance table
+**Pass if:** Function reads correct file, returns DataFrame with expected columns
+
+---
+
+### US-R03: Verify PRD US-002 — Monthly aggregation
+- [ ] **Check:** Does aggregate_monthly() group by month correctly?
+**Location:** aggregate_monthly() in data_processor.py
+**Document:** Add row to PRD Compliance table
+**Pass if:** Groups by calendar month, sums daily values
+
+---
+
+[...continue for all 18 stories...]
+
+---
+
+## Completion
+
+When all stories are complete, output: <promise>COMPLETE</promise>
 ```
 
 ---
@@ -475,16 +625,16 @@ This will create CODE_FIXES_PRD.md that Ralph can execute to implement fixes.
 
 When user runs `/code_review --generate-fixes`:
 
-### Step 1: Read REVIEW_FINDINGS.md
+### Step 1: Read review/REVIEW_FINDINGS.md
 
-Parse all findings by severity. If REVIEW_FINDINGS.md doesn't exist or is empty, explain that the review must be run first.
+Parse all findings by severity. If review/REVIEW_FINDINGS.md doesn't exist or is empty, explain that the review must be run first.
 
-### Step 2: Generate CODE_FIXES_PRD.md
+### Step 2: Generate review/CODE_FIXES_PRD.md
 
 ```markdown
 # Code Fixes PRD
 
-**Generated from:** REVIEW_FINDINGS.md
+**Generated from:** review/REVIEW_FINDINGS.md
 **Generated on:** [date]
 
 ---
@@ -498,7 +648,7 @@ This PRD contains fixes for issues identified during code review. Each user stor
 ### US-F01: [CRITICAL] [Title from finding]
 **Description:** As a developer, I need to fix [issue] so that [impact is resolved].
 
-**Finding reference:** [Link to specific finding in REVIEW_FINDINGS.md]
+**Finding reference:** [Link to specific finding in review/REVIEW_FINDINGS.md]
 
 **Acceptance Criteria:**
 - [ ] [Specific fix criterion]
@@ -526,22 +676,22 @@ This PRD contains fixes for issues identified during code review. Each user stor
 ```
 ## Files Created
 
-1. **CODE_FIXES_PRD.md** - Fix tasks for Ralph to implement
+1. **review/CODE_FIXES_PRD.md** - Fix tasks for Ralph to implement
 
 ## Next Steps
 
-Review CODE_FIXES_PRD.md to confirm the fixes look correct.
+Review review/CODE_FIXES_PRD.md to confirm the fixes look correct.
 
 **This fix PRD has [N] stories.** Run Ralph with at least [N+5] iterations:
 
 ```bash
-./ralph.sh --mode dev [N+5] 2 CODE_FIXES_PRD.md
+./ralph.sh --mode dev [N+5] 2 review/CODE_FIXES_PRD.md
 ```
 
 After fixes are complete, consider re-running the code review to verify:
 ```bash
 claude /code_review
-./ralph.sh --mode review [STORY_COUNT+5] 2 CODE_REVIEW_CHECKLIST.md
+./ralph.sh --mode review [STORY_COUNT+5] 2 review/CODE_REVIEW_CHECKLIST.md
 ```
 ```
 
@@ -570,24 +720,27 @@ Most fix stories modify existing code rather than create new modules. However, i
 ## Checklist Before Saving
 
 ### Archive
-- [ ] Checked if `CODE_REVIEW_CHECKLIST.md` already existed before generating
-- [ ] If existed: archived checklist, findings, and fixes PRD to `review/` with correct version number
+- [ ] Checked if `review/CODE_REVIEW_CHECKLIST.md` already existed before generating
+- [ ] If existed: archived checklist, findings, and fixes PRD in `review/` with correct version number
 - [ ] All archived files use the same version number
 
 ### Standard Mode
-- [ ] Identified PRD.md and code files
+- [ ] Identified dev/PRD.md and code files
 - [ ] Asked 1-2 questions (or skipped if obvious)
-- [ ] Generated CODE_REVIEW_CHECKLIST.md with atomic review stories (see story count guidelines)
+- [ ] Stories follow sequential numbering (Step 3 sizing rule applied)
 - [ ] Each story passes the "one sentence without and" test
-- [ ] Created REVIEW_FINDINGS.md template
+- [ ] Story count respects depth cap (quick: 10, standard: 30, thorough: 60)
+- [ ] Generated review/CODE_REVIEW_CHECKLIST.md with atomic review stories
+- [ ] Created review/REVIEW_FINDINGS.md template with Introduction, all category tables, and version metadata
+- [ ] Verbosity constraints included in Instructions for Ralph section
 - [ ] Provided clear next steps referencing `ralph.sh`
 
 ### Fix Generation Mode
-- [ ] Checked if `CODE_FIXES_PRD.md` already existed before generating
-- [ ] If existed: archived to `review/` with correct version number
-- [ ] Read REVIEW_FINDINGS.md successfully
+- [ ] Checked if `review/CODE_FIXES_PRD.md` already existed before generating
+- [ ] If existed: archived in `review/` with correct version number
+- [ ] Read review/REVIEW_FINDINGS.md successfully
 - [ ] Parsed findings by severity
-- [ ] Generated CODE_FIXES_PRD.md with prioritized fix stories
+- [ ] Generated review/CODE_FIXES_PRD.md with prioritized fix stories
 - [ ] Excluded low-priority items from fix stories
 - [ ] If any fix creates a new module, added smoke test file (see prd_create Step 10)
 - [ ] Provided clear next steps

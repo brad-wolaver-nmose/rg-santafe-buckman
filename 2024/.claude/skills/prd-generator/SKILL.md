@@ -2,7 +2,7 @@
 name: prd-generator
 description: >
   Generate a Product Requirements Document (PRD) for a new feature, project,
-  or enhancement. Creates structured PRD.md files with user stories sized for
+  or enhancement. Creates structured dev/PRD.md files with user stories sized for
   the Ralph Enhanced autonomous implementation loop. Use when the user asks to
   create a PRD, write a PRD for something, plan a feature, define requirements
   for a project, spec out a feature, or draft a product spec. Triggers on:
@@ -30,17 +30,35 @@ Approach every conversation as an experienced software engineer who is an expert
 
 ## The Job
 
+0. Check for existing PRD outputs and archive in `dev/` if found (Pre-Step)
 1. Receive a feature description from the user
 2. Acknowledge understanding of what the user has shared
 3. Explain how many questions you'll ask, why that number, and what topic areas you'll cover
 4. Ask questions grouped under descriptive headings, with lettered options (A-G)
 5. After all questions are answered, present summary and offer brainstorming opportunity
 6. Generate a structured PRD based on answers
-7. Save to `PRD.md`
-8. Create empty `progress.txt`
+7. Save to `dev/PRD.md`
+8. Create empty `dev/progress.txt`
 9. Create initial smoke test file(s) if Python project
 
 **Important:** Do NOT start implementing. Just create the PRD and test scaffolding.
+
+---
+
+## Pre-Step: Archive Existing Outputs
+
+Before generating any new files, check if previous PRD outputs exist and archive them to preserve version history.
+
+1. Check if `dev/PRD.md` exists
+2. If it does NOT exist, skip this step entirely and proceed to Step 0
+3. If it DOES exist:
+   - List all files in `dev/` matching pattern `PRD_v*.md`
+   - Extract version numbers (e.g., `PRD_v1.0.md` → 1)
+   - Set N = highest version found + 1 (or N = 1 if no versions exist)
+   - Move `dev/PRD.md` → `dev/PRD_vN.0.md`
+   - Move `dev/progress.txt` → `dev/progress_vN.0.txt` (if exists)
+   - Move any `test_*.py` scaffolding files → `dev/test_<name>_vN.0.py`
+   - Create `dev/` directory if missing
 
 ---
 
@@ -259,9 +277,9 @@ For a data processing / Python script PRD example with code quality stories and 
 
 ## Output
 
-Save to `PRD.md` in the current directory.
+Save to `dev/PRD.md`.
 
-Also create `progress.txt`:
+Also create `dev/progress.txt`:
 ```markdown
 # Progress Log
 
