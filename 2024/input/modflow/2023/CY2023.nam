@@ -1,0 +1,10 @@
+LIST  23  CY2023.lst
+BAS   21  thruCY2165.bas
+bcf   11  sflcs.bcf
+oc    10 thruCY2165.oc
+riv   14 thruCY2165.riv
+ghb   15 thruCY2165.ghb
+sip   17 sflcs.sip
+wel   12 thruCY2165.wel
+data(binary) 24 CY2023_riv.flx
+data(binary) 34 CY2023_ghb.flx

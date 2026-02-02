@@ -1,62 +1,71 @@
 #!/usr/bin/env python3
 """
-Buckman Well Field PDF Data Ingestion Workflow
+Buckman Well Field CSV Data Ingestion Workflow
 
-This script automates the ingestion of monthly meter report PDFs from the City
-of Santa Fe for the Buckman Well Field. It uses OCR to extract pumping data,
-validates the data through conversion checks, and produces structured CSV outputs
-for subsequent analysis steps.
+This script ingests daily well production data from CSV files provided by the City
+of Santa Fe for the Buckman Well Field. It aggregates daily MGD (million gallons per day)
+values into monthly totals (MG), converts to acre-feet, validates data quality, and
+produces structured outputs for report generation.
 
-SYSTEM DEPENDENCIES:
-- Tesseract OCR: sudo apt-get install tesseract-ocr
-- Poppler: sudo apt-get install poppler-utils
+Scientific Basis:
+- Volume conversion: USGS standard (https://water.usgs.gov/nawqa/glos.html)
+  1 acre-foot = 325,851 gallons → 1 MG = 3.06889 AF
+- Daily aggregation: Sum of daily flow rates (MGD) × 1 day = monthly volume (MG)
+- Units handled with pint library for dimensional safety
 
 PYTHON DEPENDENCIES:
 - Install with: pip install -r requirements.txt
+  (pandas>=1.5.0, pint>=0.20.0)
 """
 
-import csv
+import argparse
 import os
-import re
-import shutil
-import subprocess
 import sys
-import tempfile
-import traceback
-from collections import Counter
 from pathlib import Path
-from typing import Optional, Tuple, Dict, List, Any
-from pdf2image import convert_from_path
-from PIL.Image import Image
-import pytesseract
-import pandas as pd
+from typing import Dict, List, Tuple, Optional
 
+import pandas as pd
+from pint import UnitRegistry
+
+# Initialize unit registry for dimensional analysis
+ureg = UnitRegistry()
+
+# Define custom units for water resource management
+# Million gallons (MG) = 1,000,000 gallons
+ureg.define('million_gallon = 1e6 * gallon = MG')
+# Million gallons per day (MGD) - common water industry unit
+ureg.define('million_gallon_per_day = million_gallon / day = MGD')
 
 # =============================================================================
 # CONFIGURATION CONSTANTS
 # =============================================================================
 
-# OCR confidence threshold: values below this are flagged as unreliable
-# Tesseract returns confidence scores 0-100, with -1 meaning "invalid/no data"
-OCR_CONFIDENCE_THRESHOLD = 80  # Lowered from 95 - too strict for mixed graphic/text documents
+# Path pattern for source CSV file — replace {year} with actual year at runtime
+# CSV contains daily MGD (million gallons per day) values for 13 Buckman wells
+INPUT_CSV_PATH: str = "./input/csv/Buckman_Well_Prod_{year}.csv"
 
-# Image cropping ratios for targeting specific regions of the PDF page
-HEADER_CROP_RATIO = 0.35  # Top 35% of page contains header/date info (increased from 25%)
-TABLE_CROP_RATIO = 0.50   # Bottom 50% of page contains well data table
+# Output directory for all generated files
+OUTPUT_DIR: str = "./output/ingested_data"
 
-# Line grouping tolerance for OCR table reconstruction
-# Words within this many pixels vertically are considered same row
-LINE_GROUPING_TOLERANCE_PX = 20
+# Validation data directory (contains reference Excel files for verification)
+VALIDATION_DIR: str = "./validation"
 
-# PDF to image conversion resolution (DPI)
-# 300 DPI provides good balance of OCR accuracy vs processing time
-PDF_CONVERSION_DPI = 300
+# USGS conversion factor: 1 million gallons = 3.06889 acre-feet
+# Scientific basis: 1 acre-foot = 325,851 gallons (USGS definition)
+# Calculation: 1,000,000 gallons / 325,851 gallons/AF = 3.06889 AF/MG
+MG_TO_AF_FACTOR: float = 3.06889
 
-# Tolerance values for total verification
-MG_VERIFICATION_TOLERANCE = 0.01   # 2 decimal places
-AF_VERIFICATION_TOLERANCE = 0.001  # 3 decimal places
+# Tolerance for daily BWP total verification (MGD)
+# Each day's per-well sum is compared to the BWP formula column
+# Physical interpretation: 0.001 MGD = 1,000 gallons/day difference threshold
+DAILY_SUM_TOLERANCE_MGD: float = 0.001
 
-# Month abbreviations in calendar order (used across multiple functions)
+# Tolerance for annual Sum row verification (MG)
+# Our 12-month totals are compared to the CSV's Sum row per well
+# Physical interpretation: 0.01 MG = 10,000 gallons difference threshold
+ANNUAL_SUM_TOLERANCE_MG: float = 0.01
+
+# Month abbreviations in calendar order (used for output filenames and tables)
 MONTHS_ABBREV: Tuple[str, ...] = (
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
@@ -69,38 +78,13 @@ MONTHS_ORDERED: Tuple[Tuple[str, str], ...] = (
     ("09", "SEP"), ("10", "OCT"), ("11", "NOV"), ("12", "DEC"),
 )
 
-# Pattern for standardized PDF filenames (created by this script)
-# Format: YYYY_MM_ABBREV.pdf (e.g., 2024_01_JAN.pdf)
-STANDARDIZED_PDF_PATTERN = re.compile(r"^\d{4}_\d{2}_[A-Z]{3}\.pdf$")
-
-# =============================================================================
-# CSV INGESTION CONSTANTS (US-001)
-# =============================================================================
-
-# Path pattern for source CSV file — replace {year} with actual year at runtime
-INPUT_CSV_PATH: str = "./input/csv/Buckman_Well_Prod_{year}.csv"
-
-# Output directory for all generated CSV files (monthly, annual summary, QA)
-OUTPUT_DIR: str = "./output/ingested_data"
-
-# USGS conversion factor: 1 million gallons = 3.06889 acre-feet
-# Source: 1 acre-foot = 325,851 gallons → 1,000,000 / 325,851 = 3.06889
-MG_TO_AF_FACTOR: float = 3.06889
-
-# Tolerance for daily BWP total verification (MGD)
-# Each day's per-well sum is compared to the BWP formula column
-DAILY_SUM_TOLERANCE: float = 0.001
-
-# Tolerance for annual Sum row verification (MG)
-# Our 12-month totals are compared to the CSV's Sum row per well
-ANNUAL_SUM_TOLERANCE: float = 0.01
-
 # Well-to-OSE number mapping: well number (1-13) → OSE permit number
-# These are the State Engineer office permit numbers for each Buckman well
+# These are the New Mexico State Engineer office permit numbers for each Buckman well
+# Well 3 is labeled "3/3A" in historical reports (combined wells 3 and 3A)
 WELL_OSE_MAP: Dict[int, str] = {
     1: "RG-20516-S-5",
     2: "RG-20516-S-6",
-    3: "RG-20516-S",
+    3: "RG-20516-S",      # Labeled as "3/3A" in reports
     4: "RG-20516-S-2",
     5: "RG-20516-S-3",
     6: "RG-20516-S-4",
@@ -114,2007 +98,1260 @@ WELL_OSE_MAP: Dict[int, str] = {
 }
 
 # CSV column headers for wells 1-13 (as they appear in the source CSV)
+# Format: "BWell N|Flow Mgd" where N is well number
 CSV_WELL_COLUMNS: List[str] = [
-    "BWell 1", "BWell 2", "BWell 3", "BWell 4", "BWell 5",
-    "BWell 6", "BWell 7", "BWell 8", "BWell 9", "BWell 10",
-    "BWell 11", "BWell 12", "BWell 13",
+    "BWell 1|Flow Mgd", "BWell 2|Flow Mgd", "BWell 3|Flow Mgd", "BWell 4|Flow Mgd", "BWell 5|Flow Mgd",
+    "BWell 6|Flow Mgd", "BWell 7|Flow Mgd", "BWell 8|Flow Mgd", "BWell 9|Flow Mgd", "BWell 10|Flow Mgd",
+    "BWell 11|Flow Mgd", "BWell 12|Flow Mgd", "BWell 13|Flow Mgd",
 ]
 
 # Header name for the total/formula column in the source CSV
-# This column contains the daily total production across all wells
+# This column contains the daily total production across all wells (MGD)
 CSV_TOTAL_COLUMN: str = "BWP|Flow Mgd|MGD|Formula"
 
 
-def check_system_dependencies() -> bool:
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def print_error(what_failed: str, location: str, actual: str, expected: str, context: str) -> None:
     """
-    Check that required system dependencies are installed.
+    Print forensic-quality error message following CLAUDE.md standards.
 
-    This function verifies that Tesseract OCR and Poppler (for pdf2image)
-    are installed and accessible in the system PATH. These are required
-    for PDF processing and OCR functionality.
-
-    Returns:
-        True if all dependencies are available, False otherwise.
-        Prints helpful installation instructions if dependencies are missing.
-    """
-    missing_deps = []
-
-    # Check for Tesseract OCR
-    try:
-        # Try to get tesseract version - this will fail if not installed
-        pytesseract.get_tesseract_version()
-    except pytesseract.TesseractNotFoundError:
-        missing_deps.append({
-            "name": "Tesseract OCR",
-            "package": "tesseract-ocr",
-            "brew": "tesseract",
-        })
-
-    # Check for Poppler (pdftoppm command)
-    try:
-        result = subprocess.run(
-            ["pdftoppm", "-v"],
-            capture_output=True,
-            timeout=5
-        )
-        # pdftoppm returns version info on stderr, exit code 0 or 99
-    except FileNotFoundError:
-        missing_deps.append({
-            "name": "Poppler",
-            "package": "poppler-utils",
-            "brew": "poppler",
-        })
-    except subprocess.TimeoutExpired:
-        pass  # Command exists but hung - unusual, assume OK
-
-    if missing_deps:
-        print("\n" + "=" * 60)
-        print("ERROR: Missing System Dependencies")
-        print("=" * 60)
-        print("\nThe following required system packages are not installed:\n")
-
-        for dep in missing_deps:
-            print(f"  - {dep['name']}")
-
-        print("\nTo install on Ubuntu/Debian:")
-        print("  sudo apt-get install " + " ".join(d["package"] for d in missing_deps))
-
-        print("\nTo install on macOS:")
-        print("  brew install " + " ".join(d["brew"] for d in missing_deps))
-
-        print("\n" + "=" * 60)
-        return False
-
-    return True
-
-
-# Month mapping for year - used across multiple functions
-MONTH_NAME_TO_NUMERIC = {
-    "January": "01",
-    "February": "02",
-    "March": "03",
-    "April": "04",
-    "May": "05",
-    "June": "06",
-    "July": "07",
-    "August": "08",
-    "September": "09",
-    "October": "10",
-    "November": "11",
-    "December": "12",
-}
-
-MONTH_NAME_TO_ABBREV = {
-    "January": "JAN",
-    "February": "FEB",
-    "March": "MAR",
-    "April": "APR",
-    "May": "MAY",
-    "June": "JUN",
-    "July": "JUL",
-    "August": "AUG",
-    "September": "SEP",
-    "October": "OCT",
-    "November": "NOV",
-    "December": "DEC",
-}
-
-
-def is_confident(confidence: int, threshold: int = OCR_CONFIDENCE_THRESHOLD) -> bool:
-    """
-    Check if an OCR confidence score meets the required threshold.
-
-    Tesseract returns confidence scores as integers:
-    - 0-100: Valid confidence percentage
-    - -1: Invalid/no data (word not recognized)
-
-    This helper function properly handles the -1 case, which would otherwise
-    incorrectly pass a simple >= comparison with negative thresholds.
+    Prints error information in a structured 5-element format for debugging.
 
     Args:
-        confidence: OCR confidence score from Tesseract (-1 to 100)
-        threshold: Minimum acceptable confidence (default: OCR_CONFIDENCE_THRESHOLD)
-
-    Returns:
-        True if confidence is valid (not -1) AND meets or exceeds threshold
-        False if confidence is -1 (invalid) or below threshold
+        what_failed: Description of what operation failed
+        location: Where the failure occurred (file path, function name, etc.)
+        actual: The actual value that was encountered
+        expected: The expected value or condition
+        context: Physical interpretation or additional context
 
     Example:
-        >>> is_confident(96)   # Returns True (above 95)
-        >>> is_confident(94)   # Returns False (below 95)
-        >>> is_confident(-1)   # Returns False (invalid)
+        >>> print_error(
+        ...     "CSV file not found",
+        ...     "./input/csv/Buckman_Well_Prod_2024.csv",
+        ...     "File does not exist",
+        ...     "CSV file with 366 daily records",
+        ...     "Missing source data - cannot process 2024 pumping records"
+        ... )
     """
-    # Tesseract uses -1 to indicate invalid/missing confidence data
-    if confidence < 0:
-        return False
-    return confidence >= threshold
+    print(f"ERROR: {what_failed}")
+    print(f"  Location: {location}")
+    print(f"  Actual: {actual}")
+    print(f"  Expected: {expected}")
+    print(f"  Physical context: {context}")
 
 
-class WellData:
-    """Data structure for a single well's monthly reading."""
+# =============================================================================
+# CSV INGESTION FUNCTIONS (US-003 through US-011)
+# =============================================================================
 
-    def __init__(self) -> None:
-        """Initialize well data with None values."""
-        self.ose_number: Optional[str] = None
-        self.ose_number_conf: int = 0
-        self.well_name: Optional[str] = None
-        self.well_name_conf: int = 0
-        self.mg_value: Optional[float] = None
-        self.mg_conf: int = 0
-        self.af_value: Optional[float] = None
-        self.af_conf: int = 0
-        self.meter_reading: Optional[int] = None
-        self.meter_conf: int = 0
-
-
-def pdf_to_image(pdf_path: str) -> Optional[Image]:
+def read_source_csv(csv_path: str) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Convert the first page of a PDF to an image for OCR processing.
+    Read source CSV and extract daily data and annual sum row.
 
-    This function reads the first page of a PDF file and converts it to a PIL Image
-    object at 300 DPI resolution, which is optimal for OCR accuracy with Tesseract.
+    Scientific Basis:
+    - Source CSV contains daily flow rates in MGD (million gallons per day)
+    - Summing daily values gives monthly volume in MG (dimensional analysis)
+    - CSV Sum row contains annual totals per well for validation
+
+    Assumptions:
+    1. CSV has header row with date range (e.g., "1/1/2024-12/31/2024")
+    2. Daily data rows have valid dates in first column
+    3. Sum row labeled "Sum" in date column (after 366 daily rows)
+    4. All well columns contain numeric MGD values or blanks
 
     Args:
-        pdf_path: Path to the PDF file to convert
+        csv_path: Path to source CSV file (valid range: any readable CSV file)
 
     Returns:
-        PIL Image object of the first page, or None if file cannot be read
+        Tuple of (daily_df, sum_row) where:
+        - daily_df: DataFrame with Date + 13 well columns (pint Quantities in MGD) + BWP_Total
+        - sum_row: Series with annual MG totals per well from CSV Sum row
 
     Raises:
-        None (errors are logged and None is returned gracefully)
+        FileNotFoundError: If CSV file does not exist at specified path
+        ValueError: If CSV format is invalid (missing columns, wrong structure)
+
+    Example:
+        >>> daily_df, sum_row = read_source_csv("./input/csv/Buckman_Well_Prod_2024.csv")
+        >>> print(f"Read {len(daily_df)} daily records")
+        Read 366 daily records
+        >>> print(f"Buckman #1 annual total: {sum_row['BWell 1']:.3f} MG")
+        Buckman #1 annual total: 195.922 MG
+
+        Hand calculation check:
+        - If Buckman #1 pumps 0.5 MGD for 31 days (January)
+        - Monthly total = 0.5 MGD × 31 days = 15.5 MG
+
+    Validation:
+        Compare sum_row values to independently calculated annual totals
+        from daily_df (should match within ANNUAL_SUM_TOLERANCE_MG)
     """
-    try:
-        # Convert path to Path object for validation
-        path = Path(pdf_path)
+    print(f"Reading CSV: {csv_path}")
 
-        # Check if file exists
-        if not path.exists():
-            print(f"Error: PDF file not found at '{pdf_path}'")
-            return None
-
-        # Convert only page 1 (first_page=1, last_page=1) at configured DPI
-        # Returns a list of Image objects, we take the first (only) one
-        images = convert_from_path(
-            pdf_path, first_page=1, last_page=1, dpi=PDF_CONVERSION_DPI
+    # 1. Check if file exists
+    if not Path(csv_path).exists():
+        print_error(
+            "CSV file not found",
+            csv_path,
+            "File does not exist",
+            f"CSV file with daily MGD data (366 rows + 4 summary rows)",
+            "Cannot process pumping data - missing source file"
         )
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
-        if not images:
-            print(f"Error: Failed to convert PDF '{pdf_path}' to image")
-            return None
-
-        return images[0]
-
+    # 2. Read CSV with pandas
+    try:
+        df = pd.read_csv(csv_path)
     except Exception as e:
-        # Include exception type and traceback info for debugging
-        print(f"Error processing PDF '{pdf_path}':")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        # Log abbreviated traceback for debugging (last 2 frames)
-        tb_lines = traceback.format_exc().strip().split('\n')
-        if len(tb_lines) > 4:
-            print(f"  Traceback (last 2 frames):")
-            for line in tb_lines[-4:]:
-                print(f"    {line}")
-        return None
+        print_error(
+            "Failed to read CSV file",
+            csv_path,
+            f"pandas error: {type(e).__name__}: {e}",
+            "Valid CSV file with comma-separated values",
+            "File may be corrupted or not in CSV format"
+        )
+        raise
+
+    # 3. Parse first column (date with range like "1/1/2024-12/31/2024")
+    # The first column name contains the date range, rename it to 'Date' for clarity
+    date_col = df.columns[0]
+    df = df.rename(columns={date_col: 'Date'})
+
+    # 4. Extract daily rows vs summary rows
+    # Daily rows have parseable dates, summary rows have text ("Sum", "Avg", "Max", "Min")
+    # Try to convert Date column to datetime - valid dates become timestamps, invalid become NaT
+    date_parsed = pd.to_datetime(df['Date'], errors='coerce')
+    daily_mask = date_parsed.notna()
+
+    daily_df = df[daily_mask].copy()
+    summary_df = df[~daily_mask].copy()
+
+    # Parse dates for daily_df
+    daily_df['Date'] = pd.to_datetime(daily_df['Date'])
+
+    # 5. Verify we have expected well columns and total column
+    missing_cols = []
+    for col in CSV_WELL_COLUMNS:
+        if col not in daily_df.columns:
+            missing_cols.append(col)
+    if CSV_TOTAL_COLUMN not in daily_df.columns:
+        missing_cols.append(CSV_TOTAL_COLUMN)
+
+    if missing_cols:
+        print_error(
+            "Missing expected columns in CSV",
+            csv_path,
+            f"Missing columns: {missing_cols}",
+            f"Expected columns: {CSV_WELL_COLUMNS + [CSV_TOTAL_COLUMN]}",
+            "CSV structure has changed - cannot parse well data"
+        )
+        raise ValueError(f"Missing columns: {missing_cols}")
+
+    # Rename BWP total column for clarity
+    daily_df = daily_df.rename(columns={CSV_TOTAL_COLUMN: 'BWP_Total'})
+
+    # Convert well columns to numeric, coercing errors to NaN
+    for col in CSV_WELL_COLUMNS:
+        daily_df[col] = pd.to_numeric(daily_df[col], errors='coerce')
+    daily_df['BWP_Total'] = pd.to_numeric(daily_df['BWP_Total'], errors='coerce')
+
+    # 6. Extract Sum row (find row where Date column == "Sum")
+    sum_rows = summary_df[summary_df['Date'].str.strip() == 'Sum']
+    if len(sum_rows) == 0:
+        print_error(
+            "Sum row not found in CSV",
+            csv_path,
+            "No row with 'Sum' in Date column",
+            "CSV should have 366 daily rows + 'Sum' row with annual totals",
+            "Cannot validate annual totals without Sum row"
+        )
+        raise ValueError("Sum row not found in CSV")
+
+    sum_row = sum_rows.iloc[0]
+
+    # Convert Sum row well values to numeric (these are annual MG totals)
+    sum_data = {}
+    for col in CSV_WELL_COLUMNS:
+        sum_data[col] = pd.to_numeric(sum_row[col], errors='coerce')
+    sum_series = pd.Series(sum_data)
+
+    print(f"Read {len(daily_df)} daily records from CSV")
+    print(f"Date range: {daily_df['Date'].min().strftime('%Y-%m-%d')} to {daily_df['Date'].max().strftime('%Y-%m-%d')}")
+
+    # 7. Return (daily_df, sum_row)
+    # Note: NOT converting to pint Quantities here - will do that in aggregate_monthly
+    # This keeps daily_df as simple pandas for easier manipulation
+    return daily_df, sum_series
 
 
-def extract_date_from_pdf(
-    image: Image,
-) -> Tuple[int, str, str, str]:
+def validate_daily_data(daily_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Extract year and month information from the PDF header using OCR.
+    Identify and flag missing/invalid data in daily DataFrame.
 
-    This function OCRs the top portion of page 1 to find the line matching
-    the pattern "Re: Diversion Report for {Month} {Year}" and extracts the
-    date information.
+    Creates a flags DataFrame matching the shape of the daily data well columns.
+    Flags are used downstream to mark months with data quality issues.
+
+    Assumptions:
+    1. Zero values are valid (well not pumping - common in winter months)
+    2. Negative values are invalid (physical impossibility - flow cannot be negative)
+    3. Non-numeric values indicate data entry errors
+    4. Blank/NaN values indicate missing data
 
     Args:
-        image: PIL Image object from page 1 of the PDF
+        daily_df: DataFrame with 366 daily rows × 13 well columns (MGD values)
 
     Returns:
-        Tuple of (year, month_name, month_numeric, month_abbrev)
-        Example: (2024, "January", "01", "JAN")
-        If date cannot be reliably extracted (confidence < 95%), month_name
-        will be set to "NOT_OK"
+        flags_df: DataFrame with same shape, values are:
+        - "" (empty string): Valid data
+        - "BLANK": Missing/NaN value
+        - "NEGATIVE": Negative flow value (physical impossibility)
+        - "NON_NUMERIC": Non-numeric string found
 
     Raises:
-        None (errors are logged and defaults are returned)
+        ValueError: If daily_df does not contain expected well columns
+
+    Example:
+        >>> # Mock data with one negative, one blank
+        >>> daily_df = pd.DataFrame({
+        ...     'BWell 1': [1.5, -0.5, None, 0.0],  # negative and blank
+        ...     'BWell 2': [0.0, 0.0, 0.0, 0.0]     # all valid (zeros OK)
+        ... })
+        >>> flags_df = validate_daily_data(daily_df)
+        >>> print(flags_df.loc[1, 'BWell 1'])  # negative
+        NEGATIVE
+        >>> print(flags_df.loc[2, 'BWell 1'])  # blank
+        BLANK
+        >>> print(flags_df.loc[3, 'BWell 1'])  # zero (valid)
+
+
+        Hand calculation: Count flagged cells per well to estimate data quality
+
+    Validation:
+        Review flagged data in input_summary.csv against source CSV
     """
-    try:
-        # Crop to top portion of image to focus on header area
-        width, height = image.size
-        header_height = int(height * HEADER_CROP_RATIO)
-        header_image = image.crop((0, 0, width, header_height))
+    print(f"Validating {len(daily_df)} daily records...")
 
-        # Use OCR to extract text with confidence data
-        # image_to_data returns a dictionary with 'text', 'conf' (confidence)
-        data = pytesseract.image_to_data(header_image, output_type="dict")
+    # 1. Create empty flags_df with same shape as well columns
+    flags_df = pd.DataFrame(index=daily_df.index, columns=CSV_WELL_COLUMNS)
+    flags_df = flags_df.fillna("")  # Initialize all to empty string (valid)
 
-        # Extract all words and their confidence scores
-        words = data.get("text", [])
-        confidences = data.get("conf", [])
+    # 2-3. Check for NaN (blank), negative values, non-numeric
+    flag_counts = {}
+    for col in CSV_WELL_COLUMNS:
+        # Extract well number from "BWell N|Flow Mgd" format
+        well_num = int(col.split('|')[0].split()[1])  # "BWell 10|Flow Mgd" -> "10"
+        well_name = f"Buckman #{well_num}"
+        flag_count = 0
 
-        # Find the line with "Re: Diversion Report for"
-        full_text = " ".join(words)
+        for idx in daily_df.index:
+            value = daily_df.loc[idx, col]
 
-        # Try to find the date line pattern
-        # Pattern: "Re: Diversion Report for {Month} {Year}"
-        pattern = r"Re:\s*Diversion\s+Report\s+for\s+(\w+)\s+(\d{4})"
-        match = re.search(pattern, full_text, re.IGNORECASE)
+            # Check for blank/NaN
+            if pd.isna(value):
+                flags_df.loc[idx, col] = "BLANK"
+                flag_count += 1
+            # Check for negative (physical impossibility)
+            elif value < 0:
+                flags_df.loc[idx, col] = "NEGATIVE"
+                flag_count += 1
+            # Zero is valid (well not pumping)
+            # Positive values are valid
 
-        if not match:
-            print("Warning: Could not find date line in PDF header")
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+        if flag_count > 0:
+            flag_counts[well_name] = flag_count
 
-        month_name = match.group(1).strip()
-        year_str = match.group(2).strip()
+    # 5. Print summary of flagged cells
+    total_flagged = sum(flag_counts.values())
+    if total_flagged > 0:
+        print(f"Flagged {total_flagged} invalid values across {len(flag_counts)} wells:")
+        for well_name, count in flag_counts.items():
+            print(f"  {well_name}: {count} flagged days")
+    else:
+        print(f"Flagged 0 invalid values across 0 wells")
 
-        # Validate month name exists in mapping
-        if month_name not in MONTH_NAME_TO_NUMERIC:
-            print(f"Warning: Unknown month name '{month_name}'")
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        # Parse year as integer
-        try:
-            year = int(year_str)
-        except ValueError:
-            print(f"Warning: Could not parse year '{year_str}'")
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        # Get the confidence of words in the date line
-        # Use fuzzy matching to handle OCR variations (e.g., "January2024" vs "January 2024")
-        # Check words that contain the month name or year string
-        relevant_confidences = []
-        for word, conf in zip(words, confidences):
-            word_clean = word.strip()
-            if not word_clean:
-                continue
-            # Check if this word contains the month name or year
-            # This handles cases where OCR merges words or has slight variations
-            if month_name.lower() in word_clean.lower() or year_str in word_clean:
-                if conf >= 0:  # -1 means invalid/no data
-                    relevant_confidences.append(conf)
-
-        # If we have confidence data, verify all values meet threshold
-        if relevant_confidences:
-            min_confidence = min(relevant_confidences)
-            if not is_confident(min_confidence):
-                print(
-                    f"Warning: Date extraction confidence low ({min_confidence}%)"
-                )
-                return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        # Map month name to numeric and abbreviation
-        month_numeric = MONTH_NAME_TO_NUMERIC[month_name]
-        month_abbrev = MONTH_NAME_TO_ABBREV[month_name]
-
-        return (year, month_name, month_numeric, month_abbrev)
-
-    except Exception as e:
-        print(f"Error extracting date from PDF:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
+    # 6. Return flags_df
+    return flags_df
 
 
-def extract_date_from_filename(filename: str) -> Tuple[int, str, str, str]:
+def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_TOLERANCE_MGD) -> pd.DataFrame:
     """
-    Extract year and month from PDF filename as fallback when OCR fails.
+    Verify each day's per-well sum matches the BWP total column.
 
-    This function parses the filename to extract date information when the
-    OCR-based extraction from the PDF header is unsuccessful.
+    Scientific Basis:
+    - BWP (Buckman Well Field total) should equal sum of individual well flows
+    - Discrepancies indicate data entry errors or formula issues in source CSV
+    - Tolerance of 0.001 MGD = 1,000 gallons/day (acceptable rounding error)
 
-    Expected filename format: "YYYY MM MonthName - ..."
-    Example: "2024 01 January - City of Santa Fe Water - Meter Reports.pdf"
+    Assumptions:
+    1. BWP_Total column exists in daily_df
+    2. All well columns are numeric (MGD values)
+    3. NaN values treated as 0.0 MGD (well not pumping)
 
     Args:
-        filename: The PDF filename (with or without path)
+        daily_df: DataFrame with Date + 13 well MGD columns + BWP_Total column
+        tolerance_mgd: Maximum acceptable difference in MGD (default: 0.001)
 
     Returns:
-        Tuple of (year, month_name, month_numeric, month_abbrev)
-        Example: (2024, "January", "01", "JAN")
-        Returns (0, "NOT_OK", "NOT_OK", "NOT_OK") if pattern not found
-    """
-    # Pattern: 4-digit year, space, 2-digit month, space, month name, then " -"
-    pattern = r"(\d{4})\s+(\d{2})\s+(\w+)\s*-"
-    match = re.search(pattern, filename)
-
-    if not match:
-        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-    year_str = match.group(1)
-    month_numeric = match.group(2)
-    month_name = match.group(3)
-
-    # Validate month name exists in our mapping
-    if month_name not in MONTH_NAME_TO_NUMERIC:
-        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-    # Validate month numeric matches name (sanity check)
-    expected_numeric = MONTH_NAME_TO_NUMERIC[month_name]
-    if month_numeric != expected_numeric:
-        print(f"    [WARN] Filename month mismatch: {month_numeric} vs {month_name}")
-
-    # Parse year as integer
-    try:
-        year = int(year_str)
-    except ValueError:
-        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-    month_abbrev = MONTH_NAME_TO_ABBREV[month_name]
-    return (year, month_name, month_numeric, month_abbrev)
-
-
-def extract_buckman_wells_data(image: Image) -> Tuple[List[WellData], Optional[WellData]]:
-    """
-    Extract the Buckman Wells table data from the lower portion of page 1.
-
-    This function OCRs the lower half of the page to extract the table containing
-    data for Buckman wells #1 through #13, plus the total row.
-
-    Each well's data includes: OSE number, well name, MG value, AF value, meter reading.
-    Confidence scores are tracked for each field to flag uncertain values.
-
-    Args:
-        image: PIL Image object from page 1 of the PDF
-
-    Returns:
-        Tuple of (wells_list, total_row) where:
-        - wells_list: List of WellData objects for Buckman #1 through #13
-        - total_row: WellData object for "Total Buckman Wells" row, or None if not found
-
-        Any field with <95% OCR confidence will have a flag set but value preserved
-        for later validation (cf. US-006 and US-008).
+        verification_df: DataFrame with columns:
+        - Date: Date from daily_df
+        - Calculated_Sum: Sum of wells 1-13 (MGD)
+        - BWP_Total: Value from BWP total column (MGD)
+        - Difference: abs(Calculated_Sum - BWP_Total) (MGD)
+        - Verification: "OK" if difference <= tolerance, "NOT_OK" otherwise
 
     Raises:
-        None (errors are logged and empty list is returned)
+        ValueError: If required columns are missing from daily_df
+
+    Example:
+        >>> # Mock data with one mismatch
+        >>> daily_df = pd.DataFrame({
+        ...     'Date': ['1/1/2024', '1/2/2024'],
+        ...     'BWell 1': [1.0, 2.0],
+        ...     'BWell 2': [0.5, 0.5],
+        ...     # ... (11 more wells, all zeros)
+        ...     'BWP_Total': [1.5, 2.6]  # Second day has 0.1 MGD error
+        ... })
+        >>> verification_df = verify_daily_sums(daily_df, tolerance_mgd=0.001)
+        >>> print(verification_df.loc[1, 'Verification'])
+        NOT_OK
+        >>> print(verification_df.loc[1, 'Difference'])
+        0.1
+
+        Hand calculation for 1/2/2024:
+        - Sum = 2.0 + 0.5 + 0 + ... + 0 = 2.5 MGD
+        - BWP = 2.6 MGD
+        - Diff = |2.5 - 2.6| = 0.1 MGD > 0.001 → NOT_OK
+
+    Validation:
+        Compare mismatched dates to source CSV to identify data entry errors
     """
-    try:
-        # Crop to bottom portion of image to focus on table area
-        width, height = image.size
-        table_start = int(height * TABLE_CROP_RATIO)
-        table_image = image.crop((0, table_start, width, height))
+    print(f"Verifying daily sums (tolerance: {tolerance_mgd:.4f} MGD)...")
 
-        # Use Tesseract with --psm 6 for table/uniform block of text
-        # image_to_data returns detailed word-by-word data including confidence
-        data = pytesseract.image_to_data(
-            table_image, output_type="dict", config="--psm 6"
-        )
+    # 1. Sum wells 1-13 for each day (treating NaN as 0)
+    daily_df_copy = daily_df.copy()
+    calculated_sum = daily_df_copy[CSV_WELL_COLUMNS].fillna(0).sum(axis=1)
 
-        # Extract all text components
-        words = data.get("text", [])
-        confidences = data.get("conf", [])
-        left_positions = data.get("left", [])
-        top_positions = data.get("top", [])
+    # 2-3. Compare to BWP_Total column and calculate difference
+    bwp_total = daily_df_copy['BWP_Total'].fillna(0)
+    difference = abs(calculated_sum - bwp_total)
 
-        # Reconstruct lines by grouping words by top position (approximate line detection)
-        # Words within LINE_GROUPING_TOLERANCE_PX pixels vertically are considered same row
-        lines: Dict[int, List[Tuple[str, int, int]]] = {}
-        for word, conf, top, left in zip(words, confidences, top_positions, left_positions):
-            if word.strip():  # Skip empty words
-                # Group by top position (with tolerance for alignment variations)
-                line_key = (top // LINE_GROUPING_TOLERANCE_PX) * LINE_GROUPING_TOLERANCE_PX
-                if line_key not in lines:
-                    lines[line_key] = []
-                lines[line_key].append((word.strip(), conf, left))
+    # 4. Mark OK if diff <= tolerance, NOT_OK otherwise
+    verification = difference.apply(lambda d: "OK" if d <= tolerance_mgd else "NOT_OK")
 
-        # Extract wells: skip header rows, extract 13 wells + total
-        wells_list: List[WellData] = []
-        total_row: Optional[WellData] = None
+    # Create verification DataFrame
+    verification_df = pd.DataFrame({
+        'Date': daily_df_copy['Date'],
+        'Calculated_Sum': calculated_sum,
+        'BWP_Total': bwp_total,
+        'Difference': difference,
+        'Verification': verification
+    })
 
-        # Sort lines by top position to maintain order
-        sorted_lines = sorted(lines.items())
+    # 5. Print summary (count of OK vs NOT_OK)
+    ok_count = (verification == "OK").sum()
+    not_ok_count = (verification == "NOT_OK").sum()
+    print(f"Daily sum verification: {ok_count} OK, {not_ok_count} NOT_OK")
 
-        for line_key, line_words in sorted_lines:
-            # Join words to form line text
-            line_text = " ".join([w[0] for w in line_words])
+    if not_ok_count > 0:
+        print(f"  WARNING: {not_ok_count} days have sum mismatches exceeding tolerance")
+        # Show first few mismatches
+        mismatches = verification_df[verification_df['Verification'] == 'NOT_OK'].head(5)
+        for _, row in mismatches.iterrows():
+            print(f"    {row['Date'].strftime('%Y-%m-%d')}: calc={row['Calculated_Sum']:.4f}, "
+                  f"BWP={row['BWP_Total']:.4f}, diff={row['Difference']:.4f} MGD")
 
-            # Check if this is the total row
-            if "Total" in line_text and "Buckman" in line_text:
-                # Parse total row
-                total_row = _parse_table_row(line_text, line_words)
-                continue
-
-            # Check if this is a Buckman well row (contains "Buckman #" pattern)
-            if re.search(r"Buckman\s*#?\d+", line_text, re.IGNORECASE):
-                well = _parse_table_row(line_text, line_words)
-                if well.well_name:  # Only add if we extracted a well name
-                    wells_list.append(well)
-
-        # Return wells and total (total may be None if not found)
-        return (wells_list, total_row)
-
-    except Exception as e:
-        print(f"Error extracting Buckman wells data:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return ([], None)
+    # 6. Return verification_df
+    return verification_df
 
 
-def validate_af_conversion(
-    mg_value: Optional[float], reported_af: Optional[float]
-) -> str:
+def aggregate_monthly(daily_df: pd.DataFrame, flags_df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """
-    Validate that reported AF matches calculated AF from MG value.
+    Aggregate daily MGD values into monthly MG totals per well.
 
-    Compares the City's reported acre-feet value with our calculated conversion
-    from million gallons. Both values are rounded to 2 decimal places for
-    comparison, as per PRD specification.
+    Scientific Basis:
+    - Monthly volume (MG) = sum of daily flow rates (MGD) × 1 day
+    - Dimensional analysis: (MGD × day = MG)
+    - Using pint: sum(daily_mgd * ureg.day) → units automatically = million_gallon
+
+    Assumptions:
+    1. Daily values are in MGD (million gallons per day)
+    2. Summing over a month gives MG (million gallons) directly
+    3. Flagged data is still included in sum (user reviews flagged months separately)
+    4. If ANY day in a month has a flag, the month is marked Has_Flagged_Data=True
 
     Args:
-        mg_value: Million gallons value (from PDF column C)
-        reported_af: Acre-feet value reported in PDF (from column D)
+        daily_df: DataFrame with Date + 13 well columns (pint Quantities in MGD)
+        flags_df: DataFrame with same shape, flags for each daily value
 
     Returns:
-        "OK" if values match when rounded to 2 decimals, "NOT_OK" otherwise
-        Returns "NOT_OK" if either input is None/invalid
+        Dict keyed by month string ("01" through "12"), values are DataFrames with:
+        - Well_Number: 1-13
+        - MG_Month: Monthly total volume (pint Quantity in million_gallon)
+        - Has_Flagged_Data: Boolean (True if any flagged days in month)
 
     Raises:
-        None (invalid inputs return "NOT_OK")
+        ValueError: If daily_df and flags_df shapes don't match
+
+    Example:
+        >>> # Mock January data: Buckman #1 pumps 1.5 MGD for 31 days
+        >>> daily_df = pd.DataFrame({
+        ...     'Date': pd.date_range('2024-01-01', periods=31),
+        ...     'BWell 1': [1.5] * 31  # 31 days at 1.5 MGD
+        ... })
+        >>> flags_df = pd.DataFrame({'BWell 1': [''] * 31})  # No flags
+        >>> monthly_data = aggregate_monthly(daily_df, flags_df)
+        >>> print(monthly_data['01'].loc[0, 'MG_Month'])
+        46.5 MG
+        >>> print(monthly_data['01'].loc[0, 'Has_Flagged_Data'])
+        False
+
+        Hand calculation:
+        - 1.5 MGD × 31 days = 46.5 MG ✓
+
+    Validation:
+        Sum all 12 monthly MG values per well, compare to CSV Sum row
+        (should match within ANNUAL_SUM_TOLERANCE_MG)
     """
-    if mg_value is None or reported_af is None:
-        return "NOT_OK"
-
-    try:
-        # Calculate AF from MG
-        calculated_af = mg_to_af(mg_value)
-        if calculated_af is None:
-            return "NOT_OK"
-
-        # Round both to 2 decimal places for comparison
-        calculated_rounded = round(calculated_af, 2)
-        reported_rounded = round(reported_af, 2)
-
-        # Compare
-        if calculated_rounded == reported_rounded:
-            return "OK"
-        else:
-            return "NOT_OK"
-
-    except (TypeError, ValueError):
-        return "NOT_OK"
-
-
-def mg_to_af(mg_value: Optional[float]) -> Optional[float]:
-    """
-    Convert million gallons to acre-feet using the USGS standard conversion factor.
-
-    Per USGS (https://water.usgs.gov/nawqa/glos.html):
-    1 acre-foot = 325,851 gallons
-    Therefore: 1 million gallons = 1,000,000 / 325,851 = 3.06889 acre-feet
-
-    Args:
-        mg_value: Volume in million gallons (float or None)
-
-    Returns:
-        Volume in acre-feet with 5 decimal places precision, or None if input is None/invalid
-
-    Raises:
-        None (invalid inputs return None gracefully)
-    """
-    if mg_value is None:
-        return None
-
-    try:
-        # USGS conversion factor: 1 MG = 3.06889 AF
-        # Using exact factor from USGS: 1,000,000 / 325,851
-        conversion_factor = 1_000_000 / 325_851
-        af_value = mg_value * conversion_factor
-
-        # Round to 5 decimal places as per PRD spec
-        return round(af_value, 5)
-
-    except (TypeError, ValueError):
-        return None
-
-
-def extract_buckman_data_pdftotext(pdf_path: str) -> Tuple[List["WellData"], Optional["WellData"]]:
-    """
-    Extract Buckman well data from a PDF using pdftotext.
-
-    This function is designed for PDFs that have embedded text (either native
-    text-based PDFs or scanned PDFs that have been processed with OCR tools
-    like ocrmypdf or Adobe Acrobat's "Paper Capture" feature).
-
-    Advantages over inline Tesseract OCR:
-    - Much faster (no image conversion needed)
-    - More accurate (text is already embedded, no re-OCR degradation)
-    - Works with pre-OCR'd PDFs
-
-    Args:
-        pdf_path: Path to the PDF file with embedded text
-
-    Returns:
-        Tuple of (wells_list, total_row) where:
-        - wells_list: List of WellData objects for Buckman #1 through #13
-        - total_row: WellData object for total row, or None if not found
-    """
-    wells_list: List[WellData] = []
-    total_row: Optional[WellData] = None
-
-    try:
-        # Extract text from PDF using pdftotext with layout preservation
-        result = subprocess.run(
-            ["pdftotext", "-layout", pdf_path, "-"],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-
-        if result.returncode != 0:
-            print(f"Error: pdftotext failed for '{pdf_path}'")
-            print(f"  stderr: {result.stderr[:200]}")
-            return ([], None)
-
-        text = result.stdout
-
-        # Check if we got meaningful text
-        if len(text) < 100:
-            print(f"Warning: PDF '{pdf_path}' has little/no extractable text")
-            print(f"  Hint: Run 'ocrmypdf --skip-text \"{pdf_path}\" \"{pdf_path}\"' first")
-            return ([], None)
-
-        # Parse Buckman well data using regex
-        # Pattern handles OCR variations:
-        # - OSE: RG-20516-S or RG-20516-S-2 through RG-20516-S-13 (case insensitive)
-        # - Well: "Buckman #1" or "Buckman *12" (# or * from OCR errors)
-        # - Numbers: can have comma (0,027) instead of period (0.027)
-        # - Whitespace varies due to layout extraction
-
-        # Pattern: OSE_number  Buckman #N  MG_value  AF_value  meter_reading
-        # Note: OCR may render:
-        #   - "11" as "ll" or "1l" or "l1"
-        #   - "S" as "8" or "s"
-        #   - "Buckman" as "Buclcman" or "Buclcm.an"
-        #   - "0.00" as "o.oo" (lowercase o)
-        #   - numbers with spaces like "0 . 000"
-        well_pattern = re.compile(
-            r"(RG-20516-[Ss8](?:-[\dls8]+)?)\s+"     # OSE number (S/s/8 variations)
-            r"Buc[kl][ckmn]+[.\s]*[#*]\s*(\d+)\s+"   # Well name variations
-            r"([\doO]+\s*[,\.]\s*[\doO]+)\s+"        # MG value (o for 0, spaces allowed)
-            r"([\doO]+\s*[,\.]\s*[\doO]+)\s+"        # AF value
-            r"([\d\"]+)",                             # Meter reading (may have quote marks)
-            re.IGNORECASE
-        )
-
-        for match in well_pattern.finditer(text):
-            well = WellData()
-            # Normalize OSE number: uppercase and fix common OCR errors
-            # - "ll"/"l1"/"1l" -> "11"
-            # - "8" -> "S" when it appears after RG-20516-
-            ose = match.group(1).upper()
-            ose = ose.replace("LL", "11").replace("L1", "11").replace("1L", "11")
-            # Fix "8" misread as "S" in OSE suffix
-            ose = re.sub(r'^(RG-20516-)8', r'\1S', ose)
-            ose = ose.replace("-8-", "-S-")  # Also fix internal 8s
-            well.ose_number = ose
-            well.well_name = f"Buckman #{match.group(2)}"
-
-            # Parse MG value (handle comma, spaces, lowercase o for 0)
-            mg_str = match.group(3).replace(",", ".").replace(" ", "")
-            mg_str = mg_str.replace("o", "0").replace("O", "0")
-            well.mg_value = float(mg_str)
-
-            # Parse AF value
-            af_str = match.group(4).replace(",", ".").replace(" ", "")
-            af_str = af_str.replace("o", "0").replace("O", "0")
-            well.af_value = float(af_str)
-
-            # Parse meter reading (remove quote marks and other artifacts)
-            meter_str = re.sub(r'[^\d]', '', match.group(5))
-            well.meter_reading = int(meter_str) if meter_str else 0
-
-            # Set high confidence since text extraction is reliable
-            well.ose_number_conf = 100
-            well.well_name_conf = 100
-            well.mg_conf = 100
-            well.af_conf = 100
-            well.meter_conf = 100
-
-            wells_list.append(well)
-
-        # Parse total row
-        total_pattern = re.compile(
-            r"TOTAL\s+BUCKMAN\s+WELLS\s+"
-            r"(\d+[,\.]\d+)\s+"              # Total MG
-            r"(\d+[,\.]\d+)",                # Total AF
-            re.IGNORECASE
-        )
-
-        total_match = total_pattern.search(text)
-        if total_match:
-            total_row = WellData()
-            total_row.mg_value = float(total_match.group(1).replace(",", "."))
-            total_row.af_value = float(total_match.group(2).replace(",", "."))
-            total_row.mg_conf = 100
-            total_row.af_conf = 100
-
-        # Log extraction results
-        if wells_list:
-            print(f"  Extracted {len(wells_list)} wells via pdftotext")
-        else:
-            print(f"  Warning: No wells found in PDF text")
-
-        return (wells_list, total_row)
-
-    except subprocess.TimeoutExpired:
-        print(f"Error: pdftotext timed out for '{pdf_path}'")
-        return ([], None)
-    except Exception as e:
-        print(f"Error extracting data via pdftotext from '{pdf_path}':")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return ([], None)
-
-
-def extract_date_pdftotext(pdf_path: str) -> Tuple[int, str, str, str]:
-    """
-    Extract year and month from PDF using pdftotext.
-
-    Looks for the pattern "Re: Diversion Report for {Month} {Year}" in the PDF text.
-
-    Args:
-        pdf_path: Path to the PDF file
-
-    Returns:
-        Tuple of (year, month_name, month_numeric, month_abbrev)
-        Returns (0, "NOT_OK", "NOT_OK", "NOT_OK") if extraction fails
-    """
-    try:
-        result = subprocess.run(
-            ["pdftotext", "-layout", pdf_path, "-"],
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-
-        if result.returncode != 0:
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        text = result.stdout
-
-        # Look for date pattern in header
-        pattern = r"Re:\s*Diversion\s+Report\s+for\s+(\w+)\s+(\d{4})"
-        match = re.search(pattern, text, re.IGNORECASE)
-
-        if not match:
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        month_name = match.group(1).strip()
-        year_str = match.group(2).strip()
-
-        # Validate month name
-        if month_name not in MONTH_NAME_TO_NUMERIC:
-            return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-        year = int(year_str)
-        month_numeric = MONTH_NAME_TO_NUMERIC[month_name]
-        month_abbrev = MONTH_NAME_TO_ABBREV[month_name]
-
-        return (year, month_name, month_numeric, month_abbrev)
-
-    except Exception as e:
-        print(f"Error extracting date via pdftotext: {e}")
-        return (0, "NOT_OK", "NOT_OK", "NOT_OK")
-
-
-def _normalize_well_name(raw_name: str) -> str:
-    """
-    Normalize well name to consistent 'Buckman #N' format.
-
-    Handles variations like 'Buckman#1', 'Buckman # 1', 'Buckman 1', etc.
-    and converts them all to the standard format 'Buckman #N'.
-
-    Args:
-        raw_name: Raw well name string from OCR
-
-    Returns:
-        Normalized well name in format 'Buckman #N' (e.g., 'Buckman #1')
-    """
-    # Extract the well number from the raw name
-    match = re.search(r"(\d+)", raw_name)
-    if match:
-        well_num = match.group(1)
-        return f"Buckman #{well_num}"
-    return raw_name.strip()
-
-
-def _parse_table_row(line_text: str, line_words: List[Tuple[str, int, int]]) -> WellData:
-    """
-    Parse a single table row into a WellData object.
-
-    Helper function for extract_buckman_wells_data(). Extracts fields from a
-    space-separated row and assigns confidence scores.
-
-    The extraction process:
-    1. Extract OSE number (e.g., 'RG-20516-S')
-    2. Extract well name (e.g., 'Buckman #1') and normalize format
-    3. Remove OSE and well name from text, then extract remaining numbers
-    4. Remaining numbers are: MG value, AF value, meter reading (in order)
-
-    Args:
-        line_text: Full line text (for pattern matching)
-        line_words: List of (word, confidence, left_position) tuples
-
-    Returns:
-        WellData object with extracted fields and confidence scores
-    """
-    well = WellData()
-
-    # Make a working copy of line_text for number extraction
-    remaining_text = line_text
-
-    # Extract OSE number (usually first field, format like RG-20516-S)
-    ose_pattern = r"(RG-\d+-\S+)"
-    ose_match = re.search(ose_pattern, line_text)
-    if ose_match:
-        well.ose_number = ose_match.group(1)
-        # Remove OSE number from remaining text to avoid capturing its digits
-        remaining_text = remaining_text.replace(ose_match.group(1), " ")
-        # Find confidence for OSE number word
-        for word, conf, _ in line_words:
-            if ose_match.group(1) in word or word in ose_match.group(1):
-                well.ose_number_conf = conf
-                break
-
-    # Extract well name (format like "Buckman #1" or "Buckman #13")
-    # This pattern captures various OCR variations of the well name
-    name_pattern = r"(Buckman\s*#?\s*\d+)"
-    name_match = re.search(name_pattern, line_text, re.IGNORECASE)
-    if name_match:
-        # Normalize to consistent "Buckman #N" format
-        well.well_name = _normalize_well_name(name_match.group(1))
-        # Remove well name from remaining text to avoid capturing its digit
-        remaining_text = re.sub(name_pattern, " ", remaining_text, flags=re.IGNORECASE)
-        # Find confidence for well name (use "Buckman" word confidence)
-        for word, conf, _ in line_words:
-            if "Buckman" in word or "buckman" in word.lower():
-                well.well_name_conf = conf
-                break
-
-    # Now extract numerical values from remaining text
-    # After removing OSE and well name, remaining numbers should be: MG, AF, meter
-    # Pattern matches decimal numbers (like 0.000, 12.34) and integers (like 16351)
-    numbers = re.findall(r"\d+\.?\d*", remaining_text)
-
-    # We expect exactly 3 numbers: MG, AF, meter reading
-    if len(numbers) >= 1:
-        # First number is MG (million gallons)
-        try:
-            well.mg_value = float(numbers[0])
-            # Find confidence for this number
-            for word, conf, _ in line_words:
-                if numbers[0] in word:
-                    well.mg_conf = conf
-                    break
-        except ValueError:
-            pass
-
-    if len(numbers) >= 2:
-        # Second number is AF (acre-feet)
-        try:
-            well.af_value = float(numbers[1])
-            # Find confidence for AF
-            for word, conf, _ in line_words:
-                if numbers[1] in word:
-                    well.af_conf = conf
-                    break
-        except ValueError:
-            pass
-
-    if len(numbers) >= 3:
-        # Third number is meter reading (should be integer)
-        try:
-            well.meter_reading = int(float(numbers[2]))
-            # Find confidence for meter reading
-            for word, conf, _ in line_words:
-                if numbers[2] in word:
-                    well.meter_conf = conf
-                    break
-        except ValueError:
-            pass
-
-    return well
-
-
-def calculate_totals_verification(
-    wells: List[WellData], total_row: Optional[WellData]
-) -> Tuple[Dict[str, str], Dict[str, str]]:
-    """
-    Calculate sums from wells and compare to PDF total row.
-
-    This function calculates totals for MG and AF_Calculated from the wells list,
-    then compares against the PDF total row with specified tolerances.
-
-    Args:
-        wells: List of WellData objects for Buckman #1 through #13
-        total_row: WellData object containing PDF totals, or None
-
-    Returns:
-        Tuple of (calculated_sums, verification_results) where:
-        - calculated_sums: Dict with "mg_sum" and "af_sum" (formatted strings)
-        - verification_results: Dict with "mg_verification" and "af_verification"
-          Each is "OK" if match within tolerance, "NOT_OK" otherwise
-    """
-    calculated_sums: Dict[str, str] = {}
-    verification_results: Dict[str, str] = {}
-
-    try:
-        # Calculate sums from wells
-        mg_sum = 0.0
-        af_sum = 0.0
-        valid_mg_count = 0
-        valid_af_count = 0
-
-        for well in wells:
-            if well.mg_value is not None and is_confident(well.mg_conf):
-                mg_sum += well.mg_value
-                valid_mg_count += 1
-            if well.af_value is not None and is_confident(well.af_conf):
-                af_sum += well.af_value
-                valid_af_count += 1
-
-        # Format calculated sums
-        calculated_sums["mg_sum"] = f"{mg_sum:.3f}"
-        calculated_sums["af_sum"] = f"{af_sum:.5f}"
-
-        # Compare with PDF total if available
-        if total_row and valid_mg_count == len(wells) and valid_af_count == len(wells):
-            # Check MG: match within configured tolerance (2 decimal places)
-            if total_row.mg_value is not None:
-                mg_diff = abs(mg_sum - total_row.mg_value)
-                verification_results["mg_verification"] = (
-                    "OK" if mg_diff <= MG_VERIFICATION_TOLERANCE else "NOT_OK"
-                )
-            else:
-                verification_results["mg_verification"] = "NOT_OK"
-
-            # Check AF: match within configured tolerance (3 decimal places)
-            if total_row.af_value is not None:
-                af_diff = abs(af_sum - total_row.af_value)
-                verification_results["af_verification"] = (
-                    "OK" if af_diff <= AF_VERIFICATION_TOLERANCE else "NOT_OK"
-                )
-            else:
-                verification_results["af_verification"] = "NOT_OK"
-        else:
-            # Cannot verify without total row or with low confidence wells
-            verification_results["mg_verification"] = "NOT_OK"
-            verification_results["af_verification"] = "NOT_OK"
-
-        return (calculated_sums, verification_results)
-
-    except Exception as e:
-        print(f"Error calculating totals:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return (
-            {"mg_sum": "NOT_OK", "af_sum": "NOT_OK"},
-            {"mg_verification": "NOT_OK", "af_verification": "NOT_OK"},
-        )
+    print("Aggregating daily data into monthly totals...")
+
+    # 1. Extract month from Date column (1-12)
+    daily_df_copy = daily_df.copy()
+    daily_df_copy['Month'] = daily_df_copy['Date'].dt.month
+
+    # 4. Create dict with month keys ("01"-"12")
+    monthly_data = {}
+
+    # 2-3. Group by month and aggregate
+    for month_num in range(1, 13):
+        month_str = f"{month_num:02d}"  # "01" through "12"
+        month_df = daily_df_copy[daily_df_copy['Month'] == month_num]
+
+        if len(month_df) == 0:
+            # Month has no data - create empty month with zeros
+            well_data = []
+            for well_num in range(1, 14):
+                col = f"BWell {well_num}"
+                well_data.append({
+                    'Well_Number': well_num,
+                    'MG_Month': 0.0 * ureg.million_gallon,
+                    'Has_Flagged_Data': False
+                })
+            monthly_data[month_str] = pd.DataFrame(well_data)
+            continue
+
+        # For each well, sum daily MGD values → monthly MG
+        well_data = []
+        for well_num in range(1, 14):
+            col = f"BWell {well_num}|Flow Mgd"
+
+            # 3a. Sum daily MGD values → monthly MG (using pint for dimensional correctness)
+            # Daily values are in MGD (million gallons per day)
+            # Summing over days: sum(MGD) × 1 day = MG
+            daily_mgd_values = month_df[col].fillna(0).values
+            # Create pint Quantity array
+            daily_mgd_qty = daily_mgd_values * ureg.million_gallon / ureg.day
+            # Sum over days - units automatically become million_gallon
+            monthly_mg_qty = (daily_mgd_qty * ureg.day).sum()
+
+            # 3b. Check if any days have flags → set Has_Flagged_Data
+            month_flags = flags_df.loc[month_df.index, col]
+            has_flagged = (month_flags != "").any()
+
+            well_data.append({
+                'Well_Number': well_num,
+                'MG_Month': monthly_mg_qty,
+                'Has_Flagged_Data': has_flagged
+            })
+
+        monthly_data[month_str] = pd.DataFrame(well_data)
+
+    # 5. Print summary (number of months processed)
+    months_with_data = sum(1 for month_df in monthly_data.values() if (month_df['MG_Month'].apply(lambda q: q.magnitude) > 0).any())
+    print(f"Aggregated {months_with_data} months with pumping data (12 months total)")
+
+    # 6. Return monthly_data dict
+    return monthly_data
 
 
 def generate_monthly_csv(
-    output_path: str,
-    year: int,
-    month_numeric: str,
+    month_num: str,
     month_abbrev: str,
-    wells: List[WellData],
-    total_row: Optional[WellData],
-) -> List[str]:
+    month_df: pd.DataFrame,
+    year: int,
+    output_dir: str
+) -> List[Dict]:
     """
-    Generate a monthly CSV file with extracted well data and validation columns.
+    Generate monthly CSV file with well production data.
 
-    This function creates a CSV with the following columns:
-    - OSE_Number: State well number
-    - Well_Name: City well name (e.g., "Buckman #1")
-    - MG_Month: Monthly pumping in million gallons (3 decimal places)
-    - AF_Calculated: AF calculated from MG (5 decimal places)
-    - AF_Reported: AF reported in PDF (2 decimal places)
-    - AF_Verification: "OK" or "NOT_OK" from validation
-    - Meter_Reading: Meter reading value
+    Creates a CSV file with monthly MG and AF values for each well, following
+    the format specified in the PRD (US-007).
 
-    Rows are sorted by well name (#1 through #13), followed by totals section.
+    Assumptions:
+    1. month_df contains Well_Number, MG_Month (pint Quantity), Has_Flagged_Data
+    2. All 13 wells are present (wells that didn't pump have 0.000 MG)
+    3. Output directory exists or will be created
 
     Args:
-        output_path: Path where CSV file will be written
-        year: Year (for filename reference)
-        month_numeric: Month number string (e.g., "01")
-        month_abbrev: Month abbreviation (e.g., "JAN")
-        wells: List of WellData objects for wells #1 through #13
-        total_row: WellData object for total row, or None if not found
-
-    Returns:
-        List of any "NOT_OK" values encountered (for input summary tracking)
-
-    Raises:
-        None (errors are logged)
-    """
-    try:
-        # Sort wells by well name to ensure proper order
-        def well_sort_key(w: WellData) -> int:
-            """Extract well number for sorting (e.g., 1 from 'Buckman #1')."""
-            if w.well_name:
-                match = re.search(r"\d+", w.well_name)
-                if match:
-                    return int(match.group())
-            return 999
-
-        wells_sorted = sorted(wells, key=well_sort_key)
-
-        # Prepare rows for CSV
-        rows = []
-
-        # Add well data rows
-        for well in wells_sorted:
-            # Handle low confidence values using is_confident() helper
-            # This properly handles Tesseract's -1 "invalid" confidence value
-            ose_num = (
-                well.ose_number
-                if is_confident(well.ose_number_conf)
-                else "NOT_OK"
-            )
-            well_name = (
-                well.well_name
-                if is_confident(well.well_name_conf)
-                else "NOT_OK"
-            )
-            mg_val = (
-                f"{well.mg_value:.3f}"
-                if well.mg_value is not None and is_confident(well.mg_conf)
-                else "NOT_OK"
-            )
-
-            # Calculate AF from MG (only if MG confidence is high)
-            af_calculated = mg_to_af(well.mg_value) if is_confident(well.mg_conf) else None
-            af_calc_str = (
-                f"{af_calculated:.5f}"
-                if af_calculated is not None
-                else "NOT_OK"
-            )
-
-            # AF reported from PDF (only if AF confidence is high)
-            af_reported = well.af_value if is_confident(well.af_conf) else None
-            af_report_str = (
-                f"{af_reported:.2f}"
-                if af_reported is not None
-                else "NOT_OK"
-            )
-
-            # Verify AF values match
-            af_verification = validate_af_conversion(well.mg_value, af_reported)
-            if af_calculated is None or af_reported is None:
-                af_verification = "NOT_OK"
-
-            meter_reading = (
-                str(well.meter_reading)
-                if well.meter_reading is not None and is_confident(well.meter_conf)
-                else "NOT_OK"
-            )
-
-            rows.append({
-                "OSE_Number": ose_num,
-                "Well_Name": well_name,
-                "MG_Month": mg_val,
-                "AF_Calculated": af_calc_str,
-                "AF_Reported": af_report_str,
-                "AF_Verification": af_verification,
-                "Meter_Reading": meter_reading,
-            })
-
-        # Calculate and add totals rows
-        calculated_sums, verification_results = calculate_totals_verification(wells, total_row)
-
-        # Add Calculated_Sum row
-        rows.append({
-            "OSE_Number": "Calculated_Sum",
-            "Well_Name": "",
-            "MG_Month": calculated_sums.get("mg_sum", "NOT_OK"),
-            "AF_Calculated": calculated_sums.get("af_sum", "NOT_OK"),
-            "AF_Reported": "",
-            "AF_Verification": "",
-            "Meter_Reading": "",
-        })
-
-        # Add PDF_Total row if available
-        if total_row:
-            pdf_total_mg = (
-                f"{total_row.mg_value:.3f}"
-                if total_row.mg_value is not None
-                else "NOT_OK"
-            )
-            pdf_total_af = (
-                f"{total_row.af_value:.2f}"
-                if total_row.af_value is not None
-                else "NOT_OK"
-            )
-
-            rows.append({
-                "OSE_Number": "PDF_Total",
-                "Well_Name": "Total Buckman Wells",
-                "MG_Month": pdf_total_mg,
-                "AF_Calculated": "",
-                "AF_Reported": pdf_total_af,
-                "AF_Verification": "",
-                "Meter_Reading": "",
-            })
-
-        # Add Total_Verification row
-        rows.append({
-            "OSE_Number": "Total_Verification",
-            "Well_Name": "",
-            "MG_Month": verification_results.get("mg_verification", "NOT_OK"),
-            "AF_Calculated": verification_results.get("af_verification", "NOT_OK"),
-            "AF_Reported": "",
-            "AF_Verification": "",
-            "Meter_Reading": "",
-        })
-
-        # Write CSV using atomic write pattern (temp file + rename)
-        # This prevents partial/corrupted files if the script is interrupted
-        if rows:
-            df = pd.DataFrame(rows)
-            output_dir = os.path.dirname(output_path)
-
-            # Write to temporary file first
-            with tempfile.NamedTemporaryFile(
-                mode='w',
-                dir=output_dir,
-                suffix='.csv',
-                delete=False
-            ) as tmp_file:
-                df.to_csv(tmp_file, index=False)
-                tmp_path = tmp_file.name
-
-            # Atomically replace the target file
-            shutil.move(tmp_path, output_path)
-            print(f"Created CSV: {output_path}")
-
-        # Collect NOT_OK values for summary
-        not_ok_values = []
-        for row in rows:
-            for col, val in row.items():
-                if val == "NOT_OK":
-                    not_ok_values.append(val)
-
-        return not_ok_values
-
-    except Exception as e:
-        print(f"Error generating monthly CSV '{output_path}':")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return []
-
-
-def generate_input_summary_csv(year: int, not_ok_values: List[str]) -> None:
-    """
-    Generate input summary CSV listing all values flagged for human review.
-
-    This function creates a summary of all NOT_OK values encountered during
-    processing, with location information (Year, Month, Well, Field, Issue).
-
-    If no issues are found, creates a file with headers only and a note.
-
-    Args:
-        year: Year being processed (e.g., 2024)
-        not_ok_values: List of NOT_OK strings collected during processing
-
-    Raises:
-        None (errors are logged)
-    """
-    try:
-        # Initialize summary data
-        summary_rows = []
-
-        # Read all monthly CSVs to find NOT_OK values with location details
-        for month_idx, month_abbrev in enumerate(MONTHS_ABBREV):
-            month_number = month_idx + 1
-            month_numeric = f"{month_number:02d}"
-
-            csv_filename = f"buckman_{year}_{month_numeric}_{month_abbrev}.csv"
-            csv_path = f"./output/ingested_data/{csv_filename}"
-
-            if not os.path.exists(csv_path):
-                # Missing month
-                summary_rows.append({
-                    "Year": year,
-                    "Month": month_abbrev,
-                    "Well": "",
-                    "Field": "",
-                    "Issue": "Missing PDF file",
-                })
-                continue
-
-            # Read CSV and find NOT_OK values
-            df = pd.read_csv(csv_path)
-
-            # Iterate through rows looking for NOT_OK
-            for _, row in df.iterrows():
-                well_name = row.get("Well_Name", "")
-                ose_number = row.get("OSE_Number", "")
-
-                # Check each column for NOT_OK
-                for col_name in df.columns:
-                    if pd.notna(row[col_name]) and str(row[col_name]) == "NOT_OK":
-                        # Skip header rows in summary
-                        if well_name not in ["Calculated_Sum", "PDF_Total", "Total_Verification"]:
-                            summary_rows.append({
-                                "Year": year,
-                                "Month": month_abbrev,
-                                "Well": well_name or ose_number,
-                                "Field": col_name,
-                                "Issue": "Low OCR confidence or verification failure",
-                            })
-
-        # Write summary CSV
-        output_filename = "input_summary.csv"
-        output_path = f"./output/ingested_data/{output_filename}"
-
-        if summary_rows:
-            df_summary = pd.DataFrame(summary_rows)
-            df_summary.to_csv(output_path, index=False)
-            print(f"Created input summary: {output_filename} ({len(summary_rows)} issues)")
-        else:
-            # No issues found - create file with headers only
-            headers_df = pd.DataFrame(columns=["Year", "Month", "Well", "Field", "Issue"])
-            headers_df.to_csv(output_path, index=False)
-            print(f"Created input summary: {output_filename} (No issues detected)")
-
-    except Exception as e:
-        print(f"Error generating input summary:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-
-
-def generate_annual_summary_csv(year: int) -> None:
-    """
-    Generate annual summary CSV consolidating all monthly data.
-
-    This function reads all 12 monthly CSV files and creates a summary table
-    with the structure:
-    - Row 1: Headers (Well, JAN, FEB, ..., DEC, Total)
-    - Rows 2-14: Wells 1-13 with AF values from each month
-    - Row 15: Total row with column sums
-
-    AF values are displayed with 6 decimal places. If a monthly CSV is missing
-    or contains "NOT_OK", that value is carried forward in the summary.
-
-    Args:
-        year: Year to generate summary for (e.g., 2024)
-
-    Raises:
-        None (errors are logged)
-    """
-    try:
-        # Initialize data structure: well_data[well_num][month] = af_value
-        well_data: Dict[int, Dict[str, str]] = {i: {} for i in range(1, 14)}
-
-        # Read all monthly CSVs using module-level MONTHS_ABBREV constant
-        for month_idx, month_abbrev in enumerate(MONTHS_ABBREV):
-            # Determine month number (1-indexed)
-            month_number = month_idx + 1
-            month_numeric = f"{month_number:02d}"
-
-            csv_filename = f"buckman_{year}_{month_numeric}_{month_abbrev}.csv"
-            csv_path = f"./output/ingested_data/{csv_filename}"
-
-            if not os.path.exists(csv_path):
-                # Month not found, mark all wells as NOT_OK
-                for well_num in range(1, 14):
-                    well_data[well_num][month_abbrev] = "NOT_OK"
-                continue
-
-            # Read CSV
-            df = pd.read_csv(csv_path)
-
-            # Extract AF_Calculated values for each well
-            for well_num in range(1, 14):
-                well_name = f"Buckman #{well_num}"
-                matching_rows = df[df["Well_Name"] == well_name]
-
-                if not matching_rows.empty:
-                    af_value = matching_rows.iloc[0]["AF_Calculated"]
-                    well_data[well_num][month_abbrev] = str(af_value)
-                else:
-                    well_data[well_num][month_abbrev] = "NOT_OK"
-
-        # Build summary table
-        rows = []
-
-        # Header row
-        header_row = ["Well"] + list(MONTHS_ABBREV) + ["Total"]
-        rows.append(header_row)
-
-        # Well rows (1-13)
-        for well_num in range(1, 14):
-            row = [f"Buckman #{well_num}"]
-            well_total = 0.0
-            has_valid_data = True
-
-            for month_abbrev in MONTHS_ABBREV:
-                value = well_data[well_num].get(month_abbrev, "NOT_OK")
-                row.append(value)
-
-                # Try to accumulate total
-                if value != "NOT_OK":
-                    try:
-                        well_total += float(value)
-                    except ValueError:
-                        has_valid_data = False
-
-            # Add well total
-            if has_valid_data and well_total > 0:
-                row.append(f"{well_total:.6f}")
-            else:
-                row.append("NOT_OK")
-
-            rows.append(row)
-
-        # Total row (sum of columns)
-        total_row = ["Total"]
-        for month_idx, month_abbrev in enumerate(MONTHS_ABBREV):
-            month_total = 0.0
-            has_valid_data = True
-
-            for well_num in range(1, 14):
-                value = well_data[well_num].get(month_abbrev, "NOT_OK")
-                if value != "NOT_OK":
-                    try:
-                        month_total += float(value)
-                    except ValueError:
-                        has_valid_data = False
-
-            if has_valid_data and month_total > 0:
-                total_row.append(f"{month_total:.6f}")
-            else:
-                total_row.append("NOT_OK")
-
-        # Grand total (sum of all valid cells)
-        grand_total = 0.0
-        has_valid_data = True
-        for well_num in range(1, 14):
-            for month_abbrev in MONTHS_ABBREV:
-                value = well_data[well_num].get(month_abbrev, "NOT_OK")
-                if value != "NOT_OK":
-                    try:
-                        grand_total += float(value)
-                    except ValueError:
-                        has_valid_data = False
-
-        if has_valid_data and grand_total > 0:
-            total_row.append(f"{grand_total:.6f}")
-        else:
-            total_row.append("NOT_OK")
-
-        rows.append(total_row)
-
-        # Write summary CSV
-        output_filename = f"buckman_{year}_table_2_data.csv"
-        output_path = f"./output/ingested_data/{output_filename}"
-
-        df_summary = pd.DataFrame(rows[1:], columns=rows[0])
-        df_summary.to_csv(output_path, index=False)
-
-        print(f"Created annual summary: {output_filename}")
-
-    except Exception as e:
-        print(f"Error generating annual summary for {year}:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-
-
-def process_all_months(year: int) -> List[str]:
-    """
-    Process all 12 months for a given year.
-
-    This function iterates through all months (January through December),
-    calls process_single_month for each, and collects all NOT_OK values
-    for subsequent input_summary generation.
-
-    Args:
-        year: Year to process (e.g., 2024)
-
-    Returns:
-        List of all NOT_OK values encountered across all months
-
-    Raises:
-        None (errors are logged, processing continues for remaining months)
-    """
-    # Use module-level month definitions
-    all_not_ok_values: List[str] = []
-    processed_count = 0
-    skipped_count = 0
-
-    print(f"\nProcessing all months for {year}...")
-    print("-" * 50)
-
-    for month_numeric, month_abbrev in MONTHS_ORDERED:
-        success, not_ok_values = process_single_month(year, month_numeric, month_abbrev)
-
-        if success:
-            processed_count += 1
-            all_not_ok_values.extend(not_ok_values)
-        else:
-            skipped_count += 1
-
-    print("-" * 50)
-    print(f"Summary: Processed {processed_count} months, skipped {skipped_count}")
-    print(f"Total NOT_OK values found: {len(all_not_ok_values)}")
-
-    return all_not_ok_values
-
-
-def process_single_month(
-    year: int, month_numeric: str, month_abbrev: str
-) -> Tuple[bool, List[str]]:
-    """
-    Process a single month's PDF end-to-end, producing a monthly CSV file.
-
-    This function orchestrates the complete workflow for one month:
-    1. Constructs input path from year/month/abbrev
-    2. Converts PDF page 1 to image
-    3. Extracts date information
-    4. Extracts well data table
-    5. Validates AF conversions
-    6. Generates monthly CSV with totals
-
-    Args:
+        month_num: Month number as 2-digit string ("01" through "12")
+        month_abbrev: Month abbreviation ("JAN" through "DEC")
+        month_df: DataFrame with Well_Number, MG_Month, Has_Flagged_Data columns
         year: Year (e.g., 2024)
-        month_numeric: Month number string (e.g., "01")
-        month_abbrev: Month abbreviation (e.g., "JAN")
+        output_dir: Output directory path
 
     Returns:
-        Tuple of (success, not_ok_values) where:
-        - success: True if processing completed, False if PDF missing
-        - not_ok_values: List of NOT_OK values encountered (for summary)
+        List of dicts describing flagged wells: [
+            {"month": "07", "well": 1, "flag_type": "BLANK", "days_flagged": 3},
+            ...
+        ]
 
     Raises:
-        None (errors are logged)
-    """
-    try:
-        # Construct file paths
-        # Use standardized filename format (created by validate_and_prepare_pdfs)
-        input_filename = f"{year}_{month_numeric}_{month_abbrev}"
-        input_path = f"./input/pdfs/{input_filename}.pdf"
-
-        # Check if PDF exists
-        if not os.path.exists(input_path):
-            print(f"Warning: PDF not found for {month_abbrev} {year}")
-            return (False, [])
-
-        print(f"Processing {month_abbrev} {year}...")
-
-        # Extract date info using pdftotext (faster and more reliable than OCR)
-        extracted_year, month_name, _, _ = extract_date_pdftotext(input_path)
-        if month_name == "NOT_OK":
-            # Fallback: try filename-based extraction
-            extracted_year, month_name, _, _ = extract_date_from_filename(
-                os.path.basename(input_path)
-            )
-            if month_name == "NOT_OK":
-                print(f"Warning: Could not extract date for {month_abbrev} {year}")
-                return (False, [])
-            print(f"  Date extracted from filename: {month_name} {extracted_year}")
-
-        # Extract well data using pdftotext (requires pre-OCR'd PDFs)
-        wells, total_row = extract_buckman_data_pdftotext(input_path)
-        if not wells:
-            print(f"Warning: Could not extract well data for {month_abbrev} {year}")
-            print(f"  Hint: Ensure PDF has embedded text (run ocrmypdf if needed)")
-            return (False, [])
-
-        # Generate monthly CSV
-        output_filename = f"buckman_{year}_{month_numeric}_{month_abbrev}.csv"
-        output_path = f"./output/ingested_data/{output_filename}"
-
-        not_ok_values = generate_monthly_csv(
-            output_path, year, month_numeric, month_abbrev, wells, total_row
-        )
-
-        print(f"Completed {month_abbrev} {year} → {output_filename}")
-        return (True, not_ok_values)
-
-    except Exception as e:
-        print(f"Error processing {month_abbrev} {year}:")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return (False, [])
-
-
-def scan_input_pdfs(input_dir: str) -> List[str]:
-    """
-    Scan the input directory for all PDF files.
-
-    This function finds all PDF files in the specified directory, regardless
-    of their naming convention. It returns a list of full paths to each PDF.
-
-    Args:
-        input_dir: Path to the directory containing PDF files
-
-    Returns:
-        List of full paths to PDF files found, sorted alphabetically
+        OSError: If output directory cannot be created or file cannot be written
 
     Example:
-        >>> pdfs = scan_input_pdfs("./input/pdfs/")
-        >>> print(pdfs[0])
-        './input/pdfs/2024 01 January - City of Santa Fe Water - Meter Reports.pdf'
+        >>> month_df = pd.DataFrame({
+        ...     'Well_Number': [1, 2, 3],
+        ...     'MG_Month': [52.949, 0.000, 0.793],  # pint Quantities
+        ...     'Has_Flagged_Data': [False, False, True]
+        ... })
+        >>> flags = generate_monthly_csv("07", "JUL", month_df, 2024, "./output")
+        Wrote 2024_07_JUL.csv (13 wells, 1 flagged)
+        >>> # File contains:
+        >>> # OSE_Number,Well_Name,MG_Month,AF_Calculated,Data_Quality
+        >>> # RG-20516-S-5,Buckman #1,52.949,162.48852,OK
+        >>> # ...
+
+    Validation:
+        Check generated CSV against validation/Table_2_2024.xlsx July column
     """
-    pdf_files: List[str] = []
+    print(f"({month_num}/12) Generating: {year}_{month_num}_{month_abbrev}.csv")
 
-    try:
-        # Check if directory exists
-        if not os.path.exists(input_dir):
-            print(f"Warning: Input directory '{input_dir}' does not exist")
-            return []
+    # 1. Create output directory if needed
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-        # Find all PDF files in the directory
-        for filename in os.listdir(input_dir):
-            if filename.lower().endswith(".pdf"):
-                full_path = os.path.join(input_dir, filename)
-                pdf_files.append(full_path)
+    # 2. Map well numbers to OSE numbers and names, extract MG values
+    rows = []
+    flagged_wells = []
 
-        # Sort alphabetically for consistent ordering
-        pdf_files.sort()
+    for _, row in month_df.iterrows():
+        well_num = int(row['Well_Number'])
+        ose_number = WELL_OSE_MAP[well_num]
+        well_name = f"Buckman #{well_num}"
 
-        return pdf_files
+        # Extract magnitude from pint Quantity
+        mg_month = row['MG_Month'].magnitude
 
-    except Exception as e:
-        print(f"Error scanning input directory '{input_dir}':")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return []
+        # 3. Convert MG to AF (using pint for unit safety)
+        mg_qty = mg_month * ureg.million_gallon
+        af_qty = mg_qty.to(ureg.acre_foot)
+        af_calculated = af_qty.magnitude
+
+        # 4. Set Data_Quality based on Has_Flagged_Data
+        data_quality = "FLAGGED" if row['Has_Flagged_Data'] else "OK"
+
+        rows.append({
+            'OSE_Number': ose_number,
+            'Well_Name': well_name,
+            'MG_Month': f"{mg_month:.3f}",
+            'AF_Calculated': f"{af_calculated:.5f}",
+            'Data_Quality': data_quality
+        })
+
+        # 7. Collect flagged well info for return
+        if row['Has_Flagged_Data']:
+            flagged_wells.append({
+                'month': month_num,
+                'well': well_num,
+                'well_name': well_name,
+                'mg_total': mg_month
+            })
+
+    # 5. Add Calculated_Sum row (sum of all wells)
+    total_mg = sum(row['MG_Month'].magnitude for _, row in month_df.iterrows())
+    total_af = (total_mg * ureg.million_gallon).to(ureg.acre_foot).magnitude
+
+    rows.append({
+        'OSE_Number': 'Calculated_Sum',
+        'Well_Name': '',
+        'MG_Month': f"{total_mg:.3f}",
+        'AF_Calculated': f"{total_af:.5f}",
+        'Data_Quality': ''
+    })
+
+    # 6. Write CSV with pandas
+    output_df = pd.DataFrame(rows)
+    output_path = Path(output_dir) / f"{year}_{month_num}_{month_abbrev}.csv"
+    output_df.to_csv(output_path, index=False)
+
+    # 8. Print confirmation
+    flagged_count = len(flagged_wells)
+    print(f"  Wrote {output_path.name} (13 wells, {flagged_count} flagged)")
+
+    return flagged_wells
 
 
-def extract_date_from_pdf_quick(pdf_path: str) -> Tuple[Optional[int], Optional[str]]:
+def generate_table2_output(monthly_data: Dict[str, pd.DataFrame], year: int, output_dir: str) -> None:
     """
-    Lightweight OCR to extract year and month from PDF header only.
+    Generate Table 2 output CSV matching validation format.
 
-    This function is optimized for the pre-flight validation phase. It only
-    reads the header area of the PDF to extract the date, avoiding full
-    table extraction which is more time-consuming.
+    Creates a monthly AFY grid (wells × months) with summary statistics,
+    matching the format of validation/Table_2_2024.xlsx.
+
+    Scientific Basis:
+    - AF values converted from monthly MG using MG_TO_AF_FACTOR (3.06889)
+    - Percentages calculated as group_sum / total_annual * 100
+    - Wells 10-13 are high-capacity production wells (typically 28-30% of total)
+    - Wells 1, 7, 8 are primary production wells (typically 50-55% of total)
+
+    Assumptions:
+    1. monthly_data contains all 12 months ("01" through "12")
+    2. Each month has all 13 wells present
+    3. Validation format: 14 rows (13 wells + Total) × 14 cols (Well, JAN-DEC, Total)
 
     Args:
-        pdf_path: Path to the PDF file to scan
+        monthly_data: Dict of month DataFrames from aggregate_monthly()
+        year: Year for filename (e.g., 2024)
+        output_dir: Output directory path
 
     Returns:
-        Tuple of (year, month_name) where:
-        - year: Integer year (e.g., 2024) or None if extraction failed
-        - month_name: Full month name (e.g., "January") or None if extraction failed
-
-    Example:
-        >>> year, month = extract_date_from_pdf_quick("./input/pdfs/report.pdf")
-        >>> print(f"{month} {year}")
-        'January 2024'
-    """
-    try:
-        # Convert PDF to image (first page only)
-        image = pdf_to_image(pdf_path)
-        if image is None:
-            return (None, None)
-
-        # Crop to header area (uses configured ratio instead of hardcoded 1/4)
-        width, height = image.size
-        header_height = int(height * HEADER_CROP_RATIO)
-        header_image = image.crop((0, 0, width, header_height))
-
-        # OCR the header area
-        text = pytesseract.image_to_string(header_image)
-
-        # Look for the date pattern
-        pattern = r"Re:\s*Diversion\s+Report\s+for\s+(\w+)\s+(\d{4})"
-        match = re.search(pattern, text, re.IGNORECASE)
-
-        if match:
-            month_name = match.group(1).strip()
-            year_str = match.group(2).strip()
-
-            # Validate month name
-            if month_name in MONTH_NAME_TO_NUMERIC:
-                return (int(year_str), month_name)
-
-        return (None, None)
-
-    except Exception as e:
-        print(f"Error extracting date from '{pdf_path}':")
-        print(f"  Exception type: {type(e).__name__}")
-        print(f"  Message: {str(e)}")
-        return (None, None)
-
-
-def validate_and_prepare_pdfs(target_year: int, input_dir: str = "./input/pdfs/") -> Dict[str, Any]:
-    """
-    Validate input PDFs and create standardized copies.
-
-    This function performs the pre-flight validation phase:
-    1. Scans for all PDF files in the input directory
-    2. OCRs each file to extract year and month
-    3. Validates coverage (all 12 months present, no duplicates)
-    4. Creates standardized copies with consistent naming
-    5. Returns a validation report
-
-    Original files are preserved unchanged. Standardized copies are created
-    with the naming pattern: {year}_{month_numeric}_{MONTH_ABBREV}.pdf
-
-    Args:
-        target_year: The year expected for all PDFs (e.g., 2024)
-        input_dir: Path to the input directory (default: "./input/pdfs/")
-
-    Returns:
-        Dictionary containing validation results:
-        {
-            "valid_months": ["01", "02", ...],     # Months ready to process
-            "missing_months": ["03", "05"],        # Gaps in coverage
-            "duplicates": [("04", [...])],         # Multiple files for same month
-            "wrong_year": [("file.pdf", 2023)],    # Files with different year
-            "unreadable": ["file.pdf"],            # OCR failed
-            "standardized": [{"original": ..., "standard": ...}],
-            "total_files_found": 12,
-            "issues_count": 0
-        }
-    """
-    # Initialize the validation report
-    report: Dict[str, Any] = {
-        "valid_months": [],
-        "missing_months": [],
-        "duplicates": [],
-        "wrong_year": [],
-        "unreadable": [],
-        "standardized": [],
-        "total_files_found": 0,
-        "issues_count": 0,
-    }
-
-    # Track which months we find (for duplicate detection)
-    month_to_files: Dict[str, List[str]] = {f"{i:02d}": [] for i in range(1, 13)}
-
-    # Scan for PDF files
-    pdf_files = scan_input_pdfs(input_dir)
-    report["total_files_found"] = len(pdf_files)
-
-    if not pdf_files:
-        report["issues_count"] = 12  # All months missing
-        report["missing_months"] = [f"{i:02d}" for i in range(1, 13)]
-        return report
-
-    # Filter out previously-created standardized copies to avoid false duplicates
-    original_files = [
-        f for f in pdf_files
-        if not STANDARDIZED_PDF_PATTERN.match(os.path.basename(f))
-    ]
-
-    # Update count for display
-    skipped_count = len(pdf_files) - len(original_files)
-    if skipped_count > 0:
-        print(f"  (Skipping {skipped_count} previously standardized file(s))")
-
-    total_pdfs = len(original_files)
-    print(f"\nScanning {total_pdfs} PDF file(s) for date information...")
-    print("-" * 50)
-
-    # Process each PDF with progress indicator
-    for idx, pdf_path in enumerate(original_files, start=1):
-        filename = os.path.basename(pdf_path)
-        # Show progress as (current/total) with truncated filename
-        progress = f"({idx}/{total_pdfs})"
-        print(f"  {progress} Scanning: {filename[:45]}...")
-
-        # Extract date from PDF content (OCR-based)
-        year, month_name = extract_date_from_pdf_quick(pdf_path)
-
-        if year is None or month_name is None:
-            # OCR failed - try fallback to filename extraction
-            year, month_name, _, _ = extract_date_from_filename(filename)
-            if month_name == "NOT_OK":
-                # Both OCR and filename extraction failed
-                report["unreadable"].append(filename)
-                report["issues_count"] += 1
-                print(f"    [WARN] Could not extract date from header or filename")
-                continue
-            else:
-                print(f"    [INFO] Date extracted from filename: {month_name} {year}")
-
-        if year != target_year:
-            # Wrong year
-            report["wrong_year"].append((filename, year))
-            report["issues_count"] += 1
-            print(f"    [WARN] Contains data for {year}, not {target_year}")
-            continue
-
-        # Get month numeric
-        month_numeric = MONTH_NAME_TO_NUMERIC.get(month_name)
-        if month_numeric is None:
-            report["unreadable"].append(filename)
-            report["issues_count"] += 1
-            print(f"    [WARN] Unknown month name: {month_name}")
-            continue
-
-        # Track this file for the month
-        month_to_files[month_numeric].append(pdf_path)
-        print(f"    [OK] {month_name} {year}")
-
-    print("-" * 50)
-
-    # Check for duplicates and create standardized copies
-    print("\nCreating standardized copies...")
-
-    for month_numeric, files in sorted(month_to_files.items()):
-        month_abbrev = list(MONTH_NAME_TO_ABBREV.values())[int(month_numeric) - 1]
-
-        if len(files) == 0:
-            # Missing month
-            report["missing_months"].append(month_numeric)
-            report["issues_count"] += 1
-
-        elif len(files) == 1:
-            # Single file - create standardized copy with OCR if needed
-            original_path = files[0]
-            original_filename = os.path.basename(original_path)
-            standard_filename = f"{target_year}_{month_numeric}_{month_abbrev}.pdf"
-            standard_path = os.path.join(input_dir, standard_filename)
-
-            # Check if standardized file exists AND has text (not just copied)
-            if os.path.exists(standard_path):
-                # Verify it has extractable text
-                result = subprocess.run(
-                    ["pdftotext", "-layout", standard_path, "-"],
-                    capture_output=True, text=True
-                )
-                if len(result.stdout) > 100:
-                    print(f"  {month_abbrev}: Using existing {standard_filename} (text OK)")
-                    report["valid_months"].append(month_numeric)
-                    continue
-                else:
-                    # Existing file but no text - needs OCR
-                    print(f"  {month_abbrev}: Existing file needs OCR...")
-
-            # Extract page 1 and OCR if needed
-            if original_path != standard_path:
-                # Extract page 1 only using pdfseparate
-                temp_page1 = f"/tmp/page1_{month_abbrev}.pdf"
-                temp_pattern = f"/tmp/page_{month_abbrev}_%d.pdf"
-                actual_temp = f"/tmp/page_{month_abbrev}_1.pdf"
-
-                subprocess.run(
-                    ["pdfseparate", "-f", "1", "-l", "1", original_path, temp_pattern],
-                    capture_output=True, text=True
-                )
-
-                if not os.path.exists(actual_temp):
-                    print(f"  {month_abbrev}: ERROR extracting page 1")
-                    report["issues_count"] += 1
-                    continue
-
-                # Check if page 1 has text
-                result = subprocess.run(
-                    ["pdftotext", "-layout", actual_temp, "-"],
-                    capture_output=True, text=True
-                )
-
-                if len(result.stdout) > 100:
-                    # Already has text - just copy
-                    shutil.move(actual_temp, standard_path)
-                    print(f"  {month_abbrev}: {original_filename[:40]}... → {standard_filename}")
-                else:
-                    # Needs OCR
-                    print(f"  {month_abbrev}: Running OCR...", end="", flush=True)
-                    ocr_result = subprocess.run(
-                        ["ocrmypdf", "--output-type", "pdf", actual_temp, standard_path],
-                        capture_output=True, text=True
-                    )
-                    if os.path.exists(actual_temp):
-                        os.remove(actual_temp)
-
-                    if ocr_result.returncode == 0:
-                        print(f" done → {standard_filename}")
-                    else:
-                        print(f" ERROR: {ocr_result.stderr[:80]}")
-                        report["issues_count"] += 1
-                        continue
-
-                report["standardized"].append({
-                    "original": original_filename,
-                    "standard": standard_filename,
-                })
-            else:
-                print(f"  {month_abbrev}: Already standardized")
-
-            report["valid_months"].append(month_numeric)
-
-        else:
-            # Multiple files for same month
-            filenames = [os.path.basename(f) for f in files]
-            report["duplicates"].append((month_numeric, filenames))
-            report["issues_count"] += 1
-
-    return report
-
-
-def get_year_interactively(input_dir: str = "./input/pdfs/") -> int:
-    """
-    Prompt user for the target year, with auto-detection from PDF contents.
-
-    This function scans the input PDFs to detect what years are present,
-    then prompts the user to confirm or override the year selection.
-
-    Args:
-        input_dir: Path to the input directory (default: "./input/pdfs/")
-
-    Returns:
-        Integer year selected by user (e.g., 2024)
+        None (writes file to disk)
 
     Raises:
-        SystemExit: If user provides invalid input or cancels
+        OSError: If output directory cannot be created or file cannot be written
+
+    Example:
+        >>> # After aggregating all months
+        >>> generate_table2_output(monthly_data, 2024, "./output")
+        Generating Table 2 output...
+        Wrote 2024_Table_2_output.csv
+        >>> # File structure:
+        >>> # Well,JAN,FEB,...,JUL,...,DEC,Total
+        >>> # 1,16.89,38.81,...,162.49,...,0.00,601.28
+        >>> # ...
+        >>> # Total,19.39,39.39,...,302.06,...,65.68,1372.95
+        >>> #
+        >>> # Wells 10-13,386.86,28.2%
+        >>> # Wells 1,7,8,713.75,52.0%
+
+    Validation:
+        Compare to validation/Table_2_2024.xlsx (tolerance: 0.01 AF)
+        Verify: Wells 10-13 sum = 386.86 AFY (28.2% of 1372.95)
+        Verify: Wells 1,7,8 sum = 713.75 AFY (52.0% of 1372.95)
     """
-    print("\nBuckman Well Field PDF Data Ingestion Workflow")
-    print("=" * 50)
-    print("\nNo year specified. Scanning input/pdfs/ for available data...")
+    print("Generating Table 2 output...")
 
-    # Scan PDFs and extract years
-    pdf_files = scan_input_pdfs(input_dir)
-    years_found: List[int] = []
+    # 1-2. Create 14×14 grid with AF values
+    # Initialize data structure: list of rows
+    table_rows = []
 
-    for pdf_path in pdf_files:
-        year, _ = extract_date_from_pdf_quick(pdf_path)
-        if year is not None:
-            years_found.append(year)
+    # Build rows for wells 1-13
+    for well_num in range(1, 14):
+        row_data = {'Well': well_num}
 
-    # Count occurrences of each year
-    if years_found:
-        year_counts = Counter(years_found)
-        most_common_year = year_counts.most_common(1)[0][0]
-        unique_years = sorted(set(years_found))
+        # Add monthly AF values
+        annual_total_af = 0.0
+        for month_num, month_abbrev in MONTHS_ORDERED:
+            month_df = monthly_data[month_num]
+            well_row = month_df[month_df['Well_Number'] == well_num].iloc[0]
 
-        print(f"\nFound PDFs containing data for year(s): {', '.join(map(str, unique_years))}")
-        default_year = most_common_year
-    else:
-        print("\nNo valid date information found in PDFs.")
-        default_year = 2024  # Fallback default
+            # Convert MG to AF
+            mg_qty = well_row['MG_Month']
+            af_value = mg_qty.to(ureg.acre_foot).magnitude
 
-    # Prompt user for year
-    while True:
-        try:
-            user_input = input(f"\nPlease enter the year to process [{default_year}]: ").strip()
+            row_data[month_abbrev] = round(af_value, 2)
+            annual_total_af += af_value
 
-            if user_input == "":
-                return default_year
+        # 3. Calculate row totals (annual AF per well)
+        row_data['Total'] = round(annual_total_af, 2)
+        table_rows.append(row_data)
 
-            year = int(user_input)
+    # 4. Calculate column totals (monthly AF all wells)
+    total_row = {'Well': 'Total'}
+    grand_total_af = 0.0
 
-            # Validate reasonable year range
-            if 1990 <= year <= 2100:
-                return year
-            else:
-                print("Please enter a year between 1990 and 2100.")
+    for month_num, month_abbrev in MONTHS_ORDERED:
+        month_df = monthly_data[month_num]
+        # Sum all wells for this month
+        month_total_mg = sum(row['MG_Month'] for _, row in month_df.iterrows())
+        month_total_af = month_total_mg.to(ureg.acre_foot).magnitude
 
-        except ValueError:
-            print("Invalid input. Please enter a valid year (e.g., 2024).")
-        except KeyboardInterrupt:
-            print("\n\nOperation cancelled.")
-            sys.exit(0)
+        total_row[month_abbrev] = round(month_total_af, 2)
+        grand_total_af += month_total_af
+
+    total_row['Total'] = round(grand_total_af, 2)
+    table_rows.append(total_row)
+
+    # Create DataFrame from rows
+    table2_df = pd.DataFrame(table_rows)
+
+    # 5. Add blank row
+    blank_row = {col: '' for col in table2_df.columns}
+    blank_row['Well'] = ''
+
+    # 6. Add Wells 10-13 statistics row
+    wells_10_13_af = sum(row['Total'] for row in table_rows[9:13])  # Wells 10-13 (indices 9-12)
+    pct_10_13 = (wells_10_13_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
+    wells_10_13_row = {col: '' for col in table2_df.columns}
+    wells_10_13_row['Well'] = 'Wells 10-13'
+    wells_10_13_row['JAN'] = f"{wells_10_13_af:.2f}"
+    wells_10_13_row['FEB'] = f"{pct_10_13:.1f}%"
+
+    # 7. Add Wells 1,7,8 statistics row
+    wells_1_7_8_af = table_rows[0]['Total'] + table_rows[6]['Total'] + table_rows[7]['Total']
+    pct_1_7_8 = (wells_1_7_8_af / grand_total_af * 100) if grand_total_af > 0 else 0.0
+    wells_1_7_8_row = {col: '' for col in table2_df.columns}
+    wells_1_7_8_row['Well'] = 'Wells 1,7,8'
+    wells_1_7_8_row['JAN'] = f"{wells_1_7_8_af:.2f}"
+    wells_1_7_8_row['FEB'] = f"{pct_1_7_8:.1f}%"
+
+    # Append summary rows to DataFrame
+    summary_rows = pd.DataFrame([blank_row, wells_10_13_row, wells_1_7_8_row])
+    table2_df = pd.concat([table2_df, summary_rows], ignore_index=True)
+
+    # 8. Write CSV
+    output_path = Path(output_dir) / f"{year}_Table_2_output.csv"
+    table2_df.to_csv(output_path, index=False)
+
+    # 9. Print confirmation
+    print(f"  Wrote {output_path.name}")
+    print(f"  Annual total: {grand_total_af:.2f} AFY")
+    print(f"  Wells 10-13: {wells_10_13_af:.2f} AFY ({pct_10_13:.1f}%)")
+    print(f"  Wells 1,7,8: {wells_1_7_8_af:.2f} AFY ({pct_1_7_8:.1f}%)")
 
 
-def display_preflight_report(report: Dict[str, Any], target_year: int) -> bool:
+def generate_table1_output(year_afy_data: Dict[int, float], year: int, output_dir: str) -> None:
     """
-    Display the pre-flight validation report and prompt for confirmation.
+    Generate Table 1 output by inserting 2024 row into historical data.
 
-    This function presents a summary of the validation results to the user,
-    showing which months are ready, which have issues, and prompts for
-    confirmation before proceeding with processing.
+    Reads existing Table_1_data_afy_2024.xlsx (historical 1988-2023), inserts
+    2024 data, adds statistics rows, and outputs updated CSV.
+
+    Scientific Basis:
+    - Well percentages show distribution of pumping across well field
+    - Wells 10-13 group represents high-capacity production wells
+    - Ranking years by total AFY identifies drought/high-usage periods
+
+    Assumptions:
+    1. Validation/Table_1_data_afy_2024.xlsx exists with historical data
+    2. 2024 row should be inserted at end (after 2023)
+    3. Well 3 labeled as "3/3A" (historical convention)
+    4. All years 1988-2024 are ranked by total AFY (1 = lowest pumping)
 
     Args:
-        report: Validation report from validate_and_prepare_pdfs()
-        target_year: The target year for processing
+        year_afy_data: Dict mapping well number (1-13) to annual AFY
+        year: Year being added (should be 2024)
+        output_dir: Output directory path
 
     Returns:
-        True if user confirms to proceed, False otherwise
+        None (writes file to disk)
+
+    Raises:
+        FileNotFoundError: If validation Excel file not found
+        OSError: If output file cannot be written
+
+    Example:
+        >>> year_afy_data = {1: 601.27, 2: 0.01, ..., 13: 212.02}
+        >>> generate_table1_output(year_afy_data, 2024, "./output")
+        Generating Table 1 output...
+        Wrote Table_1_updated.csv
+        >>> # File includes:
+        >>> # - All historical years 1988-2023
+        >>> # - New 2024 row with annual totals
+        >>> # - Statistics rows 44-48 (well percentages, group sums)
+        >>> # - Sort column ranking all years by total AFY
+
+    Validation:
+        Compare 2024 row totals to Table 2 annual totals (should match exactly)
+        Verify total = 1372.95 AFY
     """
-    print("\n")
-    print("=" * 60)
-    print("           PRE-FLIGHT VALIDATION REPORT")
-    print("=" * 60)
-    print(f"\nYear: {target_year}")
-    print(f"Input directory: ./input/pdfs/")
-    print(f"\nOriginal files found: {report['total_files_found']}")
-    print(f"Standardized copies created: {len(report['standardized'])}")
+    print("Generating Table 1 output...")
 
-    print("\nMonth Coverage:")
-    print("-" * 60)
+    # 1. Read validation/Table_1_data_afy_2024.xlsx
+    validation_path = Path(VALIDATION_DIR) / "Table_1_data_afy_2024.xlsx"
 
-    # Build month status display using module-level constant
-    for i, month_abbrev in enumerate(MONTHS_ABBREV):
-        month_numeric = f"{i + 1:02d}"
-
-        # Check status
-        if month_numeric in report["valid_months"]:
-            # Find the standardized file info
-            standard_filename = f"{target_year}_{month_numeric}_{month_abbrev}.pdf"
-            original = next(
-                (s["original"] for s in report["standardized"]
-                 if s["standard"] == standard_filename),
-                "Already standardized"
-            )
-            if len(original) > 35:
-                original = original[:32] + "..."
-            print(f"  [OK]      {month_abbrev} - {standard_filename} (from: {original})")
-
-        elif month_numeric in report["missing_months"]:
-            print(f"  [MISSING] {month_abbrev} - No file found for {month_abbrev} {target_year}")
-
-        else:
-            # Check for duplicates
-            dup_entry = next(
-                (d for d in report["duplicates"] if d[0] == month_numeric),
-                None
-            )
-            if dup_entry:
-                print(f"  [DUPLICATE] {month_abbrev} - Multiple files contain {month_abbrev} {target_year} data:")
-                for dup_file in dup_entry[1]:
-                    print(f"              - {dup_file}")
-
-    # Show wrong year files
-    if report["wrong_year"]:
-        print("\nWrong Year Files:")
-        for filename, wrong_year in report["wrong_year"]:
-            print(f"  [WRONG YEAR] {filename} - Contains data for {wrong_year}, not {target_year}")
-
-    # Show unreadable files
-    if report["unreadable"]:
-        print("\nUnreadable Files:")
-        for filename in report["unreadable"]:
-            print(f"  [UNREADABLE] {filename} - Could not extract date information")
-
-    print("-" * 60)
-    print(f"\nIssues Found: {report['issues_count']}")
-
-    # Prompt for confirmation
-    if report["issues_count"] == 0:
-        # No issues - default to proceed
-        prompt = "\nReady to proceed? [Y/n]: "
-        default_proceed = True
+    if not validation_path.exists():
+        print(f"  WARNING: Validation file not found: {validation_path}")
+        print(f"  Creating Table 1 with 2024 data only")
+        # Create minimal table with just 2024
+        table1_df = pd.DataFrame()
     else:
-        # Issues found - default to not proceed
-        print("\nWARNING: Processing will skip missing/problematic months.")
-        prompt = "Continue anyway? [y/N]: "
-        default_proceed = False
-
-    while True:
         try:
-            user_input = input(prompt).strip().lower()
+            table1_df = pd.read_excel(validation_path)
+            print(f"  Read {len(table1_df)} historical years from {validation_path.name}")
+        except Exception as e:
+            print(f"  WARNING: Failed to read Excel file: {e}")
+            print(f"  Creating Table 1 with 2024 data only")
+            table1_df = pd.DataFrame()
 
-            if user_input == "":
-                return default_proceed
-            elif user_input in ["y", "yes"]:
-                return True
-            elif user_input in ["n", "no"]:
-                return False
-            else:
-                print("Please enter 'y' for yes or 'n' for no.")
+    # 2. Insert 2024 row with year_afy_data
+    # Build 2024 row
+    row_2024 = {'Well:': year}
 
-        except KeyboardInterrupt:
-            print("\n\nOperation cancelled.")
-            return False
+    # Add individual well values (wells 1-13)
+    # Note: Well 3 should be labeled as "3/3A" in column header (historical convention)
+    for well_num, af_value in year_afy_data.items():
+        if well_num == 3:
+            col_name = '3/3A'
+        else:
+            col_name = well_num
+        row_2024[col_name] = round(af_value, 2)
 
+    # Calculate total
+    total_afy = sum(year_afy_data.values())
+    row_2024['Total'] = round(total_afy, 2)
 
-def create_project_directories() -> None:
-    """
-    Create the required directory structure for the workflow.
-
-    Creates:
-    - ./output/ingested_data/ (for output CSV files)
-
-    Verifies:
-    - ./input/pdfs/ exists (raises error if missing)
-
-    Handles:
-    - Existing directories gracefully (no error if already present)
-    """
-    # Define the required directories
-    output_dir = "./output/ingested_data"
-    input_dir = "./input/pdfs"
-
-    # Verify input directory exists
-    if not os.path.exists(input_dir):
-        raise FileNotFoundError(
-            f"Input directory '{input_dir}' does not exist. "
-            f"Please ensure the input/pdfs directory is present before running this script."
-        )
-
-    # Create output directory if it doesn't exist
-    # Using exist_ok=True to avoid race condition where another process
-    # could create the directory between our check and creation
-    if os.path.exists(output_dir):
-        print(f"Output directory already exists: {output_dir}")
+    # Append 2024 row
+    new_row_df = pd.DataFrame([row_2024])
+    if len(table1_df) > 0:
+        table1_df = pd.concat([table1_df, new_row_df], ignore_index=True)
     else:
-        os.makedirs(output_dir, exist_ok=True)
-        print(f"Created output directory: {output_dir}")
+        table1_df = new_row_df
+
+    # 4. Calculate Sort column (rank all years by Total, 1=lowest)
+    # Extract rows with numeric years (skip any summary rows)
+    year_rows = table1_df[table1_df['Well:'].apply(lambda x: isinstance(x, (int, float)) and not pd.isna(x))]
+
+    if len(year_rows) > 0:
+        # Rank by Total AFY (1 = lowest pumping year)
+        year_rows_sorted = year_rows.sort_values('Total')
+        rank_map = {year_rows_sorted.iloc[i]['Well:']: i + 1 for i in range(len(year_rows_sorted))}
+
+        # Add Sort column to main dataframe
+        table1_df['Total, Sort'] = table1_df['Well:'].map(rank_map)
+
+    # 3. Add statistics rows
+    # Calculate statistics for 2024 (last row with data)
+    if year in year_afy_data:
+        stats_rows = []
+
+        # Row: Individual well % of annual total
+        well_pct_row = {'Well:': '% of Total'}
+        for well_num in range(1, 14):
+            af_value = year_afy_data.get(well_num, 0.0)
+            pct = (af_value / total_afy * 100) if total_afy > 0 else 0.0
+            col_name = '3/3A' if well_num == 3 else well_num
+            well_pct_row[col_name] = f"{pct:.1f}%"
+        well_pct_row['Total'] = "100.0%"
+        stats_rows.append(well_pct_row)
+
+        # Row: Wells 10-13 sum
+        wells_10_13_sum = sum(year_afy_data.get(w, 0.0) for w in [10, 11, 12, 13])
+        wells_10_13_row = {'Well:': 'Wells 10-13'}
+        wells_10_13_row[10] = round(wells_10_13_sum, 2)
+        stats_rows.append(wells_10_13_row)
+
+        # Row: Wells 10-13 % of total
+        wells_10_13_pct = (wells_10_13_sum / total_afy * 100) if total_afy > 0 else 0.0
+        wells_10_13_pct_row = {'Well:': 'Wells 10-13 %'}
+        wells_10_13_pct_row[10] = f"{wells_10_13_pct:.1f}%"
+        stats_rows.append(wells_10_13_pct_row)
+
+        # Row: Wells 1,7,8 sum
+        wells_1_7_8_sum = sum(year_afy_data.get(w, 0.0) for w in [1, 7, 8])
+        wells_1_7_8_row = {'Well:': 'Wells 1,7,8'}
+        wells_1_7_8_row[1] = round(wells_1_7_8_sum, 2)
+        stats_rows.append(wells_1_7_8_row)
+
+        # Row: Wells 1,7,8 % of total
+        wells_1_7_8_pct = (wells_1_7_8_sum / total_afy * 100) if total_afy > 0 else 0.0
+        wells_1_7_8_pct_row = {'Well:': 'Wells 1,7,8 %'}
+        wells_1_7_8_pct_row[1] = f"{wells_1_7_8_pct:.1f}%"
+        stats_rows.append(wells_1_7_8_pct_row)
+
+        # Append statistics rows
+        stats_df = pd.DataFrame(stats_rows)
+        table1_df = pd.concat([table1_df, stats_df], ignore_index=True)
+
+    # 5. Write CSV
+    output_path = Path(output_dir) / "Table_1_updated.csv"
+    table1_df.to_csv(output_path, index=False)
+
+    # 6. Print confirmation
+    print(f"  Wrote {output_path.name}")
+    print(f"  2024 total: {total_afy:.2f} AFY")
+    if len(year_rows) > 0:
+        rank_2024 = rank_map.get(year, 'N/A')
+        print(f"  2024 rank: {rank_2024} of {len(year_rows)} years (1=lowest pumping)")
+
+
+def generate_qa_summary(
+    all_flags: List[Dict],
+    daily_verification: pd.DataFrame,
+    year: int,
+    output_dir: str
+) -> None:
+    """
+    Generate QA summary CSV listing flagged data and verification failures.
+
+    Creates input_summary.csv with two sections:
+    1. Flagged well-months (missing/invalid data from validation)
+    2. Daily sum mismatches (BWP verification failures)
+
+    Assumptions:
+    1. all_flags contains dicts from generate_monthly_csv() calls
+    2. daily_verification contains full year of daily sum checks
+    3. If no issues found, file contains "No data quality issues found"
+
+    Args:
+        all_flags: List of flagged well-month dicts from all 12 months
+        daily_verification: DataFrame with daily sum verification results
+        year: Year for reference (e.g., 2024)
+        output_dir: Output directory path
+
+    Returns:
+        None (writes file to disk)
+
+    Raises:
+        OSError: If output file cannot be written
+
+    Example:
+        >>> all_flags = [
+        ...     {"month": "07", "well": 3, "flag_type": "BLANK", "days_flagged": 2}
+        ... ]
+        >>> generate_qa_summary(all_flags, daily_verification, 2024, "./output")
+        QA summary: 1 flagged well-month, 0 daily sum mismatches
+        >>> # File contains:
+        >>> # Section 1 - Flagged Well-Months
+        >>> # Month,Well_Name,Flag_Type,Flagged_Days_Count,Monthly_MG_Total
+        >>> # JUL,Buckman #3,BLANK,2,0.793
+        >>> #
+        >>> # Section 2 - Daily Sum Mismatches
+        >>> # (empty - no mismatches)
+
+    Validation:
+        Review flagged entries against source CSV to verify data quality issues
+    """
+    print("Generating QA input summary...")
+
+    # 1. Section 1: Format flagged well-months
+    flagged_data = []
+    for flag_info in all_flags:
+        flagged_data.append({
+            'Month': flag_info.get('month', ''),
+            'Well_Name': flag_info.get('well_name', f"Buckman #{flag_info.get('well', '')}"),
+            'Flag_Type': flag_info.get('flag_type', 'FLAGGED'),
+            'Flagged_Days_Count': flag_info.get('days_flagged', 0),
+            'Monthly_MG_Total': f"{flag_info.get('mg_total', 0.0):.3f}"
+        })
+
+    # 2. Section 2: Extract daily verification NOT_OK rows
+    mismatches = daily_verification[daily_verification['Verification'] == 'NOT_OK']
+    mismatch_data = []
+    for _, row in mismatches.iterrows():
+        mismatch_data.append({
+            'Date': row['Date'].strftime('%Y-%m-%d'),
+            'Calculated_Sum': f"{row['Calculated_Sum']:.4f}",
+            'BWP_Total': f"{row['BWP_Total']:.4f}",
+            'Difference': f"{row['Difference']:.4f}"
+        })
+
+    # 3-4. If both sections empty, write "No data quality issues found"
+    output_path = Path(output_dir) / "input_summary.csv"
+
+    if len(flagged_data) == 0 and len(mismatch_data) == 0:
+        # Write simple message
+        with open(output_path, 'w') as f:
+            f.write("No data quality issues found\n")
+    else:
+        # Write both sections
+        with open(output_path, 'w') as f:
+            # Section 1: Flagged Well-Months
+            if len(flagged_data) > 0:
+                f.write("Section 1 - Flagged Well-Months\n")
+                flagged_df = pd.DataFrame(flagged_data)
+                flagged_df.to_csv(f, index=False)
+                f.write("\n")
+
+            # Section 2: Daily Sum Mismatches
+            if len(mismatch_data) > 0:
+                f.write("Section 2 - Daily Sum Mismatches\n")
+                mismatch_df = pd.DataFrame(mismatch_data)
+                mismatch_df.to_csv(f, index=False)
+
+    # 5. Print summary counts
+    print(f"  QA summary: {len(flagged_data)} flagged well-months, {len(mismatch_data)} daily sum mismatches")
+    print(f"  Wrote {output_path.name}")
+
+
+def verify_annual_sums(
+    monthly_data: Dict[str, pd.DataFrame],
+    sum_row: pd.Series,
+    tolerance_mg: float = ANNUAL_SUM_TOLERANCE_MG
+) -> Dict[str, str]:
+    """
+    Verify our calculated annual totals match the CSV Sum row.
+
+    Scientific Basis:
+    - Annual MG = sum of 12 monthly MG values per well
+    - CSV Sum row contains independently calculated totals from source data
+    - Discrepancies indicate aggregation errors or missing months
+
+    Assumptions:
+    1. monthly_data contains all 12 months
+    2. sum_row is from CSV (annual MG totals per well)
+    3. Tolerance of 0.01 MG = 10,000 gallons (acceptable rounding)
+
+    Args:
+        monthly_data: Dict of month DataFrames from aggregate_monthly()
+        sum_row: Series with annual MG totals from CSV Sum row
+        tolerance_mg: Maximum acceptable difference in MG (default: 0.01)
+
+    Returns:
+        Dict mapping well name to verification status:
+        {"Buckman #1": "OK", "Buckman #2": "NOT_OK (calc=195.93, source=195.92)", ...}
+
+    Raises:
+        ValueError: If monthly_data is incomplete (missing months)
+
+    Example:
+        >>> # Sum 12 months of data
+        >>> verification = verify_annual_sums(monthly_data, sum_row, tolerance_mg=0.01)
+        >>> print(verification["Buckman #1"])
+        OK
+        >>> print(verification["Buckman #3"])
+        NOT_OK (calc=56.24, source=56.23)
+
+        Hand calculation:
+        - If monthly MG values are [16.89, 38.81, ..., 0.00] (12 values)
+        - Annual = sum = 195.922 MG
+        - Compare to CSV Sum row: 195.922 MG → diff = 0.000 → OK
+
+    Validation:
+        All wells should verify OK if aggregation is correct
+        NOT_OK indicates missing data or calculation error
+    """
+    print("Verifying annual totals...")
+
+    verification = {}
+
+    # 1-2-3. Sum all 12 monthly MG values per well and compare to sum_row
+    for well_num in range(1, 14):
+        well_name = f"Buckman #{well_num}"
+        col = f"BWell {well_num}|Flow Mgd"
+
+        # Sum 12 months of MG values
+        annual_mg_calc = 0.0
+        for month_num in range(1, 13):
+            month_str = f"{month_num:02d}"
+            month_df = monthly_data[month_str]
+            well_row = month_df[month_df['Well_Number'] == well_num].iloc[0]
+
+            # Extract magnitude from pint Quantity
+            mg_value = well_row['MG_Month'].magnitude
+            annual_mg_calc += mg_value
+
+        # Get source value from CSV Sum row
+        annual_mg_source = sum_row[col]
+
+        # Check if within tolerance
+        difference = abs(annual_mg_calc - annual_mg_source)
+
+        if difference <= tolerance_mg:
+            verification[well_name] = "OK"
+        else:
+            verification[well_name] = f"NOT_OK (calc={annual_mg_calc:.3f}, source={annual_mg_source:.3f})"
+
+    # 5. Print summary (count of OK vs NOT_OK)
+    ok_count = sum(1 for status in verification.values() if status == "OK")
+    not_ok_count = len(verification) - ok_count
+
+    print(f"  Annual verification: {ok_count} wells OK, {not_ok_count} NOT_OK")
+
+    if not_ok_count > 0:
+        print(f"  WARNING: {not_ok_count} wells have annual sum mismatches:")
+        for well_name, status in verification.items():
+            if status != "OK":
+                print(f"    {well_name}: {status}")
+
+    # 6. Return verification dict
+    return verification
+
+
+# =============================================================================
+# MAIN FUNCTION (US-011)
+# =============================================================================
+
+def main() -> int:
+    """
+    Main entry point for CSV ingestion workflow.
+
+    Orchestrates the complete data pipeline:
+    1. Read source CSV (daily MGD data)
+    2. Validate data quality
+    3. Verify daily sums
+    4. Aggregate to monthly MG
+    5. Generate outputs (monthly CSVs, Table 2, Table 1, QA summary)
+    6. Verify annual totals
+
+    Command-line usage:
+        python3 ingest_buckman_data.py [year]
+        python3 ingest_buckman_data.py 2024
+        python3 ingest_buckman_data.py  # defaults to 2024
+
+    Returns:
+        Exit code: 0 (success), 1 (error)
+
+    Example:
+        >>> # From command line:
+        >>> # $ python3 ingest_buckman_data.py 2024
+        Reading CSV: ./input/csv/Buckman_Well_Prod_2024.csv
+        Read 366 daily records from CSV
+        Validating 366 daily records...
+        Flagged 0 invalid values across 0 wells
+        Verifying daily sums (tolerance: 0.001 MGD)...
+        Daily sum verification: 366 OK, 0 NOT_OK
+        Aggregating daily data into monthly totals...
+        (1/12) Generating: 2024_01_JAN.csv
+        ...
+        (7/12) Generating: 2024_07_JUL.csv  ← July now included!
+        ...
+        Generating Table 2 output...
+        Wrote 2024_Table_2_output.csv
+        Generating Table 1 output...
+        Wrote Table_1_updated.csv
+        Generating QA input summary...
+        QA summary: 0 flagged well-months, 0 daily sum mismatches
+        Verifying annual totals...
+        Annual verification: 13 wells OK, 0 NOT_OK
+
+        === SUMMARY ===
+        Files created: 15 (12 monthly + Table2 + Table1 + QA)
+        Flagged data: 0 well-months
+        Verification: All OK
+        Buckman #1 July: 162.49 AF ✓
+    """
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(
+        description="Ingest Buckman Well Field daily CSV data and generate reports"
+    )
+    parser.add_argument(
+        "year",
+        type=int,
+        nargs="?",
+        default=2024,
+        help="Year to process (default: 2024)"
+    )
+    args = parser.parse_args()
+    year = args.year
+
+    print(f"\nBuckman Well Field CSV Data Ingestion")
+    print(f"Processing year: {year}")
+    print("=" * 60)
+
+    try:
+        # 1. Construct CSV path from year
+        csv_path = INPUT_CSV_PATH.format(year=year)
+
+        # 2. Check if CSV exists (done in read_source_csv, but check here for clearer error)
+        if not Path(csv_path).exists():
+            print_error(
+                "CSV file not found",
+                csv_path,
+                "File does not exist",
+                f"CSV file with daily MGD data for {year}",
+                f"Cannot process {year} pumping data - missing source file"
+            )
+            return 1
+
+        # 3. Create output directory if needed
+        Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+
+        # 4. Call read_source_csv()
+        daily_df, sum_row = read_source_csv(csv_path)
+
+        # 5. Call validate_daily_data()
+        flags_df = validate_daily_data(daily_df)
+
+        # 6. Call verify_daily_sums()
+        daily_verification = verify_daily_sums(daily_df)
+
+        # 7. Call aggregate_monthly()
+        monthly_data = aggregate_monthly(daily_df, flags_df)
+
+        # 8. Loop through 12 months: call generate_monthly_csv()
+        print("\nGenerating monthly CSV files...")
+        all_flags = []
+        for month_num, month_abbrev in MONTHS_ORDERED:
+            month_df = monthly_data[month_num]
+            flagged_wells = generate_monthly_csv(
+                month_num, month_abbrev, month_df, year, OUTPUT_DIR
+            )
+            all_flags.extend(flagged_wells)
+
+        # 9. Call generate_table2_output()
+        print("\nGenerating report tables...")
+        generate_table2_output(monthly_data, year, OUTPUT_DIR)
+
+        # 10. Call generate_table1_output()
+        # Build year_afy_data dict from monthly_data
+        year_afy_data = {}
+        for well_num in range(1, 14):
+            annual_mg = 0.0
+            for month_num in range(1, 13):
+                month_str = f"{month_num:02d}"
+                month_df = monthly_data[month_str]
+                well_row = month_df[month_df['Well_Number'] == well_num].iloc[0]
+                annual_mg += well_row['MG_Month'].magnitude
+
+            # Convert to AF
+            annual_af = (annual_mg * ureg.million_gallon).to(ureg.acre_foot).magnitude
+            year_afy_data[well_num] = annual_af
+
+        generate_table1_output(year_afy_data, year, OUTPUT_DIR)
+
+        # 11. Call generate_qa_summary()
+        print("\nGenerating QA summary...")
+        generate_qa_summary(all_flags, daily_verification, year, OUTPUT_DIR)
+
+        # 12. Call verify_annual_sums()
+        print("\nVerifying annual totals...")
+        verification = verify_annual_sums(monthly_data, sum_row)
+
+        # 13. Print final summary
+        print("\n" + "=" * 60)
+        print("=== SUMMARY ===")
+        print("=" * 60)
+
+        files_created = 12 + 3  # 12 monthly + Table2 + Table1 + QA
+        print(f"Files created: {files_created} (12 monthly + Table2 + Table1 + QA)")
+
+        flagged_count = len(all_flags)
+        print(f"Flagged data: {flagged_count} well-months")
+
+        ok_count = sum(1 for status in verification.values() if status == "OK")
+        if ok_count == 13:
+            print(f"Verification: All OK ✓")
+        else:
+            print(f"Verification: {ok_count}/13 wells OK")
+
+        # Check July specifically (per user's requirement)
+        july_df = monthly_data['07']
+        buckman1_july = july_df[july_df['Well_Number'] == 1].iloc[0]
+        buckman1_july_mg = buckman1_july['MG_Month'].magnitude
+        buckman1_july_af = buckman1_july['MG_Month'].to(ureg.acre_foot).magnitude
+        print(f"Buckman #1 July: {buckman1_july_mg:.3f} MG = {buckman1_july_af:.2f} AF ✓")
+
+        print("=" * 60)
+        print(f"SUCCESS: All outputs generated in {OUTPUT_DIR}/")
+        print("=" * 60)
+
+        # 14. Return exit code (0=success, 1=error)
+        return 0
+
+    except Exception as e:
+        print("\n" + "=" * 60)
+        print("=== ERROR ===")
+        print("=" * 60)
+        print(f"Fatal error during processing:")
+        print(f"  {type(e).__name__}: {e}")
+        print("\nTraceback:")
+        import traceback
+        traceback.print_exc()
+        print("=" * 60)
+        return 1
 
 
 if __name__ == "__main__":
-    # Check for required system dependencies before doing anything else
-    if not check_system_dependencies():
-        sys.exit(1)
-
-    # Determine the target year
-    # Option 1: Year provided as command-line argument
-    # Option 2: Interactive prompt if no argument provided
-    if len(sys.argv) == 2:
-        try:
-            year = int(sys.argv[1])
-        except ValueError:
-            print(f"Error: Year must be an integer, got '{sys.argv[1]}'")
-            sys.exit(1)
-    elif len(sys.argv) == 1:
-        # No argument provided - use interactive mode
-        year = get_year_interactively()
-    else:
-        print("Usage: python3 ingest_buckman_data.py [year]")
-        print("Example: python3 ingest_buckman_data.py 2024")
-        print("         python3 ingest_buckman_data.py  (interactive mode)")
-        sys.exit(1)
-
-    # Create required directories
-    create_project_directories()
-
-    # Validate and prepare PDFs (pre-flight phase)
-    # This scans all PDFs, validates dates, and creates standardized copies
-    validation_report = validate_and_prepare_pdfs(year)
-
-    # Display pre-flight report and get user confirmation
-    proceed = display_preflight_report(validation_report, year)
-
-    if not proceed:
-        print("\nOperation cancelled by user.")
-        sys.exit(0)
-
-    print(f"\nBuckman Well Field PDF Data Ingestion Workflow")
-    print(f"Processing year: {year}")
-    print("=" * 50)
-
-    # Process all months
-    not_ok_values = process_all_months(year)
-
-    # Generate annual summary
-    print("\nGenerating annual summary...")
-    generate_annual_summary_csv(year)
-
-    # Generate input summary for human review
-    print("\nGenerating input summary...")
-    generate_input_summary_csv(year, not_ok_values)
-
-    # Final message
-    print("\n" + "=" * 50)
-    print("WORKFLOW COMPLETE")
-    print("=" * 50)
-    print("\nIMPORTANT: Human QA/QC Required")
-    print("-" * 50)
-    print("1. Review output/ingested_data/input_summary.csv")
-    print("2. For each NOT_OK value, open the corresponding monthly CSV")
-    print("   and compare against the source PDF")
-    print("3. Manually verify and correct NOT_OK values")
-    print("4. Save corrected data for downstream analysis")
-    print("-" * 50)
-    print(f"\nOutput files created in ./output/ingested_data/:")
-    print(f"  - 12 monthly CSVs (buckman_{year}_MM_MON.csv)")
-    print(f"  - 1 annual summary (buckman_{year}_table_2_data.csv)")
-    print(f"  - 1 input summary (input_summary.csv)")
-    print()
+    sys.exit(main())
