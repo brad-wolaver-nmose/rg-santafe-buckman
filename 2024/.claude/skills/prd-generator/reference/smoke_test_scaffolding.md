@@ -97,13 +97,13 @@ When generating test files:
 
 | Module | Test File |
 |--------|-----------|
-| `discharge_calc.py` | `test_discharge_calc.py` |
-| `data_validator.py` | `test_data_validator.py` |
-| `report_generator.py` | `test_report_generator.py` |
+| `discharge_calc.py` | `tests/test_discharge_calc.py` |
+| `data_validator.py` | `tests/test_data_validator.py` |
+| `report_generator.py` | `tests/test_report_generator.py` |
 
 ### Placement in PRD Workflow
 
 1. Generate PRD with user stories
 2. Identify which user stories create new Python modules
-3. Create corresponding `test_<module>.py` files with smoke tests
+3. Create corresponding `tests/test_<module>.py` files with smoke tests
 4. Save all files before finishing

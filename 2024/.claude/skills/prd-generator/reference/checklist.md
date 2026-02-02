@@ -36,7 +36,7 @@
 
 ### Smoke Tests (Python Projects)
 - [ ] Identified which user stories create new Python modules
-- [ ] Created test_<module>.py for each new module
+- [ ] Created tests/test_<module>.py for each new module
 - [ ] Test files use smoke test template (import, exists, runs, sanity)
 - [ ] Test inputs are realistic for the domain
 - [ ] Sanity bounds are wide (catching catastrophic errors, not precision)

@@ -57,7 +57,7 @@ Before generating any new files, check if previous PRD outputs exist and archive
    - Set N = highest version found + 1 (or N = 1 if no versions exist)
    - Move `dev/PRD.md` → `dev/PRD_vN.0.md`
    - Move `dev/progress.txt` → `dev/progress_vN.0.txt` (if exists)
-   - Move any `test_*.py` scaffolding files → `dev/test_<name>_vN.0.py`
+   - Move any `tests/test_*.py` scaffolding files → `dev/test_<name>_vN.0.py`
    - Create `dev/` directory if missing
 
 ---

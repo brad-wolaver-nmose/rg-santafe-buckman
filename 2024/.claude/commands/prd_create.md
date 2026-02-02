@@ -1166,7 +1166,7 @@ Also create `dev/progress.txt`:
 
 ### Archive
 - [ ] Checked if `dev/PRD.md` already existed before generating
-- [ ] If existed: archived `dev/PRD.md`, `dev/progress.txt`, and `test_*.py` in `dev/` with correct version number
+- [ ] If existed: archived `dev/PRD.md`, `dev/progress.txt`, and `tests/test_*.py` in `dev/` with correct version number
 - [ ] All archived files use the same version number
 
 ### Question Process

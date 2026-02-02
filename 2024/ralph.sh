@@ -285,11 +285,9 @@ skip_task() {
     local task="$1"
     local reason="$2"
 
-    local escaped_task=$(echo "$task" | sed 's/"/\\"/g')
+    SKIPPED_TASKS=$(echo "$SKIPPED_TASKS" | jq --arg t "$task" --arg r "$reason" '. + [{"task": $t, "reason": $r}]')
 
-    SKIPPED_TASKS=$(echo "$SKIPPED_TASKS" | jq --arg t "$escaped_task" --arg r "$reason" '. + [{"task": $t, "reason": $r}]')
-
-    log_event "TASK_SKIPPED" "$task" "{\"reason\":\"$reason\",\"attempts\":$TASK_ATTEMPTS}"
+    log_event "TASK_SKIPPED" "$task" "$(jq -nc --arg r "$reason" --argjson a "$TASK_ATTEMPTS" '{reason: $r, attempts: $a}')"
 
     TASK_ATTEMPTS=0
     CURRENT_TASK=""
@@ -311,11 +309,11 @@ verify_tests_pass() {
 
     if [[ $exit_code -eq 0 ]]; then
         status "$GREEN" "PASS" "Tests passed independently"
-        log_event "TESTS_PASSED" "Independent verification successful" "{\"command\":\"$TEST_CMD\"}"
+        log_event "TESTS_PASSED" "Independent verification successful" "$(jq -nc --arg c "$TEST_CMD" '{command: $c}')"
         return 0
     else
         status "$RED" "FAIL" "Tests failed independently (exit code: $exit_code)"
-        log_event "TESTS_FAILED" "Independent verification failed" "{\"command\":\"$TEST_CMD\",\"exit_code\":$exit_code}"
+        log_event "TESTS_FAILED" "Independent verification failed" "$(jq -nc --arg c "$TEST_CMD" --argjson e "$exit_code" '{command: $c, exit_code: $e}')"
 
         echo "--- Test Output (last 20 lines) ---"
         tail -20 "$TEST_OUTPUT_FILE"
@@ -337,7 +335,7 @@ rollback_changes() {
     local stash_msg="ralph-rollback-iteration-$1-$(timestamp)"
     git stash push -m "$stash_msg" --include-untracked
 
-    log_event "ROLLBACK" "Changes stashed" "{\"stash_message\":\"$stash_msg\"}"
+    log_event "ROLLBACK" "Changes stashed" "$(jq -nc --arg m "$stash_msg" '{stash_message: $m}')"
     status "$GREEN" "OK" "Changes stashed as: $stash_msg"
 }
 
@@ -406,7 +404,7 @@ cleanup() {
     echo ""
     status "$YELLOW" "EXIT" "Ralph stopped ($(elapsed_time) elapsed)"
     save_state
-    log_event "EXIT" "Script exited" "{\"exit_code\":$exit_code,\"elapsed\":\"$(elapsed_time)\"}"
+    log_event "EXIT" "Script exited" "$(jq -nc --argjson code "$exit_code" --arg elapsed "$(elapsed_time)" '{exit_code: $code, elapsed: $elapsed}')"
     exit $exit_code
 }
 
@@ -521,7 +519,7 @@ for ((i=1; i<=ITERATIONS; i++)); do
     status "$BLUE" "ATTEMPT" "Attempt $TASK_ATTEMPTS of $MAX_TASK_TRIES for: $TASK"
     save_state
 
-    log_event "ITERATION_START" "Beginning iteration" "{\"iteration\":$i,\"task\":\"$TASK\",\"attempt\":$TASK_ATTEMPTS}"
+    log_event "ITERATION_START" "Beginning iteration" "$(jq -nc --argjson i "$i" --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{iteration: $i, task: $t, attempt: $a}')"
 
     FAILURE_CONTEXT=""
     if [[ $TASK_ATTEMPTS -gt 1 ]]; then
@@ -731,7 +729,7 @@ After completing work:
             status "$BLUE" "VERIFY" "Running independent test verification..."
             if verify_tests_pass; then
                 status "$GREEN" "VERIFIED" "Task completion verified: $TASK"
-                log_event "TASK_COMPLETE" "Task verified complete" "{\"task\":\"$TASK\",\"attempts\":$TASK_ATTEMPTS}"
+                log_event "TASK_COMPLETE" "Task verified complete" "$(jq -nc --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{task: $t, attempts: $a}')"
 
                 TASK_ATTEMPTS=0
                 CURRENT_TASK="$NEW_TASK"
@@ -739,7 +737,7 @@ After completing work:
                 check_all_complete "task verification with tests"
             else
                 status "$RED" "REJECT" "Task marked complete but tests fail - rolling back"
-                log_event "FALSE_COMPLETION" "Task marked complete but tests fail" "{\"task\":\"$TASK\"}"
+                log_event "FALSE_COMPLETION" "Task marked complete but tests fail" "$(jq -nc --arg t "$TASK" '{task: $t}')"
                 rollback_changes "$i"
                 status "$YELLOW" "REVERTED" "All changes rolled back including checkbox marks - will retry"
             fi
@@ -747,7 +745,7 @@ After completing work:
             # No code changes in review mode — skip tests
             status "$BLUE" "SKIP" "No code changes - skipping test verification"
             status "$GREEN" "VERIFIED" "Task completion verified (read-only): $TASK"
-            log_event "TASK_COMPLETE" "Task verified complete (read-only)" "{\"task\":\"$TASK\",\"attempts\":$TASK_ATTEMPTS}"
+            log_event "TASK_COMPLETE" "Task verified complete (read-only)" "$(jq -nc --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{task: $t, attempts: $a}')"
 
             TASK_ATTEMPTS=0
             CURRENT_TASK="$NEW_TASK"
@@ -790,7 +788,7 @@ if [[ "$SKIP_COUNT" -gt 0 ]]; then
     echo "$SKIPPED_TASKS" | jq -r '.[] | "  - \(.task): \(.reason)"'
 fi
 
-log_event "MAX_ITERATIONS" "Reached iteration limit" "{\"completed\":$COMPLETED,\"remaining\":$REMAINING,\"skipped\":$SKIP_COUNT}"
+log_event "MAX_ITERATIONS" "Reached iteration limit" "$(jq -nc --argjson c "$COMPLETED" --argjson r "$REMAINING" --argjson s "$SKIP_COUNT" '{completed: $c, remaining: $r, skipped: $s}')"
 
 echo ""
 echo "What to do next:"

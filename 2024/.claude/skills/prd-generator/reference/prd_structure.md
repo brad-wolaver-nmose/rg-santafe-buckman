@@ -28,7 +28,7 @@ Each story needs:
 ```
 
 **For Python modules, pair with smoke test:**
-When a story creates a new `.py` module, the corresponding `test_<module>.py` should also be created. See [smoke_test_scaffolding.md](smoke_test_scaffolding.md) for the template.
+When a story creates a new `.py` module, the corresponding `tests/test_<module>.py` should also be created. See [smoke_test_scaffolding.md](smoke_test_scaffolding.md) for the template.
 
 ### 4. Non-Goals
 What this feature will NOT include. Critical for scope.

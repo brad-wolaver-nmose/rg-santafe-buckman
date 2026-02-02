@@ -701,7 +701,7 @@ Most fix stories modify existing code rather than create new modules. However, i
 
 **Cross-reference:** See `/prd_create` Step 10 for the smoke test template and guidance. The same principles apply:
 - Smoke tests verify code *runs*, not that it's *correct*
-- Create `test_<module>.py` for each new module
+- Create `tests/test_<module>.py` for each new module
 - Use the four-test pattern: import, exists, runs, sanity
 
 ---
