@@ -590,3 +590,146 @@ def test_generate_2024_well_entries_matches_validation_jan():
             f"JAN entry {i}: Rate mismatch beyond tolerance.\n"
             f"Generated: {gen_rate}, Validation: {val_rate}, Diff: {abs(gen_rate - val_rate)}"
         )
+
+
+# =============================================================================
+# US-006: Write Updated .wel File
+# =============================================================================
+
+
+def test_write_updated_wel_file_exists():
+    """Verify write_updated_wel_file function exists and is callable."""
+    from update_modflow_2024 import write_updated_wel_file
+
+    assert callable(write_updated_wel_file)
+
+
+def test_write_updated_wel_file_creates_directory(tmp_path):
+    """Verify function creates output directory if it doesn't exist."""
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file
+    )
+
+    # Parse and generate data
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+
+    # Use temp directory that doesn't exist
+    output_dir = tmp_path / "new_output" / "modflow" / "2024"
+
+    # Write file - should create directory
+    result_path = write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(output_dir),
+        output_filename="test.wel"
+    )
+
+    assert output_dir.exists(), "Output directory should be created"
+    assert result_path.exists(), "Output file should exist"
+
+
+def test_write_updated_wel_file_line_count(tmp_path):
+    """Verify written file has exactly 54,805 lines."""
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file
+    )
+
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+
+    output_file = tmp_path / "thruCY2165_2024.wel"
+    write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(tmp_path),
+        output_filename="thruCY2165_2024.wel"
+    )
+
+    # Count lines in written file
+    with open(output_file, "r") as f:
+        line_count = sum(1 for _ in f)
+
+    assert line_count == 54805, (
+        f"Expected 54805 lines, got {line_count}"
+    )
+
+
+def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
+    """Verify pre-2024 section is preserved exactly."""
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file,
+        INPUT_WEL_PATH
+    )
+
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+
+    output_file = tmp_path / "thruCY2165_2024.wel"
+    write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(tmp_path),
+        output_filename="thruCY2165_2024.wel"
+    )
+
+    # Read original and output files
+    with open(INPUT_WEL_PATH, "r") as f:
+        original_lines = f.readlines()
+    with open(output_file, "r") as f:
+        output_lines = f.readlines()
+
+    # Compare pre-2024 section (lines 1-8797)
+    for i in range(8797):
+        assert original_lines[i] == output_lines[i], (
+            f"Line {i+1} differs in pre-2024 section"
+        )
+
+
+def test_write_updated_wel_file_preserves_post_2024(tmp_path):
+    """Verify post-2024 section is preserved exactly."""
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file,
+        INPUT_WEL_PATH
+    )
+
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+
+    output_file = tmp_path / "thruCY2165_2024.wel"
+    write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(tmp_path),
+        output_filename="thruCY2165_2024.wel"
+    )
+
+    # Read original and output files
+    with open(INPUT_WEL_PATH, "r") as f:
+        original_lines = f.readlines()
+    with open(output_file, "r") as f:
+        output_lines = f.readlines()
+
+    # Compare post-2024 section (lines 9122-54805, indices 9121-)
+    post_2024_start = 9121
+    for i in range(post_2024_start, 54805):
+        assert original_lines[i] == output_lines[i], (
+            f"Line {i+1} differs in post-2024 section"
+        )
+
+
+def test_write_updated_wel_file_invalid_2024_count_raises():
+    """Verify error raised if 2024 lines count is wrong."""
+    from update_modflow_2024 import parse_wel_file, write_updated_wel_file
+
+    wel_data = parse_wel_file()
+
+    # Wrong number of 2024 lines (should be 324)
+    wrong_lines = ["test\r\n"] * 100
+
+    with pytest.raises(ValueError, match="Expected 324 lines"):
+        write_updated_wel_file(wel_data, wrong_lines)

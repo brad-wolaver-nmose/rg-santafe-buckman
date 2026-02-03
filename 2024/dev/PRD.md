@@ -111,12 +111,12 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a developer, I need to assemble and write the complete updated .wel file so it can be used by MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Create `output/modflow/2024/` directory if it doesn't exist
-- [ ] Concatenate: pre-2024 lines + generated 2024 lines + post-2024 lines
-- [ ] Write to `output/modflow/2024/thruCY2165_2024.wel`
-- [ ] Total line count matches validation file (54,805 lines)
-- [ ] File uses consistent line endings (match input file)
-- [ ] Typecheck passes
+- [x] Create `output/modflow/2024/` directory if it doesn't exist
+- [x] Concatenate: pre-2024 lines + generated 2024 lines + post-2024 lines
+- [x] Write to `output/modflow/2024/thruCY2165_2024.wel`
+- [x] Total line count matches validation file (54,805 lines)
+- [x] File uses consistent line endings (match input file)
+- [x] Typecheck passes
 
 ### US-007: Generate Updated .nam File
 **Description:** As a groundwater modeler, I need to update the CY2023.nam file to reference 2024 file names so MODFLOW reads the correct files for the 2024 simulation.

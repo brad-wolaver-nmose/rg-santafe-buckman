@@ -480,3 +480,83 @@ def generate_2024_well_entries(
                 )
 
     return lines
+
+
+# =============================================================================
+# EXPECTED LINE COUNT
+# =============================================================================
+EXPECTED_TOTAL_LINES: int = 54805  # Must match validation file
+
+
+def write_updated_wel_file(
+    wel_data: WelFileData,
+    new_2024_lines: list[str],
+    output_dir: str = OUTPUT_DIR,
+    output_filename: str = OUTPUT_WEL_FILENAME,
+) -> Path:
+    """
+    Write the updated .wel file with new 2024 pumping data.
+
+    Scientific basis: MODFLOW well package file format preservation.
+
+    Assumptions:
+        1. Pre-2024 and post-2024 sections preserved exactly as-is
+        2. New 2024 lines have same structure (324 lines)
+        3. Line endings match input file (CRLF)
+        4. Total line count matches validation (54,805 lines)
+
+    Args:
+        wel_data: Parsed WelFileData with pre/post 2024 sections
+        new_2024_lines: Generated 324 lines for 2024 data
+        output_dir: Directory to write output file (created if needed)
+        output_filename: Name of output file
+
+    Returns:
+        Path to the written file
+
+    Raises:
+        ValueError: If line counts don't match expectations
+
+    Example:
+        >>> data = parse_wel_file()
+        >>> pumping = read_table2_pumping_data()
+        >>> lines_2024 = generate_2024_well_entries(pumping)
+        >>> output_path = write_updated_wel_file(data, lines_2024)
+    """
+    # Validate new 2024 lines count
+    expected_2024_lines = 12 * LINES_PER_MONTH  # 324
+    if len(new_2024_lines) != expected_2024_lines:
+        raise ValueError(
+            f"Expected {expected_2024_lines} lines for 2024 data, "
+            f"got {len(new_2024_lines)}"
+        )
+
+    # Create output directory if needed
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Concatenate all sections
+    all_lines = (
+        wel_data.pre_2024_lines
+        + new_2024_lines
+        + wel_data.post_2024_lines
+    )
+
+    # Validate total line count
+    if len(all_lines) != EXPECTED_TOTAL_LINES:
+        raise ValueError(
+            f"Expected {EXPECTED_TOTAL_LINES} total lines, "
+            f"got {len(all_lines)}. "
+            f"Pre-2024: {len(wel_data.pre_2024_lines)}, "
+            f"2024: {len(new_2024_lines)}, "
+            f"Post-2024: {len(wel_data.post_2024_lines)}"
+        )
+
+    # Write file (using binary mode to preserve exact line endings)
+    file_path = output_path / output_filename
+    with open(file_path, "w", newline="") as f:
+        f.writelines(all_lines)
+
+    print(f"Wrote {len(all_lines)} lines to {file_path}")
+
+    return file_path
