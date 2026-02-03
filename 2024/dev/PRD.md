@@ -55,13 +55,13 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a groundwater modeler, I need to read the 2024 monthly pumping data from Table 2 so I have the source acre-feet values to convert for MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Read `2024_Table_2_output.csv` using pandas
-- [ ] Parse 13 rows (Wells 1–13) with 12 monthly columns (JAN–DEC)
-- [ ] Store as a dict keyed by well number (int 1–13), value is dict of month abbreviation → acre-feet (float)
-- [ ] Verify all 13 wells are present; raise clear error if any missing
-- [ ] Verify no negative pumping values (acre-feet must be ≥ 0)
-- [ ] Log total annual pumping per well for sanity check
-- [ ] Typecheck passes
+- [x] Read `2024_Table_2_output.csv` using pandas
+- [x] Parse 13 rows (Wells 1–13) with 12 monthly columns (JAN–DEC)
+- [x] Store as a dict keyed by well number (int 1–13), value is dict of month abbreviation → acre-feet (float)
+- [x] Verify all 13 wells are present; raise clear error if any missing
+- [x] Verify no negative pumping values (acre-feet must be ≥ 0)
+- [x] Log total annual pumping per well for sanity check
+- [x] Typecheck passes
 
 ### US-003: Unit Conversion — Acre-Feet to ft³/s with Layer Split
 **Description:** As a groundwater modeler, I need to convert monthly acre-feet pumping values to MODFLOW pumping rates (ft³/s) split equally between two layers so the rates match MODFLOW conventions.

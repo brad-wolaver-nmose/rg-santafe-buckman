@@ -4,7 +4,10 @@ Update MODFLOW Buckman Depletion Model from CY2023 to CY2024.
 Reads 2024 monthly pumping data from Table 2 CSV, converts acre-feet to ft³/s,
 updates the .wel file with actual pumping rates, and generates the .nam file.
 """
+from pathlib import Path
 from typing import Dict
+
+import pandas as pd
 
 # =============================================================================
 # FILE PATHS
@@ -118,3 +121,79 @@ def convert_af_to_ft3s(
 
     # Return negative (MODFLOW pumping convention)
     return -rate_ft3_per_s
+
+
+def read_table2_pumping_data(
+    csv_path: str = TABLE2_CSV_PATH,
+) -> Dict[int, Dict[str, float]]:
+    """
+    Read 2024 monthly pumping data from Table 2 CSV.
+
+    Scientific basis: Standard CSV parsing of hydrologic pumping records.
+
+    Assumptions:
+        1. CSV has columns: Well, JAN, FEB, ..., DEC, Total
+        2. Wells are numbered 1-13 in the Well column
+        3. Monthly values are in acre-feet
+        4. All 13 wells are present in the file
+
+    Args:
+        csv_path: Path to the Table 2 CSV file
+
+    Returns:
+        Dict keyed by well number (int 1-13), value is dict of
+        month abbreviation (str) → acre-feet (float).
+        Example: {1: {"JAN": 16.887963, "FEB": 38.805796, ...}, ...}
+
+    Raises:
+        FileNotFoundError: If CSV file does not exist
+        ValueError: If well count != 13 or any pumping value < 0
+
+    Example:
+        >>> data = read_table2_pumping_data()
+        >>> data[1]["JAN"]
+        16.887963
+    """
+    path = Path(csv_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Table 2 CSV not found: {csv_path}")
+
+    df = pd.read_csv(csv_path)
+
+    # Filter to numeric well rows only (wells 1-13)
+    df_wells = df[pd.to_numeric(df["Well"], errors="coerce").notna()].copy()
+    df_wells["Well"] = df_wells["Well"].astype(int)
+
+    # Verify we have exactly 13 wells
+    well_numbers = set(df_wells["Well"].tolist())
+    expected_wells = set(range(1, 14))
+    if well_numbers != expected_wells:
+        missing = expected_wells - well_numbers
+        extra = well_numbers - expected_wells
+        raise ValueError(
+            f"Expected wells 1-13. Missing: {missing}, Extra: {extra}"
+        )
+
+    # Build result dict
+    result: Dict[int, Dict[str, float]] = {}
+    for _, row in df_wells.iterrows():
+        well_num = int(row["Well"])
+        monthly_data: Dict[str, float] = {}
+        for month in MONTH_ABBREVS:
+            value = float(row[month])
+            if value < 0:
+                raise ValueError(
+                    f"Negative pumping value for Well {well_num} {month}: "
+                    f"{value} acre-feet. Pumping must be >= 0."
+                )
+            monthly_data[month] = value
+        result[well_num] = monthly_data
+
+    # Log annual totals for sanity check
+    print("Annual pumping totals (acre-feet):")
+    for well_num in sorted(result.keys()):
+        annual_total = sum(result[well_num].values())
+        well_name = WELL_NAME_MAP[well_num]
+        print(f"  {well_name}: {annual_total:.2f} AF")
+
+    return result
