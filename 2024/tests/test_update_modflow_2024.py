@@ -1104,3 +1104,88 @@ def test_run_validation_full_pipeline(tmp_path):
     )
 
     assert success, "Full validation pipeline should pass"
+
+
+# =============================================================================
+# US-009: Main Entry Point and CLI Tests
+# =============================================================================
+def test_parse_args_exists():
+    """Verify parse_args function exists and is callable."""
+    from update_modflow_2024 import parse_args
+
+    assert callable(parse_args)
+
+
+def test_main_exists():
+    """Verify main function exists and is callable."""
+    from update_modflow_2024 import main
+
+    assert callable(main)
+
+
+def test_print_pumping_summary_exists():
+    """Verify print_pumping_summary function exists and is callable."""
+    from update_modflow_2024 import print_pumping_summary
+
+    assert callable(print_pumping_summary)
+
+
+def test_print_pumping_summary_runs_without_error(capsys):
+    """Verify print_pumping_summary runs with valid pumping data."""
+    from update_modflow_2024 import print_pumping_summary, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    print_pumping_summary(pumping_data)
+
+    captured = capsys.readouterr()
+    # Verify output contains expected content
+    assert "2024 MONTHLY PUMPING SUMMARY" in captured.out
+    assert "BUCKMAN 1" in captured.out
+    assert "BUCKMAN 13" in captured.out
+    assert "Annual Totals" in captured.out
+
+
+def test_main_returns_zero_on_success():
+    """
+    Integration test: main() should return 0 on success.
+    """
+    import sys
+    from update_modflow_2024 import main
+
+    # Temporarily override argv to avoid argparse reading test runner args
+    original_argv = sys.argv
+    sys.argv = ["update_modflow_2024.py"]
+
+    try:
+        result = main()
+        assert result == 0, f"main() should return 0 on success, got {result}"
+    finally:
+        sys.argv = original_argv
+
+
+def test_script_runs_end_to_end(capsys):
+    """
+    Integration test: Full script runs and prints expected progress messages.
+    """
+    import sys
+    from update_modflow_2024 import main
+
+    original_argv = sys.argv
+    sys.argv = ["update_modflow_2024.py"]
+
+    try:
+        result = main()
+        captured = capsys.readouterr()
+
+        # Verify progress messages
+        assert "[1/7] Reading Table 2 pumping data" in captured.out
+        assert "[2/7] Converting acre-feet to ft³/s" in captured.out
+        assert "[3/7] Parsing 2023 .wel file" in captured.out
+        assert "[4/7] Generating 2024 well entries" in captured.out
+        assert "[5/7] Writing updated .wel file" in captured.out
+        assert "[6/7] Generating updated .nam file" in captured.out
+        assert "[7/7] Validating against known-good files" in captured.out
+        assert "Validation PASSED" in captured.out
+        assert result == 0
+    finally:
+        sys.argv = original_argv

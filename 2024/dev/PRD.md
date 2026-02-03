@@ -156,9 +156,9 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a user, I need a single command to run the full pipeline (read CSV → convert → write .wel → write .nam → validate) so the process is repeatable.
 
 **Acceptance Criteria:**
-- [ ] Script runs as `python3 update_modflow_2024.py` with no required arguments
-- [ ] Optionally accept `--year 2024` argument (default: 2024)
-- [ ] Print progress for each major step:
+- [x] Script runs as `python3 update_modflow_2024.py` with no required arguments
+- [x] Optionally accept `--year 2024` argument (default: 2024)
+- [x] Print progress for each major step:
   1. "Reading Table 2 pumping data..."
   2. "Converting acre-feet to ft³/s..."
   3. "Parsing 2023 .wel file..."
@@ -166,10 +166,10 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
   5. "Writing updated .wel file..."
   6. "Generating updated .nam file..."
   7. "Validating against known-good files..."
-- [ ] Print per-well monthly pumping summary table (acre-feet and ft³/s side by side)
-- [ ] Exit code 0 on success, non-zero on validation failure
-- [ ] Typecheck passes
-- [ ] Run script end-to-end with actual data successfully
+- [x] Print per-well monthly pumping summary table (acre-feet and ft³/s side by side)
+- [x] Exit code 0 on success, non-zero on validation failure
+- [x] Typecheck passes
+- [x] Run script end-to-end with actual data successfully
 
 ## Non-Goals
 

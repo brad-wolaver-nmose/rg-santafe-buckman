@@ -4,6 +4,7 @@ Update MODFLOW Buckman Depletion Model from CY2023 to CY2024.
 Reads 2024 monthly pumping data from Table 2 CSV, converts acre-feet to ft³/s,
 updates the .wel file with actual pumping rates, and generates the .nam file.
 """
+import argparse
 from pathlib import Path
 from typing import Dict
 
@@ -1011,3 +1012,173 @@ def run_validation(
     print_validation_report(nam_passed, nam_errors, wel_result)
 
     return nam_passed and wel_result.all_passed
+
+
+# =============================================================================
+# PUMPING SUMMARY OUTPUT
+# =============================================================================
+def print_pumping_summary(
+    pumping_data: Dict[int, Dict[str, float]],
+) -> None:
+    """
+    Print per-well monthly pumping summary table (acre-feet and ft³/s side by side).
+
+    Displays a formatted table showing:
+    - Well name
+    - Monthly acre-feet value
+    - Converted ft³/s rate per layer
+
+    Args:
+        pumping_data: Dict keyed by well number (1-13), value is dict of
+            month abbreviation → acre-feet
+
+    Example:
+        >>> print_pumping_summary(pumping_data)
+        Well           Month    Acre-Feet    ft³/s (per layer)
+        -----------------------------------------------------------
+        BUCKMAN 1      JAN        16.888         -0.13733
+        ...
+    """
+    print("\n" + "=" * 70)
+    print("2024 MONTHLY PUMPING SUMMARY")
+    print("=" * 70)
+    print(f"{'Well':<15} {'Month':<6} {'Acre-Feet':>12} {'ft³/s (per layer)':>20}")
+    print("-" * 70)
+
+    for well_num in WELL_ORDER:
+        well_name = WELL_NAME_MAP[well_num]
+        for month in MONTH_ABBREVS:
+            acre_feet = pumping_data[well_num][month]
+            days = DAYS_IN_MONTH_2024[month]
+            rate = convert_af_to_ft3s(acre_feet, days)
+            print(f"{well_name:<15} {month:<6} {acre_feet:>12.6f} {rate:>20.5f}")
+
+    print("-" * 70)
+
+    # Print annual totals
+    print("\nAnnual Totals (acre-feet):")
+    total_all = 0.0
+    for well_num in WELL_ORDER:
+        well_name = WELL_NAME_MAP[well_num]
+        annual = sum(pumping_data[well_num].values())
+        total_all += annual
+        print(f"  {well_name:<15} {annual:>12.2f} AF")
+    print(f"  {'TOTAL':<15} {total_all:>12.2f} AF")
+    print("=" * 70)
+
+
+# =============================================================================
+# MAIN ENTRY POINT
+# =============================================================================
+def parse_args() -> "argparse.Namespace":
+    """
+    Parse command line arguments.
+
+    Returns:
+        Namespace with parsed arguments (year: int)
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Update MODFLOW Buckman Depletion Model from CY2023 to CY2024.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python3 update_modflow_2024.py           # Run with default year (2024)
+  python3 update_modflow_2024.py --year 2024  # Explicit year
+
+Output files are written to output/modflow/2024/
+        """,
+    )
+    parser.add_argument(
+        "--year",
+        type=int,
+        default=2024,
+        help="Target year for update (default: 2024)",
+    )
+
+    return parser.parse_args()
+
+
+def main() -> int:
+    """
+    Main entry point for MODFLOW update script.
+
+    Runs the full pipeline:
+    1. Read Table 2 pumping data (CSV)
+    2. Convert acre-feet to ft³/s
+    3. Parse 2023 .wel file
+    4. Generate 2024 well entries
+    5. Write updated .wel file
+    6. Generate updated .nam file
+    7. Validate against known-good files
+
+    Returns:
+        Exit code: 0 on success, 1 on validation failure
+
+    Example:
+        >>> exit_code = main()
+        >>> sys.exit(exit_code)
+    """
+    args = parse_args()
+
+    if args.year != TARGET_YEAR:
+        print(f"Warning: Only year 2024 is supported. Got --year {args.year}")
+        print("Proceeding with 2024 data.")
+
+    print("\n" + "=" * 60)
+    print("MODFLOW Buckman Depletion Model Update")
+    print(f"Updating from CY2023 to CY{TARGET_YEAR}")
+    print("=" * 60)
+
+    # Step 1: Read Table 2 pumping data
+    print("\n[1/7] Reading Table 2 pumping data...")
+    pumping_data = read_table2_pumping_data()
+    print(f"  ✓ Read pumping data for {len(pumping_data)} wells")
+
+    # Step 2: Convert acre-feet to ft³/s (done during entry generation)
+    print("\n[2/7] Converting acre-feet to ft³/s...")
+    print("  ✓ Conversion formula: rate = -(AF/2) × 43560 / (days × 86400)")
+    print(f"  ✓ 2024 is leap year (February = 29 days)")
+
+    # Step 3: Parse 2023 .wel file
+    print("\n[3/7] Parsing 2023 .wel file...")
+    wel_data = parse_wel_file()
+    print(f"  ✓ Pre-2024: {len(wel_data.pre_2024_lines)} lines")
+    print(f"  ✓ 2024: {len(wel_data.year_2024_lines)} lines")
+    print(f"  ✓ Post-2024: {len(wel_data.post_2024_lines)} lines")
+
+    # Step 4: Generate 2024 well entries
+    print("\n[4/7] Generating 2024 well entries...")
+    new_2024_lines = generate_2024_well_entries(pumping_data)
+    print(f"  ✓ Generated {len(new_2024_lines)} lines (12 months × 27 lines)")
+
+    # Step 5: Write updated .wel file
+    print("\n[5/7] Writing updated .wel file...")
+    wel_output_path = write_updated_wel_file(wel_data, new_2024_lines)
+    print(f"  ✓ Written to {wel_output_path}")
+
+    # Step 6: Generate updated .nam file
+    print("\n[6/7] Generating updated .nam file...")
+    nam_output_path = generate_nam_file()
+    print(f"  ✓ Written to {nam_output_path}")
+
+    # Print pumping summary table
+    print_pumping_summary(pumping_data)
+
+    # Step 7: Validate against known-good files
+    print("\n[7/7] Validating against known-good files...")
+    validation_passed = run_validation()
+
+    # Return exit code
+    if validation_passed:
+        print("\n✓ All steps completed successfully!")
+        return 0
+    else:
+        print("\n✗ Validation failed - see report above")
+        return 1
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())
