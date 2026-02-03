@@ -1,333 +1,271 @@
-# PRD: Refactor ingest_buckman_data.py — CSV Ingestion (Remove PDF/OCR)
+# PRD: Update MODFLOW Buckman Depletion Model from CY2023 to CY2024
 
 ## Introduction
 
-Replace the PDF/OCR-based data ingestion pipeline in `ingest_buckman_data.py` with direct CSV ingestion from `Buckman_Well_Prod_2024.csv`. The current script (2,070 lines) extracts well production data from scanned PDF meter reports using Tesseract OCR and pdftotext. The new approach reads a single CSV file containing daily flow data (MGD) for 13 Buckman wells, aggregates by month, converts to MG and AF, and outputs monthly CSVs with data quality flags.
-
-The source CSV has 366 daily data rows plus 4 summary rows (Sum, Avg, Max, Min), with columns for each of the 13 wells plus a formula-computed total (BWP). Missing/invalid data is flagged and original values are preserved.
+Update the existing MODFLOW Buckman Depletion Model input files from calendar year 2023 to 2024. The 2023 `.nam` and `.wel` files serve as templates — the `.wel` file already contains 2024 stress periods populated with zero pumping rates. This task replaces those zeros with actual 2024 monthly pumping data from Table 2 (ingested CSV), converts acre-feet to ft³/s, splits each well's pumping equally between Layer 1 and Layer 2, and updates the `.nam` file year references. The result is validated against known-good 2024 files.
 
 ## Goals
 
-- Remove all PDF/OCR processing code (~1,500 lines) from `ingest_buckman_data.py`
-- Ingest daily well production data from `input/csv/Buckman_Well_Prod_2024.csv`
-- Aggregate daily MGD values into monthly totals (MG) per well
-- Calculate acre-feet using USGS conversion factor (MG x 3.06889)
-- Output monthly CSVs named `2024_01_JAN.csv` through `2024_12_DEC.csv`
-- Flag missing/invalid data (blank, non-numeric, negative) while preserving original values
-- Verify per-well daily sums against BWP total column (tolerance 0.001 MGD)
-- Verify annual totals against CSV Sum row
-- Generate annual summary and QA input summary files
-- Accept year as command-line argument (no interactive prompts)
-- Reduce dependencies to pandas only (remove pdf2image, pytesseract, Pillow)
+- Read 2024 monthly pumping data (acre-feet) for Wells 1–13 from `output/ingested_data/2024_Table_2_output.csv`
+- Convert acre-feet/month to ft³/s using: `rate = (acre_feet / 2) * 43560 / (days_in_month * 86400)`
+- Replace zero-valued 2024 stress periods (JAN–DEC 2024) in `thruCY2165.wel` with converted pumping rates
+- Split each well's monthly pumping equally between Layer 1 and Layer 2
+- Update `CY2023.nam` to reference year 2024 file names
+- Validate output files match validation files in `validation/modflow/2024/` exactly (or within rounding tolerance)
+- Write output files to `output/modflow/2024/`
 
 ## User Stories
 
-### US-001: Configuration Constants and Well Mapping
-**Description:** As a developer, I need all configuration values and the well-to-OSE-number mapping defined as module-level constants so the code is maintainable and self-documenting.
+### US-001: Configuration Constants and File Path Mapping
+**Description:** As a developer, I need all file paths, well mappings, and conversion constants defined as module-level constants so the script is maintainable and self-documenting.
 
 **Acceptance Criteria:**
-- [x] Define `INPUT_CSV_PATH = "./input/csv/Buckman_Well_Prod_2024.csv"` (with year placeholder pattern)
-- [x] Define `OUTPUT_DIR = "./output/ingested_data"`
-- [x] Define `MG_TO_AF_FACTOR = 3.06889` (USGS: 1 MG = 3.06889 AF)
-- [x] Define `DAILY_SUM_TOLERANCE = 0.001` (MGD tolerance for BWP verification)
-- [x] Define `ANNUAL_SUM_TOLERANCE = 0.01` (tolerance for annual Sum row verification)
-- [x] Define `MONTHS_ABBREV` tuple: `("JAN", "FEB", ..., "DEC")`
-- [x] Define `MONTHS_ORDERED` tuple: `(("01", "JAN"), ("02", "FEB"), ..., ("12", "DEC"))`
-- [x] Define `WELL_OSE_MAP` dictionary mapping well number (1-13) to OSE number:
-  ```
-  1: "RG-20516-S-5"
-  2: "RG-20516-S-6"
-  3: "RG-20516-S"
-  4: "RG-20516-S-2"
-  5: "RG-20516-S-3"
-  6: "RG-20516-S-4"
-  7: "RG-20516-S-7"
-  8: "RG-20516-S-8"
-  9: "RG-20516-S-9"
-  10: "RG-20516-S-10"
-  11: "RG-20516-S-11"
-  12: "RG-20516-S-12"
-  13: "RG-20516-S-13"
-  ```
-- [x] Define `CSV_WELL_COLUMNS` list mapping CSV header names to well numbers: `"BWell 1"` through `"BWell 13"`
-- [x] Define `CSV_TOTAL_COLUMN = "BWP|Flow Mgd|MGD|Formula"` (the total/formula column name from the CSV header)
-- [x] Constants grouped logically at module level with explanatory comments
-- [x] Typecheck passes
-
-### US-002: Remove All PDF/OCR Code and Imports
-**Description:** As a developer, I need all PDF/OCR processing code removed so the script is clean and focused on CSV ingestion only.
-
-**Acceptance Criteria:**
-- [ ] Remove imports: `pdf2image`, `pytesseract`, `Pillow`/`PIL`, `subprocess` (if only used for OCR tools), `tempfile` (if only used for PDF processing)
-- [ ] Remove `check_system_dependencies()` function
-- [ ] Remove `WellData` class
-- [ ] Remove all PDF date extraction functions: `extract_date_from_pdf()`, `extract_date_from_filename()`, `extract_date_pdftotext()`, `extract_date_from_pdf_quick()`
-- [ ] Remove all PDF well data extraction functions: `extract_buckman_wells_data()`, `extract_buckman_data_pdftotext()`, `_parse_table_row()`, `_normalize_well_name()`
-- [ ] Remove OCR-related helpers: `is_confident()`
-- [ ] Remove all PDF validation/preflight functions: `validate_and_prepare_pdfs()`, `scan_input_pdfs()`, `get_year_interactively()`, `display_preflight_report()`
-- [ ] Remove `create_project_directories()` function (will be replaced)
-- [ ] Remove all OCR configuration constants: `OCR_CONFIDENCE_THRESHOLD`, `HEADER_CROP_RATIO`, `TABLE_CROP_RATIO`, `LINE_GROUPING_TOLERANCE_PX`, `PDF_CONVERSION_DPI`, `STANDARDIZED_PDF_PATTERN`
-- [ ] Remove `validate_af_conversion()` function (no longer needed — no AF_Reported from CSV)
-- [ ] Keep `mg_to_af()` function (still needed for AF calculation)
-- [ ] Keep `MG_VERIFICATION_TOLERANCE` and `AF_VERIFICATION_TOLERANCE` only if still used; otherwise remove
-- [ ] File should contain only: imports, constants (from US-001), and placeholder functions/main block
+- [ ] Define `INPUT_WEL_PATH = "input/modflow/2023/thruCY2165.wel"`
+- [ ] Define `INPUT_NAM_PATH = "input/modflow/2023/CY2023.nam"`
+- [ ] Define `TABLE2_CSV_PATH = "output/ingested_data/2024_Table_2_output.csv"`
+- [ ] Define `VALIDATION_WEL_PATH = "validation/modflow/2024/thruCY2165_2024.wel"`
+- [ ] Define `VALIDATION_NAM_PATH = "validation/modflow/2024/CY2024.nam"`
+- [ ] Define `OUTPUT_DIR = "output/modflow/2024"`
+- [ ] Define `OUTPUT_WEL_FILENAME = "thruCY2165_2024.wel"`
+- [ ] Define `OUTPUT_NAM_FILENAME = "CY2024.nam"`
+- [ ] Define `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
+- [ ] Define `SECONDS_PER_DAY = 86400`
+- [ ] Define `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
+- [ ] Define well-name-to-MODFLOW-name mapping dict:
+  - Table 2 "Well 1" → "BUCKMAN 1", "Well 2" → "BUCKMAN 2", "Well 3" → "BUCKMAN 3A", "Well 4" → "BUCKMAN 4", "Well 5" → "BUCKMAN 5", "Well 6" → "BUCKMAN 6", "Well 7" → "BUCKMAN 7", "Well 8" → "BUCKMAN 8", "Well 9" → "BUCKMAN 9", "Well 10" → "BUCKMAN 10", "Well 11" → "BUCKMAN 11", "Well 12" → "BUCKMAN 12", "Well 13" → "BUCKMAN 13"
+- [ ] Define well-to-grid mapping dict (row, col per well):
+  - BUCKMAN 1: row=13, col=11
+  - BUCKMAN 2: row=14, col=11
+  - BUCKMAN 3A: row=14, col=11
+  - BUCKMAN 4: row=14, col=11
+  - BUCKMAN 5: row=15, col=12
+  - BUCKMAN 6: row=14, col=12
+  - BUCKMAN 7: row=13, col=11
+  - BUCKMAN 8: row=13, col=11
+  - BUCKMAN 9: row=14, col=12
+  - BUCKMAN 10: row=17, col=13
+  - BUCKMAN 11: row=19, col=14
+  - BUCKMAN 12: row=19, col=15
+  - BUCKMAN 13: row=20, col=16
+- [ ] Define `MONTH_ABBREVS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]`
+- [ ] Define `TARGET_YEAR = 2024`
 - [ ] Typecheck passes
 
-### US-003: CSV Ingestion Function
-**Description:** As a developer, I need a function that reads the source CSV, parses the header, extracts daily data rows, and returns a clean pandas DataFrame so downstream functions can aggregate by month.
+### US-002: Read and Parse Table 2 CSV Pumping Data
+**Description:** As a groundwater modeler, I need to read the 2024 monthly pumping data from Table 2 so I have the source acre-feet values to convert for MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def read_source_csv(csv_path: str) -> Tuple[pd.DataFrame, pd.Series]`
-- [ ] Read CSV using first row as header
-- [ ] Parse the date column (first column, header contains date range like `1/1/2024-12/31/2024`) as datetime
-- [ ] Rename date column to `"Date"`
-- [ ] Parse well columns (`BWell 1` through `BWell 13`) and total column (`BWP|Flow Mgd|MGD|Formula`)
-- [ ] Separate daily data rows (rows with valid dates) from summary rows (Sum, Avg, Max, Min)
-- [ ] Return tuple: `(daily_df, sum_row)` — daily DataFrame and the Sum row as a Series
-- [ ] Daily DataFrame has columns: `Date`, `BWell 1` through `BWell 13`, `BWP_Total`
-- [ ] BWP total column renamed to `BWP_Total` for clarity
-- [ ] Summary rows (Sum, Avg, Max, Min) are excluded from daily_df
-- [ ] Print count of daily rows read (e.g., "Read 366 daily records from CSV")
+- [ ] Read `2024_Table_2_output.csv` using pandas
+- [ ] Parse 13 rows (Wells 1–13) with 12 monthly columns (JAN–DEC)
+- [ ] Store as a dict keyed by well number (int 1–13), value is dict of month abbreviation → acre-feet (float)
+- [ ] Verify all 13 wells are present; raise clear error if any missing
+- [ ] Verify no negative pumping values (acre-feet must be ≥ 0)
+- [ ] Log total annual pumping per well for sanity check
 - [ ] Typecheck passes
 
-### US-004: Data Validation and Flagging Function
-**Description:** As a developer, I need a function that identifies missing/invalid data in the daily DataFrame and returns a flags DataFrame so original values are preserved while problems are tracked.
+### US-003: Unit Conversion — Acre-Feet to ft³/s with Layer Split
+**Description:** As a groundwater modeler, I need to convert monthly acre-feet pumping values to MODFLOW pumping rates (ft³/s) split equally between two layers so the rates match MODFLOW conventions.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def validate_daily_data(daily_df: pd.DataFrame) -> pd.DataFrame`
-- [ ] Return a flags DataFrame with same shape as daily_df well columns (BWell 1-13)
-- [ ] Flag cells that are: blank/NaN, non-numeric (after initial parse), or negative values
-- [ ] Flag values: `""` (empty string) for valid data, `"BLANK"` for missing/NaN, `"NEGATIVE"` for negative values, `"NON_NUMERIC"` for non-numeric strings
-- [ ] Do NOT flag zero values (zero = well not pumping, which is valid)
-- [ ] Print summary: count of flagged cells per well and total (e.g., "Flagged 3 invalid values across 2 wells")
+- [ ] Implement function `convert_af_to_ft3s(acre_feet: float, days_in_month: int, num_layers: int = 2) -> float`
+- [ ] Formula: `rate = (acre_feet / num_layers) * 43560 / (days_in_month * 86400)`
+- [ ] Account for 2024 being a leap year (February = 29 days)
+- [ ] Return value as negative float (MODFLOW convention: pumping is negative)
+- [ ] Format output to 5 decimal places (matching validation file precision)
+- [ ] Hand-check: Well 1 JAN 2024 = 16.887963 AF → per-layer rate ≈ -0.13730 ft³/s (31 days)
+- [ ] Hand-check: Well 6 FEB 2024 = 0.199476 AF → per-layer rate ≈ -0.00173 ft³/s (29 days)
+- [ ] Hand-check: Well 10 DEC 2024 = 12.235564 AF → per-layer rate ≈ -0.09950 ft³/s (31 days)
 - [ ] Typecheck passes
 
-### US-005: Daily Sum Verification Function
-**Description:** As a developer, I need a function that verifies each day's per-well sum matches the BWP total column so data integrity issues are caught early.
+### US-004: Parse the 2023 .wel File Structure
+**Description:** As a developer, I need to parse the existing thruCY2165.wel file so I can identify and replace the 2024 zero-pumping stress periods while preserving all other data exactly.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def verify_daily_sums(daily_df: pd.DataFrame, tolerance: float = 0.001) -> pd.DataFrame`
-- [ ] For each daily row, sum BWell 1 through BWell 13 (treating NaN as 0)
-- [ ] Compare calculated sum to `BWP_Total` column
-- [ ] Return a DataFrame with columns: `Date`, `Calculated_Sum`, `BWP_Total`, `Difference`, `Verification` ("OK" or "NOT_OK")
-- [ ] Only flag as NOT_OK if absolute difference exceeds tolerance
-- [ ] Print count of mismatched days (e.g., "Daily sum verification: 366 OK, 0 NOT_OK")
+- [ ] Read entire `thruCY2165.wel` file as lines
+- [ ] Identify the line range containing 2024 data (JAN 2024 through DEC 2024)
+  - 2024 data starts at the `26` header line before "BUCKMAN 1 JAN 2024" (line ~8798)
+  - 2024 data ends after "BUCKMAN 13 DEC 2024" (line ~9121)
+  - Each month has: one header line (`26`) followed by 26 well entries (13 wells × 2 layers)
+  - Total: 12 months × 27 lines = 324 lines for all of 2024
+- [ ] Preserve all lines before 2024 data exactly as-is (1988–2023 historical data)
+- [ ] Preserve all lines after 2024 data exactly as-is (2025–2165 future zeros)
+- [ ] Verify 2024 section contains exactly 12 months × 26 well entries
 - [ ] Typecheck passes
 
-### US-006: Monthly Aggregation Function
-**Description:** As a developer, I need a function that aggregates daily MGD values into monthly totals per well so monthly CSVs can be generated.
+### US-005: Generate Updated 2024 Well Entries
+**Description:** As a groundwater modeler, I need to generate the 26 well-entry lines for each month of 2024 with the converted pumping rates so they replace the zero-value placeholders.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def aggregate_monthly(daily_df: pd.DataFrame, flags_df: pd.DataFrame) -> Dict[str, pd.DataFrame]`
-- [ ] Group daily data by calendar month (1-12)
-- [ ] For each month, sum daily MGD values per well to get monthly MG total
-- [ ] Result dict keyed by month string `"01"` through `"12"`
-- [ ] Each month DataFrame has columns: `Well_Number` (1-13), `MG_Month` (3 decimal places), `Has_Flagged_Data` (bool — True if any day in that month had a flag for that well)
-- [ ] If a well has any flagged days in a month, still calculate the sum from available valid data but set `Has_Flagged_Data = True`
+- [ ] For each month (JAN–DEC 2024), generate 26 lines: 13 wells × 2 layers
+- [ ] Each line follows the exact format: `{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}`
+  - Match the whitespace/column alignment of the existing file exactly
+- [ ] Well order within each month matches the validation file:
+  1. BUCKMAN 1, 2. BUCKMAN 2, 3. BUCKMAN 3A, 4. BUCKMAN 4, 5. BUCKMAN 5, 6. BUCKMAN 6, 7. BUCKMAN 7, 8. BUCKMAN 8, 9. BUCKMAN 9, 10. BUCKMAN 10, 11. BUCKMAN 11, 12. BUCKMAN 12, 13. BUCKMAN 13
+- [ ] For each well, Layer 1 line comes before Layer 2 line
+- [ ] Each month block is preceded by a header line: `        26`
+- [ ] Rates are negative (MODFLOW pumping convention)
+- [ ] Zero pumping values formatted as `-0.00000`
 - [ ] Typecheck passes
 
-### US-007: Generate Monthly CSV Files
-**Description:** As a user, I need monthly CSV output files with well production data, AF calculations, and data quality flags so I can review and use the data downstream.
+### US-006: Write Updated .wel File
+**Description:** As a developer, I need to assemble and write the complete updated .wel file so it can be used by MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def generate_monthly_csv(month_num: str, month_abbrev: str, month_df: pd.DataFrame, year: int, output_dir: str) -> List[Dict]`
-- [ ] Output filename pattern: `{year}_{month_num}_{month_abbrev}.csv` (e.g., `2024_01_JAN.csv`)
-- [ ] CSV columns: `OSE_Number`, `Well_Name`, `MG_Month`, `AF_Calculated`, `Data_Quality`
-- [ ] Map well numbers to OSE numbers using `WELL_OSE_MAP` constant
-- [ ] Map well numbers to names: `"Buckman #1"` through `"Buckman #13"`
-- [ ] `MG_Month`: monthly total in million gallons (3 decimal places)
-- [ ] `AF_Calculated`: `MG_Month * 3.06889` (5 decimal places)
-- [ ] `Data_Quality`: `"OK"` if no flagged days for that well in that month, `"FLAGGED"` if any flagged days exist
-- [ ] Add `Calculated_Sum` row at bottom with totals for MG_Month and AF_Calculated
-- [ ] Add `BWP_Verification` row comparing our monthly well sum to the sum of BWP_Total values for that month (from daily data)
-- [ ] Create output directory if it does not exist
-- [ ] Return list of dicts describing any flagged wells (for QA summary)
-- [ ] Print confirmation: `"Wrote 2024_01_JAN.csv (13 wells, 2 flagged)"`
+- [ ] Create `output/modflow/2024/` directory if it doesn't exist
+- [ ] Concatenate: pre-2024 lines + generated 2024 lines + post-2024 lines
+- [ ] Write to `output/modflow/2024/thruCY2165_2024.wel`
+- [ ] Total line count matches validation file (54,805 lines)
+- [ ] File uses consistent line endings (match input file)
 - [ ] Typecheck passes
 
-### US-008: Generate Annual Summary CSV
-**Description:** As a user, I need a consolidated annual summary showing AF values for all wells across all months so I can see the full year at a glance.
+### US-007: Generate Updated .nam File
+**Description:** As a groundwater modeler, I need to update the CY2023.nam file to reference 2024 file names so MODFLOW reads the correct files for the 2024 simulation.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def generate_annual_summary(monthly_data: Dict[str, pd.DataFrame], year: int, output_dir: str) -> None`
-- [ ] Output filename: `{year}_annual_summary.csv` (e.g., `2024_annual_summary.csv`)
-- [ ] CSV structure: rows = wells (Buckman #1 through #13 + Total), columns = months (JAN through DEC + Total)
-- [ ] Cell values are AF_Calculated (5 decimal places)
-- [ ] If a well-month has flagged data, append `"*"` to the value (e.g., `"16.88502*"`)
-- [ ] Total row = sum of all wells per month
-- [ ] Total column = sum of all months per well
-- [ ] Include footnote row: `"* = contains flagged data (missing or invalid source values)"`
+- [ ] Read `CY2023.nam` as template
+- [ ] Replace `CY2023.lst` → `CY2024.lst`
+- [ ] Replace `thruCY2165.wel` → `thruCY2165_2024.wel`
+- [ ] Replace `CY2023_riv.flx` → `CY2024_riv.flx`
+- [ ] Replace `CY2023_ghb.flx` → `CY2024_ghb.flx`
+- [ ] Do NOT add redundant suffixes (e.g., do not create `CY2024_riv.riv` — the `.flx` extension suffices)
+- [ ] Add header comment with generation timestamp (matching validation format)
+- [ ] Uppercase package type names to match validation format (LIST, BAS, BCF, OC, RIV, GHB, SIP, WEL, DATA(BINARY))
+- [ ] Align columns to match validation file whitespace exactly
+- [ ] Write to `output/modflow/2024/CY2024.nam`
 - [ ] Typecheck passes
 
-### US-009: Generate QA Input Summary CSV
-**Description:** As a user, I need a summary of all flagged data so I can review potential data quality issues in one place.
+### US-008: Validate Output Against 2024 Validation Files
+**Description:** As a groundwater modeler, I need to compare my generated files against the known-good validation files to confirm correctness before using them in MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def generate_qa_summary(all_flags: List[Dict], daily_verification: pd.DataFrame, year: int, output_dir: str) -> None`
-- [ ] Output filename: `input_summary.csv`
-- [ ] Section 1 — Flagged well-month data: columns `Month`, `Well_Name`, `Flag_Type`, `Flagged_Days_Count`, `Monthly_MG_Total` (calculated from available valid data)
-- [ ] Section 2 — Daily sum mismatches: columns `Date`, `Calculated_Sum`, `BWP_Total`, `Difference` (only rows where Verification = NOT_OK)
-- [ ] If no flags and no mismatches, write a single row: `"No data quality issues found"`
-- [ ] Print summary: `"QA summary: 5 flagged well-months, 0 daily sum mismatches"`
+- [ ] Compare generated `CY2024.nam` against `validation/modflow/2024/CY2024.nam`
+  - Ignore comment lines (lines starting with `#`) since timestamps will differ
+  - All non-comment lines must match exactly
+- [ ] Compare generated `thruCY2165_2024.wel` against `validation/modflow/2024/thruCY2165_2024.wel`
+  - All lines outside the 2024 section must be byte-identical
+  - 2024 pumping rates must match within ±0.00002 ft³/s tolerance (rounding from CSV precision)
+- [ ] Report per-well, per-month comparison: generated rate vs. validation rate vs. difference
+- [ ] Flag any differences exceeding tolerance with well name, month, and both values
+- [ ] Print summary: total wells checked, total months checked, pass/fail count
+- [ ] If all pass: print "Validation PASSED — generated files match validation files"
+- [ ] If any fail: print detailed failure report with actionable context
 - [ ] Typecheck passes
+- [ ] Run script end-to-end with actual data successfully
 
-### US-010: Annual Sum Verification
-**Description:** As a developer, I need to verify our calculated annual totals against the CSV's Sum row so we know our aggregation is correct.
+### US-009: Main Script Entry Point and CLI
+**Description:** As a user, I need a single command to run the full pipeline (read CSV → convert → write .wel → write .nam → validate) so the process is repeatable.
 
 **Acceptance Criteria:**
-- [ ] Function signature: `def verify_annual_sums(monthly_data: Dict[str, pd.DataFrame], sum_row: pd.Series, tolerance: float = 0.01) -> Dict[str, str]`
-- [ ] For each well (BWell 1-13), sum all 12 monthly MG totals
-- [ ] Compare against corresponding value in the CSV Sum row
-- [ ] Return dict mapping well name to verification status: `"OK"` or `"NOT_OK (calculated=X, source=Y)"`
-- [ ] Print verification results: per-well status and overall pass/fail
+- [ ] Script runs as `python3 update_modflow_2024.py` with no required arguments
+- [ ] Optionally accept `--year 2024` argument (default: 2024)
+- [ ] Print progress for each major step:
+  1. "Reading Table 2 pumping data..."
+  2. "Converting acre-feet to ft³/s..."
+  3. "Parsing 2023 .wel file..."
+  4. "Generating 2024 well entries..."
+  5. "Writing updated .wel file..."
+  6. "Generating updated .nam file..."
+  7. "Validating against known-good files..."
+- [ ] Print per-well monthly pumping summary table (acre-feet and ft³/s side by side)
+- [ ] Exit code 0 on success, non-zero on validation failure
 - [ ] Typecheck passes
-
-### US-011: Main Function and CLI Interface
-**Description:** As a user, I need to run the script with a year argument to process the CSV and generate all outputs without interactive prompts.
-
-**Acceptance Criteria:**
-- [ ] Usage: `python3 ingest_buckman_data.py [year]` (default: 2024)
-- [ ] Accept year as optional positional argument via `argparse`
-- [ ] Construct CSV input path from year: `./input/csv/Buckman_Well_Prod_{year}.csv`
-- [ ] Validate input CSV file exists; print clear error and exit if not
-- [ ] Create output directory if it does not exist
-- [ ] Call functions in order: `read_source_csv` -> `validate_daily_data` -> `verify_daily_sums` -> `aggregate_monthly` -> loop `generate_monthly_csv` for 12 months -> `generate_annual_summary` -> `verify_annual_sums` -> `generate_qa_summary`
-- [ ] Print overall summary at end: total wells, total months, flagged count, verification status
-- [ ] Exit code 0 on success, 1 on fatal error (missing file, parse failure)
-- [ ] No interactive prompts (no `input()` calls)
-- [ ] Typecheck passes
-- [ ] Run script end-to-end with the real CSV successfully
-
-### US-012: Update requirements.txt
-**Description:** As a developer, I need requirements.txt to reflect the simplified dependencies.
-
-**Acceptance Criteria:**
-- [ ] Remove `pdf2image`, `pytesseract`, `Pillow` from requirements.txt
-- [ ] Keep `pandas>=1.5.0`
-- [ ] No other dependencies needed
-- [ ] Typecheck passes
-
-### US-013: Enhanced Error Messages
-**Description:** As a developer, I need error messages to include sufficient context for debugging when CSV parsing or validation fails.
-
-**Acceptance Criteria:**
-- [ ] CSV read errors include the file path attempted
-- [ ] Parse errors include row number and problematic value
-- [ ] Validation errors include well name, date, and the invalid value
-- [ ] All exception handlers print exception type and message
-- [ ] Missing file error includes expected path and suggestion to check directory
-- [ ] Typecheck passes
-
-### US-014: Progress Feedback
-**Description:** As a user, I need progress indicators during processing so I know the script is working.
-
-**Acceptance Criteria:**
-- [ ] Display `"Reading CSV: {path}"` at start
-- [ ] Display `"Validating {N} daily records..."` during validation
-- [ ] Display `"(X/12) Generating: {filename}"` for each monthly CSV
-- [ ] Display `"Generating annual summary..."` before annual summary
-- [ ] Display `"Verifying annual totals..."` before annual verification
-- [ ] Display final summary block with: files created, flags found, verification status
-- [ ] Typecheck passes
-- [ ] Run script end-to-end with the real CSV successfully
+- [ ] Run script end-to-end with actual data successfully
 
 ## Non-Goals
 
-- No PDF processing of any kind (removed entirely)
-- No OCR or image processing
-- No system dependency checks (Tesseract, Poppler, ocrmypdf)
-- No interactive prompts or user confirmation dialogs
-- No AF_Reported column (source CSV does not contain AF values)
-- No Meter_Reading column (source CSV does not contain meter readings)
-- No pre-flight PDF validation or standardized PDF copy creation
-- No support for multiple CSV files (single file per year)
-- No GUI or web interface
+- No changes to the MODFLOW executable or other input files (.bas, .bcf, .oc, .riv, .ghb, .sip)
+- No changes to historical data (1988–2023) or future projection data (2025–2165)
+- No GUI or interactive mode — CLI script only
+- No automatic downloading or fetching of pumping data
+- No modification of the Table 2 CSV source file
+- No running of the MODFLOW model itself — only input file generation
+- No support for years other than 2024 (though the design accommodates future extension)
 
 ## Technical Considerations
 
-### Configuration Constants
+### Unit Conversion
 
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `INPUT_CSV_PATH` | `"./input/csv/Buckman_Well_Prod_{year}.csv"` | Source CSV path pattern |
-| `OUTPUT_DIR` | `"./output/ingested_data"` | Output directory for all generated files |
-| `MG_TO_AF_FACTOR` | `3.06889` | USGS conversion: 1 MG = 3.06889 AF |
-| `DAILY_SUM_TOLERANCE` | `0.001` | MGD tolerance for daily BWP total verification |
-| `ANNUAL_SUM_TOLERANCE` | `0.01` | MG tolerance for annual Sum row verification |
-| `CSV_TOTAL_COLUMN` | `"BWP\|Flow Mgd\|MGD\|Formula"` | Header name for the total column in source CSV |
-
-### Well-to-OSE Number Mapping
-
-| Well # | CSV Column | Well Name | OSE Number |
-|--------|-----------|-----------|------------|
-| 1 | BWell 1 | Buckman #1 | RG-20516-S-5 |
-| 2 | BWell 2 | Buckman #2 | RG-20516-S-6 |
-| 3 | BWell 3 | Buckman #3 | RG-20516-S |
-| 4 | BWell 4 | Buckman #4 | RG-20516-S-2 |
-| 5 | BWell 5 | Buckman #5 | RG-20516-S-3 |
-| 6 | BWell 6 | Buckman #6 | RG-20516-S-4 |
-| 7 | BWell 7 | Buckman #7 | RG-20516-S-7 |
-| 8 | BWell 8 | Buckman #8 | RG-20516-S-8 |
-| 9 | BWell 9 | Buckman #9 | RG-20516-S-9 |
-| 10 | BWell 10 | Buckman #10 | RG-20516-S-10 |
-| 11 | BWell 11 | Buckman #11 | RG-20516-S-11 |
-| 12 | BWell 12 | Buckman #12 | RG-20516-S-12 |
-| 13 | BWell 13 | Buckman #13 | RG-20516-S-13 |
-
-### CSV Source Format
-
-- **Header row:** `1/1/2024-12/31/2024,BWell 1|Flow Mgd,BWell 2|Flow Mgd,...,BWP|Flow Mgd|MGD|Formula`
-- **Data rows:** `1/1/2024,0,0,0,...,0.6838` (366 daily rows for 2024)
-- **Summary rows:** Sum, Avg, Max, Min (4 rows at bottom, date column contains the label)
-- **Units:** MGD (million gallons per day) — summing daily values for a month gives monthly MG directly
-- **Zeros:** Valid data meaning "well not pumped that day"
-
-### Conversion
-
-```python
-def mg_to_af(mg_value: float) -> float:
-    """Convert million gallons to acre-feet using USGS standard.
-
-    1 acre-foot = 325,851 gallons
-    1 MG = 1,000,000 / 325,851 = 3.06889 AF
-    """
-    return round(mg_value * 3.06889, 5)
-```
-
-### Error Handling Patterns
-
-- Return early with clear error message if CSV file not found
-- Use pandas `errors="coerce"` for numeric parsing to convert invalid values to NaN
-- Track flags in a parallel DataFrame (same shape as data, stores flag reasons)
-- Never silently drop data — preserve original and flag for review
-- Print progress to stdout; print errors to stderr
-
-### Data Flow
+The core conversion from monthly acre-feet to MODFLOW pumping rate (ft³/s per layer):
 
 ```
-Input: ./input/csv/Buckman_Well_Prod_2024.csv
-  |
-  v
-[read_source_csv] --> daily_df (366 rows x 15 cols), sum_row
-  |
-  v
-[validate_daily_data] --> flags_df (366 rows x 13 cols, flag strings)
-  |
-  v
-[verify_daily_sums] --> daily_verification_df (366 rows, OK/NOT_OK per day)
-  |
-  v
-[aggregate_monthly] --> monthly_data dict (12 months, each with 13 wells)
-  |
-  v
-[generate_monthly_csv] x12 --> 2024_01_JAN.csv ... 2024_12_DEC.csv
-  |
-  v
-[generate_annual_summary] --> 2024_annual_summary.csv
-  |
-  v
-[verify_annual_sums] --> per-well verification results (printed)
-  |
-  v
-[generate_qa_summary] --> input_summary.csv
+rate_ft3_per_s = -(acre_feet / NUM_LAYERS) * ACRE_FT_TO_FT3 / (days_in_month * SECONDS_PER_DAY)
 ```
+
+Where:
+- `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
+- `SECONDS_PER_DAY = 86400`
+- `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
+- 2024 is a leap year: February has 29 days
+
+### Verification Values
+
+| Well | Month | Acre-Feet | Per-Layer ft³/s | Days |
+|------|-------|-----------|-----------------|------|
+| 1 | JAN | 16.887963 | -0.13730 | 31 |
+| 6 | FEB | 0.199476 | -0.00173 | 29 |
+| 10 | DEC | 12.235564 | -0.09950 | 31 |
+| 8 | DEC | 47.502959 | -0.38623 | 31 |
+
+### Well Name Mapping (Table 2 → MODFLOW)
+
+| Table 2 | MODFLOW Name | Row | Col |
+|---------|-------------|-----|-----|
+| Well 1 | BUCKMAN 1 | 13 | 11 |
+| Well 2 | BUCKMAN 2 | 14 | 11 |
+| Well 3 | BUCKMAN 3A | 14 | 11 |
+| Well 4 | BUCKMAN 4 | 14 | 11 |
+| Well 5 | BUCKMAN 5 | 15 | 12 |
+| Well 6 | BUCKMAN 6 | 14 | 12 |
+| Well 7 | BUCKMAN 7 | 13 | 11 |
+| Well 8 | BUCKMAN 8 | 13 | 11 |
+| Well 9 | BUCKMAN 9 | 14 | 12 |
+| Well 10 | BUCKMAN 10 | 17 | 13 |
+| Well 11 | BUCKMAN 11 | 19 | 14 |
+| Well 12 | BUCKMAN 12 | 19 | 15 |
+| Well 13 | BUCKMAN 13 | 20 | 16 |
+
+### .wel File Structure
+
+Each month's stress period in the .wel file has this structure:
+```
+        26                              ← header: 26 well entries follow (13 wells × 2 layers)
+         1        13        11  -0.13730  BUCKMAN 1 JAN 2024     ← Layer 1
+         2        13        11  -0.13730  BUCKMAN 1 JAN 2024     ← Layer 2
+         1        14        11  -0.00000  BUCKMAN 2 JAN 2024
+         2        14        11  -0.00000  BUCKMAN 2 JAN 2024
+         ...                              ← continues for all 13 wells
+```
+
+- Lines 1–8797: Historical data (1988–DEC 2023) — preserve exactly
+- Lines 8798–9121: Year 2024 data (12 months × 27 lines) — replace zeros with converted rates
+- Lines 9122–54805: Future data (2025–2165) — preserve exactly
+
+### .nam File Changes (CY2023 → CY2024)
+
+| Line | 2023 Value | 2024 Value |
+|------|-----------|-----------|
+| LIST | `CY2023.lst` | `CY2024.lst` |
+| WEL | `thruCY2165.wel` | `thruCY2165_2024.wel` |
+| DATA(BINARY) | `CY2023_riv.flx` | `CY2024_riv.flx` |
+| DATA(BINARY) | `CY2023_ghb.flx` | `CY2024_ghb.flx` |
+
+Unchanged files: `thruCY2165.bas`, `sflcs.bcf`, `thruCY2165.oc`, `thruCY2165.riv`, `thruCY2165.ghb`, `sflcs.sip`
+
+### Formatting Notes
+
+- The validation `.nam` file uses uppercase package types (LIST, BAS, BCF) and column-aligned whitespace with a header comment block
+- The validation `.wel` file uses 5 decimal places for pumping rates (e.g., `-0.13730`)
+- The 2023 `.nam` has mixed case and tighter spacing — the 2024 output should match the validation format
+
+### Dependencies
+
+- Python 3 with pandas (for CSV reading)
+- Standard library: `calendar` (days-in-month), `pathlib`, `argparse`, `datetime`
+- No external MODFLOW tools required
+
+### Error Handling
+
+- If Table 2 CSV is missing or malformed: raise FileNotFoundError with path
+- If well count ≠ 13 or month count ≠ 12: raise ValueError with actual counts
+- If 2024 section not found in .wel file: raise ValueError with search pattern used
+- If validation fails: print detailed diff, do NOT raise — let user inspect

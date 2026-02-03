@@ -1,18 +1,6 @@
 # Progress Log
 
 ## Learnings
-- MONTHS_ABBREV and MONTHS_ORDERED already existed in original file; no need to redefine
-- pdf2image, pytesseract, Pillow are installed in the environment so the old OCR code still imports OK
-- The source CSV has pipe-delimited column names like "BWell 1|Flow Mgd" and "BWP|Flow Mgd|MGD|Formula"
-- CSV has 366 daily rows (2024 is leap year) plus 4 summary rows (Sum, Avg, Max, Min)
-- mypy --ignore-missing-imports passes on the current file
-- US-001 through US-002 are tightly coupled; US-002 (remove OCR code) must happen before US-003+ can work properly
+(Patterns discovered during implementation)
 
----
-
-## Iteration 1 - SUCCESS
-- Story completed: US-001 (Configuration Constants and Well Mapping)
-- What was implemented: Added CSV ingestion constants to ingest_buckman_data.py — INPUT_CSV_PATH, OUTPUT_DIR, MG_TO_AF_FACTOR, DAILY_SUM_TOLERANCE, ANNUAL_SUM_TOLERANCE, WELL_OSE_MAP (13 wells), CSV_WELL_COLUMNS, CSV_TOTAL_COLUMN. All grouped logically with explanatory comments.
-- Files changed: ingest_buckman_data.py, PRD.md, progress.txt
-- Tests: 5/5 US-001 tests passed, mypy typecheck passed
 ---
