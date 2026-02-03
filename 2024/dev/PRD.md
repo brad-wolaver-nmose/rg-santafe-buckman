@@ -20,20 +20,20 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a developer, I need all file paths, well mappings, and conversion constants defined as module-level constants so the script is maintainable and self-documenting.
 
 **Acceptance Criteria:**
-- [ ] Define `INPUT_WEL_PATH = "input/modflow/2023/thruCY2165.wel"`
-- [ ] Define `INPUT_NAM_PATH = "input/modflow/2023/CY2023.nam"`
-- [ ] Define `TABLE2_CSV_PATH = "output/ingested_data/2024_Table_2_output.csv"`
-- [ ] Define `VALIDATION_WEL_PATH = "validation/modflow/2024/thruCY2165_2024.wel"`
-- [ ] Define `VALIDATION_NAM_PATH = "validation/modflow/2024/CY2024.nam"`
-- [ ] Define `OUTPUT_DIR = "output/modflow/2024"`
-- [ ] Define `OUTPUT_WEL_FILENAME = "thruCY2165_2024.wel"`
-- [ ] Define `OUTPUT_NAM_FILENAME = "CY2024.nam"`
-- [ ] Define `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
-- [ ] Define `SECONDS_PER_DAY = 86400`
-- [ ] Define `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
-- [ ] Define well-name-to-MODFLOW-name mapping dict:
+- [x] Define `INPUT_WEL_PATH = "input/modflow/2023/thruCY2165.wel"`
+- [x] Define `INPUT_NAM_PATH = "input/modflow/2023/CY2023.nam"`
+- [x] Define `TABLE2_CSV_PATH = "output/ingested_data/2024_Table_2_output.csv"`
+- [x] Define `VALIDATION_WEL_PATH = "validation/modflow/2024/thruCY2165_2024.wel"`
+- [x] Define `VALIDATION_NAM_PATH = "validation/modflow/2024/CY2024.nam"`
+- [x] Define `OUTPUT_DIR = "output/modflow/2024"`
+- [x] Define `OUTPUT_WEL_FILENAME = "thruCY2165_2024.wel"`
+- [x] Define `OUTPUT_NAM_FILENAME = "CY2024.nam"`
+- [x] Define `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
+- [x] Define `SECONDS_PER_DAY = 86400`
+- [x] Define `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
+- [x] Define well-name-to-MODFLOW-name mapping dict:
   - Table 2 "Well 1" → "BUCKMAN 1", "Well 2" → "BUCKMAN 2", "Well 3" → "BUCKMAN 3A", "Well 4" → "BUCKMAN 4", "Well 5" → "BUCKMAN 5", "Well 6" → "BUCKMAN 6", "Well 7" → "BUCKMAN 7", "Well 8" → "BUCKMAN 8", "Well 9" → "BUCKMAN 9", "Well 10" → "BUCKMAN 10", "Well 11" → "BUCKMAN 11", "Well 12" → "BUCKMAN 12", "Well 13" → "BUCKMAN 13"
-- [ ] Define well-to-grid mapping dict (row, col per well):
+- [x] Define well-to-grid mapping dict (row, col per well):
   - BUCKMAN 1: row=13, col=11
   - BUCKMAN 2: row=14, col=11
   - BUCKMAN 3A: row=14, col=11
@@ -47,9 +47,9 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
   - BUCKMAN 11: row=19, col=14
   - BUCKMAN 12: row=19, col=15
   - BUCKMAN 13: row=20, col=16
-- [ ] Define `MONTH_ABBREVS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]`
-- [ ] Define `TARGET_YEAR = 2024`
-- [ ] Typecheck passes
+- [x] Define `MONTH_ABBREVS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]`
+- [x] Define `TARGET_YEAR = 2024`
+- [x] Typecheck passes
 
 ### US-002: Read and Parse Table 2 CSV Pumping Data
 **Description:** As a groundwater modeler, I need to read the 2024 monthly pumping data from Table 2 so I have the source acre-feet values to convert for MODFLOW.
