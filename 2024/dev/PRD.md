@@ -22,12 +22,12 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to copy the MODFLOW flux files to the post-processor directory so sfmodflx_2245.exe can access them.
 
 **Acceptance Criteria:**
-- [ ] Copy `output/modflow/2024/modflow/CY2024_riv.flx` to `output/modflow/2024/depletions/`
-- [ ] Copy `output/modflow/2024/modflow/CY2024_ghb.flx` to `output/modflow/2024/depletions/`
-- [ ] Verify both files exist after copy
-- [ ] Print confirmation message with file sizes
-- [ ] If source files not found, print forensic error message and exit
-- [ ] Typecheck passes
+- [x] Copy `output/modflow/2024/modflow/CY2024_riv.flx` to `output/modflow/2024/depletions/`
+- [x] Copy `output/modflow/2024/modflow/CY2024_ghb.flx` to `output/modflow/2024/depletions/`
+- [x] Verify both files exist after copy
+- [x] Print confirmation message with file sizes
+- [x] If source files not found, print forensic error message and exit
+- [x] Typecheck passes
 
 ### US-002: Run Post-Processor via Wine
 **Description:** As a developer, I need to execute sfmodflx_2245.exe via Wine with automated input so the depletion summary is generated.

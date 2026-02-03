@@ -1,6 +1,16 @@
-# Progress Log
-
-## Learnings
-(Patterns discovered during implementation)
-
+## Iteration 1 - SUCCESS
+- Story completed: US-001: Copy Flux Files to Post-Processor Directory
+- What was implemented:
+  - Created generate_depletion_tables.py with copy_flux_files() function
+  - Copies CY2024_riv.flx and CY2024_ghb.flx from modflow/ to depletions/
+  - Prints file sizes on success
+  - Prints forensic error messages if files missing
+  - All typechecks pass (mypy)
+- Files changed:
+  - generate_depletion_tables.py (new)
+  - tests/test_generate_depletion_tables.py (new)
+  - dev/PRD.md (marked US-001 complete)
+- Learnings:
+  - Follow ingest_buckman_data.py patterns for error handling
+  - Use shutil.copy2 to preserve file metadata
 ---
