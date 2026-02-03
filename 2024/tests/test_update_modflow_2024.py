@@ -224,3 +224,129 @@ def test_convert_invalid_days_raises():
 
     with pytest.raises(ValueError, match="days_in_month must be 1-31"):
         convert_af_to_ft3s(acre_feet=10.0, days_in_month=32, num_layers=2)
+
+
+# =============================================================================
+# US-004: Parse the 2023 .wel File Structure
+# =============================================================================
+
+
+def test_parse_wel_file_function_exists():
+    """Verify parse_wel_file function exists and is callable."""
+    from update_modflow_2024 import parse_wel_file
+
+    assert callable(parse_wel_file)
+
+
+def test_parse_wel_file_returns_welfiledata():
+    """Verify parse_wel_file returns WelFileData object with all sections."""
+    from update_modflow_2024 import parse_wel_file, WelFileData
+
+    result = parse_wel_file()
+
+    assert isinstance(result, WelFileData)
+    assert hasattr(result, "pre_2024_lines")
+    assert hasattr(result, "year_2024_lines")
+    assert hasattr(result, "post_2024_lines")
+
+
+def test_parse_wel_file_2024_section_size():
+    """
+    Verify 2024 section contains exactly 324 lines.
+
+    12 months × 27 lines/month (1 header + 26 well entries)
+    """
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    expected_lines = 12 * 27  # 324
+    assert len(result.year_2024_lines) == expected_lines, (
+        f"2024 section should have {expected_lines} lines, "
+        f"got {len(result.year_2024_lines)}"
+    )
+
+
+def test_parse_wel_file_preserves_total_lines():
+    """
+    Verify total lines matches the original file (54,805 lines).
+
+    pre_2024 + 2024 + post_2024 = 54,805
+    """
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    expected_total = 54805
+    assert result.total_lines == expected_total, (
+        f"Total lines should be {expected_total}, got {result.total_lines}"
+    )
+
+
+def test_parse_wel_file_pre_2024_ends_before_jan_2024():
+    """Verify pre-2024 lines end with DEC 2023 data."""
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    # Last line of pre-2024 should be BUCKMAN 13 DEC 2023 layer 2
+    last_pre_2024 = result.pre_2024_lines[-1].strip()
+    assert "BUCKMAN 13" in last_pre_2024 and "DEC 2023" in last_pre_2024, (
+        f"Last pre-2024 line should be BUCKMAN 13 DEC 2023, got: {last_pre_2024}"
+    )
+
+
+def test_parse_wel_file_2024_section_starts_with_header():
+    """Verify 2024 section starts with header line '26'."""
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    first_2024_line = result.year_2024_lines[0].strip()
+    assert first_2024_line == "26", (
+        f"2024 section should start with header '26', got: {first_2024_line}"
+    )
+
+
+def test_parse_wel_file_2024_first_entry_is_buckman1_jan():
+    """Verify first well entry in 2024 is BUCKMAN 1 JAN 2024."""
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    # Line index 1 (after header) should be BUCKMAN 1 JAN 2024
+    first_entry = result.year_2024_lines[1].strip()
+    assert "BUCKMAN 1" in first_entry and "JAN 2024" in first_entry, (
+        f"First 2024 entry should be BUCKMAN 1 JAN 2024, got: {first_entry}"
+    )
+
+
+def test_parse_wel_file_2024_last_entry_is_buckman13_dec():
+    """Verify last well entry in 2024 is BUCKMAN 13 DEC 2024."""
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    last_entry = result.year_2024_lines[-1].strip()
+    assert "BUCKMAN 13" in last_entry and "DEC 2024" in last_entry, (
+        f"Last 2024 entry should be BUCKMAN 13 DEC 2024, got: {last_entry}"
+    )
+
+
+def test_parse_wel_file_post_2024_starts_with_jan_2025():
+    """Verify post-2024 section starts with JAN 2025 header."""
+    from update_modflow_2024 import parse_wel_file
+
+    result = parse_wel_file()
+
+    # First line should be header "26" for JAN 2025
+    first_post_2024 = result.post_2024_lines[0].strip()
+    assert first_post_2024 == "26", (
+        f"Post-2024 should start with header '26', got: {first_post_2024}"
+    )
+
+    # Second line should be BUCKMAN 1 JAN 2025
+    second_post_2024 = result.post_2024_lines[1].strip()
+    assert "BUCKMAN 1" in second_post_2024 and "JAN 2025" in second_post_2024, (
+        f"First post-2024 entry should be BUCKMAN 1 JAN 2025, got: {second_post_2024}"
+    )

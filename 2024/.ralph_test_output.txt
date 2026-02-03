@@ -4,9 +4,9 @@ rootdir: /home/bradwolaver/projects/rg/santafe/2024
 configfile: pytest.ini
 testpaths: tests
 plugins: anyio-4.10.0
-collected 29 items
+collected 35 items
 
-tests/test_ingest_buckman_data.py ....................                   [ 68%]
-tests/test_update_modflow_2024.py .........                              [100%]
+tests/test_ingest_buckman_data.py ....................                   [ 57%]
+tests/test_update_modflow_2024.py ...............                        [100%]
 
-============================== 29 passed in 0.82s ==============================
+============================== 35 passed in 0.66s ==============================

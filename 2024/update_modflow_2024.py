@@ -123,6 +123,143 @@ def convert_af_to_ft3s(
     return -rate_ft3_per_s
 
 
+# =============================================================================
+# WEL FILE PARSING
+# =============================================================================
+# Line numbers are 1-indexed to match file content
+WEL_2024_START_LINE: int = 8798  # Header line "26" before JAN 2024
+WEL_2024_END_LINE: int = 9121    # Last BUCKMAN 13 DEC 2024 entry
+LINES_PER_MONTH: int = 27       # 1 header + 26 well entries (13 wells × 2 layers)
+WELLS_PER_MONTH: int = 26       # 13 wells × 2 layers
+
+
+class WelFileData:
+    """Parsed .wel file data with separated pre-2024, 2024, and post-2024 sections."""
+
+    def __init__(
+        self,
+        pre_2024_lines: list[str],
+        year_2024_lines: list[str],
+        post_2024_lines: list[str],
+    ) -> None:
+        self.pre_2024_lines = pre_2024_lines
+        self.year_2024_lines = year_2024_lines
+        self.post_2024_lines = post_2024_lines
+
+    @property
+    def total_lines(self) -> int:
+        """Total line count across all sections."""
+        return (
+            len(self.pre_2024_lines)
+            + len(self.year_2024_lines)
+            + len(self.post_2024_lines)
+        )
+
+
+def parse_wel_file(wel_path: str = INPUT_WEL_PATH) -> WelFileData:
+    """
+    Parse the .wel file and separate 2024 data from historical and future data.
+
+    Scientific basis: MODFLOW .wel file format with stress period structure.
+    Each month's stress period has a header line (entry count) followed by
+    well entries (layer, row, col, rate, name).
+
+    Assumptions:
+        1. 2024 data starts at line 8798 (header for JAN 2024)
+        2. 2024 data ends at line 9121 (BUCKMAN 13 DEC 2024 layer 2)
+        3. Each month has 27 lines: 1 header + 26 well entries
+        4. 12 months × 27 lines = 324 lines total for 2024
+
+    Args:
+        wel_path: Path to the input .wel file
+
+    Returns:
+        WelFileData object with pre_2024_lines, year_2024_lines, post_2024_lines
+
+    Raises:
+        FileNotFoundError: If .wel file does not exist
+        ValueError: If 2024 section structure doesn't match expectations
+
+    Example:
+        >>> data = parse_wel_file()
+        >>> len(data.year_2024_lines)
+        324
+    """
+    from pathlib import Path
+
+    path = Path(wel_path)
+    if not path.exists():
+        raise FileNotFoundError(f".wel file not found: {wel_path}")
+
+    with open(wel_path, "r") as f:
+        all_lines = f.readlines()
+
+    total_lines = len(all_lines)
+    print(f"Read {total_lines} lines from {wel_path}")
+
+    # Convert to 0-indexed for list slicing
+    start_idx = WEL_2024_START_LINE - 1  # 8797 (line 8798 is index 8797)
+    end_idx = WEL_2024_END_LINE          # 9121 (line 9121 is index 9120, +1 for slice)
+
+    # Split into three sections
+    pre_2024_lines = all_lines[:start_idx]
+    year_2024_lines = all_lines[start_idx:end_idx]
+    post_2024_lines = all_lines[end_idx:]
+
+    # Validate 2024 section structure
+    expected_2024_lines = 12 * LINES_PER_MONTH  # 324 lines
+    actual_2024_lines = len(year_2024_lines)
+    if actual_2024_lines != expected_2024_lines:
+        raise ValueError(
+            f"2024 section should have {expected_2024_lines} lines, "
+            f"found {actual_2024_lines}. "
+            f"Check WEL_2024_START_LINE ({WEL_2024_START_LINE}) and "
+            f"WEL_2024_END_LINE ({WEL_2024_END_LINE})."
+        )
+
+    # Validate each month has correct structure (header + 26 entries)
+    for month_idx in range(12):
+        month_start = month_idx * LINES_PER_MONTH
+        header_line = year_2024_lines[month_start].strip()
+
+        # Header should be "26" (number of well entries)
+        if header_line != "26":
+            month_name = MONTH_ABBREVS[month_idx]
+            raise ValueError(
+                f"{month_name} 2024 header should be '26', found '{header_line}' "
+                f"at 2024-section line {month_start + 1}"
+            )
+
+        # First entry should be BUCKMAN 1
+        first_entry = year_2024_lines[month_start + 1]
+        if "BUCKMAN 1" not in first_entry:
+            month_name = MONTH_ABBREVS[month_idx]
+            raise ValueError(
+                f"{month_name} 2024 first entry should be BUCKMAN 1, "
+                f"found: {first_entry.strip()}"
+            )
+
+        # Last entry should be BUCKMAN 13
+        last_entry = year_2024_lines[month_start + WELLS_PER_MONTH]
+        if "BUCKMAN 13" not in last_entry:
+            month_name = MONTH_ABBREVS[month_idx]
+            raise ValueError(
+                f"{month_name} 2024 last entry should be BUCKMAN 13, "
+                f"found: {last_entry.strip()}"
+            )
+
+    print(
+        f"Parsed .wel file: {len(pre_2024_lines)} pre-2024, "
+        f"{len(year_2024_lines)} 2024, {len(post_2024_lines)} post-2024 lines"
+    )
+
+    return WelFileData(
+        pre_2024_lines=pre_2024_lines,
+        year_2024_lines=year_2024_lines,
+        post_2024_lines=post_2024_lines,
+    )
+
+
 def read_table2_pumping_data(
     csv_path: str = TABLE2_CSV_PATH,
 ) -> Dict[int, Dict[str, float]]:

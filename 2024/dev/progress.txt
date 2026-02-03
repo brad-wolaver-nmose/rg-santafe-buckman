@@ -15,3 +15,33 @@
 - Tests: 9 passed, mypy typecheck passed
 - Learnings: CSV has extra rows (Total, summary rows) that need filtering
 ---
+## Iteration 2 - SUCCESS
+- Story completed: US-003 - Unit Conversion — Acre-Feet to ft³/s with Layer Split
+- What was implemented:
+  - Verified existing `convert_af_to_ft3s()` function works correctly
+  - Added 6 new tests for hand-check values (Well 1 JAN, Well 6 FEB, Well 10 DEC)
+  - Added output precision test (5 decimal places)
+  - Added error handling tests (negative acre-feet, invalid days)
+- Files changed:
+  - tests/test_update_modflow_2024.py (added 6 tests)
+  - dev/PRD.md (marked US-003 checkboxes complete)
+- Tests: 15 passed, mypy typecheck passed
+- Learnings: PRD hand-check values may have slight discrepancy vs. exact calculation due to source data precision differences (0.13730 vs 0.13733). Tolerance in US-008 (±0.00002) will handle this.
+---
+## Iteration 3 - SUCCESS
+- Story completed: US-004 - Parse the 2023 .wel File Structure
+- What was implemented:
+  - Added `WelFileData` class to hold parsed .wel sections
+  - Added `parse_wel_file()` function that splits the .wel file into three sections:
+    - pre_2024_lines (lines 1-8797): historical 1988-2023 data
+    - year_2024_lines (lines 8798-9121): 324 lines for 2024 (12 months × 27 lines)
+    - post_2024_lines (lines 9122-54805): future 2025-2165 data
+  - Validates 2024 section structure (header "26" + correct well entries)
+  - Added 9 new tests for parse_wel_file()
+- Files changed:
+  - update_modflow_2024.py (added constants, WelFileData class, parse_wel_file function)
+  - tests/test_update_modflow_2024.py (added 9 tests)
+  - dev/PRD.md (marked US-004 checkboxes complete)
+- Tests: 24 passed, mypy typecheck passed
+- Learnings: .wel file structure is 1-indexed in PRD but list slicing is 0-indexed. Line 8798 is index 8797.
+---

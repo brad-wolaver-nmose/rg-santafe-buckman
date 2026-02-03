@@ -81,16 +81,16 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a developer, I need to parse the existing thruCY2165.wel file so I can identify and replace the 2024 zero-pumping stress periods while preserving all other data exactly.
 
 **Acceptance Criteria:**
-- [ ] Read entire `thruCY2165.wel` file as lines
-- [ ] Identify the line range containing 2024 data (JAN 2024 through DEC 2024)
+- [x] Read entire `thruCY2165.wel` file as lines
+- [x] Identify the line range containing 2024 data (JAN 2024 through DEC 2024)
   - 2024 data starts at the `26` header line before "BUCKMAN 1 JAN 2024" (line ~8798)
   - 2024 data ends after "BUCKMAN 13 DEC 2024" (line ~9121)
   - Each month has: one header line (`26`) followed by 26 well entries (13 wells × 2 layers)
   - Total: 12 months × 27 lines = 324 lines for all of 2024
-- [ ] Preserve all lines before 2024 data exactly as-is (1988–2023 historical data)
-- [ ] Preserve all lines after 2024 data exactly as-is (2025–2165 future zeros)
-- [ ] Verify 2024 section contains exactly 12 months × 26 well entries
-- [ ] Typecheck passes
+- [x] Preserve all lines before 2024 data exactly as-is (1988–2023 historical data)
+- [x] Preserve all lines after 2024 data exactly as-is (2025–2165 future zeros)
+- [x] Verify 2024 section contains exactly 12 months × 26 well entries
+- [x] Typecheck passes
 
 ### US-005: Generate Updated 2024 Well Entries
 **Description:** As a groundwater modeler, I need to generate the 26 well-entry lines for each month of 2024 with the converted pumping rates so they replace the zero-value placeholders.
