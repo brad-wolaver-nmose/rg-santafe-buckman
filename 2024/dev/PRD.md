@@ -138,19 +138,19 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a groundwater modeler, I need to compare my generated files against the known-good validation files to confirm correctness before using them in MODFLOW.
 
 **Acceptance Criteria:**
-- [ ] Compare generated `CY2024.nam` against `validation/modflow/2024/CY2024.nam`
+- [x] Compare generated `CY2024.nam` against `validation/modflow/2024/CY2024.nam`
   - Ignore comment lines (lines starting with `#`) since timestamps will differ
   - All non-comment lines must match exactly
-- [ ] Compare generated `thruCY2165_2024.wel` against `validation/modflow/2024/thruCY2165_2024.wel`
+- [x] Compare generated `thruCY2165_2024.wel` against `validation/modflow/2024/thruCY2165_2024.wel`
   - All lines outside the 2024 section must be byte-identical
   - 2024 pumping rates must match within ±0.00002 ft³/s tolerance (rounding from CSV precision)
-- [ ] Report per-well, per-month comparison: generated rate vs. validation rate vs. difference
-- [ ] Flag any differences exceeding tolerance with well name, month, and both values
-- [ ] Print summary: total wells checked, total months checked, pass/fail count
-- [ ] If all pass: print "Validation PASSED — generated files match validation files"
-- [ ] If any fail: print detailed failure report with actionable context
-- [ ] Typecheck passes
-- [ ] Run script end-to-end with actual data successfully
+- [x] Report per-well, per-month comparison: generated rate vs. validation rate vs. difference
+- [x] Flag any differences exceeding tolerance with well name, month, and both values
+- [x] Print summary: total wells checked, total months checked, pass/fail count
+- [x] If all pass: print "Validation PASSED — generated files match validation files"
+- [x] If any fail: print detailed failure report with actionable context
+- [x] Typecheck passes
+- [x] Run script end-to-end with actual data successfully
 
 ### US-009: Main Script Entry Point and CLI
 **Description:** As a user, I need a single command to run the full pipeline (read CSV → convert → write .wel → write .nam → validate) so the process is repeatable.

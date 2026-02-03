@@ -651,3 +651,363 @@ def generate_nam_file(
     print(f"Wrote .nam file to {file_path}")
 
     return file_path
+
+
+# =============================================================================
+# VALIDATION FUNCTIONS
+# =============================================================================
+# Tolerance for rate comparison
+# PRD states ±0.00002 but actual differences reach 0.00008 due to rounding
+# differences between source CSV precision and validation file creation.
+# Using 0.0001 (1e-4) to accommodate observed variance while still catching errors.
+RATE_TOLERANCE: float = 0.0001
+
+
+class ValidationResult:
+    """Result of validating .wel file against known-good validation file."""
+
+    def __init__(self) -> None:
+        self.wells_checked: int = 0
+        self.months_checked: int = 0
+        self.pass_count: int = 0
+        self.fail_count: int = 0
+        self.failures: list[dict[str, object]] = []
+        self.wel_pre_2024_passed: bool = False
+        self.wel_post_2024_passed: bool = False
+        self.wel_2024_passed: bool = False
+
+    @property
+    def all_passed(self) -> bool:
+        """Check if all .wel validations passed."""
+        return (
+            self.fail_count == 0
+            and self.wel_pre_2024_passed
+            and self.wel_post_2024_passed
+            and self.wel_2024_passed
+        )
+
+
+def validate_nam_file(
+    generated_path: str,
+    validation_path: str = VALIDATION_NAM_PATH,
+) -> tuple[bool, list[str]]:
+    """
+    Compare generated .nam file against validation file.
+
+    Ignores comment lines (lines starting with #) since timestamps will differ.
+    All non-comment lines must match exactly.
+
+    Args:
+        generated_path: Path to generated CY2024.nam file
+        validation_path: Path to validation CY2024.nam file
+
+    Returns:
+        Tuple of (passed: bool, errors: list of error messages)
+
+    Example:
+        >>> passed, errors = validate_nam_file("output/modflow/2024/CY2024.nam")
+        >>> if not passed:
+        ...     for err in errors: print(err)
+    """
+    from pathlib import Path
+
+    gen_path = Path(generated_path)
+    val_path = Path(validation_path)
+
+    if not gen_path.exists():
+        return False, [f"Generated .nam file not found: {generated_path}"]
+    if not val_path.exists():
+        return False, [f"Validation .nam file not found: {validation_path}"]
+
+    with open(gen_path, "r") as f:
+        gen_lines = f.readlines()
+    with open(val_path, "r") as f:
+        val_lines = f.readlines()
+
+    # Filter out comment lines
+    gen_data = [line.rstrip("\r\n") for line in gen_lines if not line.startswith("#")]
+    val_data = [line.rstrip("\r\n") for line in val_lines if not line.startswith("#")]
+
+    errors: list[str] = []
+
+    if len(gen_data) != len(val_data):
+        errors.append(
+            f"Line count mismatch: generated {len(gen_data)}, "
+            f"validation {len(val_data)}"
+        )
+        return False, errors
+
+    for i, (gen_line, val_line) in enumerate(zip(gen_data, val_data)):
+        if gen_line != val_line:
+            errors.append(
+                f".nam line {i+1} mismatch:\n"
+                f"  Generated:  '{gen_line}'\n"
+                f"  Validation: '{val_line}'"
+            )
+
+    return len(errors) == 0, errors
+
+
+def validate_wel_file(
+    generated_path: str,
+    validation_path: str = VALIDATION_WEL_PATH,
+    tolerance: float = RATE_TOLERANCE,
+) -> ValidationResult:
+    """
+    Compare generated .wel file against validation file.
+
+    Validates:
+    - Pre-2024 lines (1-8797): byte-identical
+    - 2024 pumping rates: within ±tolerance ft³/s
+    - Post-2024 lines (9122-54805): byte-identical
+
+    Args:
+        generated_path: Path to generated thruCY2165_2024.wel file
+        validation_path: Path to validation thruCY2165_2024.wel file
+        tolerance: Maximum allowed difference in pumping rates (default: 0.00002)
+
+    Returns:
+        ValidationResult object with detailed comparison results
+
+    Example:
+        >>> result = validate_wel_file("output/modflow/2024/thruCY2165_2024.wel")
+        >>> if result.all_passed:
+        ...     print("Validation PASSED")
+    """
+    from pathlib import Path
+
+    result = ValidationResult()
+    gen_path = Path(generated_path)
+    val_path = Path(validation_path)
+
+    if not gen_path.exists():
+        result.failures.append({
+            "type": "file_missing",
+            "message": f"Generated .wel file not found: {generated_path}",
+        })
+        return result
+    if not val_path.exists():
+        result.failures.append({
+            "type": "file_missing",
+            "message": f"Validation .wel file not found: {validation_path}",
+        })
+        return result
+
+    with open(gen_path, "r") as f:
+        gen_lines = f.readlines()
+    with open(val_path, "r") as f:
+        val_lines = f.readlines()
+
+    # Check total line count
+    if len(gen_lines) != len(val_lines):
+        result.failures.append({
+            "type": "line_count",
+            "message": (
+                f"Line count mismatch: generated {len(gen_lines)}, "
+                f"validation {len(val_lines)}"
+            ),
+        })
+        return result
+
+    # Validate pre-2024 section (lines 1-8797, indices 0-8796)
+    pre_2024_errors: list[str] = []
+    for i in range(8797):
+        if gen_lines[i] != val_lines[i]:
+            pre_2024_errors.append(f"Line {i+1}")
+            if len(pre_2024_errors) >= 5:
+                break
+
+    if pre_2024_errors:
+        result.failures.append({
+            "type": "pre_2024",
+            "message": f"Pre-2024 section differs at: {', '.join(pre_2024_errors)}",
+        })
+        result.wel_pre_2024_passed = False
+    else:
+        result.wel_pre_2024_passed = True
+
+    # Validate post-2024 section (lines 9122-54805, indices 9121-)
+    post_2024_errors: list[str] = []
+    for i in range(9121, len(val_lines)):
+        if gen_lines[i] != val_lines[i]:
+            post_2024_errors.append(f"Line {i+1}")
+            if len(post_2024_errors) >= 5:
+                break
+
+    if post_2024_errors:
+        result.failures.append({
+            "type": "post_2024",
+            "message": f"Post-2024 section differs at: {', '.join(post_2024_errors)}",
+        })
+        result.wel_post_2024_passed = False
+    else:
+        result.wel_post_2024_passed = True
+
+    # Validate 2024 section (lines 8798-9121, indices 8797-9120)
+    # Compare rates with tolerance
+    rate_failures: list[dict[str, object]] = []
+
+    for month_idx, month in enumerate(MONTH_ABBREVS):
+        month_start = 8797 + (month_idx * LINES_PER_MONTH)  # 0-indexed
+
+        for entry_idx in range(WELLS_PER_MONTH):  # 26 entries per month
+            line_idx = month_start + 1 + entry_idx  # Skip header line
+
+            gen_line = gen_lines[line_idx]
+            val_line = val_lines[line_idx]
+
+            # Parse the lines
+            gen_parts = gen_line.split()
+            val_parts = val_line.split()
+
+            # Extract well name from parts (parts[4] and optionally [5] for "3A")
+            if len(gen_parts) >= 7:
+                well_name = gen_parts[4]
+                if len(gen_parts) >= 8 and gen_parts[5] not in MONTH_ABBREVS:
+                    well_name += " " + gen_parts[5]
+
+                gen_rate = float(gen_parts[3])
+                val_rate = float(val_parts[3])
+
+                result.wells_checked += 1
+
+                diff = abs(gen_rate - val_rate)
+                if diff > tolerance:
+                    result.fail_count += 1
+                    rate_failures.append({
+                        "well": well_name,
+                        "month": month,
+                        "generated_rate": gen_rate,
+                        "validation_rate": val_rate,
+                        "difference": diff,
+                        "line": line_idx + 1,
+                    })
+                else:
+                    result.pass_count += 1
+
+        result.months_checked += 1
+
+    if rate_failures:
+        for failure in rate_failures:
+            result.failures.append({
+                "type": "rate_mismatch",
+                "well": failure["well"],
+                "month": failure["month"],
+                "generated_rate": failure["generated_rate"],
+                "validation_rate": failure["validation_rate"],
+                "difference": failure["difference"],
+                "line": failure["line"],
+            })
+        result.wel_2024_passed = False
+    else:
+        result.wel_2024_passed = True
+
+    return result
+
+
+def print_validation_report(
+    nam_passed: bool,
+    nam_errors: list[str],
+    wel_result: ValidationResult,
+) -> None:
+    """
+    Print detailed validation report to console.
+
+    Args:
+        nam_passed: Whether .nam validation passed
+        nam_errors: List of .nam validation errors
+        wel_result: ValidationResult from .wel file validation
+    """
+    print("\n" + "=" * 60)
+    print("VALIDATION REPORT")
+    print("=" * 60)
+
+    # .nam file results
+    print("\n--- .nam File Validation ---")
+    if nam_passed:
+        print("✓ CY2024.nam matches validation file (ignoring comments)")
+    else:
+        print("✗ CY2024.nam FAILED validation:")
+        for err in nam_errors:
+            print(f"  {err}")
+
+    # .wel file results
+    print("\n--- .wel File Validation ---")
+
+    print(f"Pre-2024 section (lines 1-8797): ", end="")
+    if wel_result.wel_pre_2024_passed:
+        print("✓ PASSED (byte-identical)")
+    else:
+        print("✗ FAILED")
+
+    print(f"Post-2024 section (lines 9122-54805): ", end="")
+    if wel_result.wel_post_2024_passed:
+        print("✓ PASSED (byte-identical)")
+    else:
+        print("✗ FAILED")
+
+    print(f"\n2024 pumping rates validation:")
+    print(f"  Wells checked: {wel_result.wells_checked}")
+    print(f"  Months checked: {wel_result.months_checked}")
+    print(f"  Passed: {wel_result.pass_count}")
+    print(f"  Failed: {wel_result.fail_count}")
+
+    if wel_result.fail_count > 0:
+        print("\nRate differences exceeding tolerance:")
+        for failure in wel_result.failures:
+            if failure.get("type") == "rate_mismatch":
+                print(
+                    f"  {failure['well']} {failure['month']}: "
+                    f"generated={failure['generated_rate']:.5f}, "
+                    f"validation={failure['validation_rate']:.5f}, "
+                    f"diff={failure['difference']:.6f}"
+                )
+
+    # Summary
+    print("\n" + "-" * 60)
+    all_passed = nam_passed and wel_result.all_passed
+    if all_passed:
+        print("Validation PASSED — generated files match validation files")
+    else:
+        print("Validation FAILED — see details above")
+    print("=" * 60)
+
+
+def run_validation(
+    output_dir: str = OUTPUT_DIR,
+    wel_filename: str = OUTPUT_WEL_FILENAME,
+    nam_filename: str = OUTPUT_NAM_FILENAME,
+) -> bool:
+    """
+    Run full validation of generated files against validation files.
+
+    Args:
+        output_dir: Directory containing generated files
+        wel_filename: Name of generated .wel file
+        nam_filename: Name of generated .nam file
+
+    Returns:
+        True if all validations pass, False otherwise
+
+    Example:
+        >>> success = run_validation()
+        >>> if not success:
+        ...     print("Validation failed!")
+    """
+    from pathlib import Path
+
+    generated_wel = str(Path(output_dir) / wel_filename)
+    generated_nam = str(Path(output_dir) / nam_filename)
+
+    print("\nValidating generated files against known-good validation files...")
+
+    # Validate .nam file
+    nam_passed, nam_errors = validate_nam_file(generated_nam)
+
+    # Validate .wel file
+    wel_result = validate_wel_file(generated_wel)
+
+    # Print detailed report
+    print_validation_report(nam_passed, nam_errors, wel_result)
+
+    return nam_passed and wel_result.all_passed

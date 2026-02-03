@@ -920,3 +920,187 @@ def test_generate_nam_file_raises_on_missing_input():
 
     with pytest.raises(FileNotFoundError, match="Input .nam file not found"):
         generate_nam_file(input_nam_path="/nonexistent/path/CY2023.nam")
+
+
+# =============================================================================
+# US-008: Validate Output Against 2024 Validation Files
+# =============================================================================
+
+
+def test_validation_result_class_exists():
+    """Verify ValidationResult class exists."""
+    from update_modflow_2024 import ValidationResult
+
+    result = ValidationResult()
+    assert hasattr(result, "wells_checked")
+    assert hasattr(result, "months_checked")
+    assert hasattr(result, "pass_count")
+    assert hasattr(result, "fail_count")
+    assert hasattr(result, "failures")
+    assert hasattr(result, "all_passed")
+
+
+def test_validate_nam_file_exists():
+    """Verify validate_nam_file function exists and is callable."""
+    from update_modflow_2024 import validate_nam_file
+
+    assert callable(validate_nam_file)
+
+
+def test_validate_nam_file_passes_for_matching_files(tmp_path):
+    """Verify validate_nam_file passes when files match (ignoring comments)."""
+    from update_modflow_2024 import generate_nam_file, validate_nam_file
+
+    # Generate a .nam file
+    generated_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    # Validate against itself (same non-comment content)
+    passed, errors = validate_nam_file(str(generated_path), str(generated_path))
+
+    assert passed, f"Should pass when comparing identical files: {errors}"
+    assert len(errors) == 0
+
+
+def test_validate_nam_file_against_validation(tmp_path):
+    """Verify generated .nam file passes validation against known-good file."""
+    from update_modflow_2024 import generate_nam_file, validate_nam_file
+
+    # Generate a .nam file
+    generated_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    # Validate against actual validation file
+    passed, errors = validate_nam_file(str(generated_path))
+
+    assert passed, f".nam validation failed: {errors}"
+
+
+def test_validate_nam_file_fails_for_missing_file(tmp_path):
+    """Verify validate_nam_file fails gracefully for missing file."""
+    from update_modflow_2024 import validate_nam_file
+
+    passed, errors = validate_nam_file("/nonexistent/path.nam")
+
+    assert not passed
+    assert len(errors) > 0
+    assert "not found" in errors[0]
+
+
+def test_validate_wel_file_exists():
+    """Verify validate_wel_file function exists and is callable."""
+    from update_modflow_2024 import validate_wel_file
+
+    assert callable(validate_wel_file)
+
+
+def test_validate_wel_file_returns_validation_result():
+    """Verify validate_wel_file returns ValidationResult object."""
+    from update_modflow_2024 import validate_wel_file, ValidationResult
+
+    # Test with non-existent file (should return result with failure)
+    result = validate_wel_file("/nonexistent/path.wel")
+
+    assert isinstance(result, ValidationResult)
+    assert not result.all_passed
+
+
+def test_validate_wel_file_full_pipeline(tmp_path):
+    """
+    Integration test: Generate .wel file and validate against known-good file.
+
+    This tests the complete pipeline:
+    1. Parse input .wel file
+    2. Read pumping data from CSV
+    3. Generate 2024 well entries
+    4. Write updated .wel file
+    5. Validate against validation file
+    """
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file,
+        validate_wel_file
+    )
+
+    # Generate the .wel file
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+    output_file = write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(tmp_path),
+        output_filename="thruCY2165_2024.wel"
+    )
+
+    # Validate
+    result = validate_wel_file(str(output_file))
+
+    # Pre-2024 and post-2024 should always pass (unchanged)
+    assert result.wel_pre_2024_passed, "Pre-2024 section should be identical"
+    assert result.wel_post_2024_passed, "Post-2024 section should be identical"
+
+    # 2024 rates should pass within tolerance
+    assert result.wel_2024_passed, (
+        f"2024 rates validation failed. "
+        f"Failures: {result.failures}"
+    )
+
+    # Summary
+    assert result.wells_checked == 312, (  # 13 wells × 2 layers × 12 months
+        f"Expected 312 wells checked, got {result.wells_checked}"
+    )
+    assert result.months_checked == 12
+    assert result.pass_count == result.wells_checked
+    assert result.fail_count == 0
+
+
+def test_print_validation_report_exists():
+    """Verify print_validation_report function exists and is callable."""
+    from update_modflow_2024 import print_validation_report
+
+    assert callable(print_validation_report)
+
+
+def test_run_validation_exists():
+    """Verify run_validation function exists and is callable."""
+    from update_modflow_2024 import run_validation
+
+    assert callable(run_validation)
+
+
+def test_run_validation_full_pipeline(tmp_path):
+    """
+    Integration test: Full validation pipeline with generated files.
+    """
+    from update_modflow_2024 import (
+        parse_wel_file, read_table2_pumping_data,
+        generate_2024_well_entries, write_updated_wel_file,
+        generate_nam_file, run_validation
+    )
+
+    # Generate both files
+    wel_data = parse_wel_file()
+    pumping_data = read_table2_pumping_data()
+    new_2024_lines = generate_2024_well_entries(pumping_data, line_ending="\r\n")
+    write_updated_wel_file(
+        wel_data, new_2024_lines,
+        output_dir=str(tmp_path),
+        output_filename="thruCY2165_2024.wel"
+    )
+    generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    # Run validation
+    success = run_validation(
+        output_dir=str(tmp_path),
+        wel_filename="thruCY2165_2024.wel",
+        nam_filename="CY2024.nam"
+    )
+
+    assert success, "Full validation pipeline should pass"
