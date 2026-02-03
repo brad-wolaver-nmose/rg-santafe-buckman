@@ -334,3 +334,149 @@ def read_table2_pumping_data(
         print(f"  {well_name}: {annual_total:.2f} AF")
 
     return result
+
+
+# =============================================================================
+# WELL ENTRY GENERATION
+# =============================================================================
+# Well order in the .wel file (matches validation file)
+WELL_ORDER: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+# Days per month for 2024 (leap year)
+DAYS_IN_MONTH_2024: Dict[str, int] = {
+    "JAN": 31, "FEB": 29, "MAR": 31, "APR": 30,
+    "MAY": 31, "JUN": 30, "JUL": 31, "AUG": 31,
+    "SEP": 30, "OCT": 31, "NOV": 30, "DEC": 31,
+}
+
+
+def generate_well_entry_line(
+    layer: int,
+    row: int,
+    col: int,
+    rate: float,
+    well_name: str,
+    month: str,
+    year: int,
+    line_ending: str = "\r\n",
+) -> str:
+    """
+    Generate a single well entry line for the .wel file.
+
+    Scientific basis: MODFLOW well package format with layer, row, column,
+    pumping rate, and comment fields.
+
+    Assumptions:
+        1. Line format matches validation file exactly
+        2. Rate is already converted to ft³/s (negative for pumping)
+        3. Line ending matches input file (CRLF for Windows)
+
+    Args:
+        layer: Model layer (1 or 2)
+        row: Model row (1-indexed)
+        col: Model column (1-indexed)
+        rate: Pumping rate in ft³/s (negative)
+        well_name: MODFLOW well name (e.g., "BUCKMAN 1")
+        month: Month abbreviation (e.g., "JAN")
+        year: Year (e.g., 2024)
+        line_ending: Line ending character(s) (default: CRLF)
+
+    Returns:
+        Formatted well entry line with line ending
+
+    Example:
+        >>> generate_well_entry_line(1, 13, 11, -0.13730, "BUCKMAN 1", "JAN", 2024)
+        '         1        13        11  -0.13730  BUCKMAN 1 JAN 2024\\r\\n'
+    """
+    # Format: {layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}
+    return f"{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}{line_ending}"
+
+
+def generate_month_header(line_ending: str = "\r\n") -> str:
+    """
+    Generate the month header line indicating 26 well entries follow.
+
+    Args:
+        line_ending: Line ending character(s) (default: CRLF)
+
+    Returns:
+        Header line "        26" with line ending
+    """
+    return f"        26{line_ending}"
+
+
+def generate_2024_well_entries(
+    pumping_data: Dict[int, Dict[str, float]],
+    line_ending: str = "\r\n",
+) -> list[str]:
+    """
+    Generate all 324 lines for 2024 well entries.
+
+    Scientific basis: MODFLOW stress period format with monthly pumping rates
+    split equally between two model layers.
+
+    Assumptions:
+        1. Each month has 1 header + 26 entries (13 wells × 2 layers)
+        2. Wells are ordered 1-13 (BUCKMAN 1 through BUCKMAN 13)
+        3. For each well, Layer 1 comes before Layer 2
+        4. Pumping data in acre-feet converted to ft³/s
+        5. 2024 is a leap year (February = 29 days)
+
+    Args:
+        pumping_data: Dict keyed by well number (1-13), value is dict of
+            month abbreviation → acre-feet
+        line_ending: Line ending character(s) (default: CRLF)
+
+    Returns:
+        List of 324 lines (12 months × 27 lines each)
+
+    Raises:
+        ValueError: If pumping_data doesn't have all 13 wells
+
+    Example:
+        >>> lines = generate_2024_well_entries(pumping_data)
+        >>> len(lines)
+        324
+    """
+    # Validate pumping data
+    for well_num in WELL_ORDER:
+        if well_num not in pumping_data:
+            raise ValueError(f"Missing pumping data for well {well_num}")
+
+    lines: list[str] = []
+
+    for month in MONTH_ABBREVS:
+        days = DAYS_IN_MONTH_2024[month]
+
+        # Add header line
+        lines.append(generate_month_header(line_ending))
+
+        # Add 26 well entries (13 wells × 2 layers)
+        for well_num in WELL_ORDER:
+            well_name = WELL_NAME_MAP[well_num]
+            row, col = WELL_GRID_MAP[well_name]
+            acre_feet = pumping_data[well_num][month]
+
+            # Convert to ft³/s (negative for pumping)
+            rate = convert_af_to_ft3s(acre_feet, days)
+
+            # Format zero as -0.00000 to match validation file
+            if abs(rate) < 1e-10:
+                rate = -0.0
+
+            # Generate Layer 1 and Layer 2 entries
+            for layer in [1, 2]:
+                lines.append(
+                    generate_well_entry_line(
+                        layer=layer,
+                        row=row,
+                        col=col,
+                        rate=rate,
+                        well_name=well_name,
+                        month=month,
+                        year=TARGET_YEAR,
+                        line_ending=line_ending,
+                    )
+                )
+
+    return lines

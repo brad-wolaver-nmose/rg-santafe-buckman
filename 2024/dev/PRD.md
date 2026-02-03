@@ -96,16 +96,16 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a groundwater modeler, I need to generate the 26 well-entry lines for each month of 2024 with the converted pumping rates so they replace the zero-value placeholders.
 
 **Acceptance Criteria:**
-- [ ] For each month (JAN–DEC 2024), generate 26 lines: 13 wells × 2 layers
-- [ ] Each line follows the exact format: `{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}`
+- [x] For each month (JAN–DEC 2024), generate 26 lines: 13 wells × 2 layers
+- [x] Each line follows the exact format: `{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}`
   - Match the whitespace/column alignment of the existing file exactly
-- [ ] Well order within each month matches the validation file:
+- [x] Well order within each month matches the validation file:
   1. BUCKMAN 1, 2. BUCKMAN 2, 3. BUCKMAN 3A, 4. BUCKMAN 4, 5. BUCKMAN 5, 6. BUCKMAN 6, 7. BUCKMAN 7, 8. BUCKMAN 8, 9. BUCKMAN 9, 10. BUCKMAN 10, 11. BUCKMAN 11, 12. BUCKMAN 12, 13. BUCKMAN 13
-- [ ] For each well, Layer 1 line comes before Layer 2 line
-- [ ] Each month block is preceded by a header line: `        26`
-- [ ] Rates are negative (MODFLOW pumping convention)
-- [ ] Zero pumping values formatted as `-0.00000`
-- [ ] Typecheck passes
+- [x] For each well, Layer 1 line comes before Layer 2 line
+- [x] Each month block is preceded by a header line: `        26`
+- [x] Rates are negative (MODFLOW pumping convention)
+- [x] Zero pumping values formatted as `-0.00000`
+- [x] Typecheck passes
 
 ### US-006: Write Updated .wel File
 **Description:** As a developer, I need to assemble and write the complete updated .wel file so it can be used by MODFLOW.

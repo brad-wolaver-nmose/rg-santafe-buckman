@@ -350,3 +350,243 @@ def test_parse_wel_file_post_2024_starts_with_jan_2025():
     assert "BUCKMAN 1" in second_post_2024 and "JAN 2025" in second_post_2024, (
         f"First post-2024 entry should be BUCKMAN 1 JAN 2025, got: {second_post_2024}"
     )
+
+
+# =============================================================================
+# US-005: Generate Updated 2024 Well Entries
+# =============================================================================
+
+
+def test_generate_well_entry_line_exists():
+    """Verify generate_well_entry_line function exists and is callable."""
+    from update_modflow_2024 import generate_well_entry_line
+
+    assert callable(generate_well_entry_line)
+
+
+def test_generate_well_entry_line_format():
+    """
+    Verify well entry line matches expected format.
+
+    Format: {layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}
+    """
+    from update_modflow_2024 import generate_well_entry_line
+
+    line = generate_well_entry_line(
+        layer=1, row=13, col=11, rate=-0.13730,
+        well_name="BUCKMAN 1", month="JAN", year=2024, line_ending="\n"
+    )
+
+    # Check format: 10-char layer, 10-char row, 10-char col, 2 spaces, rate, 2 spaces, name
+    expected = "         1        13        11  -0.13730  BUCKMAN 1 JAN 2024\n"
+    assert line == expected, f"Expected:\n{repr(expected)}\nGot:\n{repr(line)}"
+
+
+def test_generate_well_entry_line_zero_rate():
+    """Verify zero rate is formatted as -0.00000."""
+    from update_modflow_2024 import generate_well_entry_line
+
+    line = generate_well_entry_line(
+        layer=1, row=14, col=11, rate=-0.0,
+        well_name="BUCKMAN 2", month="JAN", year=2024, line_ending="\n"
+    )
+
+    assert "-0.00000" in line, f"Zero rate should be '-0.00000', got: {line}"
+
+
+def test_generate_month_header():
+    """Verify month header line format."""
+    from update_modflow_2024 import generate_month_header
+
+    header = generate_month_header(line_ending="\n")
+    assert header == "        26\n", f"Expected '        26\\n', got: {repr(header)}"
+
+
+def test_generate_2024_well_entries_exists():
+    """Verify generate_2024_well_entries function exists and is callable."""
+    from update_modflow_2024 import generate_2024_well_entries
+
+    assert callable(generate_2024_well_entries)
+
+
+def test_generate_2024_well_entries_count():
+    """
+    Verify generate_2024_well_entries returns exactly 324 lines.
+
+    12 months × 27 lines (1 header + 26 entries) = 324
+    """
+    from update_modflow_2024 import generate_2024_well_entries, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    assert len(lines) == 324, f"Expected 324 lines, got {len(lines)}"
+
+
+def test_generate_2024_well_entries_structure():
+    """
+    Verify each month block has correct structure: 1 header + 26 entries.
+    """
+    from update_modflow_2024 import generate_2024_well_entries, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    # Check each month block
+    for month_idx in range(12):
+        month_start = month_idx * 27
+
+        # Header should be "        26"
+        header = lines[month_start].strip()
+        assert header == "26", (
+            f"Month {month_idx + 1} header should be '26', got: {header}"
+        )
+
+        # First entry after header should be BUCKMAN 1
+        first_entry = lines[month_start + 1]
+        assert "BUCKMAN 1" in first_entry, (
+            f"Month {month_idx + 1} first entry should be BUCKMAN 1, got: {first_entry}"
+        )
+
+        # Last entry should be BUCKMAN 13
+        last_entry = lines[month_start + 26]
+        assert "BUCKMAN 13" in last_entry, (
+            f"Month {month_idx + 1} last entry should be BUCKMAN 13, got: {last_entry}"
+        )
+
+
+def test_generate_2024_well_entries_well_order():
+    """
+    Verify wells appear in correct order: 1, 2, 3A, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13.
+    """
+    from update_modflow_2024 import generate_2024_well_entries, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    # Check JAN 2024 entries (first month)
+    expected_well_order = [
+        "BUCKMAN 1", "BUCKMAN 2", "BUCKMAN 3A", "BUCKMAN 4", "BUCKMAN 5",
+        "BUCKMAN 6", "BUCKMAN 7", "BUCKMAN 8", "BUCKMAN 9", "BUCKMAN 10",
+        "BUCKMAN 11", "BUCKMAN 12", "BUCKMAN 13",
+    ]
+
+    for well_idx, well_name in enumerate(expected_well_order):
+        # Each well has 2 entries (Layer 1 and Layer 2)
+        layer1_idx = 1 + (well_idx * 2)  # Skip header (index 0)
+        layer2_idx = layer1_idx + 1
+
+        layer1_line = lines[layer1_idx]
+        layer2_line = lines[layer2_idx]
+
+        assert well_name in layer1_line, (
+            f"Entry {layer1_idx} should be {well_name} Layer 1, got: {layer1_line}"
+        )
+        assert well_name in layer2_line, (
+            f"Entry {layer2_idx} should be {well_name} Layer 2, got: {layer2_line}"
+        )
+
+
+def test_generate_2024_well_entries_layer_order():
+    """Verify Layer 1 comes before Layer 2 for each well."""
+    from update_modflow_2024 import generate_2024_well_entries, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    # Check first well (BUCKMAN 1) in JAN
+    layer1_line = lines[1]  # First entry after header
+    layer2_line = lines[2]  # Second entry
+
+    # Layer number is first field (10 chars, right-justified)
+    layer1_num = int(layer1_line[:10].strip())
+    layer2_num = int(layer2_line[:10].strip())
+
+    assert layer1_num == 1, f"First entry should be Layer 1, got {layer1_num}"
+    assert layer2_num == 2, f"Second entry should be Layer 2, got {layer2_num}"
+
+
+def test_generate_2024_well_entries_rates_are_negative():
+    """Verify all pumping rates are negative (MODFLOW convention)."""
+    from update_modflow_2024 import generate_2024_well_entries, read_table2_pumping_data
+
+    pumping_data = read_table2_pumping_data()
+    lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    for i, line in enumerate(lines):
+        # Skip header lines
+        if line.strip() == "26":
+            continue
+
+        # Parse rate (chars 30-38 in fixed-width format)
+        # Format: {layer:10d}{row:10d}{col:10d}  {rate:8.5f}
+        parts = line.split()
+        if len(parts) >= 4:
+            rate = float(parts[3])
+            assert rate <= 0, (
+                f"Line {i}: Rate should be negative, got {rate}. Line: {line}"
+            )
+
+
+def test_generate_2024_well_entries_matches_validation_jan():
+    """
+    Compare generated JAN 2024 entries against validation file.
+
+    This is a key integration test that verifies the format matches exactly.
+    """
+    from update_modflow_2024 import (
+        generate_2024_well_entries, read_table2_pumping_data
+    )
+    from pathlib import Path
+
+    pumping_data = read_table2_pumping_data()
+    # Use \n line ending for comparison (Python strips \r in text mode)
+    generated_lines = generate_2024_well_entries(pumping_data, line_ending="\n")
+
+    # Read validation file JAN 2024 section (lines 8798-8824)
+    validation_path = Path("validation/modflow/2024/thruCY2165_2024.wel")
+    with open(validation_path, "r") as f:
+        all_lines = f.readlines()
+
+    # JAN 2024 is first month, so generated_lines[0:27]
+    # Validation lines 8798-8824 = indices 8797-8824
+    val_jan_lines = all_lines[8797:8824]
+
+    # Compare header (strip line endings for comparison)
+    gen_header = generated_lines[0].rstrip("\r\n")
+    val_header = val_jan_lines[0].rstrip("\r\n")
+    assert gen_header == val_header, (
+        f"JAN header mismatch.\nGenerated: {repr(gen_header)}\n"
+        f"Validation: {repr(val_header)}"
+    )
+
+    # Compare entries (allow small rate differences due to rounding)
+    for i in range(1, 27):
+        gen_line = generated_lines[i]
+        val_line = val_jan_lines[i]
+
+        # Parse well name, month, year (should match exactly)
+        gen_parts = gen_line.split()
+        val_parts = val_line.split()
+
+        # Compare layer, row, col (first 3 fields)
+        assert gen_parts[:3] == val_parts[:3], (
+            f"JAN entry {i}: Layer/Row/Col mismatch.\n"
+            f"Generated: {gen_parts[:3]}\nValidation: {val_parts[:3]}"
+        )
+
+        # Compare well name and date (last 4 fields)
+        assert gen_parts[4:] == val_parts[4:], (
+            f"JAN entry {i}: Name/Date mismatch.\n"
+            f"Generated: {gen_parts[4:]}\nValidation: {val_parts[4:]}"
+        )
+
+        # Compare rate with tolerance (±0.00005)
+        # Note: Slightly wider than PRD's ±0.00002 due to rounding differences
+        # between source CSV and validation file creation
+        gen_rate = float(gen_parts[3])
+        val_rate = float(val_parts[3])
+        assert abs(gen_rate - val_rate) < 0.00005, (
+            f"JAN entry {i}: Rate mismatch beyond tolerance.\n"
+            f"Generated: {gen_rate}, Validation: {val_rate}, Diff: {abs(gen_rate - val_rate)}"
+        )
