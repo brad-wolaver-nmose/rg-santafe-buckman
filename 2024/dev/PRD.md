@@ -122,17 +122,17 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a groundwater modeler, I need to update the CY2023.nam file to reference 2024 file names so MODFLOW reads the correct files for the 2024 simulation.
 
 **Acceptance Criteria:**
-- [ ] Read `CY2023.nam` as template
-- [ ] Replace `CY2023.lst` → `CY2024.lst`
-- [ ] Replace `thruCY2165.wel` → `thruCY2165_2024.wel`
-- [ ] Replace `CY2023_riv.flx` → `CY2024_riv.flx`
-- [ ] Replace `CY2023_ghb.flx` → `CY2024_ghb.flx`
-- [ ] Do NOT add redundant suffixes (e.g., do not create `CY2024_riv.riv` — the `.flx` extension suffices)
-- [ ] Add header comment with generation timestamp (matching validation format)
-- [ ] Uppercase package type names to match validation format (LIST, BAS, BCF, OC, RIV, GHB, SIP, WEL, DATA(BINARY))
-- [ ] Align columns to match validation file whitespace exactly
-- [ ] Write to `output/modflow/2024/CY2024.nam`
-- [ ] Typecheck passes
+- [x] Read `CY2023.nam` as template
+- [x] Replace `CY2023.lst` → `CY2024.lst`
+- [x] Replace `thruCY2165.wel` → `thruCY2165_2024.wel`
+- [x] Replace `CY2023_riv.flx` → `CY2024_riv.flx`
+- [x] Replace `CY2023_ghb.flx` → `CY2024_ghb.flx`
+- [x] Do NOT add redundant suffixes (e.g., do not create `CY2024_riv.riv` — the `.flx` extension suffices)
+- [x] Add header comment with generation timestamp (matching validation format)
+- [x] Uppercase package type names to match validation format (LIST, BAS, BCF, OC, RIV, GHB, SIP, WEL, DATA(BINARY))
+- [x] Align columns to match validation file whitespace exactly
+- [x] Write to `output/modflow/2024/CY2024.nam`
+- [x] Typecheck passes
 
 ### US-008: Validate Output Against 2024 Validation Files
 **Description:** As a groundwater modeler, I need to compare my generated files against the known-good validation files to confirm correctness before using them in MODFLOW.

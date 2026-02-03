@@ -733,3 +733,190 @@ def test_write_updated_wel_file_invalid_2024_count_raises():
 
     with pytest.raises(ValueError, match="Expected 324 lines"):
         write_updated_wel_file(wel_data, wrong_lines)
+
+
+# =============================================================================
+# US-007: Generate Updated .nam File
+# =============================================================================
+
+
+def test_generate_nam_file_exists():
+    """Verify generate_nam_file function exists and is callable."""
+    from update_modflow_2024 import generate_nam_file
+
+    assert callable(generate_nam_file)
+
+
+def test_generate_nam_file_creates_file(tmp_path):
+    """Verify generate_nam_file creates output file."""
+    from update_modflow_2024 import generate_nam_file
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    assert result_path.exists(), "Output file should exist"
+    assert result_path.name == "CY2024.nam"
+
+
+def test_generate_nam_file_creates_directory(tmp_path):
+    """Verify generate_nam_file creates output directory if needed."""
+    from update_modflow_2024 import generate_nam_file
+
+    output_dir = tmp_path / "nested" / "output" / "dir"
+
+    result_path = generate_nam_file(
+        output_dir=str(output_dir),
+        output_filename="CY2024.nam"
+    )
+
+    assert output_dir.exists(), "Output directory should be created"
+    assert result_path.exists(), "Output file should exist"
+
+
+def test_generate_nam_file_has_header_comments(tmp_path):
+    """Verify output file has header comment block."""
+    from update_modflow_2024 import generate_nam_file
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    with open(result_path, "r") as f:
+        lines = f.readlines()
+
+    # First 4 lines should be comments
+    assert lines[0].startswith("#"), "Line 1 should be a comment"
+    assert lines[1].startswith("#"), "Line 2 should be a comment"
+    assert lines[2].startswith("#"), "Line 3 should be a comment"
+    assert lines[3].startswith("#"), "Line 4 should be a comment"
+
+    # First line should mention Buckman Depletion Model
+    assert "Buckman Depletion Model" in lines[0], (
+        f"First comment should mention Buckman Depletion Model: {lines[0]}"
+    )
+
+
+def test_generate_nam_file_replaces_cy2023_with_cy2024(tmp_path):
+    """Verify CY2023 references are replaced with CY2024."""
+    from update_modflow_2024 import generate_nam_file
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    with open(result_path, "r") as f:
+        content = f.read()
+
+    # Should have CY2024 references
+    assert "CY2024.lst" in content, "Should contain CY2024.lst"
+    assert "CY2024_riv.flx" in content, "Should contain CY2024_riv.flx"
+    assert "CY2024_ghb.flx" in content, "Should contain CY2024_ghb.flx"
+
+    # Skip header lines (which contain "2024") for the CY2023 check
+    lines = content.split("\n")
+    non_comment_content = "\n".join(
+        line for line in lines if not line.startswith("#")
+    )
+
+    # Should NOT have CY2023 references in non-comment lines
+    assert "CY2023" not in non_comment_content, (
+        f"Should not contain CY2023 in data lines: {non_comment_content}"
+    )
+
+
+def test_generate_nam_file_replaces_wel_filename(tmp_path):
+    """Verify .wel filename is updated to thruCY2165_2024.wel."""
+    from update_modflow_2024 import generate_nam_file
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    with open(result_path, "r") as f:
+        content = f.read()
+
+    assert "thruCY2165_2024.wel" in content, (
+        "Should contain thruCY2165_2024.wel"
+    )
+    # Original filename should not appear in data (could appear in comments)
+    lines = content.split("\n")
+    non_comment_content = "\n".join(
+        line for line in lines if not line.startswith("#")
+    )
+    # Check that the original .wel (without _2024) is not referenced
+    assert "thruCY2165.wel" not in non_comment_content, (
+        "Should not contain thruCY2165.wel in data lines"
+    )
+
+
+def test_generate_nam_file_uppercase_package_types(tmp_path):
+    """Verify package types are uppercase (LIST, BAS, BCF, etc.)."""
+    from update_modflow_2024 import generate_nam_file
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    with open(result_path, "r") as f:
+        lines = f.readlines()
+
+    # Skip comment lines
+    data_lines = [line for line in lines if not line.startswith("#")]
+
+    # Check for uppercase package types
+    expected_types = ["LIST", "BAS", "BCF", "OC", "RIV", "GHB", "SIP", "WEL", "DATA(BINARY)"]
+    for pkg_type in expected_types:
+        found = any(line.strip().startswith(pkg_type) for line in data_lines)
+        assert found, f"Should contain uppercase package type: {pkg_type}"
+
+
+def test_generate_nam_file_matches_validation_content(tmp_path):
+    """
+    Verify generated .nam file content matches validation file.
+
+    Ignores comment lines (timestamps will differ) and compares
+    all non-comment lines.
+    """
+    from update_modflow_2024 import generate_nam_file, VALIDATION_NAM_PATH
+
+    result_path = generate_nam_file(
+        output_dir=str(tmp_path),
+        output_filename="CY2024.nam"
+    )
+
+    # Read generated file
+    with open(result_path, "r") as f:
+        gen_lines = f.readlines()
+
+    # Read validation file
+    with open(VALIDATION_NAM_PATH, "r") as f:
+        val_lines = f.readlines()
+
+    # Filter out comment lines
+    gen_data = [line.rstrip("\r\n") for line in gen_lines if not line.startswith("#")]
+    val_data = [line.rstrip("\r\n") for line in val_lines if not line.startswith("#")]
+
+    # Compare non-comment content
+    assert len(gen_data) == len(val_data), (
+        f"Line count mismatch: generated {len(gen_data)}, validation {len(val_data)}"
+    )
+
+    for i, (gen_line, val_line) in enumerate(zip(gen_data, val_data)):
+        assert gen_line == val_line, (
+            f"Line {i+1} mismatch.\nGenerated:  '{gen_line}'\n"
+            f"Validation: '{val_line}'"
+        )
+
+
+def test_generate_nam_file_raises_on_missing_input():
+    """Verify FileNotFoundError raised if input .nam file doesn't exist."""
+    from update_modflow_2024 import generate_nam_file
+
+    with pytest.raises(FileNotFoundError, match="Input .nam file not found"):
+        generate_nam_file(input_nam_path="/nonexistent/path/CY2023.nam")
