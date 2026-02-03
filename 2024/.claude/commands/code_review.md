@@ -17,6 +17,10 @@ The review process has two phases:
 1. **Review Phase:** Generate checklist → Ralph executes → review/REVIEW_FINDINGS.md created
 2. **Fix Phase (optional):** User reviews findings → Generate fix PRD → Ralph implements fixes
 
+**CRITICAL — Tool Restriction:** Do NOT use the `AskUserQuestion` tool during this workflow. Present all questions as plain text output with lettered options. The user will type their answers directly in the chat. The `AskUserQuestion` tool's interactive UI is incompatible with the review question format.
+
+**CRITICAL — Create Only, Do NOT Execute:** Your job is to create the review checklist and findings template (or fix PRD in --generate-fixes mode). Do NOT implement fixes or run the review stories yourself. The user will run these manually using Ralph. Stop after saving the files.
+
 ---
 
 ## The Job
@@ -114,9 +118,9 @@ If dev/PRD.md is not found, ask user to specify the requirements document or pro
 
 ---
 
-## Step 2: Minimal Questions (1-2 Maximum)
+## Step 2: Clarifying Questions (As Many As Needed)
 
-Only ask questions that change the review scope. Skip if answers are obvious from context.
+Ask as many questions as needed to fully understand the review scope. Skip questions whose answers are obvious from context. Present questions with lettered options (A, B, C, D) for efficient answering.
 
 **Question 1 (optional):**
 ```
