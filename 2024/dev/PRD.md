@@ -1,271 +1,381 @@
-# PRD: Update MODFLOW Buckman Depletion Model from CY2023 to CY2024
+# PRD: Stream Depletion Tables from MODFLOW Post-Processor
 
 ## Introduction
 
-Update the existing MODFLOW Buckman Depletion Model input files from calendar year 2023 to 2024. The 2023 `.nam` and `.wel` files serve as templates — the `.wel` file already contains 2024 stress periods populated with zero pumping rates. This task replaces those zeros with actual 2024 monthly pumping data from Table 2 (ingested CSV), converts acre-feet to ft³/s, splits each well's pumping equally between Layer 1 and Layer 2, and updates the `.nam` file year references. The result is validated against known-good 2024 files.
+Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using the sfmodflx_2245 post-processor to generate stream depletion tables for the 2024 Buckman Well Field annual report. The post-processor calculates depletions to Rio Grande, tributaries (Rio Pojoaque, Rio Tesuque), and La Cienega Springs. Output tables (Tables 3, 4, 5) report depletions in acre-feet, combining superposition model results with analytical model residuals from Core (2003).
 
 ## Goals
 
-- Read 2024 monthly pumping data (acre-feet) for Wells 1–13 from `output/ingested_data/2024_Table_2_output.csv`
-- Convert acre-feet/month to ft³/s using: `rate = (acre_feet / 2) * 43560 / (days_in_month * 86400)`
-- Replace zero-valued 2024 stress periods (JAN–DEC 2024) in `thruCY2165.wel` with converted pumping rates
-- Split each well's monthly pumping equally between Layer 1 and Layer 2
-- Update `CY2023.nam` to reference year 2024 file names
-- Validate output files match validation files in `validation/modflow/2024/` exactly (or within rounding tolerance)
-- Write output files to `output/modflow/2024/`
+- Run sfmodflx_2245.exe post-processor via Wine to generate depletion summary file
+- Parse post-processor output to extract 2024 monthly depletions by stream/cell
+- Combine superposition model results with Core (2003) analytical model residuals
+- Convert cubic feet per second (cfs) to acre-feet using actual days per month
+- Generate Table 3 (Rio Pojoaque-Nambe & Rio Tesuque) as formatted XLSX
+- Generate Table 4 (Rio Grande above/below Otowi) as formatted XLSX
+- Generate Table 5 (La Cienega Springs) as formatted XLSX
+- Validate generated tables against provided validation files
+- Save outputs to `output/depletion/` directory
 
 ## User Stories
 
-### US-001: Configuration Constants and File Path Mapping
-**Description:** As a developer, I need all file paths, well mappings, and conversion constants defined as module-level constants so the script is maintainable and self-documenting.
+### US-001: Copy Flux Files to Post-Processor Directory
+**Description:** As a developer, I need to copy the MODFLOW flux files to the post-processor directory so sfmodflx_2245.exe can access them.
 
 **Acceptance Criteria:**
-- [x] Define `INPUT_WEL_PATH = "input/modflow/2023/thruCY2165.wel"`
-- [x] Define `INPUT_NAM_PATH = "input/modflow/2023/CY2023.nam"`
-- [x] Define `TABLE2_CSV_PATH = "output/ingested_data/2024_Table_2_output.csv"`
-- [x] Define `VALIDATION_WEL_PATH = "validation/modflow/2024/thruCY2165_2024.wel"`
-- [x] Define `VALIDATION_NAM_PATH = "validation/modflow/2024/CY2024.nam"`
-- [x] Define `OUTPUT_DIR = "output/modflow/2024"`
-- [x] Define `OUTPUT_WEL_FILENAME = "thruCY2165_2024.wel"`
-- [x] Define `OUTPUT_NAM_FILENAME = "CY2024.nam"`
-- [x] Define `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
-- [x] Define `SECONDS_PER_DAY = 86400`
-- [x] Define `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
-- [x] Define well-name-to-MODFLOW-name mapping dict:
-  - Table 2 "Well 1" → "BUCKMAN 1", "Well 2" → "BUCKMAN 2", "Well 3" → "BUCKMAN 3A", "Well 4" → "BUCKMAN 4", "Well 5" → "BUCKMAN 5", "Well 6" → "BUCKMAN 6", "Well 7" → "BUCKMAN 7", "Well 8" → "BUCKMAN 8", "Well 9" → "BUCKMAN 9", "Well 10" → "BUCKMAN 10", "Well 11" → "BUCKMAN 11", "Well 12" → "BUCKMAN 12", "Well 13" → "BUCKMAN 13"
-- [x] Define well-to-grid mapping dict (row, col per well):
-  - BUCKMAN 1: row=13, col=11
-  - BUCKMAN 2: row=14, col=11
-  - BUCKMAN 3A: row=14, col=11
-  - BUCKMAN 4: row=14, col=11
-  - BUCKMAN 5: row=15, col=12
-  - BUCKMAN 6: row=14, col=12
-  - BUCKMAN 7: row=13, col=11
-  - BUCKMAN 8: row=13, col=11
-  - BUCKMAN 9: row=14, col=12
-  - BUCKMAN 10: row=17, col=13
-  - BUCKMAN 11: row=19, col=14
-  - BUCKMAN 12: row=19, col=15
-  - BUCKMAN 13: row=20, col=16
-- [x] Define `MONTH_ABBREVS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]`
-- [x] Define `TARGET_YEAR = 2024`
-- [x] Typecheck passes
+- [ ] Copy `output/modflow/2024/modflow/CY2024_riv.flx` to `output/modflow/2024/depletions/`
+- [ ] Copy `output/modflow/2024/modflow/CY2024_ghb.flx` to `output/modflow/2024/depletions/`
+- [ ] Verify both files exist after copy
+- [ ] Print confirmation message with file sizes
+- [ ] If source files not found, print forensic error message and exit
+- [ ] Typecheck passes
 
-### US-002: Read and Parse Table 2 CSV Pumping Data
-**Description:** As a groundwater modeler, I need to read the 2024 monthly pumping data from Table 2 so I have the source acre-feet values to convert for MODFLOW.
+### US-002: Run Post-Processor via Wine
+**Description:** As a developer, I need to execute sfmodflx_2245.exe via Wine with automated input so the depletion summary is generated.
 
 **Acceptance Criteria:**
-- [x] Read `2024_Table_2_output.csv` using pandas
-- [x] Parse 13 rows (Wells 1–13) with 12 monthly columns (JAN–DEC)
-- [x] Store as a dict keyed by well number (int 1–13), value is dict of month abbreviation → acre-feet (float)
-- [x] Verify all 13 wells are present; raise clear error if any missing
-- [x] Verify no negative pumping values (acre-feet must be ≥ 0)
-- [x] Log total annual pumping per well for sanity check
-- [x] Typecheck passes
+- [ ] Check if Wine is installed; print installation instructions if missing
+- [ ] Change working directory to `output/modflow/2024/depletions/`
+- [ ] Run `wine sfmodflx_2245.exe` via subprocess
+- [ ] Pipe three inputs via stdin: "CY2024_riv.flx\nCY2024_ghb.flx\nCY2024\n"
+- [ ] Capture stdout/stderr for debugging
+- [ ] Verify output file `CY2024` is created
+- [ ] If Wine fails, print forensic error with command, exit code, and stderr
+- [ ] Typecheck passes
 
-### US-003: Unit Conversion — Acre-Feet to ft³/s with Layer Split
-**Description:** As a groundwater modeler, I need to convert monthly acre-feet pumping values to MODFLOW pumping rates (ft³/s) split equally between two layers so the rates match MODFLOW conventions.
-
-**Acceptance Criteria:**
-- [x] Implement function `convert_af_to_ft3s(acre_feet: float, days_in_month: int, num_layers: int = 2) -> float`
-- [x] Formula: `rate = (acre_feet / num_layers) * 43560 / (days_in_month * 86400)`
-- [x] Account for 2024 being a leap year (February = 29 days)
-- [x] Return value as negative float (MODFLOW convention: pumping is negative)
-- [x] Format output to 5 decimal places (matching validation file precision)
-- [x] Hand-check: Well 1 JAN 2024 = 16.887963 AF → per-layer rate ≈ -0.13730 ft³/s (31 days)
-- [x] Hand-check: Well 6 FEB 2024 = 0.199476 AF → per-layer rate ≈ -0.00173 ft³/s (29 days)
-- [x] Hand-check: Well 10 DEC 2024 = 12.235564 AF → per-layer rate ≈ -0.09950 ft³/s (31 days)
-- [x] Typecheck passes
-
-### US-004: Parse the 2023 .wel File Structure
-**Description:** As a developer, I need to parse the existing thruCY2165.wel file so I can identify and replace the 2024 zero-pumping stress periods while preserving all other data exactly.
+### US-003: Parse Post-Processor Output Structure
+**Description:** As a developer, I need to understand and parse the sfmodflx_2245 output file structure so I can extract depletion data.
 
 **Acceptance Criteria:**
-- [x] Read entire `thruCY2165.wel` file as lines
-- [x] Identify the line range containing 2024 data (JAN 2024 through DEC 2024)
-  - 2024 data starts at the `26` header line before "BUCKMAN 1 JAN 2024" (line ~8798)
-  - 2024 data ends after "BUCKMAN 13 DEC 2024" (line ~9121)
-  - Each month has: one header line (`26`) followed by 26 well entries (13 wells × 2 layers)
-  - Total: 12 months × 27 lines = 324 lines for all of 2024
-- [x] Preserve all lines before 2024 data exactly as-is (1988–2023 historical data)
-- [x] Preserve all lines after 2024 data exactly as-is (2025–2165 future zeros)
-- [x] Verify 2024 section contains exactly 12 months × 26 well entries
-- [x] Typecheck passes
+- [ ] Read the `CY2024` output file as text
+- [ ] Identify year blocks by "YEAR: NNNN" header pattern
+- [ ] Identify column headers: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
+- [ ] Parse cell rows with format: "LAY ROW COL" followed by 12 monthly values (cfs)
+- [ ] Parse stream summary rows: "R POJOAQUE", "R TESUQUE", "RIO GRANDE", "RIV TOTAL", "LC SPRINGS"
+- [ ] Store parsed data in nested dict: `{year: {identifier: {month: value_cfs}}}`
+- [ ] Print count of years parsed and sample 2024 values for verification
+- [ ] Typecheck passes
 
-### US-005: Generate Updated 2024 Well Entries
-**Description:** As a groundwater modeler, I need to generate the 26 well-entry lines for each month of 2024 with the converted pumping rates so they replace the zero-value placeholders.
+### US-004: Extract 2024 Stream Depletions
+**Description:** As a developer, I need to extract the 2024 monthly depletions for each stream and spring category.
 
 **Acceptance Criteria:**
-- [x] For each month (JAN–DEC 2024), generate 26 lines: 13 wells × 2 layers
-- [x] Each line follows the exact format: `{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}`
-  - Match the whitespace/column alignment of the existing file exactly
-- [x] Well order within each month matches the validation file:
-  1. BUCKMAN 1, 2. BUCKMAN 2, 3. BUCKMAN 3A, 4. BUCKMAN 4, 5. BUCKMAN 5, 6. BUCKMAN 6, 7. BUCKMAN 7, 8. BUCKMAN 8, 9. BUCKMAN 9, 10. BUCKMAN 10, 11. BUCKMAN 11, 12. BUCKMAN 12, 13. BUCKMAN 13
-- [x] For each well, Layer 1 line comes before Layer 2 line
-- [x] Each month block is preceded by a header line: `        26`
-- [x] Rates are negative (MODFLOW pumping convention)
-- [x] Zero pumping values formatted as `-0.00000`
-- [x] Typecheck passes
+- [ ] Extract "R POJOAQUE" 12 monthly values for 2024 (cfs)
+- [ ] Extract "R TESUQUE" 12 monthly values for 2024 (cfs)
+- [ ] Extract "RIO GRANDE" 12 monthly values for 2024 (cfs)
+- [ ] Extract "RIV TOTAL" 12 monthly values for 2024 (cfs)
+- [ ] Extract "LC SPRINGS" 12 monthly values for 2024 (cfs)
+- [ ] Store in dict: `stream_depletions_2024 = {stream_name: [jan, feb, ..., dec]}`
+- [ ] Print extracted values for verification
+- [ ] Typecheck passes
 
-### US-006: Write Updated .wel File
-**Description:** As a developer, I need to assemble and write the complete updated .wel file so it can be used by MODFLOW.
+### US-005: Extract 2024 Model Cell Depletions for Otowi
+**Description:** As a developer, I need to extract and aggregate model cell depletions for Rio Grande above and below Otowi Gage.
 
 **Acceptance Criteria:**
-- [x] Create `output/modflow/2024/` directory if it doesn't exist
-- [x] Concatenate: pre-2024 lines + generated 2024 lines + post-2024 lines
-- [x] Write to `output/modflow/2024/thruCY2165_2024.wel`
-- [x] Total line count matches validation file (54,805 lines)
-- [x] File uses consistent line endings (match input file)
-- [x] Typecheck passes
+- [ ] Define Above Otowi cells: (1,1,16), (1,2,16), (1,3,16), (1,4,16), (1,5,15), (1,6,14), (1,7,14), (1,8,13), (1,9,13), (1,10,12)
+- [ ] Define Below Otowi cells: (1,11,11), (1,12,11), (1,13,11), (1,14,10), (1,15,9), (1,15,10), (1,16,9), (1,17,8), (1,18,6), (1,18,7), (1,19,6), (1,20,5), (1,21,4), (1,21,5), (1,22,4), (1,23,3)
+- [ ] Extract 2024 monthly values for each cell (cfs)
+- [ ] Sum Above Otowi cells for each month
+- [ ] Sum Below Otowi cells for each month
+- [ ] Store: `otowi_above_cfs = [jan, ..., dec]`, `otowi_below_cfs = [jan, ..., dec]`
+- [ ] Print aggregated sums for verification
+- [ ] Typecheck passes
 
-### US-007: Generate Updated .nam File
-**Description:** As a groundwater modeler, I need to update the CY2023.nam file to reference 2024 file names so MODFLOW reads the correct files for the 2024 simulation.
-
-**Acceptance Criteria:**
-- [x] Read `CY2023.nam` as template
-- [x] Replace `CY2023.lst` → `CY2024.lst`
-- [x] Replace `thruCY2165.wel` → `thruCY2165_2024.wel`
-- [x] Replace `CY2023_riv.flx` → `CY2024_riv.flx`
-- [x] Replace `CY2023_ghb.flx` → `CY2024_ghb.flx`
-- [x] Do NOT add redundant suffixes (e.g., do not create `CY2024_riv.riv` — the `.flx` extension suffices)
-- [x] Add header comment with generation timestamp (matching validation format)
-- [x] Uppercase package type names to match validation format (LIST, BAS, BCF, OC, RIV, GHB, SIP, WEL, DATA(BINARY))
-- [x] Align columns to match validation file whitespace exactly
-- [x] Write to `output/modflow/2024/CY2024.nam`
-- [x] Typecheck passes
-
-### US-008: Validate Output Against 2024 Validation Files
-**Description:** As a groundwater modeler, I need to compare my generated files against the known-good validation files to confirm correctness before using them in MODFLOW.
+### US-006: Load Core (2003) Analytical Model Residuals
+**Description:** As a developer, I need to load the analytical model residual values from the Core (2003) projection table for combining with superposition results.
 
 **Acceptance Criteria:**
-- [x] Compare generated `CY2024.nam` against `validation/modflow/2024/CY2024.nam`
-  - Ignore comment lines (lines starting with `#`) since timestamps will differ
-  - All non-comment lines must match exactly
-- [x] Compare generated `thruCY2165_2024.wel` against `validation/modflow/2024/thruCY2165_2024.wel`
-  - All lines outside the 2024 section must be byte-identical
-  - 2024 pumping rates must match within ±0.00002 ft³/s tolerance (rounding from CSV precision)
-- [x] Report per-well, per-month comparison: generated rate vs. validation rate vs. difference
-- [x] Flag any differences exceeding tolerance with well name, month, and both values
-- [x] Print summary: total wells checked, total months checked, pass/fail count
-- [x] If all pass: print "Validation PASSED — generated files match validation files"
-- [x] If any fail: print detailed failure report with actionable context
-- [x] Typecheck passes
-- [x] Run script end-to-end with actual data successfully
+- [ ] Define CORE_2003_POJOAQUE dict with values from PDF table (1988-2015, then 0)
+- [ ] Define CORE_2003_TESUQUE dict with values from PDF table (1988-2050+)
+- [ ] Values are annual acre-feet (already in correct units)
+- [ ] For Pojoaque years after 2015: value = 0 (or use formula if value > 0)
+- [ ] For Tesuque: use tabulated values through 2050
+- [ ] Function `get_analytical_residual(stream, year)` returns value or 0 if not applicable
+- [ ] Print 2024 residual values for both streams
+- [ ] Typecheck passes
 
-### US-009: Main Script Entry Point and CLI
-**Description:** As a user, I need a single command to run the full pipeline (read CSV → convert → write .wel → write .nam → validate) so the process is repeatable.
+### US-007: Convert CFS to Acre-Feet
+**Description:** As a developer, I need to convert monthly cfs values to acre-feet using actual days per month.
 
 **Acceptance Criteria:**
-- [x] Script runs as `python3 update_modflow_2024.py` with no required arguments
-- [x] Optionally accept `--year 2024` argument (default: 2024)
-- [x] Print progress for each major step:
-  1. "Reading Table 2 pumping data..."
-  2. "Converting acre-feet to ft³/s..."
-  3. "Parsing 2023 .wel file..."
-  4. "Generating 2024 well entries..."
-  5. "Writing updated .wel file..."
-  6. "Generating updated .nam file..."
-  7. "Validating against known-good files..."
-- [x] Print per-well monthly pumping summary table (acre-feet and ft³/s side by side)
-- [x] Exit code 0 on success, non-zero on validation failure
-- [x] Typecheck passes
-- [x] Run script end-to-end with actual data successfully
+- [ ] Define DAYS_PER_MONTH for 2024: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] (leap year)
+- [ ] Conversion: acre_feet = cfs * days * 86400 / 43560 = cfs * days * 1.9835
+- [ ] Function `cfs_to_af(cfs_value, month_index)` returns acre-feet
+- [ ] Function `cfs_monthly_to_af_annual(cfs_list)` converts 12 monthly cfs to annual AF total
+- [ ] Include docstring with unit derivation
+- [ ] Typecheck passes
+
+### US-008: Generate Table 3 Data
+**Description:** As a developer, I need to combine analytical residuals with superposition results to create Table 3 data structure.
+
+**Acceptance Criteria:**
+- [ ] For Rio Pojoaque-Nambe column:
+  - [ ] Get 2024 analytical residual from Core (2003): 0 (Pojoaque residual ended 2015)
+  - [ ] Get 2024 superposition impact: sum of R POJOAQUE monthly cfs → convert to AF
+  - [ ] Total Impact = Residual + Superposition
+- [ ] For Rio Tesuque column:
+  - [ ] Get 2024 analytical residual from Core (2003): 12.877 AF
+  - [ ] Get 2024 superposition impact: sum of R TESUQUE monthly cfs → convert to AF
+  - [ ] Total Impact = Residual + Superposition
+- [ ] Store as dict matching Table 3 structure
+- [ ] Print calculated values for verification
+- [ ] Typecheck passes
+
+### US-009: Generate Table 4 Data
+**Description:** As a developer, I need to create Table 4 data structure with cell-level and aggregated Rio Grande depletions.
+
+**Acceptance Criteria:**
+- [ ] Create detailed cell data section (rows 1-44 in validation):
+  - [ ] Each Otowi cell: KEY, YEAR, LAY, ROW, COL, 12 monthly cfs values, "above"/"below" label
+- [ ] Create stream summary section:
+  - [ ] RIO GRANDE, R POJOAQUE, LC SPRINGS, R TESUQUE, RIV TOTAL rows with monthly cfs
+- [ ] Create calculation section:
+  - [ ] Row with days per month: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  - [ ] Rio Grande above Otowi: sum of above cells (cfs), then convert to AF
+  - [ ] Rio Grande below Otowi: sum of below cells (cfs), then convert to AF
+  - [ ] Total RG (sum): above + below AF with annual total
+  - [ ] Total RG reported: RIO GRANDE converted to AF (for cross-check)
+  - [ ] Buckman 1,7,8 wells (Row 13, Col 11): cell (1,13,11) monthly AF with annual total
+- [ ] Typecheck passes
+
+### US-010: Generate Table 5 Data
+**Description:** As a developer, I need to create Table 5 data structure for La Cienega Springs cumulative depletions.
+
+**Acceptance Criteria:**
+- [ ] Get LC SPRINGS 2024 monthly cfs values
+- [ ] Convert to annual acre-feet total
+- [ ] Add to cumulative total from previous years (2004-2023)
+- [ ] Load previous cumulative totals from validation file pattern
+- [ ] Structure: Year, Annual Total (AF), Cumulative Total (AF)
+- [ ] For 2024: calculate annual from monthly, add to 2023 cumulative
+- [ ] Print 2024 annual and cumulative values
+- [ ] Typecheck passes
+
+### US-011: Write Table 3 XLSX with Formatting
+**Description:** As a developer, I need to write Table 3 as a formatted Excel file matching the validation format.
+
+**Acceptance Criteria:**
+- [ ] Create workbook with openpyxl
+- [ ] Column headers: Year, Rio Pojoaque-Nambe (3 sub-columns), Rio Tesuque (3 sub-columns)
+- [ ] Sub-columns: Residual Impact (Analytical), Impact of 1988-2024 Pumping (Superposition), Total Impact
+- [ ] Write data rows for years 1988-2030 (or as in validation)
+- [ ] Apply formatting: Font (Aptos 11), alignment, number format (#,##0.000000)
+- [ ] Apply borders matching validation file pattern
+- [ ] Save to `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx`
+- [ ] Typecheck passes
+
+### US-012: Write Table 4 XLSX with Formatting
+**Description:** As a developer, I need to write Table 4 as a formatted Excel file matching the validation format.
+
+**Acceptance Criteria:**
+- [ ] Create workbook with openpyxl
+- [ ] Write cell detail section (KEY, YEAR, LAY, ROW, COL, JAN-DEC, Otowi label)
+- [ ] Write stream summary section (RIO GRANDE, R POJOAQUE, etc.)
+- [ ] Write calculation section with days row, cfs-to-AF conversions
+- [ ] Write summary rows: Above Otowi AF, Below Otowi AF, Total, Buckman wells
+- [ ] Apply formatting matching validation file
+- [ ] Include formulas for SUM calculations where appropriate
+- [ ] Save to `output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx`
+- [ ] Typecheck passes
+
+### US-013: Write Table 5 XLSX with Formatting
+**Description:** As a developer, I need to write Table 5 as a formatted Excel file matching the validation format.
+
+**Acceptance Criteria:**
+- [ ] Create workbook with openpyxl
+- [ ] Column headers: Year, Total (cumulative AF)
+- [ ] Write rows for years 2004-2030 (or as in validation)
+- [ ] Apply formatting: Font, alignment, number format (#,##0.00)
+- [ ] Apply borders matching validation file pattern
+- [ ] Save to `output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx`
+- [ ] Typecheck passes
+
+### US-014: Validate Generated Tables Against Validation Files
+**Description:** As a developer, I need to compare generated 2024 values against validation files to verify accuracy.
+
+**Acceptance Criteria:**
+- [ ] Load validation Table 3 XLSX, extract 2024 row values
+- [ ] Load validation Table 4 XLSX, extract 2024 calculation section (rows 55-59)
+- [ ] Load validation Table 5 (from image data), extract 2024 value
+- [ ] Compare generated values to validation values
+- [ ] Tolerance: 0.01 AF for totals, 0.000001 cfs for monthly values
+- [ ] Print comparison table to console:
+  ```
+  === VALIDATION RESULTS ===
+  Table 3 - Rio Pojoaque-Nambe:
+    Superposition: calc=60.797, valid=60.797, diff=0.000 [OK]
+    Total Impact:  calc=60.797, valid=60.797, diff=0.000 [OK]
+  Table 3 - Rio Tesuque:
+    Residual:      calc=12.877, valid=12.877, diff=0.000 [OK]
+    ...
+  ```
+- [ ] If any NOT_OK, print detailed forensic error
+- [ ] Return validation status dict
+- [ ] Typecheck passes
+
+### US-015: Main Script Entry Point
+**Description:** As a developer, I need a main entry point that orchestrates the complete workflow.
+
+**Acceptance Criteria:**
+- [ ] Parse command-line argument for year (default: 2024)
+- [ ] Create output directory `output/depletion/` if not exists
+- [ ] Execute workflow steps in order:
+  1. Copy flux files (US-001)
+  2. Run post-processor (US-002)
+  3. Parse output (US-003)
+  4. Extract stream depletions (US-004)
+  5. Extract Otowi cells (US-005)
+  6. Load Core (2003) residuals (US-006)
+  7. Generate Table 3 data (US-008)
+  8. Generate Table 4 data (US-009)
+  9. Generate Table 5 data (US-010)
+  10. Write Table 3 XLSX (US-011)
+  11. Write Table 4 XLSX (US-012)
+  12. Write Table 5 XLSX (US-013)
+  13. Validate (US-014)
+- [ ] Print final summary with file paths and validation status
+- [ ] Return exit code 0 if all validations pass, 1 otherwise
+- [ ] Typecheck passes
 
 ## Non-Goals
 
-- No changes to the MODFLOW executable or other input files (.bas, .bcf, .oc, .riv, .ghb, .sip)
-- No changes to historical data (1988–2023) or future projection data (2025–2165)
-- No GUI or interactive mode — CLI script only
-- No automatic downloading or fetching of pumping data
-- No modification of the Table 2 CSV source file
-- No running of the MODFLOW model itself — only input file generation
-- No support for years other than 2024 (though the design accommodates future extension)
+- No GUI interface (CLI only)
+- No automatic MODFLOW model execution (flux files already generated)
+- No modification of source flux files
+- No generation of Tables 1 or 2 (handled by ingest_buckman_data.py)
+- No historical year reprocessing (2024 only for this workflow)
+- No PDF report generation (tables only)
 
 ## Technical Considerations
 
+### Configuration Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| MODFLOW_OUTPUT_DIR | `output/modflow/2024/modflow/` | Location of MODFLOW binary output |
+| DEPLETIONS_DIR | `output/modflow/2024/depletions/` | Location of post-processor and output |
+| OUTPUT_DIR | `output/depletion/` | Location for generated XLSX tables |
+| VALIDATION_DIR | `validation/` | Location of validation files |
+| YEAR | 2024 | Processing year |
+| DAYS_2024 | [31,29,31,30,31,30,31,31,30,31,30,31] | Days per month (leap year) |
+
+### Otowi Gage Cell Definitions
+
+```python
+ABOVE_OTOWI_CELLS = [
+    (1, 1, 16), (1, 2, 16), (1, 3, 16), (1, 4, 16), (1, 5, 15),
+    (1, 6, 14), (1, 7, 14), (1, 8, 13), (1, 9, 13), (1, 10, 12)
+]
+
+BELOW_OTOWI_CELLS = [
+    (1, 11, 11), (1, 12, 11), (1, 13, 11), (1, 14, 10), (1, 15, 9),
+    (1, 15, 10), (1, 16, 9), (1, 17, 8), (1, 18, 6), (1, 18, 7),
+    (1, 19, 6), (1, 20, 5), (1, 21, 4), (1, 21, 5), (1, 22, 4), (1, 23, 3)
+]
+
+BUCKMAN_WELLS_CELL = (1, 13, 11)  # Row 13, Column 11 - Buckman 1, 7, 8
+```
+
+### Core (2003) Analytical Model Residuals
+
+```python
+# Rio Pojoaque-Nambe: decreasing residuals from 1972-1987 pumping
+# Values from Core (2003) PROJECTION.XLS, ends ~2015
+CORE_2003_POJOAQUE = {
+    1988: 40.432, 1989: 39.244, 1990: 37.971, 1991: 36.557, 1992: 34.928,
+    1993: 33.112, 1994: 31.185, 1995: 29.226, 1996: 27.296, 1997: 25.439,
+    1998: 23.678, 1999: 22.028, 2000: 20.491, 2001: 19.068, 2002: 17.753,
+    2003: 16.543, 2004: 15.429, 2005: 14.404, 2006: 13.462, 2007: 12.595,
+    2008: 11.797, 2009: 11.061, 2010: 10.383, 2011: 6.151, 2012: 4.693,
+    2013: 3.234, 2014: 1.775, 2015: 0.316,
+    # 2016+: 0 (residual effect exhausted)
+}
+
+# Rio Tesuque: longer-lasting residuals
+# Values from Core (2003) PROJECTION.XLS, continues through 2050+
+CORE_2003_TESUQUE = {
+    1988: 21.015, 1989: 22.333, 1990: 23.391, 1991: 24.227, 1992: 24.868,
+    1993: 25.327, 1994: 25.615, 1995: 25.747, 1996: 25.737, 1997: 25.608,
+    1998: 25.378, 1999: 25.067, 2000: 24.691, 2001: 24.265, 2002: 23.800,
+    2003: 23.308, 2004: 22.797, 2005: 22.273, 2006: 21.743, 2007: 21.212,
+    2008: 20.683, 2009: 20.157, 2010: 19.639, 2011: 19.258, 2012: 18.767,
+    2013: 18.276, 2014: 17.785, 2015: 17.295, 2016: 16.804, 2017: 16.313,
+    2018: 15.822, 2019: 15.331, 2020: 14.841, 2021: 14.350, 2022: 13.859,
+    2023: 13.368, 2024: 12.877, 2025: 12.387, 2026: 11.896, 2027: 11.405,
+    2028: 10.914, 2029: 10.424, 2030: 9.933,
+    # Formula for years beyond table: y = -0.4908 * year + 1006.2
+}
+```
+
 ### Unit Conversion
 
-The core conversion from monthly acre-feet to MODFLOW pumping rate (ft³/s per layer):
+```python
+def cfs_to_acre_feet(cfs: float, days: int) -> float:
+    """
+    Convert cubic feet per second to acre-feet for a given period.
 
-```
-rate_ft3_per_s = -(acre_feet / NUM_LAYERS) * ACRE_FT_TO_FT3 / (days_in_month * SECONDS_PER_DAY)
-```
+    Scientific basis:
+    - 1 cfs = 1 ft³/s
+    - 1 acre-foot = 43,560 ft³
+    - 1 day = 86,400 seconds
 
-Where:
-- `ACRE_FT_TO_FT3 = 43560` (1 acre-foot = 43,560 ft³)
-- `SECONDS_PER_DAY = 86400`
-- `NUM_LAYERS = 2` (pumping split equally between Layer 1 and Layer 2)
-- 2024 is a leap year: February has 29 days
+    Conversion: AF = cfs * days * 86400 / 43560 = cfs * days * 1.9835
 
-### Verification Values
+    Args:
+        cfs: Flow rate in cubic feet per second
+        days: Number of days in the period
 
-| Well | Month | Acre-Feet | Per-Layer ft³/s | Days |
-|------|-------|-----------|-----------------|------|
-| 1 | JAN | 16.887963 | -0.13730 | 31 |
-| 6 | FEB | 0.199476 | -0.00173 | 29 |
-| 10 | DEC | 12.235564 | -0.09950 | 31 |
-| 8 | DEC | 47.502959 | -0.38623 | 31 |
-
-### Well Name Mapping (Table 2 → MODFLOW)
-
-| Table 2 | MODFLOW Name | Row | Col |
-|---------|-------------|-----|-----|
-| Well 1 | BUCKMAN 1 | 13 | 11 |
-| Well 2 | BUCKMAN 2 | 14 | 11 |
-| Well 3 | BUCKMAN 3A | 14 | 11 |
-| Well 4 | BUCKMAN 4 | 14 | 11 |
-| Well 5 | BUCKMAN 5 | 15 | 12 |
-| Well 6 | BUCKMAN 6 | 14 | 12 |
-| Well 7 | BUCKMAN 7 | 13 | 11 |
-| Well 8 | BUCKMAN 8 | 13 | 11 |
-| Well 9 | BUCKMAN 9 | 14 | 12 |
-| Well 10 | BUCKMAN 10 | 17 | 13 |
-| Well 11 | BUCKMAN 11 | 19 | 14 |
-| Well 12 | BUCKMAN 12 | 19 | 15 |
-| Well 13 | BUCKMAN 13 | 20 | 16 |
-
-### .wel File Structure
-
-Each month's stress period in the .wel file has this structure:
-```
-        26                              ← header: 26 well entries follow (13 wells × 2 layers)
-         1        13        11  -0.13730  BUCKMAN 1 JAN 2024     ← Layer 1
-         2        13        11  -0.13730  BUCKMAN 1 JAN 2024     ← Layer 2
-         1        14        11  -0.00000  BUCKMAN 2 JAN 2024
-         2        14        11  -0.00000  BUCKMAN 2 JAN 2024
-         ...                              ← continues for all 13 wells
+    Returns:
+        Volume in acre-feet
+    """
+    return cfs * days * 1.9835
 ```
 
-- Lines 1–8797: Historical data (1988–DEC 2023) — preserve exactly
-- Lines 8798–9121: Year 2024 data (12 months × 27 lines) — replace zeros with converted rates
-- Lines 9122–54805: Future data (2025–2165) — preserve exactly
+### Error Handling Patterns
 
-### .nam File Changes (CY2023 → CY2024)
+Follow `print_error()` pattern from ingest_buckman_data.py:
+```python
+def print_error(what_failed: str, location: str, actual: str, expected: str, context: str) -> None:
+    """Print forensic-quality error message."""
+    print(f"ERROR: {what_failed}")
+    print(f"  Location: {location}")
+    print(f"  Actual: {actual}")
+    print(f"  Expected: {expected}")
+    print(f"  Physical context: {context}")
+```
 
-| Line | 2023 Value | 2024 Value |
-|------|-----------|-----------|
-| LIST | `CY2023.lst` | `CY2024.lst` |
-| WEL | `thruCY2165.wel` | `thruCY2165_2024.wel` |
-| DATA(BINARY) | `CY2023_riv.flx` | `CY2024_riv.flx` |
-| DATA(BINARY) | `CY2023_ghb.flx` | `CY2024_ghb.flx` |
+### Excel Formatting (from ingest_buckman_data.py patterns)
 
-Unchanged files: `thruCY2165.bas`, `sflcs.bcf`, `thruCY2165.oc`, `thruCY2165.riv`, `thruCY2165.ghb`, `sflcs.sip`
+```python
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
-### Formatting Notes
+font_normal = Font(name='Aptos', size=11)
+font_bold = Font(name='Aptos', size=11, bold=True)
+align_center = Alignment(horizontal='center')
+num_fmt_6 = '#,##0.000000'  # 6 decimal places for cfs
+num_fmt_2 = '#,##0.00'      # 2 decimal places for AF
+medium_border = Border(top=Side(style='medium'), bottom=Side(style='medium'))
+hair_border = Border(top=Side(style='hair'), bottom=Side(style='hair'))
+```
 
-- The validation `.nam` file uses uppercase package types (LIST, BAS, BCF) and column-aligned whitespace with a header comment block
-- The validation `.wel` file uses 5 decimal places for pumping rates (e.g., `-0.13730`)
-- The 2023 `.nam` has mixed case and tighter spacing — the 2024 output should match the validation format
+### Validation Tolerance
 
-### Dependencies
+```python
+VALIDATION_TOLERANCE_AF = 0.01      # Acre-feet comparison tolerance
+VALIDATION_TOLERANCE_CFS = 0.000001  # CFS comparison tolerance
+```
 
-- Python 3 with pandas (for CSV reading)
-- Standard library: `calendar` (days-in-month), `pathlib`, `argparse`, `datetime`
-- No external MODFLOW tools required
+### File Paths
 
-### Error Handling
-
-- If Table 2 CSV is missing or malformed: raise FileNotFoundError with path
-- If well count ≠ 13 or month count ≠ 12: raise ValueError with actual counts
-- If 2024 section not found in .wel file: raise ValueError with search pattern used
-- If validation fails: print detailed diff, do NOT raise — let user inspect
+| File | Path |
+|------|------|
+| RIV flux input | `output/modflow/2024/modflow/CY2024_riv.flx` |
+| GHB flux input | `output/modflow/2024/modflow/CY2024_ghb.flx` |
+| Post-processor | `output/modflow/2024/depletions/sfmodflx_2245.exe` |
+| Post-processor output | `output/modflow/2024/depletions/CY2024` |
+| Table 3 validation | `validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx` |
+| Table 4 validation | `validation/TABLE 4 - Rio Grande, above below Otowi.xlsx` |
+| Table 5 validation | `validation/Table 5 - La Cienega Spring.jpg` |
+| Table 3 output | `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx` |
+| Table 4 output | `output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx` |
+| Table 5 output | `output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx` |
