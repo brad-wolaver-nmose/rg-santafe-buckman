@@ -611,6 +611,24 @@ When generating test files:
 
 Generate the PRD with these sections:
 
+### 0. PRD Header with Summary
+Every generated PRD must start with a title and summary block:
+
+```markdown
+# PRD: [Title]
+
+> **PRD Summary:** X User Stories with Y Tasks Total
+
+## Introduction
+...
+```
+
+The summary counts are calculated by:
+- **User Stories:** Count of `### US-` sections in the PRD
+- **Tasks:** Count of `- [ ]` acceptance criteria items
+
+This summary helps developers quickly understand the scope and track progress with `ralph.sh`.
+
 ### 1. Introduction
 Brief description of the feature and the problem it solves.
 
@@ -1201,6 +1219,7 @@ Also create `dev/progress.txt`:
 - [ ] Code quality stories placed after core functionality, grouped together
 
 ### Documentation
+- [ ] PRD has summary block after title showing story and task counts (e.g., "> **PRD Summary:** X User Stories with Y Tasks Total")
 - [ ] Non-goals section defines clear boundaries
 - [ ] Technical Considerations includes constants, patterns, helper functions (if applicable)
 - [ ] Saved dev/PRD.md and dev/progress.txt

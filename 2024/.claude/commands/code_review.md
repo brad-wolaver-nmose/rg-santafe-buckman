@@ -227,11 +227,12 @@ Each story should be SHORT and follow this format:
 ```markdown
 # Code Review Checklist
 
+> **Review Summary:** X Stories with Y Check Items
+
 Generated: [date]
 PRD: dev/PRD.md
 Code files: [list]
 Review depth: [quick/standard/thorough]
-Story count: [N stories]
 
 ---
 
@@ -561,11 +562,12 @@ This checklist has 18 stories. Run Ralph with at least 23 iterations:
 ```markdown
 # Code Review Checklist
 
+> **Review Summary:** 18 Stories with 54 Check Items
+
 Generated: 2025-01-27
 PRD: dev/PRD.md
 Code files: data_processor.py
 Review depth: Standard
-Story count: 18 stories
 
 ---
 

@@ -37,6 +37,28 @@
 #   # Specify test command
 #   ./ralph.sh --mode dev 15 2 dev/PRD.md 3 "pytest tests/ -v"
 #
+# TERMINOLOGY
+# ===========
+#
+#   Iteration  - One pass through the main loop. Each iteration spawns Claude
+#                once to work on the current task. Running `./ralph.sh 14` does
+#                up to 14 iterations (14 Claude invocations max).
+#
+#   Attempt    - Counter for retrying the SAME task. If a task fails, we retry
+#                it (up to MAX_TASK_TRIES, default 3). After 3 failed attempts,
+#                the task is skipped and we move to the next one.
+#
+#   Example flow:
+#     Iteration 1: Attempt 1/3 for US-001 → FAILS
+#     Iteration 2: Attempt 2/3 for US-001 → FAILS
+#     Iteration 3: Attempt 3/3 for US-001 → FAILS → SKIPPED
+#     Iteration 4: Attempt 1/3 for US-002 → SUCCESS
+#     Iteration 5: Attempt 1/3 for US-003 → ...
+#
+#   User Story - A PRD section (### US-XXX) containing acceptance criteria.
+#   Task       - Individual acceptance criterion (checkbox: - [ ] or - [x]).
+#                A story is complete when ALL its tasks are checked [x].
+#
 # =============================================================================
 
 set -e
@@ -269,6 +291,28 @@ count_completed_tasks() {
     echo "${count:-0}"
 }
 
+# Count total user stories (### US- headers)
+count_total_stories() {
+    local count
+    count=$(grep -c '^### US-' "$DOC_PATH" 2>/dev/null) || true
+    echo "${count:-0}"
+}
+
+# Count completed stories (stories where ALL criteria are [x], none are [ ])
+count_completed_stories() {
+    awk '
+        /^### US-/ {
+            if (in_story && !has_unchecked) completed++
+            in_story=1; has_unchecked=0
+        }
+        /\[ \]/ && in_story { has_unchecked=1 }
+        END {
+            if (in_story && !has_unchecked) completed++
+            print completed+0
+        }
+    ' "$DOC_PATH"
+}
+
 init_state() {
     if [[ -f "$STATE_FILE" ]]; then
         CURRENT_TASK=$(jq -r '.current_task // ""' "$STATE_FILE")
@@ -482,7 +526,10 @@ init_state
 
 REMAINING=$(count_remaining_tasks)
 COMPLETED=$(count_completed_tasks)
-status "$BLUE" "START" "Tasks: $COMPLETED completed, $REMAINING remaining"
+TOTAL_STORIES=$(count_total_stories)
+COMPLETED_STORIES=$(count_completed_stories)
+TOTAL_TASKS=$((COMPLETED + REMAINING))
+status "$BLUE" "START" "$TOTAL_STORIES User Stories with $TOTAL_TASKS Tasks ($COMPLETED_STORIES stories done, $REMAINING tasks remaining)"
 echo ""
 
 # =============================================================================
@@ -516,8 +563,9 @@ for ((i=1; i<=ITERATIONS; i++)); do
         status "$BLUE" "NEW" "New work detected - resetting attempt counter"
     fi
 
-    ((TASK_ATTEMPTS++)) || true
+    ((TASK_ATTEMPTS++)) || true  # Increment attempt counter for current task
 
+    # Skip task after MAX_TASK_TRIES failed attempts (prevents infinite loops)
     if [[ $TASK_ATTEMPTS -gt $MAX_TASK_TRIES ]]; then
         status "$RED" "STUCK" "Task failed $MAX_TASK_TRIES times - skipping: $TASK"
         skip_task "$TASK" "Exceeded max attempts ($MAX_TASK_TRIES)"
@@ -767,7 +815,9 @@ After completing work:
     # Show progress update
     REMAINING=$(count_remaining_tasks)
     COMPLETED=$(count_completed_tasks)
-    status "$BLUE" "PROGRESS" "Tasks: $COMPLETED completed, $REMAINING remaining ($(elapsed_time) elapsed)"
+    COMPLETED_STORIES=$(count_completed_stories)
+    TOTAL_STORIES=$(count_total_stories)
+    status "$BLUE" "PROGRESS" "$COMPLETED_STORIES/$TOTAL_STORIES Stories, $REMAINING tasks remaining ($(elapsed_time) elapsed)"
 
     sleep "$SLEEP"
 done
@@ -783,11 +833,13 @@ echo "==========================================="
 
 REMAINING=$(count_remaining_tasks)
 COMPLETED=$(count_completed_tasks)
+TOTAL_STORIES=$(count_total_stories)
+COMPLETED_STORIES=$(count_completed_stories)
 
 echo ""
 echo "Final Status:"
-echo "  Completed: $COMPLETED"
-echo "  Remaining: $REMAINING"
+echo "  Stories:   $COMPLETED_STORIES/$TOTAL_STORIES complete"
+echo "  Tasks:     $COMPLETED completed, $REMAINING remaining"
 echo "  Elapsed:   $(elapsed_time)"
 
 SKIP_COUNT=$(echo "$SKIPPED_TASKS" | jq 'length')
