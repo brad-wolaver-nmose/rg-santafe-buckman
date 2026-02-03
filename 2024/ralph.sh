@@ -196,7 +196,7 @@ version_file() {
     # Find next available version number
     local version=0
     while [[ -f "${dir}/${base}_v${version}.${ext}" ]]; do
-        ((version++))
+        ((version++)) || true  # || true prevents set -e exit when version=0
     done
 
     mv "$filepath" "${dir}/${base}_v${version}.${ext}"
