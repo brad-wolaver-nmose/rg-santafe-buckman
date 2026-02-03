@@ -1,1 +1,1 @@
-{"current_task":"Define `INPUT_WEL_PATH = \"input/modflow/2023/thruCY2165.wel\"`","task_attempts":1,"skipped_tasks":[],"last_updated":"2026-02-03T16:17:00Z"}
+{"current_task":"Implement function `convert_af_to_ft3s(acre_feet: float, days_in_month: int, num_layers: int = 2) -> float`","task_attempts":1,"skipped_tasks":[],"last_updated":"2026-02-03T16:20:59Z"}

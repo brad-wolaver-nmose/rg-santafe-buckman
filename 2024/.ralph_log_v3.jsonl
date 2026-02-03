@@ -1,0 +1,1 @@
+{"timestamp":"2026-02-03T16:14:54Z","event":"ITERATION_START","message":"Beginning iteration","details":{"iteration":1,"task":"Define `INPUT_WEL_PATH = \"input/modflow/2023/thruCY2165.wel\"`","attempt":1}}

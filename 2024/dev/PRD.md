@@ -67,15 +67,15 @@ Update the existing MODFLOW Buckman Depletion Model input files from calendar ye
 **Description:** As a groundwater modeler, I need to convert monthly acre-feet pumping values to MODFLOW pumping rates (ft³/s) split equally between two layers so the rates match MODFLOW conventions.
 
 **Acceptance Criteria:**
-- [ ] Implement function `convert_af_to_ft3s(acre_feet: float, days_in_month: int, num_layers: int = 2) -> float`
-- [ ] Formula: `rate = (acre_feet / num_layers) * 43560 / (days_in_month * 86400)`
-- [ ] Account for 2024 being a leap year (February = 29 days)
-- [ ] Return value as negative float (MODFLOW convention: pumping is negative)
-- [ ] Format output to 5 decimal places (matching validation file precision)
-- [ ] Hand-check: Well 1 JAN 2024 = 16.887963 AF → per-layer rate ≈ -0.13730 ft³/s (31 days)
-- [ ] Hand-check: Well 6 FEB 2024 = 0.199476 AF → per-layer rate ≈ -0.00173 ft³/s (29 days)
-- [ ] Hand-check: Well 10 DEC 2024 = 12.235564 AF → per-layer rate ≈ -0.09950 ft³/s (31 days)
-- [ ] Typecheck passes
+- [x] Implement function `convert_af_to_ft3s(acre_feet: float, days_in_month: int, num_layers: int = 2) -> float`
+- [x] Formula: `rate = (acre_feet / num_layers) * 43560 / (days_in_month * 86400)`
+- [x] Account for 2024 being a leap year (February = 29 days)
+- [x] Return value as negative float (MODFLOW convention: pumping is negative)
+- [x] Format output to 5 decimal places (matching validation file precision)
+- [x] Hand-check: Well 1 JAN 2024 = 16.887963 AF → per-layer rate ≈ -0.13730 ft³/s (31 days)
+- [x] Hand-check: Well 6 FEB 2024 = 0.199476 AF → per-layer rate ≈ -0.00173 ft³/s (29 days)
+- [x] Hand-check: Well 10 DEC 2024 = 12.235564 AF → per-layer rate ≈ -0.09950 ft³/s (31 days)
+- [x] Typecheck passes
 
 ### US-004: Parse the 2023 .wel File Structure
 **Description:** As a developer, I need to parse the existing thruCY2165.wel file so I can identify and replace the 2024 zero-pumping stress periods while preserving all other data exactly.

@@ -1,0 +1,2 @@
+{"timestamp":"2026-02-03T16:15:23Z","event":"ITERATION_START","message":"Beginning iteration","details":{"iteration":1,"task":"Define `INPUT_WEL_PATH = \"input/modflow/2023/thruCY2165.wel\"`","attempt":1}}
+{"timestamp":"2026-02-03T16:17:00Z","event":"EXIT","message":"Script exited","details":{"exit_code":1,"elapsed":"00:01:37"}}

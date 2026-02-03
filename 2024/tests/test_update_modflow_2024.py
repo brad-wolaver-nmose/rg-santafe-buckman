@@ -135,3 +135,92 @@ def test_read_table2_no_negative_values():
             assert value >= 0, (
                 f"Well {well_num} {month} has negative value: {value}"
             )
+
+
+# =============================================================================
+# US-003: Unit Conversion Hand-Check Tests
+# =============================================================================
+
+
+def test_convert_hand_check_well1_jan():
+    """
+    US-003 hand-check: Well 1 JAN 2024.
+
+    16.887963 AF, 31 days -> per-layer rate ≈ -0.13733 ft³/s
+    (PRD says -0.13730 but exact calculation is -0.137328...)
+    """
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    result = convert_af_to_ft3s(acre_feet=16.887963, days_in_month=31, num_layers=2)
+
+    # Manual: (16.887963 / 2) * 43560 / (31 * 86400) = 0.137328...
+    expected = -0.13733
+    assert abs(result - expected) < 0.00001, (
+        f"Well 1 JAN 2024: expected {expected}, got {result}"
+    )
+
+
+def test_convert_hand_check_well6_feb():
+    """
+    US-003 hand-check: Well 6 FEB 2024 (leap year).
+
+    0.199476 AF, 29 days -> per-layer rate ≈ -0.00173 ft³/s
+    """
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    result = convert_af_to_ft3s(acre_feet=0.199476, days_in_month=29, num_layers=2)
+
+    expected = -0.00173
+    assert abs(result - expected) < 0.00001, (
+        f"Well 6 FEB 2024: expected {expected}, got {result}"
+    )
+
+
+def test_convert_hand_check_well10_dec():
+    """
+    US-003 hand-check: Well 10 DEC 2024.
+
+    12.235564 AF, 31 days -> per-layer rate ≈ -0.09950 ft³/s
+    """
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    result = convert_af_to_ft3s(acre_feet=12.235564, days_in_month=31, num_layers=2)
+
+    expected = -0.09950
+    assert abs(result - expected) < 0.00001, (
+        f"Well 10 DEC 2024: expected {expected}, got {result}"
+    )
+
+
+def test_convert_output_precision():
+    """
+    Verify conversion output can be formatted to 5 decimal places.
+
+    The conversion function returns a float; formatting is the caller's
+    responsibility. This test verifies the values are stable at 5 decimals.
+    """
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    result = convert_af_to_ft3s(acre_feet=16.887963, days_in_month=31, num_layers=2)
+    formatted = f"{result:.5f}"
+
+    assert formatted == "-0.13733", f"Expected '-0.13733', got '{formatted}'"
+
+
+def test_convert_negative_acre_feet_raises():
+    """Verify negative acre-feet raises ValueError."""
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    with pytest.raises(ValueError, match="acre_feet must be >= 0"):
+        convert_af_to_ft3s(acre_feet=-1.0, days_in_month=31, num_layers=2)
+
+
+def test_convert_invalid_days_raises():
+    """Verify invalid days_in_month raises ValueError."""
+    from update_modflow_2024 import convert_af_to_ft3s
+
+    with pytest.raises(ValueError, match="days_in_month must be 1-31"):
+        convert_af_to_ft3s(acre_feet=10.0, days_in_month=0, num_layers=2)
+
+    with pytest.raises(ValueError, match="days_in_month must be 1-31"):
+        convert_af_to_ft3s(acre_feet=10.0, days_in_month=32, num_layers=2)
