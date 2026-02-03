@@ -120,9 +120,17 @@ elapsed_time() {
 log_event() {
     local event_type="$1"
     local message="$2"
-    local details="${3:-{}}"
-    jq -nc --arg ts "$(timestamp)" --arg ev "$event_type" --arg msg "$message" --argjson det "$details" \
-        '{timestamp: $ts, event: $ev, message: $msg, details: $det}' >> "$LOG_FILE"
+    local details="${3:-}"
+
+    # Defensive: ensure details is non-empty valid JSON
+    if [[ -z "$details" ]]; then
+        details='{}'
+    fi
+
+    # Use env vars to safely pass strings that may contain backticks/quotes
+    LOG_TS="$(timestamp)" LOG_EV="$event_type" LOG_MSG="$message" \
+        jq -nc --argjson det "$details" \
+        '{timestamp: env.LOG_TS, event: env.LOG_EV, message: env.LOG_MSG, details: $det}' >> "$LOG_FILE"
 }
 
 status() {
@@ -275,9 +283,11 @@ init_state() {
 }
 
 save_state() {
-    jq -nc --arg task "$CURRENT_TASK" --argjson attempts "$TASK_ATTEMPTS" \
-        --argjson skipped "$SKIPPED_TASKS" --arg updated "$(timestamp)" \
-        '{current_task: $task, task_attempts: $attempts, skipped_tasks: $skipped, last_updated: $updated}' \
+    CURRENT_TASK="$CURRENT_TASK" jq -nc \
+        --argjson attempts "$TASK_ATTEMPTS" \
+        --argjson skipped "$SKIPPED_TASKS" \
+        --arg updated "$(timestamp)" \
+        '{current_task: env.CURRENT_TASK, task_attempts: $attempts, skipped_tasks: $skipped, last_updated: $updated}' \
         > "$STATE_FILE"
 }
 
@@ -285,7 +295,7 @@ skip_task() {
     local task="$1"
     local reason="$2"
 
-    SKIPPED_TASKS=$(echo "$SKIPPED_TASKS" | jq --arg t "$task" --arg r "$reason" '. + [{"task": $t, "reason": $r}]')
+    SKIPPED_TASKS=$(echo "$SKIPPED_TASKS" | TASK="$task" REASON="$reason" jq '. + [{"task": env.TASK, "reason": env.REASON}]')
 
     log_event "TASK_SKIPPED" "$task" "$(jq -nc --arg r "$reason" --argjson a "$TASK_ATTEMPTS" '{reason: $r, attempts: $a}')"
 
@@ -519,7 +529,7 @@ for ((i=1; i<=ITERATIONS; i++)); do
     status "$BLUE" "ATTEMPT" "Attempt $TASK_ATTEMPTS of $MAX_TASK_TRIES for: $TASK"
     save_state
 
-    log_event "ITERATION_START" "Beginning iteration" "$(jq -nc --argjson i "$i" --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{iteration: $i, task: $t, attempt: $a}')"
+    log_event "ITERATION_START" "Beginning iteration" "$(TASK="$TASK" jq -nc --argjson i "$i" --argjson a "$TASK_ATTEMPTS" '{iteration: $i, task: env.TASK, attempt: $a}')"
 
     FAILURE_CONTEXT=""
     if [[ $TASK_ATTEMPTS -gt 1 ]]; then
@@ -729,7 +739,7 @@ After completing work:
             status "$BLUE" "VERIFY" "Running independent test verification..."
             if verify_tests_pass; then
                 status "$GREEN" "VERIFIED" "Task completion verified: $TASK"
-                log_event "TASK_COMPLETE" "Task verified complete" "$(jq -nc --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{task: $t, attempts: $a}')"
+                log_event "TASK_COMPLETE" "Task verified complete" "$(TASK="$TASK" jq -nc --argjson a "$TASK_ATTEMPTS" '{task: env.TASK, attempts: $a}')"
 
                 TASK_ATTEMPTS=0
                 CURRENT_TASK="$NEW_TASK"
@@ -737,7 +747,7 @@ After completing work:
                 check_all_complete "task verification with tests"
             else
                 status "$RED" "REJECT" "Task marked complete but tests fail - rolling back"
-                log_event "FALSE_COMPLETION" "Task marked complete but tests fail" "$(jq -nc --arg t "$TASK" '{task: $t}')"
+                log_event "FALSE_COMPLETION" "Task marked complete but tests fail" "$(TASK="$TASK" jq -nc '{task: env.TASK}')"
                 rollback_changes "$i"
                 status "$YELLOW" "REVERTED" "All changes rolled back including checkbox marks - will retry"
             fi
@@ -745,7 +755,7 @@ After completing work:
             # No code changes in review mode — skip tests
             status "$BLUE" "SKIP" "No code changes - skipping test verification"
             status "$GREEN" "VERIFIED" "Task completion verified (read-only): $TASK"
-            log_event "TASK_COMPLETE" "Task verified complete (read-only)" "$(jq -nc --arg t "$TASK" --argjson a "$TASK_ATTEMPTS" '{task: $t, attempts: $a}')"
+            log_event "TASK_COMPLETE" "Task verified complete (read-only)" "$(TASK="$TASK" jq -nc --argjson a "$TASK_ATTEMPTS" '{task: env.TASK, attempts: $a}')"
 
             TASK_ATTEMPTS=0
             CURRENT_TASK="$NEW_TASK"
