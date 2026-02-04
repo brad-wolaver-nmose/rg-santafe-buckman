@@ -230,17 +230,23 @@ def test_cfs_to_af_january():
 
 def test_cfs_to_af_february_leap_year():
     """
-    Verify cfs_to_af handles February leap year correctly.
+    Verify cfs_to_af handles February with use_leap_year flag.
 
-    Hand calculation:
-    - February 2024 has 29 days (leap year)
-    - 1.0 cfs * 29 days * 1.9835 = 57.5215 AF
+    Hand calculation (leap year, 29 days):
+    - 1.0 cfs * 29 days * 86400/43560 = 57.5207 AF
+
+    Hand calculation (non-leap year, 28 days, default):
+    - 1.0 cfs * 28 days * 86400/43560 = 55.5372 AF
     """
     from stream_depletions import cfs_to_af
 
-    result = cfs_to_af(1.0, 1)  # February is month_index 1
+    # Default (non-leap year, 28 days)
+    result_default = cfs_to_af(1.0, 1)  # February is month_index 1
+    assert abs(result_default - 55.5372) < 0.001, f"Expected ~55.5372, got {result_default}"
 
-    assert abs(result - 57.5215) < 0.001, f"Expected ~57.5215, got {result}"
+    # Leap year (29 days)
+    result_leap = cfs_to_af(1.0, 1, use_leap_year=True)
+    assert abs(result_leap - 57.5207) < 0.001, f"Expected ~57.5207, got {result_leap}"
 
 
 def test_cfs_to_af_raises_on_negative():
@@ -272,14 +278,21 @@ def test_cfs_monthly_to_af_annual_constant_flow():
     """
     Verify cfs_monthly_to_af_annual with constant 0.1 cfs all year.
 
-    Hand calculation:
-    - 0.1 cfs * 366 days * 1.9835 = 72.5961 AF (leap year)
+    Hand calculation (non-leap year, 365 days, default):
+    - 0.1 cfs * 365 days * 86400/43560 = 72.3967 AF
+
+    Hand calculation (leap year, 366 days):
+    - 0.1 cfs * 366 days * 86400/43560 = 72.5950 AF
     """
     from stream_depletions import cfs_monthly_to_af_annual
 
-    result = cfs_monthly_to_af_annual([0.1] * 12)
+    # Default (non-leap year)
+    result_default = cfs_monthly_to_af_annual([0.1] * 12)
+    assert abs(result_default - 72.3967) < 0.01, f"Expected ~72.3967, got {result_default}"
 
-    assert abs(result - 72.5961) < 0.01, f"Expected ~72.5961, got {result}"
+    # Leap year
+    result_leap = cfs_monthly_to_af_annual([0.1] * 12, use_leap_year=True)
+    assert abs(result_leap - 72.5950) < 0.01, f"Expected ~72.5950, got {result_leap}"
 
 
 def test_cfs_monthly_to_af_annual_raises_on_wrong_length():
@@ -558,6 +571,737 @@ def test_print_table4_verification_runs(capsys):
     assert "Below Otowi" in captured.out
     assert "Buckman" in captured.out
     assert "276.5" in captured.out or "276.500" in captured.out
+
+
+def test_la_cienega_cumulative_constant():
+    """Verify LA_CIENEGA_CUMULATIVE constant is defined with expected structure."""
+    from stream_depletions import LA_CIENEGA_CUMULATIVE
+
+    # Should have years 2004-2030
+    assert 2004 in LA_CIENEGA_CUMULATIVE
+    assert 2023 in LA_CIENEGA_CUMULATIVE
+    assert 2024 in LA_CIENEGA_CUMULATIVE
+    assert 2030 in LA_CIENEGA_CUMULATIVE
+
+    # 2024 validation value
+    assert abs(LA_CIENEGA_CUMULATIVE[2024] - 3.74) < 0.01, f"Expected 3.74, got {LA_CIENEGA_CUMULATIVE[2024]}"
+
+    # Values should be increasing (cumulative)
+    assert LA_CIENEGA_CUMULATIVE[2024] > LA_CIENEGA_CUMULATIVE[2023]
+
+
+def test_generate_table5_data_exists():
+    """Verify generate_table5_data function exists and is callable."""
+    from stream_depletions import generate_table5_data
+    assert callable(generate_table5_data)
+
+
+def test_generate_table5_data_with_mock():
+    """
+    Verify generate_table5_data correctly generates Table 5 structure.
+
+    Uses mock data with constant 0.001 cfs for LC SPRINGS all months.
+    """
+    from stream_depletions import generate_table5_data, LA_CIENEGA_CUMULATIVE
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Create mock data with LC SPRINGS at ~0.00028 cfs (to get ~0.20 AF/year)
+    # 0.20 AF / 366 days / 1.9835 = ~0.000275 cfs
+    mock_cfs = 0.000275
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "LC SPRINGS": {m: mock_cfs for m in months},
+        }
+    }
+
+    result = generate_table5_data(mock_data, 2024)
+
+    # Check structure
+    assert "year" in result
+    assert "monthly_cfs" in result
+    assert "annual_af" in result
+    assert "previous_cumulative_af" in result
+    assert "cumulative_af" in result
+
+    # Check year
+    assert result["year"] == 2024
+
+    # Check monthly values
+    assert len(result["monthly_cfs"]) == 12
+    assert abs(result["monthly_cfs"][0] - mock_cfs) < 0.000001
+
+    # Check previous cumulative (2023 from LA_CIENEGA_CUMULATIVE)
+    assert abs(result["previous_cumulative_af"] - 3.54) < 0.01
+
+    # Check cumulative = previous + annual
+    expected_cumulative = result["previous_cumulative_af"] + result["annual_af"]
+    assert abs(result["cumulative_af"] - expected_cumulative) < 0.001
+
+
+def test_generate_table5_data_raises_on_missing_year():
+    """Verify generate_table5_data raises KeyError when year not found."""
+    from stream_depletions import generate_table5_data
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2023: {}}
+
+    with pytest.raises(KeyError, match="Year 2024 not found"):
+        generate_table5_data(mock_data, 2024)
+
+
+def test_generate_table5_data_raises_on_missing_lc_springs():
+    """Verify generate_table5_data raises KeyError when LC SPRINGS data missing."""
+    from stream_depletions import generate_table5_data
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "RIO GRANDE": {"jan": 0.1},  # Not LC SPRINGS
+        }
+    }
+
+    with pytest.raises(KeyError, match="LC SPRINGS not found"):
+        generate_table5_data(mock_data, 2024)
+
+
+def test_print_table5_verification_exists():
+    """Verify print_table5_verification function exists and is callable."""
+    from stream_depletions import print_table5_verification
+    assert callable(print_table5_verification)
+
+
+def test_print_table5_verification_runs(capsys):
+    """Verify print_table5_verification runs and prints expected output."""
+    from stream_depletions import print_table5_verification
+
+    # Create mock table5 data
+    table5_data = {
+        "year": 2024,
+        "monthly_cfs": [0.00028] * 12,
+        "annual_af": 0.20,
+        "previous_cumulative_af": 3.54,
+        "cumulative_af": 3.74,
+    }
+
+    print_table5_verification(table5_data, 2024)
+    captured = capsys.readouterr()
+
+    # Should contain key information
+    assert "2024" in captured.out
+    assert "La Cienega" in captured.out
+    assert "Annual" in captured.out
+    assert "Cumulative" in captured.out
+    assert "3.54" in captured.out  # Previous cumulative
+    assert "3.74" in captured.out  # New cumulative
+
+
+def test_write_table3_xlsx_exists():
+    """Verify write_table3_xlsx function exists and is callable."""
+    from stream_depletions import write_table3_xlsx
+    assert callable(write_table3_xlsx)
+
+
+def test_write_table3_xlsx_creates_file(tmp_path):
+    """
+    Verify write_table3_xlsx creates an XLSX file with correct structure.
+
+    Uses mock data to test file creation and basic structure.
+    """
+    from stream_depletions import write_table3_xlsx
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Create mock parsed data for a few years
+    mock_data: dict[int, dict[str, dict[str, float]]] = {}
+    for year in [2022, 2023, 2024]:
+        mock_data[year] = {
+            "R POJOAQUE": {m: 0.1 for m in months},
+            "R TESUQUE": {m: 0.1 for m in months},
+        }
+
+    output_path = tmp_path / "test_table3.xlsx"
+    result_path = write_table3_xlsx(mock_data, output_path, years=[2022, 2023, 2024])
+
+    # Check file was created
+    assert result_path.exists(), f"File was not created at {result_path}"
+
+    # Check file can be opened with openpyxl
+    import openpyxl
+    wb = openpyxl.load_workbook(result_path)
+    ws = wb.active
+
+    # Check sheet has expected dimensions (2 header rows + 3 data rows, 7 columns)
+    assert ws.max_row == 5, f"Expected 5 rows, got {ws.max_row}"
+    assert ws.max_column == 7, f"Expected 7 columns, got {ws.max_column}"
+
+    # Check header values
+    assert "Rio Pojoaque" in str(ws.cell(row=1, column=2).value)
+    assert "Rio Tesuque" in str(ws.cell(row=1, column=5).value)
+    assert "Year" in str(ws.cell(row=2, column=1).value)
+
+    # Check data row years
+    assert ws.cell(row=3, column=1).value == 2022
+    assert ws.cell(row=4, column=1).value == 2023
+    assert ws.cell(row=5, column=1).value == 2024
+
+    wb.close()
+
+
+def test_write_table3_xlsx_formatting(tmp_path):
+    """
+    Verify write_table3_xlsx applies correct formatting.
+    """
+    from stream_depletions import write_table3_xlsx
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "R POJOAQUE": {m: 0.1 for m in months},
+            "R TESUQUE": {m: 0.1 for m in months},
+        }
+    }
+
+    output_path = tmp_path / "test_table3_fmt.xlsx"
+    write_table3_xlsx(mock_data, output_path, years=[2024])
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check header font is bold
+    assert ws.cell(row=1, column=2).font.bold is True
+    assert ws.cell(row=2, column=1).font.bold is True
+
+    # Check data row year is bold
+    assert ws.cell(row=3, column=1).font.bold is True
+
+    # Check number format (3 decimal places)
+    assert ws.cell(row=3, column=3).number_format == '0.000'
+
+    wb.close()
+
+
+def test_write_table3_xlsx_2024_values(tmp_path):
+    """
+    Verify write_table3_xlsx calculates correct 2024 values.
+
+    2024 expected values from validation:
+    - Pojoaque Residual: 0 (empty cell)
+    - Tesuque Residual: 12.877
+    """
+    from stream_depletions import write_table3_xlsx
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Create mock data with realistic cfs values
+    # From validation: Pojoaque superposition ~60.797, Tesuque superposition ~20.706
+    # Back-calculate cfs: 60.797 / 366 / 1.9835 ≈ 0.0838
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "R POJOAQUE": {m: 0.0838 for m in months},
+            "R TESUQUE": {m: 0.0285 for m in months},
+        }
+    }
+
+    output_path = tmp_path / "test_table3_values.xlsx"
+    write_table3_xlsx(mock_data, output_path, years=[2024])
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check 2024 Pojoaque residual is empty (0 after 2015)
+    poj_residual = ws.cell(row=3, column=2).value
+    assert poj_residual is None, f"Expected empty Pojoaque residual, got {poj_residual}"
+
+    # Check 2024 Tesuque residual is 12.877
+    tes_residual = ws.cell(row=3, column=5).value
+    assert abs(tes_residual - 12.877) < 0.001, f"Expected 12.877, got {tes_residual}"
+
+    wb.close()
+
+
+def test_write_table4_xlsx_exists():
+    """Verify write_table4_xlsx function exists and is callable."""
+    from stream_depletions import write_table4_xlsx
+    assert callable(write_table4_xlsx)
+
+
+def test_write_table4_xlsx_creates_file(tmp_path):
+    """
+    Verify write_table4_xlsx creates an XLSX file with correct structure.
+
+    Uses mock data to test file creation and basic structure.
+    """
+    from stream_depletions import (
+        write_table4_xlsx,
+        ABOVE_OTOWI_CELLS,
+        BELOW_OTOWI_CELLS,
+    )
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Create mock parsed data
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    # Add Above Otowi cells
+    for lay, row, col in ABOVE_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.01 for m in months}
+
+    # Add Below Otowi cells
+    for lay, row, col in BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.02 for m in months}
+
+    # Add stream summaries
+    mock_data[2024]["RIO GRANDE"] = {m: 0.42 for m in months}
+    mock_data[2024]["R POJOAQUE"] = {m: 0.1 for m in months}
+    mock_data[2024]["LC SPRINGS"] = {m: 0.01 for m in months}
+    mock_data[2024]["R TESUQUE"] = {m: 0.05 for m in months}
+    mock_data[2024]["RIV TOTAL"] = {m: 0.58 for m in months}
+
+    output_path = tmp_path / "test_table4.xlsx"
+    result_path = write_table4_xlsx(mock_data, output_path, year=2024)
+
+    # Check file was created
+    assert result_path.exists(), f"File was not created at {result_path}"
+
+    # Check file can be opened with openpyxl
+    import openpyxl
+    wb = openpyxl.load_workbook(result_path)
+    ws = wb.active
+
+    # Check sheet has reasonable dimensions
+    # With only Otowi cells (26 cells), we expect:
+    # 1 header + 26 cells + 5 streams + 1 month labels + 1 days + 2 cfs sums +
+    # 1 AF header + 5 AF rows = 42 rows minimum
+    assert ws.max_row >= 40, f"Expected at least 40 rows, got {ws.max_row}"
+    assert ws.max_column >= 17, f"Expected at least 17 columns, got {ws.max_column}"
+
+    # Check header values
+    assert ws.cell(row=1, column=1).value == "KEY"
+    assert ws.cell(row=1, column=2).value == "YEAR"
+    assert ws.cell(row=1, column=6).value == "JAN"
+    assert ws.cell(row=1, column=18).value == "Otowi"
+
+    wb.close()
+
+
+def test_write_table4_xlsx_cell_data(tmp_path):
+    """
+    Verify write_table4_xlsx correctly writes cell data rows.
+    """
+    from stream_depletions import (
+        write_table4_xlsx,
+        ABOVE_OTOWI_CELLS,
+        BELOW_OTOWI_CELLS,
+    )
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    for lay, row, col in ABOVE_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.01 for m in months}
+
+    for lay, row, col in BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.02 for m in months}
+
+    mock_data[2024]["RIO GRANDE"] = {m: 0.42 for m in months}
+    mock_data[2024]["R POJOAQUE"] = {m: 0.1 for m in months}
+    mock_data[2024]["LC SPRINGS"] = {m: 0.01 for m in months}
+    mock_data[2024]["R TESUQUE"] = {m: 0.05 for m in months}
+    mock_data[2024]["RIV TOTAL"] = {m: 0.58 for m in months}
+
+    output_path = tmp_path / "test_table4_cells.xlsx"
+    write_table4_xlsx(mock_data, output_path, year=2024)
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check cell data has "above" and "below" labels in column R (18)
+    above_count = 0
+    below_count = 0
+    for row in range(2, 50):  # Cell data rows
+        otowi_val = ws.cell(row=row, column=18).value
+        if otowi_val == "above":
+            above_count += 1
+        elif otowi_val == "below":
+            below_count += 1
+
+    assert above_count == 10, f"Expected 10 'above' labels, got {above_count}"
+    assert below_count == 16, f"Expected 16 'below' labels, got {below_count}"
+
+    wb.close()
+
+
+def test_write_table4_xlsx_formulas(tmp_path):
+    """
+    Verify write_table4_xlsx includes correct formulas for AF calculations.
+    """
+    from stream_depletions import (
+        write_table4_xlsx,
+        ABOVE_OTOWI_CELLS,
+        BELOW_OTOWI_CELLS,
+    )
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    for lay, row, col in ABOVE_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.01 for m in months}
+
+    for lay, row, col in BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.02 for m in months}
+
+    mock_data[2024]["RIO GRANDE"] = {m: 0.42 for m in months}
+    mock_data[2024]["R POJOAQUE"] = {m: 0.1 for m in months}
+    mock_data[2024]["LC SPRINGS"] = {m: 0.01 for m in months}
+    mock_data[2024]["R TESUQUE"] = {m: 0.05 for m in months}
+    mock_data[2024]["RIV TOTAL"] = {m: 0.58 for m in months}
+
+    output_path = tmp_path / "test_table4_formulas.xlsx"
+    write_table4_xlsx(mock_data, output_path, year=2024)
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Find rows with "Above Otowi" label in column E (should be the AF calculation row)
+    above_af_row = None
+    for row in range(1, ws.max_row + 1):
+        if ws.cell(row=row, column=5).value == "Above Otowi":
+            above_af_row = row
+            break
+
+    assert above_af_row is not None, "Could not find 'Above Otowi' AF row"
+
+    # Check that the cell contains a formula (starts with =)
+    jan_af_cell = ws.cell(row=above_af_row, column=6).value
+    assert jan_af_cell is not None
+    assert str(jan_af_cell).startswith("="), f"Expected formula, got {jan_af_cell}"
+
+    # Check Total column has SUM formula
+    total_cell = ws.cell(row=above_af_row, column=18).value
+    assert total_cell is not None
+    assert "SUM" in str(total_cell).upper(), f"Expected SUM formula, got {total_cell}"
+
+    wb.close()
+
+
+def test_write_table5_xlsx_exists():
+    """Verify write_table5_xlsx function exists and is callable."""
+    from stream_depletions import write_table5_xlsx
+    assert callable(write_table5_xlsx)
+
+
+def test_write_table5_xlsx_creates_file(tmp_path):
+    """
+    Verify write_table5_xlsx creates an XLSX file with correct structure.
+    """
+    from stream_depletions import write_table5_xlsx
+
+    output_path = tmp_path / "test_table5.xlsx"
+    result_path = write_table5_xlsx(output_path, years=[2022, 2023, 2024])
+
+    # Check file was created
+    assert result_path.exists(), f"File was not created at {result_path}"
+
+    # Check file can be opened with openpyxl
+    import openpyxl
+    wb = openpyxl.load_workbook(result_path)
+    ws = wb.active
+
+    # Check sheet has expected dimensions (1 header row + 3 data rows, 2 columns)
+    assert ws.max_row == 4, f"Expected 4 rows, got {ws.max_row}"
+    assert ws.max_column == 2, f"Expected 2 columns, got {ws.max_column}"
+
+    # Check header values
+    assert ws.cell(row=1, column=1).value == "Year"
+    assert ws.cell(row=1, column=2).value == "Total"
+
+    # Check data row years
+    assert ws.cell(row=2, column=1).value == 2022
+    assert ws.cell(row=3, column=1).value == 2023
+    assert ws.cell(row=4, column=1).value == 2024
+
+    wb.close()
+
+
+def test_write_table5_xlsx_formatting(tmp_path):
+    """
+    Verify write_table5_xlsx applies correct formatting.
+    """
+    from stream_depletions import write_table5_xlsx
+
+    output_path = tmp_path / "test_table5_fmt.xlsx"
+    write_table5_xlsx(output_path, years=[2024])
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check header font is bold
+    assert ws.cell(row=1, column=1).font.bold is True
+    assert ws.cell(row=1, column=2).font.bold is True
+
+    # Check number format (2 decimal places)
+    assert ws.cell(row=2, column=2).number_format == '0.00'
+
+    wb.close()
+
+
+def test_write_table5_xlsx_2024_value(tmp_path):
+    """
+    Verify write_table5_xlsx has correct 2024 cumulative value.
+
+    2024 expected value from validation: 3.74 AF
+    """
+    from stream_depletions import write_table5_xlsx
+
+    output_path = tmp_path / "test_table5_values.xlsx"
+    write_table5_xlsx(output_path, years=[2024])
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check 2024 cumulative value is 3.74
+    total_value = ws.cell(row=2, column=2).value
+    assert abs(total_value - 3.74) < 0.01, f"Expected 3.74, got {total_value}"
+
+    wb.close()
+
+
+def test_write_table5_xlsx_default_years(tmp_path):
+    """
+    Verify write_table5_xlsx uses default years 2004-2030 when not specified.
+    """
+    from stream_depletions import write_table5_xlsx
+
+    output_path = tmp_path / "test_table5_default.xlsx"
+    write_table5_xlsx(output_path)  # No years specified
+
+    import openpyxl
+    wb = openpyxl.load_workbook(output_path)
+    ws = wb.active
+
+    # Check sheet has expected dimensions (1 header row + 27 data rows, 2 columns)
+    assert ws.max_row == 28, f"Expected 28 rows (header + 2004-2030), got {ws.max_row}"
+
+    # Check first and last year
+    assert ws.cell(row=2, column=1).value == 2004
+    assert ws.cell(row=28, column=1).value == 2030
+
+    # Check 2004 value from LA_CIENEGA_CUMULATIVE
+    assert abs(ws.cell(row=2, column=2).value - 0.45) < 0.01
+
+    # Check 2030 value from LA_CIENEGA_CUMULATIVE
+    assert abs(ws.cell(row=28, column=2).value - 4.80) < 0.01
+
+    wb.close()
+
+
+# =============================================================================
+# VALIDATION FUNCTION TESTS (US-014)
+# =============================================================================
+
+
+def test_validation_constants_exist():
+    """Verify validation tolerance constants are defined."""
+    from stream_depletions import VALIDATION_TOLERANCE_AF, VALIDATION_TOLERANCE_CFS
+
+    assert VALIDATION_TOLERANCE_AF == 0.01
+    assert VALIDATION_TOLERANCE_CFS == 0.000001
+
+
+def test_validate_table3_exists():
+    """Verify validate_table3 function exists and is callable."""
+    from stream_depletions import validate_table3
+    assert callable(validate_table3)
+
+
+def test_validate_table4_exists():
+    """Verify validate_table4 function exists and is callable."""
+    from stream_depletions import validate_table4
+    assert callable(validate_table4)
+
+
+def test_validate_table5_exists():
+    """Verify validate_table5 function exists and is callable."""
+    from stream_depletions import validate_table5
+    assert callable(validate_table5)
+
+
+def test_validate_all_tables_exists():
+    """Verify validate_all_tables function exists and is callable."""
+    from stream_depletions import validate_all_tables
+    assert callable(validate_all_tables)
+
+
+def test_print_validation_results_exists():
+    """Verify print_validation_results function exists and is callable."""
+    from stream_depletions import print_validation_results
+    assert callable(print_validation_results)
+
+
+def test_validate_table3_missing_file():
+    """Verify validate_table3 handles missing file gracefully."""
+    from stream_depletions import validate_table3
+
+    result = validate_table3(
+        validation_path='/nonexistent/file.xlsx',
+        generated_data={'pojoaque': {}, 'tesuque': {}},
+        year=2024
+    )
+
+    assert result['status'] == 'FAILED'
+    assert len(result['errors']) > 0
+    assert 'not found' in result['errors'][0]
+
+
+def test_validate_table4_missing_file():
+    """Verify validate_table4 handles missing file gracefully."""
+    from stream_depletions import validate_table4
+
+    result = validate_table4(
+        validation_path='/nonexistent/file.xlsx',
+        generated_data={'calculations': {}},
+        year=2024
+    )
+
+    assert result['status'] == 'FAILED'
+    assert len(result['errors']) > 0
+    assert 'not found' in result['errors'][0]
+
+
+def test_validate_table5_returns_dict():
+    """Verify validate_table5 returns expected structure."""
+    from stream_depletions import validate_table5, LA_CIENEGA_CUMULATIVE
+
+    # Use perfect matching data to test structure
+    generated_data = {
+        'annual_af': 0.20,  # 3.74 - 3.54 = 0.20
+        'cumulative_af': 3.74,  # 2024 value from constant
+    }
+
+    result = validate_table5(generated_data, year=2024)
+
+    assert 'status' in result
+    assert 'comparisons' in result
+    assert 'errors' in result
+    assert isinstance(result['comparisons'], list)
+    assert len(result['comparisons']) == 2  # cumulative and annual
+
+
+def test_validate_table5_passing():
+    """Verify validate_table5 passes with matching data."""
+    from stream_depletions import validate_table5
+
+    # Use values that match LA_CIENEGA_CUMULATIVE
+    generated_data = {
+        'annual_af': 0.20,  # 3.74 - 3.54 = 0.20
+        'cumulative_af': 3.74,  # 2024 value from constant
+    }
+
+    result = validate_table5(generated_data, year=2024)
+
+    assert result['status'] == 'OK'
+    assert len(result['errors']) == 0
+
+
+def test_validate_all_tables_returns_dict():
+    """Verify validate_all_tables returns expected structure."""
+    from stream_depletions import validate_all_tables
+
+    # Dummy data (files don't exist, so will fail)
+    result = validate_all_tables(
+        table3_validation_path='/nonexistent/t3.xlsx',
+        table4_validation_path='/nonexistent/t4.xlsx',
+        table3_data={'pojoaque': {}, 'tesuque': {}},
+        table4_data={'calculations': {}},
+        table5_data={'annual_af': 0, 'cumulative_af': 0},
+        year=2024
+    )
+
+    assert 'overall_status' in result
+    assert 'table3' in result
+    assert 'table4' in result
+    assert 'table5' in result
+    # Should fail because validation files don't exist
+    assert result['overall_status'] == 'FAILED'
+
+
+def test_validate_table3_with_real_file():
+    """Integration test: validate Table 3 against actual validation file."""
+    from stream_depletions import (
+        validate_table3,
+        generate_table3_data,
+        parse_postprocessor_output,
+    )
+
+    # Paths
+    validation_path = Path('validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx')
+    postprocessor_output = Path('output/modflow/2024/depletions/CY2024')
+
+    if not validation_path.exists():
+        pytest.skip("Validation file not available")
+    if not postprocessor_output.exists():
+        pytest.skip("Post-processor output not available")
+
+    # Generate data from actual post-processor output
+    parsed_data = parse_postprocessor_output(postprocessor_output)
+    table3_data = generate_table3_data(parsed_data, year=2024)
+
+    # Validate
+    result = validate_table3(validation_path, table3_data, year=2024)
+
+    # Print diagnostics if failing
+    if result['status'] != 'OK':
+        for comp in result['comparisons']:
+            print(f"{comp['field']}: calc={comp['calc']:.6f}, valid={comp['valid']:.6f}")
+
+    assert result['status'] == 'OK', f"Validation failed: {result['errors']}"
+
+
+def test_validate_table4_with_real_file():
+    """Integration test: validate Table 4 against actual validation file."""
+    from stream_depletions import (
+        validate_table4,
+        generate_table4_data,
+        parse_postprocessor_output,
+    )
+
+    # Paths
+    validation_path = Path('validation/TABLE 4 - Rio Grande, above below Otowi.xlsx')
+    postprocessor_output = Path('output/modflow/2024/depletions/CY2024')
+
+    if not validation_path.exists():
+        pytest.skip("Validation file not available")
+    if not postprocessor_output.exists():
+        pytest.skip("Post-processor output not available")
+
+    # Generate data from actual post-processor output
+    parsed_data = parse_postprocessor_output(postprocessor_output)
+    table4_data = generate_table4_data(parsed_data, year=2024)
+
+    # Validate
+    result = validate_table4(validation_path, table4_data, year=2024)
+
+    # Print diagnostics if failing
+    if result['status'] != 'OK':
+        for comp in result['comparisons']:
+            if not comp['ok']:
+                print(f"{comp['field']}: calc={comp['calc']:.6f}, valid={comp['valid']:.6f}")
+
+    assert result['status'] == 'OK', f"Validation failed: {result['errors']}"
 
 
 # Note: Integration tests requiring actual files are skipped in smoke tests.

@@ -153,64 +153,64 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to create Table 5 data structure for La Cienega Springs cumulative depletions.
 
 **Acceptance Criteria:**
-- [ ] Get LC SPRINGS 2024 monthly cfs values
-- [ ] Convert to annual acre-feet total
-- [ ] Add to cumulative total from previous years (2004-2023)
-- [ ] Load previous cumulative totals from validation file pattern
-- [ ] Structure: Year, Annual Total (AF), Cumulative Total (AF)
-- [ ] For 2024: calculate annual from monthly, add to 2023 cumulative
-- [ ] Print 2024 annual and cumulative values
-- [ ] Typecheck passes
+- [x] Get LC SPRINGS 2024 monthly cfs values
+- [x] Convert to annual acre-feet total
+- [x] Add to cumulative total from previous years (2004-2023)
+- [x] Load previous cumulative totals from validation file pattern
+- [x] Structure: Year, Annual Total (AF), Cumulative Total (AF)
+- [x] For 2024: calculate annual from monthly, add to 2023 cumulative
+- [x] Print 2024 annual and cumulative values
+- [x] Typecheck passes
 
 ### US-011: Write Table 3 XLSX with Formatting
 **Description:** As a developer, I need to write Table 3 as a formatted Excel file matching the validation format.
 
 **Acceptance Criteria:**
-- [ ] Create workbook with openpyxl
-- [ ] Column headers: Year, Rio Pojoaque-Nambe (3 sub-columns), Rio Tesuque (3 sub-columns)
-- [ ] Sub-columns: Residual Impact (Analytical), Impact of 1988-2024 Pumping (Superposition), Total Impact
-- [ ] Write data rows for years 1988-2030 (or as in validation)
-- [ ] Apply formatting: Font (Aptos 11), alignment, number format (#,##0.000000)
-- [ ] Apply borders matching validation file pattern
-- [ ] Save to `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx`
-- [ ] Typecheck passes
+- [x] Create workbook with openpyxl
+- [x] Column headers: Year, Rio Pojoaque-Nambe (3 sub-columns), Rio Tesuque (3 sub-columns)
+- [x] Sub-columns: Residual Impact (Analytical), Impact of 1988-2024 Pumping (Superposition), Total Impact
+- [x] Write data rows for years 1988-2030 (or as in validation)
+- [x] Apply formatting: Font (Aptos 11), alignment, number format (#,##0.000000)
+- [x] Apply borders matching validation file pattern
+- [x] Save to `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx`
+- [x] Typecheck passes
 
 ### US-012: Write Table 4 XLSX with Formatting
 **Description:** As a developer, I need to write Table 4 as a formatted Excel file matching the validation format.
 
 **Acceptance Criteria:**
-- [ ] Create workbook with openpyxl
-- [ ] Write cell detail section (KEY, YEAR, LAY, ROW, COL, JAN-DEC, Otowi label)
-- [ ] Write stream summary section (RIO GRANDE, R POJOAQUE, etc.)
-- [ ] Write calculation section with days row, cfs-to-AF conversions
-- [ ] Write summary rows: Above Otowi AF, Below Otowi AF, Total, Buckman wells
-- [ ] Apply formatting matching validation file
-- [ ] Include formulas for SUM calculations where appropriate
-- [ ] Save to `output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx`
-- [ ] Typecheck passes
+- [x] Create workbook with openpyxl
+- [x] Write cell detail section (KEY, YEAR, LAY, ROW, COL, JAN-DEC, Otowi label)
+- [x] Write stream summary section (RIO GRANDE, R POJOAQUE, etc.)
+- [x] Write calculation section with days row, cfs-to-AF conversions
+- [x] Write summary rows: Above Otowi AF, Below Otowi AF, Total, Buckman wells
+- [x] Apply formatting matching validation file
+- [x] Include formulas for SUM calculations where appropriate
+- [x] Save to `output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx`
+- [x] Typecheck passes
 
 ### US-013: Write Table 5 XLSX with Formatting
 **Description:** As a developer, I need to write Table 5 as a formatted Excel file matching the validation format.
 
 **Acceptance Criteria:**
-- [ ] Create workbook with openpyxl
-- [ ] Column headers: Year, Total (cumulative AF)
-- [ ] Write rows for years 2004-2030 (or as in validation)
-- [ ] Apply formatting: Font, alignment, number format (#,##0.00)
-- [ ] Apply borders matching validation file pattern
-- [ ] Save to `output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx`
-- [ ] Typecheck passes
+- [x] Create workbook with openpyxl
+- [x] Column headers: Year, Total (cumulative AF)
+- [x] Write rows for years 2004-2030 (or as in validation)
+- [x] Apply formatting: Font, alignment, number format (#,##0.00)
+- [x] Apply borders matching validation file pattern
+- [x] Save to `output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx`
+- [x] Typecheck passes
 
 ### US-014: Validate Generated Tables Against Validation Files
 **Description:** As a developer, I need to compare generated 2024 values against validation files to verify accuracy.
 
 **Acceptance Criteria:**
-- [ ] Load validation Table 3 XLSX, extract 2024 row values
-- [ ] Load validation Table 4 XLSX, extract 2024 calculation section (rows 55-59)
-- [ ] Load validation Table 5 (from image data), extract 2024 value
-- [ ] Compare generated values to validation values
-- [ ] Tolerance: 0.01 AF for totals, 0.000001 cfs for monthly values
-- [ ] Print comparison table to console:
+- [x] Load validation Table 3 XLSX, extract 2024 row values
+- [x] Load validation Table 4 XLSX, extract 2024 calculation section (rows 55-59)
+- [x] Load validation Table 5 (from image data), extract 2024 value
+- [x] Compare generated values to validation values
+- [x] Tolerance: 0.01 AF for totals, 0.000001 cfs for monthly values
+- [x] Print comparison table to console:
   ```
   === VALIDATION RESULTS ===
   Table 3 - Rio Pojoaque-Nambe:
@@ -220,9 +220,9 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
     Residual:      calc=12.877, valid=12.877, diff=0.000 [OK]
     ...
   ```
-- [ ] If any NOT_OK, print detailed forensic error
-- [ ] Return validation status dict
-- [ ] Typecheck passes
+- [x] If any NOT_OK, print detailed forensic error
+- [x] Return validation status dict
+- [x] Typecheck passes
 
 ### US-015: Main Script Entry Point
 **Description:** As a developer, I need a main entry point that orchestrates the complete workflow.
