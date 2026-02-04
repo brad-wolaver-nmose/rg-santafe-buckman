@@ -15,3 +15,75 @@
   - Parser needed regex to handle both cell data and stream summary lines
   - Sum of Above + Below matches RIO GRANDE total exactly (validation passed)
 ---
+
+## Iteration 2 - SUCCESS
+- Story completed: US-006 - Load Core (2003) Analytical Model Residuals
+- What was implemented:
+  - Added print_residual_verification() function for displaying 2024 residual values
+  - Added 2 new tests for the print function
+  - Constants CORE_2003_POJOAQUE and CORE_2003_TESUQUE were already in place
+  - Function get_analytical_residual() was already implemented
+- Files changed:
+  - stream_depletions.py: Added print_residual_verification() function
+  - tests/test_stream_depletions.py: Added 2 tests for new function
+  - dev/PRD.md: Marked US-006 criteria complete
+- Learnings:
+  - Most of US-006 was already implemented in previous work
+  - Only missing piece was the print function for verification output
+  - 16 tests pass, mypy passes
+---
+
+## Iteration 3 - SUCCESS
+- Story completed: US-007 - Convert CFS to Acre-Feet
+- What was implemented:
+  - Added cfs_to_af(cfs_value, month_index) function using DAYS_2024 constant
+  - Added cfs_monthly_to_af_annual(cfs_list) function for annual total
+  - Both functions include comprehensive docstrings with unit derivation
+  - Added 8 new tests for the conversion functions
+- Files changed:
+  - stream_depletions.py: Added cfs_to_af and cfs_monthly_to_af_annual functions
+  - tests/test_stream_depletions.py: Added 8 tests for new functions
+  - dev/PRD.md: Marked US-007 criteria complete
+- Learnings:
+  - DAYS_2024 and cfs_to_acre_feet() already existed as building blocks
+  - New functions are wrappers that use month_index to look up days
+  - Leap year handling confirmed: Feb 2024 = 29 days, total = 366 days
+  - 24 tests pass, mypy strict passes
+---
+
+## Iteration 4 - SUCCESS
+- Story completed: US-008 - Generate Table 3 Data
+- What was implemented:
+  - Added generate_table3_data() function that combines Core (2003) analytical residuals with superposition model results
+  - Function extracts R POJOAQUE and R TESUQUE monthly cfs values, converts to annual AF
+  - Adds residuals (Pojoaque=0 for 2024, Tesuque=12.877) to get total impact
+  - Added print_table3_verification() for formatted output
+  - Added 6 new tests for the Table 3 functions
+- Files changed:
+  - stream_depletions.py: Added generate_table3_data() and print_table3_verification() functions
+  - tests/test_stream_depletions.py: Added 6 tests for new functions
+  - dev/PRD.md: Marked US-008 criteria complete
+- Learnings:
+  - All building blocks (cfs_monthly_to_af_annual, get_analytical_residual) were already in place
+  - 30 tests pass, mypy strict passes
+---
+
+## Iteration 5 - SUCCESS
+- Story completed: US-009 - Generate Table 4 Data
+- What was implemented:
+  - Added BUCKMAN_WELLS_CELL constant: (1, 13, 11)
+  - Added generate_table4_data() function that creates Table 4 data structure with:
+    - Cell data section with KEY, YEAR, LAY, ROW, COL, monthly cfs, Otowi labels
+    - Stream summary section (RIO GRANDE, R POJOAQUE, LC SPRINGS, R TESUQUE, RIV TOTAL)
+    - Calculation section: days_per_month, above/below Otowi cfs and AF, Buckman wells
+  - Added print_table4_verification() function for verification output
+  - Added 7 new tests for Table 4 functions
+- Files changed:
+  - stream_depletions.py: Added BUCKMAN_WELLS_CELL, generate_table4_data(), print_table4_verification()
+  - tests/test_stream_depletions.py: Added 7 tests for new functions
+  - dev/PRD.md: Marked US-009 criteria complete
+- Learnings:
+  - Table 4 has 44 cell rows (18 non-Otowi + 10 above + 16 below) plus 5 stream summary rows
+  - Cell order in validation: non-Otowi sorted by (row,col), then Above sorted, then Below sorted
+  - 37 tests pass, mypy strict passes
+---

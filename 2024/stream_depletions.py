@@ -428,6 +428,133 @@ def print_otowi_verification(above_cfs: list[float], below_cfs: list[float]) -> 
 # ERROR HANDLING
 # =============================================================================
 
+# =============================================================================
+# TABLE 3 DATA GENERATION (US-008)
+# =============================================================================
+
+def generate_table3_data(
+    parsed_data: dict[int, dict[str, dict[str, float]]],
+    year: int = 2024
+) -> dict[str, dict[str, float]]:
+    """
+    Generate Table 3 data structure combining analytical residuals with superposition results.
+
+    Scientific basis:
+    Table 3 reports stream depletion impacts to Rio Pojoaque-Nambe and Rio Tesuque.
+    For each stream, the total impact is the sum of:
+    - Residual Impact (Analytical): Pre-1988 pumping effects from Core (2003)
+    - Impact of 1988-2024 Pumping (Superposition): MODFLOW model results
+
+    Assumptions:
+    1. Parsed data contains "R POJOAQUE" and "R TESUQUE" stream summaries
+    2. Residual values are already in acre-feet (annual)
+    3. Superposition values are in cfs (monthly), need conversion to AF (annual)
+
+    Args:
+        parsed_data: Output from parse_postprocessor_output()
+        year: Calendar year to generate data for. Default: 2024.
+
+    Returns:
+        Dict structure:
+        {
+            "pojoaque": {
+                "residual_af": float,       # Core (2003) analytical residual
+                "superposition_af": float,  # Sum of R POJOAQUE monthly cfs -> AF
+                "total_impact_af": float    # residual + superposition
+            },
+            "tesuque": {
+                "residual_af": float,
+                "superposition_af": float,
+                "total_impact_af": float
+            }
+        }
+
+    Raises:
+        KeyError: If year or stream data not found in parsed data.
+
+    Example:
+        >>> data = parse_postprocessor_output("output/modflow/2024/depletions/CY2024")
+        >>> table3 = generate_table3_data(data, 2024)
+        >>> table3["pojoaque"]["total_impact_af"]
+        60.797  # approximately
+
+    Validation:
+        Compare to validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx
+    """
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    if year not in parsed_data:
+        raise KeyError(f"Year {year} not found in parsed data. Available years: {sorted(parsed_data.keys())}")
+
+    year_data = parsed_data[year]
+
+    # Extract monthly cfs values for each stream
+    if "R POJOAQUE" not in year_data:
+        raise KeyError(f"R POJOAQUE not found in {year} data")
+    if "R TESUQUE" not in year_data:
+        raise KeyError(f"R TESUQUE not found in {year} data")
+
+    pojoaque_cfs = [year_data["R POJOAQUE"][m] for m in months]
+    tesuque_cfs = [year_data["R TESUQUE"][m] for m in months]
+
+    # Convert monthly cfs to annual acre-feet
+    pojoaque_superposition_af = cfs_monthly_to_af_annual(pojoaque_cfs)
+    tesuque_superposition_af = cfs_monthly_to_af_annual(tesuque_cfs)
+
+    # Get analytical residuals from Core (2003)
+    pojoaque_residual_af = get_analytical_residual("pojoaque", year)
+    tesuque_residual_af = get_analytical_residual("tesuque", year)
+
+    # Calculate total impacts
+    pojoaque_total_af = pojoaque_residual_af + pojoaque_superposition_af
+    tesuque_total_af = tesuque_residual_af + tesuque_superposition_af
+
+    return {
+        "pojoaque": {
+            "residual_af": pojoaque_residual_af,
+            "superposition_af": pojoaque_superposition_af,
+            "total_impact_af": pojoaque_total_af,
+        },
+        "tesuque": {
+            "residual_af": tesuque_residual_af,
+            "superposition_af": tesuque_superposition_af,
+            "total_impact_af": tesuque_total_af,
+        },
+    }
+
+
+def print_table3_verification(table3_data: dict[str, dict[str, float]], year: int = 2024) -> None:
+    """
+    Print Table 3 data for verification.
+
+    Args:
+        table3_data: Output from generate_table3_data()
+        year: Calendar year for header. Default: 2024.
+    """
+    print(f"\n=== {year} Table 3 Data (Acre-Feet) ===")
+    print(f"{'Stream':<20} {'Residual':>12} {'Superposition':>15} {'Total':>12}")
+    print("-" * 61)
+
+    for stream in ["pojoaque", "tesuque"]:
+        data = table3_data[stream]
+        stream_name = "Rio Pojoaque-Nambe" if stream == "pojoaque" else "Rio Tesuque"
+        print(f"{stream_name:<20} {data['residual_af']:>12.3f} {data['superposition_af']:>15.3f} {data['total_impact_af']:>12.3f}")
+
+    print("-" * 61)
+    total_residual = table3_data["pojoaque"]["residual_af"] + table3_data["tesuque"]["residual_af"]
+    total_super = table3_data["pojoaque"]["superposition_af"] + table3_data["tesuque"]["superposition_af"]
+    total_impact = table3_data["pojoaque"]["total_impact_af"] + table3_data["tesuque"]["total_impact_af"]
+    print(f"{'TOTAL':<20} {total_residual:>12.3f} {total_super:>15.3f} {total_impact:>12.3f}")
+
+
+# =============================================================================
+# ERROR HANDLING
+# =============================================================================
+
+# Buckman Wells cell - Row 13, Column 11
+BUCKMAN_WELLS_CELL: tuple[int, int, int] = (1, 13, 11)
+
+
 def print_error(
     what_failed: str,
     location: str,
@@ -466,3 +593,223 @@ def print_error(
     print(f"  Actual: {actual}")
     print(f"  Expected: {expected}")
     print(f"  Physical context: {context}")
+
+
+# =============================================================================
+# TABLE 4 DATA GENERATION (US-009)
+# =============================================================================
+
+def generate_table4_data(
+    parsed_data: dict[int, dict[str, dict[str, float]]],
+    year: int = 2024
+) -> dict[str, Any]:
+    """
+    Generate Table 4 data structure with cell-level and aggregated Rio Grande depletions.
+
+    Scientific basis:
+    Table 4 reports Rio Grande depletions above and below Otowi Gage. It includes:
+    - Individual cell depletions from the MODFLOW model (cfs)
+    - Stream summary rows (RIO GRANDE, R POJOAQUE, LC SPRINGS, R TESUQUE, RIV TOTAL)
+    - Calculations converting cfs to acre-feet using days per month
+
+    Assumptions:
+    1. Parsed data contains all required cells and stream summaries
+    2. Cell values are in cfs (monthly averages)
+    3. Otowi classification is determined by cell membership in ABOVE/BELOW lists
+
+    Args:
+        parsed_data: Output from parse_postprocessor_output()
+        year: Calendar year to generate data for. Default: 2024.
+
+    Returns:
+        Dict structure:
+        {
+            "cell_data": [  # List of cell rows
+                {
+                    "key": int,           # Unique key (2089-2132)
+                    "year": int,
+                    "lay": int,
+                    "row": int,
+                    "col": int,
+                    "monthly_cfs": [12 floats],  # Jan-Dec
+                    "otowi": str          # "above" or "below" or None
+                },
+                ...
+            ],
+            "stream_summaries": {  # Stream summary data
+                "RIO GRANDE": [12 floats],
+                "R POJOAQUE": [12 floats],
+                "LC SPRINGS": [12 floats],
+                "R TESUQUE": [12 floats],
+                "RIV TOTAL": [12 floats],
+            },
+            "days_per_month": [12 ints],
+            "above_otowi_cfs": [12 floats],   # Sum of above cells (cfs)
+            "below_otowi_cfs": [12 floats],   # Sum of below cells (cfs)
+            "above_otowi_af": [12 floats],    # Converted to AF
+            "below_otowi_af": [12 floats],    # Converted to AF
+            "above_otowi_annual_af": float,   # Annual total
+            "below_otowi_annual_af": float,   # Annual total
+            "total_rg_af": [12 floats],       # Sum of above + below (AF)
+            "total_rg_annual_af": float,      # Annual total
+            "buckman_cfs": [12 floats],       # Cell (1,13,11) cfs
+            "buckman_af": [12 floats],        # Converted to AF
+            "buckman_annual_af": float,       # Annual total
+        }
+
+    Raises:
+        KeyError: If year or required data not found in parsed data.
+
+    Example:
+        >>> data = parse_postprocessor_output("output/modflow/2024/depletions/CY2024")
+        >>> table4 = generate_table4_data(data, 2024)
+        >>> table4["above_otowi_annual_af"]
+        277.5  # approximately
+
+    Validation:
+        Compare to validation/TABLE 4 - Rio Grande, above below Otowi.xlsx
+    """
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    if year not in parsed_data:
+        raise KeyError(f"Year {year} not found in parsed data. Available years: {sorted(parsed_data.keys())}")
+
+    year_data = parsed_data[year]
+
+    # Build cell data list - matching order from validation file
+    # First, the "extra" cells (rows 2-19 in validation), then above/below Otowi
+    # Looking at validation: rows 2-19 are cells like (1,9,14), (1,9,15), etc.
+    # Then rows 20-29 are Above Otowi cells (with "above" label)
+    # Then rows 30-45 are Below Otowi cells (with "below" label)
+
+    cell_data: list[dict[str, Any]] = []
+    key_counter = 2089  # Starting key from validation file
+
+    # Identify Above and Below Otowi cell keys for labeling
+    above_keys = {f"{lay} {row} {col}" for lay, row, col in ABOVE_OTOWI_CELLS}
+    below_keys = {f"{lay} {row} {col}" for lay, row, col in BELOW_OTOWI_CELLS}
+
+    # Collect all cells from parsed data (excluding stream summaries)
+    stream_names = {"R POJOAQUE", "R TESUQUE", "RIO GRANDE", "RIV TOTAL", "LC SPRINGS"}
+    all_cells: list[tuple[int, int, int]] = []
+
+    for identifier in year_data:
+        if identifier not in stream_names:
+            parts = identifier.split()
+            if len(parts) == 3:
+                lay, row, col = int(parts[0]), int(parts[1]), int(parts[2])
+                all_cells.append((lay, row, col))
+
+    # Sort cells: first non-Otowi cells, then above Otowi, then below Otowi
+    # Within each group, sort by (row, col)
+    non_otowi_cells = [(l, r, c) for l, r, c in all_cells
+                       if f"{l} {r} {c}" not in above_keys and f"{l} {r} {c}" not in below_keys]
+    above_cells_sorted = sorted([(l, r, c) for l, r, c in all_cells
+                                  if f"{l} {r} {c}" in above_keys], key=lambda x: (x[1], x[2]))
+    below_cells_sorted = sorted([(l, r, c) for l, r, c in all_cells
+                                  if f"{l} {r} {c}" in below_keys], key=lambda x: (x[1], x[2]))
+
+    # Build ordered cell list matching validation file structure
+    # Based on validation, order is: non-Otowi first, then Above sorted, then Below sorted
+    ordered_cells = sorted(non_otowi_cells, key=lambda x: (x[1], x[2])) + above_cells_sorted + below_cells_sorted
+
+    for lay, row, col in ordered_cells:
+        cell_key = f"{lay} {row} {col}"
+        monthly_cfs = [year_data[cell_key][m] for m in months]
+
+        otowi_label: str | None = None
+        if cell_key in above_keys:
+            otowi_label = "above"
+        elif cell_key in below_keys:
+            otowi_label = "below"
+
+        cell_data.append({
+            "key": key_counter,
+            "year": year,
+            "lay": lay,
+            "row": row,
+            "col": col,
+            "monthly_cfs": monthly_cfs,
+            "otowi": otowi_label,
+        })
+        key_counter += 1
+
+    # Extract stream summaries
+    stream_summaries: dict[str, list[float]] = {}
+    for stream_name in ["RIO GRANDE", "R POJOAQUE", "LC SPRINGS", "R TESUQUE", "RIV TOTAL"]:
+        if stream_name not in year_data:
+            raise KeyError(f"{stream_name} not found in {year} data")
+        stream_summaries[stream_name] = [year_data[stream_name][m] for m in months]
+
+    # Calculate Otowi sums
+    above_cfs, below_cfs = extract_otowi_depletions(parsed_data, year)
+
+    # Convert to acre-feet
+    above_af = [cfs_to_af(above_cfs[i], i) for i in range(12)]
+    below_af = [cfs_to_af(below_cfs[i], i) for i in range(12)]
+    total_rg_af = [above_af[i] + below_af[i] for i in range(12)]
+
+    # Annual totals
+    above_annual = sum(above_af)
+    below_annual = sum(below_af)
+    total_rg_annual = above_annual + below_annual
+
+    # Buckman wells cell (1, 13, 11)
+    buckman_key = f"{BUCKMAN_WELLS_CELL[0]} {BUCKMAN_WELLS_CELL[1]} {BUCKMAN_WELLS_CELL[2]}"
+    if buckman_key not in year_data:
+        raise KeyError(f"Buckman wells cell {buckman_key} not found in {year} data")
+    buckman_cfs = [year_data[buckman_key][m] for m in months]
+    buckman_af = [cfs_to_af(buckman_cfs[i], i) for i in range(12)]
+    buckman_annual = sum(buckman_af)
+
+    return {
+        "cell_data": cell_data,
+        "stream_summaries": stream_summaries,
+        "days_per_month": DAYS_2024,
+        "above_otowi_cfs": above_cfs,
+        "below_otowi_cfs": below_cfs,
+        "above_otowi_af": above_af,
+        "below_otowi_af": below_af,
+        "above_otowi_annual_af": above_annual,
+        "below_otowi_annual_af": below_annual,
+        "total_rg_af": total_rg_af,
+        "total_rg_annual_af": total_rg_annual,
+        "buckman_cfs": buckman_cfs,
+        "buckman_af": buckman_af,
+        "buckman_annual_af": buckman_annual,
+    }
+
+
+def print_table4_verification(table4_data: dict[str, Any], year: int = 2024) -> None:
+    """
+    Print Table 4 summary data for verification.
+
+    Args:
+        table4_data: Output from generate_table4_data()
+        year: Calendar year for header. Default: 2024.
+    """
+    print(f"\n=== {year} Table 4 Data Summary ===")
+
+    # Cell count summary
+    cell_data = table4_data["cell_data"]
+    above_count = sum(1 for c in cell_data if c["otowi"] == "above")
+    below_count = sum(1 for c in cell_data if c["otowi"] == "below")
+    other_count = sum(1 for c in cell_data if c["otowi"] is None)
+    print(f"Cells: {len(cell_data)} total ({above_count} above, {below_count} below, {other_count} other)")
+
+    # Otowi depletions (AF)
+    print(f"\nRio Grande Depletions (Acre-Feet):")
+    print(f"  Above Otowi:  {table4_data['above_otowi_annual_af']:>10.3f} AF")
+    print(f"  Below Otowi:  {table4_data['below_otowi_annual_af']:>10.3f} AF")
+    print(f"  Total RG:     {table4_data['total_rg_annual_af']:>10.3f} AF")
+
+    # Buckman wells
+    print(f"\nBuckman Wells (Row 13, Col 11):")
+    print(f"  Annual Total: {table4_data['buckman_annual_af']:>10.3f} AF")
+
+    # Monthly breakdown (first 3 months as sample)
+    months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    print(f"\nMonthly Above Otowi (AF): {months[0]}={table4_data['above_otowi_af'][0]:.3f}, "
+          f"{months[1]}={table4_data['above_otowi_af'][1]:.3f}, {months[2]}={table4_data['above_otowi_af'][2]:.3f}, ...")
+    print(f"Monthly Below Otowi (AF): {months[0]}={table4_data['below_otowi_af'][0]:.3f}, "
+          f"{months[1]}={table4_data['below_otowi_af'][1]:.3f}, {months[2]}={table4_data['below_otowi_af'][2]:.3f}, ...")

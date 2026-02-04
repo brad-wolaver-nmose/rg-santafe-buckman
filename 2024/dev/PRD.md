@@ -120,34 +120,34 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to combine analytical residuals with superposition results to create Table 3 data structure.
 
 **Acceptance Criteria:**
-- [ ] For Rio Pojoaque-Nambe column:
-  - [ ] Get 2024 analytical residual from Core (2003): 0 (Pojoaque residual ended 2015)
-  - [ ] Get 2024 superposition impact: sum of R POJOAQUE monthly cfs → convert to AF
-  - [ ] Total Impact = Residual + Superposition
-- [ ] For Rio Tesuque column:
-  - [ ] Get 2024 analytical residual from Core (2003): 12.877 AF
-  - [ ] Get 2024 superposition impact: sum of R TESUQUE monthly cfs → convert to AF
-  - [ ] Total Impact = Residual + Superposition
-- [ ] Store as dict matching Table 3 structure
-- [ ] Print calculated values for verification
-- [ ] Typecheck passes
+- [x] For Rio Pojoaque-Nambe column:
+  - [x] Get 2024 analytical residual from Core (2003): 0 (Pojoaque residual ended 2015)
+  - [x] Get 2024 superposition impact: sum of R POJOAQUE monthly cfs → convert to AF
+  - [x] Total Impact = Residual + Superposition
+- [x] For Rio Tesuque column:
+  - [x] Get 2024 analytical residual from Core (2003): 12.877 AF
+  - [x] Get 2024 superposition impact: sum of R TESUQUE monthly cfs → convert to AF
+  - [x] Total Impact = Residual + Superposition
+- [x] Store as dict matching Table 3 structure
+- [x] Print calculated values for verification
+- [x] Typecheck passes
 
 ### US-009: Generate Table 4 Data
 **Description:** As a developer, I need to create Table 4 data structure with cell-level and aggregated Rio Grande depletions.
 
 **Acceptance Criteria:**
-- [ ] Create detailed cell data section (rows 1-44 in validation):
-  - [ ] Each Otowi cell: KEY, YEAR, LAY, ROW, COL, 12 monthly cfs values, "above"/"below" label
-- [ ] Create stream summary section:
-  - [ ] RIO GRANDE, R POJOAQUE, LC SPRINGS, R TESUQUE, RIV TOTAL rows with monthly cfs
-- [ ] Create calculation section:
-  - [ ] Row with days per month: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-  - [ ] Rio Grande above Otowi: sum of above cells (cfs), then convert to AF
-  - [ ] Rio Grande below Otowi: sum of below cells (cfs), then convert to AF
-  - [ ] Total RG (sum): above + below AF with annual total
-  - [ ] Total RG reported: RIO GRANDE converted to AF (for cross-check)
-  - [ ] Buckman 1,7,8 wells (Row 13, Col 11): cell (1,13,11) monthly AF with annual total
-- [ ] Typecheck passes
+- [x] Create detailed cell data section (rows 1-44 in validation):
+  - [x] Each Otowi cell: KEY, YEAR, LAY, ROW, COL, 12 monthly cfs values, "above"/"below" label
+- [x] Create stream summary section:
+  - [x] RIO GRANDE, R POJOAQUE, LC SPRINGS, R TESUQUE, RIV TOTAL rows with monthly cfs
+- [x] Create calculation section:
+  - [x] Row with days per month: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  - [x] Rio Grande above Otowi: sum of above cells (cfs), then convert to AF
+  - [x] Rio Grande below Otowi: sum of below cells (cfs), then convert to AF
+  - [x] Total RG (sum): above + below AF with annual total
+  - [x] Total RG reported: RIO GRANDE converted to AF (for cross-check)
+  - [x] Buckman 1,7,8 wells (Row 13, Col 11): cell (1,13,11) monthly AF with annual total
+- [x] Typecheck passes
 
 ### US-010: Generate Table 5 Data
 **Description:** As a developer, I need to create Table 5 data structure for La Cienega Springs cumulative depletions.

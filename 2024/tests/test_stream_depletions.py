@@ -304,6 +304,262 @@ def test_cfs_monthly_to_af_annual_raises_on_negative():
         cfs_monthly_to_af_annual(cfs_list)
 
 
+def test_generate_table3_data_exists():
+    """Verify generate_table3_data function exists and is callable."""
+    from stream_depletions import generate_table3_data
+    assert callable(generate_table3_data)
+
+
+def test_generate_table3_data_with_mock():
+    """
+    Verify generate_table3_data correctly combines residuals and superposition.
+
+    Uses mock data to test the calculation logic.
+    """
+    from stream_depletions import generate_table3_data
+
+    # Create mock parsed data with constant 0.1 cfs for all months
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "R POJOAQUE": {m: 0.1 for m in months},
+            "R TESUQUE": {m: 0.1 for m in months},
+        }
+    }
+
+    result = generate_table3_data(mock_data, 2024)
+
+    # Check structure
+    assert "pojoaque" in result
+    assert "tesuque" in result
+    assert "residual_af" in result["pojoaque"]
+    assert "superposition_af" in result["pojoaque"]
+    assert "total_impact_af" in result["pojoaque"]
+
+    # Check Pojoaque residual is 0 for 2024 (exhausted after 2015)
+    assert result["pojoaque"]["residual_af"] == 0.0
+
+    # Check Tesuque residual is 12.877 for 2024
+    assert abs(result["tesuque"]["residual_af"] - 12.877) < 0.001
+
+    # Check superposition: 0.1 cfs * 366 days * 1.9835 = 72.596 AF
+    assert abs(result["pojoaque"]["superposition_af"] - 72.596) < 0.1
+    assert abs(result["tesuque"]["superposition_af"] - 72.596) < 0.1
+
+    # Check total = residual + superposition
+    assert abs(result["pojoaque"]["total_impact_af"] - result["pojoaque"]["superposition_af"]) < 0.001
+    assert abs(result["tesuque"]["total_impact_af"] - (12.877 + 72.596)) < 0.1
+
+
+def test_generate_table3_data_raises_on_missing_year():
+    """Verify generate_table3_data raises KeyError when year not found."""
+    from stream_depletions import generate_table3_data
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2023: {}}
+
+    with pytest.raises(KeyError, match="Year 2024 not found"):
+        generate_table3_data(mock_data, 2024)
+
+
+def test_generate_table3_data_raises_on_missing_stream():
+    """Verify generate_table3_data raises KeyError when stream data missing."""
+    from stream_depletions import generate_table3_data
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    mock_data: dict[int, dict[str, dict[str, float]]] = {
+        2024: {
+            "R POJOAQUE": {m: 0.1 for m in months},
+            # Missing R TESUQUE
+        }
+    }
+
+    with pytest.raises(KeyError, match="R TESUQUE not found"):
+        generate_table3_data(mock_data, 2024)
+
+
+def test_print_table3_verification_exists():
+    """Verify print_table3_verification function exists and is callable."""
+    from stream_depletions import print_table3_verification
+    assert callable(print_table3_verification)
+
+
+def test_print_table3_verification_runs(capsys):
+    """Verify print_table3_verification runs and prints expected output."""
+    from stream_depletions import print_table3_verification
+
+    table3_data = {
+        "pojoaque": {
+            "residual_af": 0.0,
+            "superposition_af": 60.797,
+            "total_impact_af": 60.797,
+        },
+        "tesuque": {
+            "residual_af": 12.877,
+            "superposition_af": 98.456,
+            "total_impact_af": 111.333,
+        },
+    }
+
+    print_table3_verification(table3_data, 2024)
+    captured = capsys.readouterr()
+
+    # Should contain stream names and values
+    assert "Pojoaque" in captured.out
+    assert "Tesuque" in captured.out
+    assert "60.797" in captured.out
+    assert "12.877" in captured.out
+
+
+def test_buckman_wells_cell_constant():
+    """Verify BUCKMAN_WELLS_CELL constant is defined correctly."""
+    from stream_depletions import BUCKMAN_WELLS_CELL
+
+    assert BUCKMAN_WELLS_CELL == (1, 13, 11), f"Expected (1, 13, 11), got {BUCKMAN_WELLS_CELL}"
+
+
+def test_generate_table4_data_exists():
+    """Verify generate_table4_data function exists and is callable."""
+    from stream_depletions import generate_table4_data
+    assert callable(generate_table4_data)
+
+
+def test_generate_table4_data_with_mock():
+    """
+    Verify generate_table4_data correctly generates Table 4 structure.
+
+    Uses mock data with constant 0.1 cfs for all cells and months.
+    """
+    from stream_depletions import (
+        generate_table4_data,
+        ABOVE_OTOWI_CELLS,
+        BELOW_OTOWI_CELLS,
+        BUCKMAN_WELLS_CELL,
+    )
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    # Create mock data with all required cells
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    # Add Above Otowi cells
+    for lay, row, col in ABOVE_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.1 for m in months}
+
+    # Add Below Otowi cells
+    for lay, row, col in BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.1 for m in months}
+
+    # Add stream summaries
+    mock_data[2024]["RIO GRANDE"] = {m: 2.6 for m in months}  # 10 + 16 cells * 0.1
+    mock_data[2024]["R POJOAQUE"] = {m: 0.1 for m in months}
+    mock_data[2024]["LC SPRINGS"] = {m: 0.01 for m in months}
+    mock_data[2024]["R TESUQUE"] = {m: 0.05 for m in months}
+    mock_data[2024]["RIV TOTAL"] = {m: 2.76 for m in months}
+
+    result = generate_table4_data(mock_data, 2024)
+
+    # Check structure
+    assert "cell_data" in result
+    assert "stream_summaries" in result
+    assert "days_per_month" in result
+    assert "above_otowi_cfs" in result
+    assert "below_otowi_cfs" in result
+    assert "above_otowi_af" in result
+    assert "below_otowi_af" in result
+    assert "above_otowi_annual_af" in result
+    assert "below_otowi_annual_af" in result
+    assert "buckman_cfs" in result
+    assert "buckman_af" in result
+    assert "buckman_annual_af" in result
+
+    # Check cell counts
+    above_count = sum(1 for c in result["cell_data"] if c["otowi"] == "above")
+    below_count = sum(1 for c in result["cell_data"] if c["otowi"] == "below")
+    assert above_count == 10, f"Expected 10 Above Otowi cells, got {above_count}"
+    assert below_count == 16, f"Expected 16 Below Otowi cells, got {below_count}"
+
+    # Check Above Otowi sum: 10 cells * 0.1 cfs = 1.0 cfs/month
+    assert abs(result["above_otowi_cfs"][0] - 1.0) < 0.001
+
+    # Check Below Otowi sum: 16 cells * 0.1 cfs = 1.6 cfs/month
+    assert abs(result["below_otowi_cfs"][0] - 1.6) < 0.001
+
+
+def test_generate_table4_data_raises_on_missing_year():
+    """Verify generate_table4_data raises KeyError when year not found."""
+    from stream_depletions import generate_table4_data
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2023: {}}
+
+    with pytest.raises(KeyError, match="Year 2024 not found"):
+        generate_table4_data(mock_data, 2024)
+
+
+def test_generate_table4_data_raises_on_missing_stream():
+    """Verify generate_table4_data raises KeyError when stream data missing."""
+    from stream_depletions import generate_table4_data, ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS
+
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    # Add cells but not stream summaries
+    for lay, row, col in ABOVE_OTOWI_CELLS + BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {m: 0.1 for m in months}
+
+    with pytest.raises(KeyError, match="RIO GRANDE not found"):
+        generate_table4_data(mock_data, 2024)
+
+
+def test_print_table4_verification_exists():
+    """Verify print_table4_verification function exists and is callable."""
+    from stream_depletions import print_table4_verification
+    assert callable(print_table4_verification)
+
+
+def test_print_table4_verification_runs(capsys):
+    """Verify print_table4_verification runs and prints expected output."""
+    from stream_depletions import print_table4_verification
+
+    # Create mock table4 data
+    table4_data = {
+        "cell_data": [
+            {"key": 2107, "year": 2024, "lay": 1, "row": 1, "col": 16, "monthly_cfs": [0.1] * 12, "otowi": "above"},
+        ] * 10 + [
+            {"key": 2117, "year": 2024, "lay": 1, "row": 11, "col": 11, "monthly_cfs": [0.1] * 12, "otowi": "below"},
+        ] * 16,
+        "stream_summaries": {
+            "RIO GRANDE": [2.6] * 12,
+            "R POJOAQUE": [0.1] * 12,
+        },
+        "days_per_month": [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+        "above_otowi_cfs": [1.0] * 12,
+        "below_otowi_cfs": [1.6] * 12,
+        "above_otowi_af": [61.5] * 12,
+        "below_otowi_af": [98.4] * 12,
+        "above_otowi_annual_af": 276.5,
+        "below_otowi_annual_af": 442.4,
+        "total_rg_af": [159.9] * 12,
+        "total_rg_annual_af": 718.9,
+        "buckman_cfs": [0.5] * 12,
+        "buckman_af": [30.0] * 12,
+        "buckman_annual_af": 360.0,
+    }
+
+    print_table4_verification(table4_data, 2024)
+    captured = capsys.readouterr()
+
+    # Should contain key information
+    assert "2024" in captured.out
+    assert "Above Otowi" in captured.out
+    assert "Below Otowi" in captured.out
+    assert "Buckman" in captured.out
+    assert "276.5" in captured.out or "276.500" in captured.out
+
+
 # Note: Integration tests requiring actual files are skipped in smoke tests.
 # The domain expert should run the full workflow and verify:
 # 1. Post-processor output file is generated
