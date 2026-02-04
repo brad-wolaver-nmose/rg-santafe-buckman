@@ -1,0 +1,56 @@
+## Iteration 1 - SUCCESS
+- Story completed: US-001: Copy Flux Files to Post-Processor Directory
+- What was implemented:
+  - Created generate_depletion_tables.py with copy_flux_files() function
+  - Copies CY2024_riv.flx and CY2024_ghb.flx from modflow/ to depletions/
+  - Prints file sizes on success
+  - Prints forensic error messages if files missing
+  - All typechecks pass (mypy)
+- Files changed:
+  - generate_depletion_tables.py (new)
+  - tests/test_generate_depletion_tables.py (new)
+  - dev/PRD.md (marked US-001 complete)
+- Learnings:
+  - Follow ingest_buckman_data.py patterns for error handling
+  - Use shutil.copy2 to preserve file metadata
+---
+
+## Iteration 2 - SUCCESS
+- Story completed: US-003: Parse Post-Processor Output Structure
+- What was implemented:
+  - Added parse_post_processor_output() function to generate_depletion_tables.py
+  - Parses sfmodflx_2245 output file structure with YEAR blocks
+  - Identifies cell rows "LAY ROW COL" and stream summary rows "R POJOAQUE" etc.
+  - Stores data in nested dict: {year: {identifier: {month: value_cfs}}}
+  - Prints years parsed count and sample 2024 values for verification
+  - Added MONTH_NAMES constant and ParsedData type alias
+  - Added 9 new tests for US-003
+  - All 21 tests pass, typecheck passes
+- Files changed:
+  - generate_depletion_tables.py (added parse_post_processor_output function)
+  - tests/test_generate_depletion_tables.py (added US-003 tests)
+  - dev/PRD.md (marked US-003 complete)
+- Learnings:
+  - Stream name "RIV  TOTAL" has double space in source file - preserve exact whitespace
+  - File has 178 years of data (1988-2165)
+  - Use regex patterns for both cell rows and stream summary rows
+---
+
+## Iteration 3 - SUCCESS
+- Story completed: US-004: Extract 2024 Stream Depletions
+- What was implemented:
+  - Added extract_stream_depletions_2024(parsed_data) function
+  - Extracts all 5 stream names: R POJOAQUE, R TESUQUE, RIO GRANDE, RIV  TOTAL, LC SPRINGS
+  - Returns dict mapping stream name to list of 12 monthly cfs values [jan..dec]
+  - Prints verification output with jan, dec, and annual mean values
+  - Added STREAM_NAMES constant
+  - Added 8 new tests for US-004
+  - All 29 tests pass, typecheck passes
+- Files changed:
+  - generate_depletion_tables.py (added extract_stream_depletions_2024 function and STREAM_NAMES)
+  - tests/test_generate_depletion_tables.py (added US-004 tests)
+  - dev/PRD.md (marked US-004 complete)
+- Learnings:
+  - Stream list format is [jan, ..., dec] as ordered list rather than dict for easier indexing
+  - Test with edge cases: empty parsed_data and missing 2024 year
+---

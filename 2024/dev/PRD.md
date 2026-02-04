@@ -16,6 +16,17 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 - Validate generated tables against provided validation files
 - Save outputs to `output/depletion/` directory
 
+## Module Structure
+
+**CRITICAL:** If smoke tests import from a module, that module file MUST exist before tests run. Create module stubs with required constants/functions so tests fail on assertions, not `ModuleNotFoundError`.
+
+| Module | Test File | Purpose |
+|--------|-----------|---------|
+| `generate_depletion_tables.py` | `tests/test_generate_depletion_tables.py` | Main entry point, orchestrates workflow |
+| `stream_depletions.py` | `tests/test_stream_depletions.py` | Core calculations, constants, unit conversion |
+
+**Module stub must include:** All constants and function signatures that tests import. Function bodies can be stubs (`pass` or `return {}`) until implemented.
+
 ## User Stories
 
 ### US-001: Copy Flux Files to Post-Processor Directory
@@ -33,40 +44,40 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to execute sfmodflx_2245.exe via Wine with automated input so the depletion summary is generated.
 
 **Acceptance Criteria:**
-- [ ] Check if Wine is installed; print installation instructions if missing
-- [ ] Change working directory to `output/modflow/2024/depletions/`
-- [ ] Run `wine sfmodflx_2245.exe` via subprocess
-- [ ] Pipe three inputs via stdin: "CY2024_riv.flx\nCY2024_ghb.flx\nCY2024\n"
-- [ ] Capture stdout/stderr for debugging
-- [ ] Verify output file `CY2024` is created
-- [ ] If Wine fails, print forensic error with command, exit code, and stderr
-- [ ] Typecheck passes
+- [x] Check if Wine is installed; print installation instructions if missing
+- [x] Change working directory to `output/modflow/2024/depletions/`
+- [x] Run `wine sfmodflx_2245.exe` via subprocess
+- [x] Pipe three inputs via stdin: "CY2024_riv.flx\nCY2024_ghb.flx\nCY2024\n"
+- [x] Capture stdout/stderr for debugging
+- [x] Verify output file `CY2024` is created
+- [x] If Wine fails, print forensic error with command, exit code, and stderr
+- [x] Typecheck passes
 
 ### US-003: Parse Post-Processor Output Structure
 **Description:** As a developer, I need to understand and parse the sfmodflx_2245 output file structure so I can extract depletion data.
 
 **Acceptance Criteria:**
-- [ ] Read the `CY2024` output file as text
-- [ ] Identify year blocks by "YEAR: NNNN" header pattern
-- [ ] Identify column headers: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
-- [ ] Parse cell rows with format: "LAY ROW COL" followed by 12 monthly values (cfs)
-- [ ] Parse stream summary rows: "R POJOAQUE", "R TESUQUE", "RIO GRANDE", "RIV TOTAL", "LC SPRINGS"
-- [ ] Store parsed data in nested dict: `{year: {identifier: {month: value_cfs}}}`
-- [ ] Print count of years parsed and sample 2024 values for verification
-- [ ] Typecheck passes
+- [x] Read the `CY2024` output file as text
+- [x] Identify year blocks by "YEAR: NNNN" header pattern
+- [x] Identify column headers: jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
+- [x] Parse cell rows with format: "LAY ROW COL" followed by 12 monthly values (cfs)
+- [x] Parse stream summary rows: "R POJOAQUE", "R TESUQUE", "RIO GRANDE", "RIV TOTAL", "LC SPRINGS"
+- [x] Store parsed data in nested dict: `{year: {identifier: {month: value_cfs}}}`
+- [x] Print count of years parsed and sample 2024 values for verification
+- [x] Typecheck passes
 
 ### US-004: Extract 2024 Stream Depletions
 **Description:** As a developer, I need to extract the 2024 monthly depletions for each stream and spring category.
 
 **Acceptance Criteria:**
-- [ ] Extract "R POJOAQUE" 12 monthly values for 2024 (cfs)
-- [ ] Extract "R TESUQUE" 12 monthly values for 2024 (cfs)
-- [ ] Extract "RIO GRANDE" 12 monthly values for 2024 (cfs)
-- [ ] Extract "RIV TOTAL" 12 monthly values for 2024 (cfs)
-- [ ] Extract "LC SPRINGS" 12 monthly values for 2024 (cfs)
-- [ ] Store in dict: `stream_depletions_2024 = {stream_name: [jan, feb, ..., dec]}`
-- [ ] Print extracted values for verification
-- [ ] Typecheck passes
+- [x] Extract "R POJOAQUE" 12 monthly values for 2024 (cfs)
+- [x] Extract "R TESUQUE" 12 monthly values for 2024 (cfs)
+- [x] Extract "RIO GRANDE" 12 monthly values for 2024 (cfs)
+- [x] Extract "RIV TOTAL" 12 monthly values for 2024 (cfs)
+- [x] Extract "LC SPRINGS" 12 monthly values for 2024 (cfs)
+- [x] Store in dict: `stream_depletions_2024 = {stream_name: [jan, feb, ..., dec]}`
+- [x] Print extracted values for verification
+- [x] Typecheck passes
 
 ### US-005: Extract 2024 Model Cell Depletions for Otowi
 **Description:** As a developer, I need to extract and aggregate model cell depletions for Rio Grande above and below Otowi Gage.
