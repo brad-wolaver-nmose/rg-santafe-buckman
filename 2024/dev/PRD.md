@@ -96,14 +96,14 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to load the analytical model residual values from the Core (2003) projection table for combining with superposition results.
 
 **Acceptance Criteria:**
-- [ ] Define CORE_2003_POJOAQUE dict with values from PDF table (1988-2015, then 0)
-- [ ] Define CORE_2003_TESUQUE dict with values from PDF table (1988-2050+)
-- [ ] Values are annual acre-feet (already in correct units)
-- [ ] For Pojoaque years after 2015: value = 0 (or use formula if value > 0)
-- [ ] For Tesuque: use tabulated values through 2050
-- [ ] Function `get_analytical_residual(stream, year)` returns value or 0 if not applicable
-- [ ] Print 2024 residual values for both streams
-- [ ] Typecheck passes
+- [x] Define CORE_2003_POJOAQUE dict with values from PDF table (1988-2015, then 0)
+- [x] Define CORE_2003_TESUQUE dict with values from PDF table (1988-2050+)
+- [x] Values are annual acre-feet (already in correct units)
+- [x] For Pojoaque years after 2015: value = 0 (or use formula if value > 0)
+- [x] For Tesuque: use tabulated values through 2050
+- [x] Function `get_analytical_residual(stream, year)` returns value or 0 if not applicable
+- [x] Print 2024 residual values for both streams
+- [x] Typecheck passes
 
 ### US-007: Convert CFS to Acre-Feet
 **Description:** As a developer, I need to convert monthly cfs values to acre-feet using actual days per month.

@@ -187,6 +187,26 @@ def test_extract_otowi_depletions_with_mock_data():
     assert abs(below[0] - 1.6) < 0.001, f"Expected 1.6, got {below[0]}"
 
 
+def test_print_residual_verification_exists():
+    """Verify print_residual_verification function exists and is callable."""
+    from stream_depletions import print_residual_verification
+    assert callable(print_residual_verification)
+
+
+def test_print_residual_verification_runs(capsys):
+    """Verify print_residual_verification runs and prints expected output."""
+    from stream_depletions import print_residual_verification
+
+    print_residual_verification(2024)
+    captured = capsys.readouterr()
+
+    # Should contain stream names and values
+    assert "Pojoaque" in captured.out
+    assert "Tesuque" in captured.out
+    assert "12.877" in captured.out  # Tesuque 2024 value
+    assert "0.000" in captured.out   # Pojoaque 2024 value (exhausted)
+
+
 # Note: Integration tests requiring actual files are skipped in smoke tests.
 # The domain expert should run the full workflow and verify:
 # 1. Post-processor output file is generated

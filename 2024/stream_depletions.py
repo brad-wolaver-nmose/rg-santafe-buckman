@@ -153,6 +153,23 @@ def get_analytical_residual(stream: str, year: int) -> float:
         raise ValueError(f"Unknown stream: {stream}. Expected 'pojoaque' or 'tesuque'.")
 
 
+def print_residual_verification(year: int = 2024) -> None:
+    """
+    Print Core (2003) analytical model residual values for verification.
+
+    Args:
+        year: Calendar year to print residuals for. Default: 2024.
+    """
+    pojoaque_residual = get_analytical_residual("pojoaque", year)
+    tesuque_residual = get_analytical_residual("tesuque", year)
+
+    print(f"\n=== {year} Core (2003) Analytical Model Residuals ===")
+    print(f"Rio Pojoaque-Nambe: {pojoaque_residual:.3f} AF")
+    print(f"Rio Tesuque:        {tesuque_residual:.3f} AF")
+    print(f"Note: Pojoaque residual exhausted after 2015 (now 0)")
+    print(f"      Tesuque residual continues through 2050+")
+
+
 # =============================================================================
 # POST-PROCESSOR OUTPUT PARSING
 # =============================================================================
