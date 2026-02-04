@@ -83,14 +83,14 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to extract and aggregate model cell depletions for Rio Grande above and below Otowi Gage.
 
 **Acceptance Criteria:**
-- [ ] Define Above Otowi cells: (1,1,16), (1,2,16), (1,3,16), (1,4,16), (1,5,15), (1,6,14), (1,7,14), (1,8,13), (1,9,13), (1,10,12)
-- [ ] Define Below Otowi cells: (1,11,11), (1,12,11), (1,13,11), (1,14,10), (1,15,9), (1,15,10), (1,16,9), (1,17,8), (1,18,6), (1,18,7), (1,19,6), (1,20,5), (1,21,4), (1,21,5), (1,22,4), (1,23,3)
-- [ ] Extract 2024 monthly values for each cell (cfs)
-- [ ] Sum Above Otowi cells for each month
-- [ ] Sum Below Otowi cells for each month
-- [ ] Store: `otowi_above_cfs = [jan, ..., dec]`, `otowi_below_cfs = [jan, ..., dec]`
-- [ ] Print aggregated sums for verification
-- [ ] Typecheck passes
+- [x] Define Above Otowi cells: (1,1,16), (1,2,16), (1,3,16), (1,4,16), (1,5,15), (1,6,14), (1,7,14), (1,8,13), (1,9,13), (1,10,12)
+- [x] Define Below Otowi cells: (1,11,11), (1,12,11), (1,13,11), (1,14,10), (1,15,9), (1,15,10), (1,16,9), (1,17,8), (1,18,6), (1,18,7), (1,19,6), (1,20,5), (1,21,4), (1,21,5), (1,22,4), (1,23,3)
+- [x] Extract 2024 monthly values for each cell (cfs)
+- [x] Sum Above Otowi cells for each month
+- [x] Sum Below Otowi cells for each month
+- [x] Store: `otowi_above_cfs = [jan, ..., dec]`, `otowi_below_cfs = [jan, ..., dec]`
+- [x] Print aggregated sums for verification
+- [x] Typecheck passes
 
 ### US-006: Load Core (2003) Analytical Model Residuals
 **Description:** As a developer, I need to load the analytical model residual values from the Core (2003) projection table for combining with superposition results.

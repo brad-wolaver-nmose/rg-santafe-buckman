@@ -1,16 +1,17 @@
+# Ralph Progress Log
+
 ## Iteration 1 - SUCCESS
-- Story completed: US-001: Copy Flux Files to Post-Processor Directory
+- Story completed: US-005 - Extract 2024 Model Cell Depletions for Otowi
 - What was implemented:
-  - Created generate_depletion_tables.py with copy_flux_files() function
-  - Copies CY2024_riv.flx and CY2024_ghb.flx from modflow/ to depletions/
-  - Prints file sizes on success
-  - Prints forensic error messages if files missing
-  - All typechecks pass (mypy)
+  - Updated parse_postprocessor_output() function to fully parse the CY2024 file (previously was a stub)
+  - Implemented extract_otowi_depletions() function to sum Above/Below Otowi cells
+  - Implemented print_otowi_verification() for debugging output
+  - Added 3 new tests for the Otowi extraction functions
 - Files changed:
-  - generate_depletion_tables.py (new)
-  - tests/test_generate_depletion_tables.py (new)
-  - dev/PRD.md (marked US-001 complete)
+  - stream_depletions.py: Added parsing logic and Otowi extraction functions
+  - tests/test_stream_depletions.py: Added tests for new functions
 - Learnings:
-  - Follow ingest_buckman_data.py patterns for error handling
-  - Use shutil.copy2 to preserve file metadata
+  - ABOVE_OTOWI_CELLS (10 cells) and BELOW_OTOWI_CELLS (16 cells) were already defined as constants
+  - Parser needed regex to handle both cell data and stream summary lines
+  - Sum of Above + Below matches RIO GRANDE total exactly (validation passed)
 ---

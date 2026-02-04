@@ -148,6 +148,45 @@ def test_print_error_exists():
     assert callable(print_error)
 
 
+def test_extract_otowi_depletions_exists():
+    """Verify extract_otowi_depletions function exists and is callable."""
+    from stream_depletions import extract_otowi_depletions
+    assert callable(extract_otowi_depletions)
+
+
+def test_print_otowi_verification_exists():
+    """Verify print_otowi_verification function exists and is callable."""
+    from stream_depletions import print_otowi_verification
+    assert callable(print_otowi_verification)
+
+
+def test_extract_otowi_depletions_with_mock_data():
+    """
+    Verify extract_otowi_depletions correctly sums cell values.
+
+    Uses minimal mock data to test the aggregation logic.
+    """
+    from stream_depletions import extract_otowi_depletions, ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS
+
+    # Create mock parsed data with 0.1 cfs for all cells and months
+    months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    mock_data: dict[int, dict[str, dict[str, float]]] = {2024: {}}
+
+    for lay, row, col in ABOVE_OTOWI_CELLS + BELOW_OTOWI_CELLS:
+        cell_key = f"{lay} {row} {col}"
+        mock_data[2024][cell_key] = {month: 0.1 for month in months}
+
+    above, below = extract_otowi_depletions(mock_data, 2024)
+
+    # Above: 10 cells * 0.1 = 1.0 per month
+    assert len(above) == 12
+    assert abs(above[0] - 1.0) < 0.001, f"Expected 1.0, got {above[0]}"
+
+    # Below: 16 cells * 0.1 = 1.6 per month
+    assert len(below) == 12
+    assert abs(below[0] - 1.6) < 0.001, f"Expected 1.6, got {below[0]}"
+
+
 # Note: Integration tests requiring actual files are skipped in smoke tests.
 # The domain expert should run the full workflow and verify:
 # 1. Post-processor output file is generated
