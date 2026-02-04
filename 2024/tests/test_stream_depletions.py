@@ -207,6 +207,103 @@ def test_print_residual_verification_runs(capsys):
     assert "0.000" in captured.out   # Pojoaque 2024 value (exhausted)
 
 
+def test_cfs_to_af_exists():
+    """Verify cfs_to_af function exists and is callable."""
+    from stream_depletions import cfs_to_af
+    assert callable(cfs_to_af)
+
+
+def test_cfs_to_af_january():
+    """
+    Verify cfs_to_af returns correct value for January.
+
+    Hand calculation:
+    - January has 31 days
+    - 0.1 cfs * 31 days * 1.9835 = 6.14885 AF
+    """
+    from stream_depletions import cfs_to_af
+
+    result = cfs_to_af(0.1, 0)  # January is month_index 0
+
+    assert abs(result - 6.14885) < 0.001, f"Expected ~6.14885, got {result}"
+
+
+def test_cfs_to_af_february_leap_year():
+    """
+    Verify cfs_to_af handles February leap year correctly.
+
+    Hand calculation:
+    - February 2024 has 29 days (leap year)
+    - 1.0 cfs * 29 days * 1.9835 = 57.5215 AF
+    """
+    from stream_depletions import cfs_to_af
+
+    result = cfs_to_af(1.0, 1)  # February is month_index 1
+
+    assert abs(result - 57.5215) < 0.001, f"Expected ~57.5215, got {result}"
+
+
+def test_cfs_to_af_raises_on_negative():
+    """Verify cfs_to_af raises ValueError on negative cfs."""
+    from stream_depletions import cfs_to_af
+
+    with pytest.raises(ValueError, match="cfs_value must be >= 0"):
+        cfs_to_af(-1.0, 0)
+
+
+def test_cfs_to_af_raises_on_invalid_month():
+    """Verify cfs_to_af raises ValueError on invalid month index."""
+    from stream_depletions import cfs_to_af
+
+    with pytest.raises(ValueError, match="month_index must be 0-11"):
+        cfs_to_af(1.0, 12)
+
+    with pytest.raises(ValueError, match="month_index must be 0-11"):
+        cfs_to_af(1.0, -1)
+
+
+def test_cfs_monthly_to_af_annual_exists():
+    """Verify cfs_monthly_to_af_annual function exists and is callable."""
+    from stream_depletions import cfs_monthly_to_af_annual
+    assert callable(cfs_monthly_to_af_annual)
+
+
+def test_cfs_monthly_to_af_annual_constant_flow():
+    """
+    Verify cfs_monthly_to_af_annual with constant 0.1 cfs all year.
+
+    Hand calculation:
+    - 0.1 cfs * 366 days * 1.9835 = 72.5961 AF (leap year)
+    """
+    from stream_depletions import cfs_monthly_to_af_annual
+
+    result = cfs_monthly_to_af_annual([0.1] * 12)
+
+    assert abs(result - 72.5961) < 0.01, f"Expected ~72.5961, got {result}"
+
+
+def test_cfs_monthly_to_af_annual_raises_on_wrong_length():
+    """Verify cfs_monthly_to_af_annual raises ValueError on non-12 element list."""
+    from stream_depletions import cfs_monthly_to_af_annual
+
+    with pytest.raises(ValueError, match="must have 12 elements"):
+        cfs_monthly_to_af_annual([0.1] * 11)
+
+    with pytest.raises(ValueError, match="must have 12 elements"):
+        cfs_monthly_to_af_annual([0.1] * 13)
+
+
+def test_cfs_monthly_to_af_annual_raises_on_negative():
+    """Verify cfs_monthly_to_af_annual raises ValueError on negative cfs value."""
+    from stream_depletions import cfs_monthly_to_af_annual
+
+    cfs_list = [0.1] * 12
+    cfs_list[5] = -0.1  # June is negative
+
+    with pytest.raises(ValueError, match="cfs_list\\[5\\] must be >= 0"):
+        cfs_monthly_to_af_annual(cfs_list)
+
+
 # Note: Integration tests requiring actual files are skipped in smoke tests.
 # The domain expert should run the full workflow and verify:
 # 1. Post-processor output file is generated

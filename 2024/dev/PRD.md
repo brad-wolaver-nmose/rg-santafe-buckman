@@ -109,12 +109,12 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need to convert monthly cfs values to acre-feet using actual days per month.
 
 **Acceptance Criteria:**
-- [ ] Define DAYS_PER_MONTH for 2024: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] (leap year)
-- [ ] Conversion: acre_feet = cfs * days * 86400 / 43560 = cfs * days * 1.9835
-- [ ] Function `cfs_to_af(cfs_value, month_index)` returns acre-feet
-- [ ] Function `cfs_monthly_to_af_annual(cfs_list)` converts 12 monthly cfs to annual AF total
-- [ ] Include docstring with unit derivation
-- [ ] Typecheck passes
+- [x] Define DAYS_PER_MONTH for 2024: [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] (leap year)
+- [x] Conversion: acre_feet = cfs * days * 86400 / 43560 = cfs * days * 1.9835
+- [x] Function `cfs_to_af(cfs_value, month_index)` returns acre-feet
+- [x] Function `cfs_monthly_to_af_annual(cfs_list)` converts 12 monthly cfs to annual AF total
+- [x] Include docstring with unit derivation
+- [x] Typecheck passes
 
 ### US-008: Generate Table 3 Data
 **Description:** As a developer, I need to combine analytical residuals with superposition results to create Table 3 data structure.

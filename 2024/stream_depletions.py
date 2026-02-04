@@ -105,6 +105,90 @@ def cfs_to_acre_feet(cfs: float, days: int) -> float:
     return cfs * days * 1.9835
 
 
+def cfs_to_af(cfs_value: float, month_index: int, year: int = 2024) -> float:
+    """
+    Convert cfs to acre-feet for a specific month, using actual days in that month.
+
+    Scientific basis:
+    - Unit conversion factor: 86400 sec/day / 43560 ft³/AF = 1.9835 AF/(cfs·day)
+    - Days per month varies: 28-31 (29 for Feb in leap years)
+
+    Assumptions:
+    1. Month index is 0-based (0=January, 11=December)
+    2. Uses DAYS_2024 for 2024 (leap year with 366 days)
+    3. Negative cfs values raise ValueError
+
+    Args:
+        cfs_value: Flow rate in cubic feet per second. Valid range: >= 0.
+        month_index: Zero-based month index (0=Jan, 11=Dec). Valid range: 0-11.
+        year: Calendar year. Default: 2024 (leap year).
+
+    Returns:
+        Volume in acre-feet for that month.
+
+    Raises:
+        ValueError: If cfs_value < 0 or month_index not in 0-11.
+
+    Example:
+        >>> cfs_to_af(0.1, 0)  # 0.1 cfs in January (31 days)
+        6.14885  # 0.1 * 31 * 1.9835
+
+    Validation:
+        Hand calculation: 0.1 cfs * 31 days * 1.9835 = 6.14885 AF
+    """
+    if cfs_value < 0:
+        raise ValueError(f"cfs_value must be >= 0, got {cfs_value}")
+    if not 0 <= month_index <= 11:
+        raise ValueError(f"month_index must be 0-11, got {month_index}")
+
+    days = DAYS_2024[month_index]
+    return cfs_to_acre_feet(cfs_value, days)
+
+
+def cfs_monthly_to_af_annual(cfs_list: list[float], year: int = 2024) -> float:
+    """
+    Convert 12 monthly cfs values to annual acre-feet total.
+
+    Scientific basis:
+    - Monthly cfs values represent average flow rate for each month
+    - Each month contributes: cfs[i] * days[i] * 1.9835 AF
+    - Annual total is sum of all 12 months
+
+    Assumptions:
+    1. Input list has exactly 12 values (Jan-Dec order)
+    2. Each value is average cfs for that entire month
+    3. Uses DAYS_2024 for 2024 (leap year with 366 days)
+
+    Args:
+        cfs_list: List of 12 monthly cfs values [Jan, Feb, ..., Dec]. Valid range: all >= 0.
+        year: Calendar year. Default: 2024 (leap year).
+
+    Returns:
+        Annual total volume in acre-feet.
+
+    Raises:
+        ValueError: If cfs_list doesn't have 12 elements or contains negative values.
+
+    Example:
+        >>> # Constant 0.1 cfs all year
+        >>> cfs_monthly_to_af_annual([0.1] * 12)
+        72.596  # 0.1 * 366 * 1.9835 (approximately)
+
+    Validation:
+        Hand calculation: 0.1 cfs * 366 days * 1.9835 = 72.5961 AF
+    """
+    if len(cfs_list) != 12:
+        raise ValueError(f"cfs_list must have 12 elements, got {len(cfs_list)}")
+
+    annual_af = 0.0
+    for i, cfs_value in enumerate(cfs_list):
+        if cfs_value < 0:
+            raise ValueError(f"cfs_list[{i}] must be >= 0, got {cfs_value}")
+        annual_af += cfs_to_af(cfs_value, i, year)
+
+    return annual_af
+
+
 # =============================================================================
 # ANALYTICAL RESIDUAL LOOKUP
 # =============================================================================
