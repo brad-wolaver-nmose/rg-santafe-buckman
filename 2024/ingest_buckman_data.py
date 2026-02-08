@@ -1049,22 +1049,34 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
     """
     print("Generating Table 1 output...")
 
-    # 1. Read validation/Table_1_data_afy_2024.xlsx
-    validation_path = Path(VALIDATION_DIR) / "Table_1_data_afy_2024.xlsx"
+    # 1. Read validation/Table_1_data_afy_{year}.xlsx
+    validation_path = Path(VALIDATION_DIR) / f"Table_1_data_afy_{year}.xlsx"
 
     if not validation_path.exists():
-        print(f"  WARNING: Validation file not found: {validation_path}")
-        print("  Creating Table 1 with 2024 data only")
-        # Create minimal table with just 2024
-        table1_df = pd.DataFrame()
-    else:
-        try:
-            table1_df = pd.read_excel(validation_path)
-            print(f"  Read {len(table1_df)} historical years from {validation_path.name}")
-        except Exception as e:
-            print(f"  WARNING: Failed to read Excel file: {e}")
-            print("  Creating Table 1 with 2024 data only")
-            table1_df = pd.DataFrame()
+        print_error(
+            "Validation file not found",
+            f"generate_table1_output for year {year}",
+            f"Expected: {validation_path}",
+            (
+                "Create validation file before running. Options:\n"
+                f"  1. Copy previous year's Table_1_data_afy_{year - 1}.xlsx\n"
+                f"  2. Use output/{year - 1}_Table_1_updated.xlsx as template\n"
+                "  3. Create new file matching Table 1 Excel format"
+            )
+        )
+        return 1
+
+    try:
+        table1_df = pd.read_excel(validation_path)
+        print(f"  Read {len(table1_df)} historical years from {validation_path.name}")
+    except Exception as e:
+        print_error(
+            "Failed to read validation file",
+            f"generate_table1_output for year {year}",
+            str(e),
+            f"Check that {validation_path} is a valid Excel file"
+        )
+        return 1
 
     # 2. Insert 2024 row with year_afy_data
     # Build 2024 row (mixed key types: str 'Well:' + int well nums + str '3/3A')
@@ -1156,20 +1168,20 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
         table1_df = pd.concat([table1_df, stats_df], ignore_index=True)
 
     # 5. Write CSV
-    output_path = Path(output_dir) / "Table_1_updated.csv"
+    output_path = Path(output_dir) / f"{year}_Table_1_updated.csv"
     table1_df.to_csv(output_path, index=False)
 
     # 6. Write Excel (.xlsx) with validation-matching formatting
-    xlsx_path = Path(output_dir) / "Table_1_updated.xlsx"
+    xlsx_path = Path(output_dir) / f"{year}_Table_1_updated.xlsx"
     write_table1_xlsx(table1_df, year_rows, year, xlsx_path)
 
     # 7. Print confirmation
     print(f"  Wrote {output_path.name}")
     print(f"  Wrote {xlsx_path.name}")
-    print(f"  2024 total: {total_afy:.2f} AFY")
+    print(f"  {year} total: {total_afy:.2f} AFY")
     if len(year_rows) > 0:
-        rank_2024 = rank_map.get(year, 'N/A')
-        print(f"  2024 rank: {rank_2024} of {len(year_rows)} years (1=lowest pumping)")
+        year_rank = rank_map.get(year, 'N/A')
+        print(f"  {year} rank: {year_rank} of {len(year_rows)} years (1=lowest pumping)")
 
 
 def write_table1_xlsx(
@@ -1652,9 +1664,9 @@ def main() -> int:
     6. Verify annual totals
 
     Command-line usage:
-        python3 ingest_buckman_data.py [year]
+        python3 ingest_buckman_data.py <year>
         python3 ingest_buckman_data.py 2024
-        python3 ingest_buckman_data.py  # defaults to 2024
+        python3 ingest_buckman_data.py 2025
 
     Returns:
         Exit code: 0 (success), 1 (error)
@@ -1676,7 +1688,7 @@ def main() -> int:
         Generating Table 2 output...
         Wrote 2024_Table_2_output.csv
         Generating Table 1 output...
-        Wrote Table_1_updated.csv
+        Wrote 2024_Table_1_updated.csv
         Generating QA input summary...
         QA summary: 0 flagged well-months, 0 daily sum mismatches
         Verifying annual totals...
@@ -1695,9 +1707,7 @@ def main() -> int:
     parser.add_argument(
         "year",
         type=int,
-        nargs="?",
-        default=2024,
-        help="Year to process (default: 2024)"
+        help="Year to process (e.g., 2024, 2025)"
     )
     args = parser.parse_args()
     year = args.year

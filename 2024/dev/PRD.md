@@ -228,9 +228,9 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
 **Description:** As a developer, I need a main entry point that orchestrates the complete workflow.
 
 **Acceptance Criteria:**
-- [ ] Parse command-line argument for year (default: 2024)
-- [ ] Create output directory `output/depletion/` if not exists
-- [ ] Execute workflow steps in order:
+- [x] Parse command-line argument for year (default: 2024)
+- [x] Create output directory `output/depletion/` if not exists
+- [x] Execute workflow steps in order:
   1. Copy flux files (US-001)
   2. Run post-processor (US-002)
   3. Parse output (US-003)
@@ -244,9 +244,9 @@ Process MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx) using th
   11. Write Table 4 XLSX (US-012)
   12. Write Table 5 XLSX (US-013)
   13. Validate (US-014)
-- [ ] Print final summary with file paths and validation status
-- [ ] Return exit code 0 if all validations pass, 1 otherwise
-- [ ] Typecheck passes
+- [x] Print final summary with file paths and validation status
+- [x] Return exit code 0 if all validations pass, 1 otherwise
+- [x] Typecheck passes
 
 ## Non-Goals
 

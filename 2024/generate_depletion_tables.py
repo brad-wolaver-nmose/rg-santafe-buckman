@@ -656,17 +656,48 @@ def extract_stream_depletions_2024(
 
 
 # =============================================================================
-# MAIN ENTRY POINT
+# MAIN ENTRY POINT (US-015)
 # =============================================================================
 
-def main() -> int:
+def main(year: int | None = None) -> int:
     """
     Main entry point for stream depletion table generation.
 
+    This function orchestrates the complete workflow:
+    1. Copy flux files to post-processor directory (US-001)
+    2. Run post-processor via Wine (US-002)
+    3. Parse post-processor output (US-003)
+    4. Extract stream depletions (US-004)
+    5. Extract Otowi cell depletions (US-005)
+    6. Load Core (2003) residuals (US-006)
+    7. Generate Table 3 data (US-008)
+    8. Generate Table 4 data (US-009)
+    9. Generate Table 5 data (US-010)
+    10. Write Table 3 XLSX (US-011)
+    11. Write Table 4 XLSX (US-012)
+    12. Write Table 5 XLSX (US-013)
+    13. Validate against validation files (US-014)
+
+    Args:
+        year: Processing year. Default: 2024 (uses global YEAR constant).
+
     Returns:
-        Exit code: 0 if successful, 1 if any errors occurred
+        Exit code: 0 if all validations pass, 1 if any errors occurred
     """
-    print(f"=== Stream Depletion Table Generator for {YEAR} ===")
+    from pathlib import Path
+
+    import stream_depletions as sd
+
+    if year is None:
+        year = YEAR
+
+    print(f"=== Stream Depletion Table Generator for {year} ===")
+    print()
+
+    # Create output directory if not exists
+    output_dir = Path(OUTPUT_DIR)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Output directory: {output_dir.resolve()}")
     print()
 
     # US-001: Copy flux files
@@ -689,9 +720,186 @@ def main() -> int:
         print("\nFailed at US-003: Parse post-processor output")
         return 1
 
-    print("\n=== US-003 Complete ===")
-    return 0
+    print("\n=== US-003 Complete ===\n")
+
+    # US-004: Extract stream depletions
+    stream_depletions = extract_stream_depletions_2024(parsed_data)
+    if not stream_depletions:
+        print("\nFailed at US-004: Extract stream depletions")
+        return 1
+
+    print("\n=== US-004 Complete ===\n")
+
+    # US-005: Extract Otowi cell depletions
+    try:
+        above_cfs, below_cfs = sd.extract_otowi_depletions(parsed_data, year)
+        sd.print_otowi_verification(above_cfs, below_cfs)
+    except KeyError as e:
+        print_error(
+            "Failed to extract Otowi depletions",
+            "extract_otowi_depletions()",
+            str(e),
+            "All Otowi cells present in parsed data",
+            "Check cell coordinates match post-processor output"
+        )
+        return 1
+
+    print("\n=== US-005 Complete ===\n")
+
+    # US-006: Load Core (2003) residuals
+    sd.print_residual_verification(year)
+
+    print("\n=== US-006 Complete ===\n")
+
+    # US-008: Generate Table 3 data
+    try:
+        table3_data = sd.generate_table3_data(parsed_data, year)
+        sd.print_table3_verification(table3_data, year)
+    except KeyError as e:
+        print_error(
+            "Failed to generate Table 3 data",
+            "generate_table3_data()",
+            str(e),
+            "R POJOAQUE and R TESUQUE in parsed data",
+            "Check stream names match post-processor output"
+        )
+        return 1
+
+    print("\n=== US-008 Complete ===\n")
+
+    # US-009: Generate Table 4 data
+    try:
+        table4_data = sd.generate_table4_data(parsed_data, year)
+        sd.print_table4_verification(table4_data, year)
+    except KeyError as e:
+        print_error(
+            "Failed to generate Table 4 data",
+            "generate_table4_data()",
+            str(e),
+            "All required cells and streams in parsed data",
+            "Check cell coordinates and stream names"
+        )
+        return 1
+
+    print("\n=== US-009 Complete ===\n")
+
+    # US-010: Generate Table 5 data
+    try:
+        table5_data = sd.generate_table5_data(parsed_data, year)
+        sd.print_table5_verification(table5_data, year)
+    except KeyError as e:
+        print_error(
+            "Failed to generate Table 5 data",
+            "generate_table5_data()",
+            str(e),
+            "LC SPRINGS in parsed data",
+            "Check La Cienega Springs data in post-processor output"
+        )
+        return 1
+
+    print("\n=== US-010 Complete ===\n")
+
+    # US-011: Write Table 3 XLSX
+    table3_path = output_dir / f"TABLE_3_Rio_Pojoaque_Tesuque_{year}.xlsx"
+    try:
+        sd.write_table3_xlsx(parsed_data, table3_path)
+        print(f"Table 3 written to: {table3_path}")
+    except Exception as e:
+        print_error(
+            "Failed to write Table 3 XLSX",
+            str(table3_path),
+            str(e),
+            "Successfully create Excel file",
+            "Check openpyxl installation and file permissions"
+        )
+        return 1
+
+    print("\n=== US-011 Complete ===\n")
+
+    # US-012: Write Table 4 XLSX
+    table4_path = output_dir / f"TABLE_4_Rio_Grande_Otowi_{year}.xlsx"
+    try:
+        sd.write_table4_xlsx(parsed_data, table4_path, year)
+        print(f"Table 4 written to: {table4_path}")
+    except Exception as e:
+        print_error(
+            "Failed to write Table 4 XLSX",
+            str(table4_path),
+            str(e),
+            "Successfully create Excel file",
+            "Check openpyxl installation and file permissions"
+        )
+        return 1
+
+    print("\n=== US-012 Complete ===\n")
+
+    # US-013: Write Table 5 XLSX
+    table5_path = output_dir / f"TABLE_5_La_Cienega_Springs_{year}.xlsx"
+    try:
+        sd.write_table5_xlsx(table5_path)
+        print(f"Table 5 written to: {table5_path}")
+    except Exception as e:
+        print_error(
+            "Failed to write Table 5 XLSX",
+            str(table5_path),
+            str(e),
+            "Successfully create Excel file",
+            "Check openpyxl installation and file permissions"
+        )
+        return 1
+
+    print("\n=== US-013 Complete ===\n")
+
+    # US-014: Validate generated tables against validation files
+    table3_validation = Path(VALIDATION_DIR) / "TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx"
+    table4_validation = Path(VALIDATION_DIR) / "TABLE 4 - Rio Grande, above below Otowi.xlsx"
+
+    print("=== Validating Generated Tables ===\n")
+
+    validation_results = sd.validate_all_tables(
+        table3_validation,
+        table4_validation,
+        table3_data,
+        table4_data,
+        table5_data,
+        year
+    )
+
+    sd.print_validation_results(validation_results)
+
+    print("\n=== US-014 Complete ===\n")
+
+    # Print final summary
+    print("=" * 60)
+    print("FINAL SUMMARY")
+    print("=" * 60)
+    print(f"\nYear processed: {year}")
+    print("\nGenerated files:")
+    print(f"  - {table3_path}")
+    print(f"  - {table4_path}")
+    print(f"  - {table5_path}")
+    print(f"\nValidation status: {validation_results['overall_status']}")
+
+    if validation_results['overall_status'] == 'OK':
+        print("\nAll validations passed!")
+        return 0
+    else:
+        print("\nSome validations failed - see details above.")
+        return 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate stream depletion tables from MODFLOW post-processor output"
+    )
+    parser.add_argument(
+        "--year",
+        type=int,
+        default=YEAR,
+        help=f"Processing year (default: {YEAR})"
+    )
+
+    args = parser.parse_args()
+    sys.exit(main(args.year))

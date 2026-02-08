@@ -506,6 +506,33 @@ Ralph uses pytest to verify each task before marking it complete. Without test f
 - Runtime errors won't be caught until manual testing
 - The iterate-until-pass loop has no safety net
 
+### CRITICAL: Module Stubs Required
+
+**If smoke tests import from a module, that module file MUST exist.** Tests should fail on *assertions*, not `ModuleNotFoundError`.
+
+When creating smoke tests:
+1. Create the test file (`tests/test_<module>.py`)
+2. **Also create the module stub** (`<module>.py`) with:
+   - All constants that tests import (can be placeholder values)
+   - All function signatures that tests import (bodies can be `pass` or `raise NotImplementedError`)
+3. Verify: `pytest tests/test_<module>.py` fails on assertions, NOT import errors
+
+**Example module stub:**
+```python
+"""Module stub - implementations to be added by user stories."""
+
+# Constants (required by tests)
+DAYS_2024: list[int] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+CONFIG_VALUE: int = 0  # Placeholder
+
+# Function stubs (required by tests)
+def calculate_something(x: float) -> float:
+    """Stub - implement in US-XXX."""
+    raise NotImplementedError("Implement in US-XXX")
+```
+
+**Add to PRD:** Include a "Module Structure" section listing all modules and their test files.
+
 ### What Smoke Tests Check
 
 | Test Type | What It Catches |
@@ -635,7 +662,23 @@ Brief description of the feature and the problem it solves.
 ### 2. Goals
 Specific, measurable objectives (bullet list).
 
-### 3. User Stories
+### 3. Module Structure (Python Projects)
+**Required for all Python projects with smoke tests.** List each module and its test file:
+
+```markdown
+## Module Structure
+
+**CRITICAL:** If smoke tests import from a module, that module file MUST exist before tests run. Create module stubs with required constants/functions so tests fail on assertions, not `ModuleNotFoundError`.
+
+| Module | Test File | Purpose |
+|--------|-----------|---------|
+| `main_module.py` | `tests/test_main_module.py` | Main entry point |
+| `helper_module.py` | `tests/test_helper_module.py` | Helper functions |
+
+**Module stub must include:** All constants and function signatures that tests import.
+```
+
+### 4. User Stories
 Each story needs:
 - **ID:** Sequential (US-001, US-002, etc.)
 - **Title:** Short descriptive name
@@ -1220,6 +1263,7 @@ Also create `dev/progress.txt`:
 
 ### Documentation
 - [ ] PRD has summary block after title showing story and task counts (e.g., "> **PRD Summary:** X User Stories with Y Tasks Total")
+- [ ] **Module Structure section** lists all modules and test files (Python projects)
 - [ ] Non-goals section defines clear boundaries
 - [ ] Technical Considerations includes constants, patterns, helper functions (if applicable)
 - [ ] Saved dev/PRD.md and dev/progress.txt
@@ -1227,6 +1271,9 @@ Also create `dev/progress.txt`:
 ### Smoke Tests (Python Projects)
 - [ ] Identified which user stories create new Python modules
 - [ ] Created tests/test_<module>.py for each new module
+- [ ] **Created module stub files** for each test file (tests must fail on assertions, NOT ModuleNotFoundError)
+- [ ] Module stubs include all constants and function signatures that tests import
 - [ ] Test files use smoke test template (import, exists, runs, sanity)
 - [ ] Test inputs are realistic for the domain
 - [ ] Sanity bounds are wide (catching catastrophic errors, not precision)
+- [ ] Verified: `pytest tests/` runs without import errors (may have assertion failures)

@@ -1,26 +1,110 @@
 """
-Update MODFLOW Buckman Depletion Model from CY2023 to CY2024.
+Update MODFLOW Buckman Depletion Model for any calendar year.
 
-Reads 2024 monthly pumping data from Table 2 CSV, converts acre-feet to ft³/s,
+Reads yearly pumping data from Table 2 CSV, converts acre-feet to ft³/s,
 updates the .wel file with actual pumping rates, and generates the .nam file.
+
+Year-agnostic: Pass --year to process any year. Source files come from (year-1).
 """
 import argparse
+import calendar
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
 
 import pandas as pd
 
+
 # =============================================================================
-# FILE PATHS
+# YEAR CONFIGURATION
 # =============================================================================
-INPUT_WEL_PATH: str = "input/modflow/2023/thruCY2165.wel"
-INPUT_NAM_PATH: str = "input/modflow/2023/CY2023.nam"
-TABLE2_CSV_PATH: str = "output/ingested_data/2024_Table_2_output.csv"
-VALIDATION_WEL_PATH: str = "validation/modflow/2024/thruCY2165_2024.wel"
-VALIDATION_NAM_PATH: str = "validation/modflow/2024/CY2024.nam"
-OUTPUT_DIR: str = "output/modflow/2024"
-OUTPUT_WEL_FILENAME: str = "thruCY2165_2024.wel"
-OUTPUT_NAM_FILENAME: str = "CY2024.nam"
+# Baseline year: the first year that uses original 2023 input files
+BASELINE_YEAR: int = 2024
+
+
+@dataclass
+class YearConfig:
+    """Year-specific configuration for MODFLOW update."""
+
+    target_year: int
+    source_year: int
+    input_wel_path: str
+    input_nam_path: str
+    table2_csv_path: str
+    output_dir: str
+    output_wel_filename: str
+    output_nam_filename: str
+    validation_wel_path: str
+    validation_nam_path: str
+    is_leap_year: bool
+
+
+def get_year_config(target_year: int) -> YearConfig:
+    """
+    Generate all year-specific paths and constants.
+
+    For the baseline year (2024), uses original 2023 input files.
+    For subsequent years, uses prior year's output as input.
+
+    Args:
+        target_year: The year to process (e.g., 2024, 2025)
+
+    Returns:
+        YearConfig with all paths and settings for the target year
+    """
+    source_year = target_year - 1
+
+    # Determine input paths based on whether this is the baseline year
+    if target_year == BASELINE_YEAR:
+        # Use original 2023 baseline files
+        input_wel_path = "input/modflow/2023/thruCY2165.wel"
+        input_nam_path = "input/modflow/2023/CY2023.nam"
+    else:
+        # Use prior year's output
+        input_wel_path = f"output/modflow/{source_year}/thruCY2165_{source_year}.wel"
+        input_nam_path = f"output/modflow/{source_year}/CY{source_year}.nam"
+
+    return YearConfig(
+        target_year=target_year,
+        source_year=source_year,
+        input_wel_path=input_wel_path,
+        input_nam_path=input_nam_path,
+        table2_csv_path=f"output/ingested_data/{target_year}_Table_2_output.csv",
+        output_dir=f"output/modflow/{target_year}",
+        output_wel_filename=f"thruCY2165_{target_year}.wel",
+        output_nam_filename=f"CY{target_year}.nam",
+        validation_wel_path=f"validation/modflow/{target_year}/thruCY2165_{target_year}.wel",
+        validation_nam_path=f"validation/modflow/{target_year}/CY{target_year}.nam",
+        is_leap_year=calendar.isleap(target_year),
+    )
+
+
+def get_days_in_month(year: int) -> Dict[str, int]:
+    """
+    Return days per month for a given year.
+
+    Handles leap years automatically using calendar module.
+
+    Args:
+        year: Calendar year
+
+    Returns:
+        Dict mapping month abbreviation to days in that month
+    """
+    return {
+        "JAN": 31,
+        "FEB": 29 if calendar.isleap(year) else 28,
+        "MAR": 31,
+        "APR": 30,
+        "MAY": 31,
+        "JUN": 30,
+        "JUL": 31,
+        "AUG": 31,
+        "SEP": 30,
+        "OCT": 31,
+        "NOV": 30,
+        "DEC": 31,
+    }
 
 # =============================================================================
 # CONVERSION CONSTANTS
@@ -74,7 +158,6 @@ MONTH_ABBREVS: list[str] = [
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
     "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 ]
-TARGET_YEAR: int = 2024
 
 
 def convert_af_to_ft3s(
@@ -127,67 +210,126 @@ def convert_af_to_ft3s(
 # =============================================================================
 # WEL FILE PARSING
 # =============================================================================
-# Line numbers are 1-indexed to match file content
-WEL_2024_START_LINE: int = 8798  # Header line "26" before JAN 2024
-WEL_2024_END_LINE: int = 9121    # Last BUCKMAN 13 DEC 2024 entry
 LINES_PER_MONTH: int = 27       # 1 header + 26 well entries (13 wells × 2 layers)
 WELLS_PER_MONTH: int = 26       # 13 wells × 2 layers
 
 
+def find_year_boundaries(
+    lines: list[str], target_year: int
+) -> tuple[int, int]:
+    """
+    Find the start and end line indices for a given year's data in a .wel file.
+
+    Searches for 'JAN {year}' to find start, 'DEC {year}' to find end.
+    The start index points to the header line ("26") before the first entry.
+
+    Args:
+        lines: All lines from the .wel file
+        target_year: Year to find boundaries for
+
+    Returns:
+        Tuple of (start_idx, end_idx) as 0-indexed positions suitable for slicing.
+        end_idx is exclusive (lines[start_idx:end_idx] gives the year's data).
+
+    Raises:
+        ValueError: If year boundaries cannot be found or structure is invalid
+    """
+    jan_pattern = f"JAN {target_year}"
+    dec_pattern = f"DEC {target_year}"
+
+    first_jan_idx = None
+    last_dec_idx = None
+
+    for i, line in enumerate(lines):
+        if jan_pattern in line and first_jan_idx is None:
+            first_jan_idx = i
+        if dec_pattern in line:
+            last_dec_idx = i
+
+    if first_jan_idx is None:
+        raise ValueError(
+            f"Could not find '{jan_pattern}' in .wel file. "
+            f"Is {target_year} data present in the input file?"
+        )
+    if last_dec_idx is None:
+        raise ValueError(
+            f"Could not find '{dec_pattern}' in .wel file. "
+            f"Is {target_year} data complete?"
+        )
+
+    # Start index is the header line (one line before first JAN entry)
+    start_idx = first_jan_idx - 1
+
+    # End index is one past the last DEC entry (for slicing)
+    end_idx = last_dec_idx + 1
+
+    # Validate we found exactly 324 lines (12 months × 27 lines)
+    expected_lines = 12 * LINES_PER_MONTH
+    actual_lines = end_idx - start_idx
+    if actual_lines != expected_lines:
+        raise ValueError(
+            f"Year {target_year} section should have {expected_lines} lines, "
+            f"found {actual_lines}. Start: line {start_idx + 1}, "
+            f"End: line {end_idx}"
+        )
+
+    return start_idx, end_idx
+
+
 class WelFileData:
-    """Parsed .wel file data with separated pre-2024, 2024, and post-2024 sections."""
+    """Parsed .wel file data with separated pre-target, target year, and post-target sections."""
 
     def __init__(
         self,
-        pre_2024_lines: list[str],
-        year_2024_lines: list[str],
-        post_2024_lines: list[str],
+        pre_target_lines: list[str],
+        target_year_lines: list[str],
+        post_target_lines: list[str],
+        target_year: int,
     ) -> None:
-        self.pre_2024_lines = pre_2024_lines
-        self.year_2024_lines = year_2024_lines
-        self.post_2024_lines = post_2024_lines
+        self.pre_target_lines = pre_target_lines
+        self.target_year_lines = target_year_lines
+        self.post_target_lines = post_target_lines
+        self.target_year = target_year
 
     @property
     def total_lines(self) -> int:
         """Total line count across all sections."""
         return (
-            len(self.pre_2024_lines)
-            + len(self.year_2024_lines)
-            + len(self.post_2024_lines)
+            len(self.pre_target_lines)
+            + len(self.target_year_lines)
+            + len(self.post_target_lines)
         )
 
 
-def parse_wel_file(wel_path: str = INPUT_WEL_PATH) -> WelFileData:
+def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
     """
-    Parse the .wel file and separate 2024 data from historical and future data.
+    Parse the .wel file and separate target year data from other data.
 
     Scientific basis: MODFLOW .wel file format with stress period structure.
     Each month's stress period has a header line (entry count) followed by
     well entries (layer, row, col, rate, name).
 
     Assumptions:
-        1. 2024 data starts at line 8798 (header for JAN 2024)
-        2. 2024 data ends at line 9121 (BUCKMAN 13 DEC 2024 layer 2)
-        3. Each month has 27 lines: 1 header + 26 well entries
-        4. 12 months × 27 lines = 324 lines total for 2024
+        1. Target year data is identified by searching for 'JAN {year}' pattern
+        2. Each month has 27 lines: 1 header + 26 well entries
+        3. 12 months × 27 lines = 324 lines total for target year
 
     Args:
         wel_path: Path to the input .wel file
+        target_year: Year to extract/replace data for
 
     Returns:
-        WelFileData object with pre_2024_lines, year_2024_lines, post_2024_lines
+        WelFileData object with pre_target_lines, target_year_lines, post_target_lines
 
     Raises:
         FileNotFoundError: If .wel file does not exist
-        ValueError: If 2024 section structure doesn't match expectations
+        ValueError: If year section structure doesn't match expectations
 
     Example:
-        >>> data = parse_wel_file()
-        >>> len(data.year_2024_lines)
+        >>> data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
+        >>> len(data.target_year_lines)
         324
     """
-    from pathlib import Path
-
     path = Path(wel_path)
     if not path.exists():
         raise FileNotFoundError(f".wel file not found: {wel_path}")
@@ -198,74 +340,62 @@ def parse_wel_file(wel_path: str = INPUT_WEL_PATH) -> WelFileData:
     total_lines = len(all_lines)
     print(f"Read {total_lines} lines from {wel_path}")
 
-    # Convert to 0-indexed for list slicing
-    start_idx = WEL_2024_START_LINE - 1  # 8797 (line 8798 is index 8797)
-    end_idx = WEL_2024_END_LINE          # 9121 (line 9121 is index 9120, +1 for slice)
+    # Find year boundaries dynamically
+    start_idx, end_idx = find_year_boundaries(all_lines, target_year)
 
     # Split into three sections
-    pre_2024_lines = all_lines[:start_idx]
-    year_2024_lines = all_lines[start_idx:end_idx]
-    post_2024_lines = all_lines[end_idx:]
-
-    # Validate 2024 section structure
-    expected_2024_lines = 12 * LINES_PER_MONTH  # 324 lines
-    actual_2024_lines = len(year_2024_lines)
-    if actual_2024_lines != expected_2024_lines:
-        raise ValueError(
-            f"2024 section should have {expected_2024_lines} lines, "
-            f"found {actual_2024_lines}. "
-            f"Check WEL_2024_START_LINE ({WEL_2024_START_LINE}) and "
-            f"WEL_2024_END_LINE ({WEL_2024_END_LINE})."
-        )
+    pre_target_lines = all_lines[:start_idx]
+    target_year_lines = all_lines[start_idx:end_idx]
+    post_target_lines = all_lines[end_idx:]
 
     # Validate each month has correct structure (header + 26 entries)
     for month_idx in range(12):
         month_start = month_idx * LINES_PER_MONTH
-        header_line = year_2024_lines[month_start].strip()
+        header_line = target_year_lines[month_start].strip()
 
         # Header should be "26" (number of well entries)
         if header_line != "26":
             month_name = MONTH_ABBREVS[month_idx]
             raise ValueError(
-                f"{month_name} 2024 header should be '26', found '{header_line}' "
-                f"at 2024-section line {month_start + 1}"
+                f"{month_name} {target_year} header should be '26', "
+                f"found '{header_line}' at section line {month_start + 1}"
             )
 
         # First entry should be BUCKMAN 1
-        first_entry = year_2024_lines[month_start + 1]
+        first_entry = target_year_lines[month_start + 1]
         if "BUCKMAN 1" not in first_entry:
             month_name = MONTH_ABBREVS[month_idx]
             raise ValueError(
-                f"{month_name} 2024 first entry should be BUCKMAN 1, "
+                f"{month_name} {target_year} first entry should be BUCKMAN 1, "
                 f"found: {first_entry.strip()}"
             )
 
         # Last entry should be BUCKMAN 13
-        last_entry = year_2024_lines[month_start + WELLS_PER_MONTH]
+        last_entry = target_year_lines[month_start + WELLS_PER_MONTH]
         if "BUCKMAN 13" not in last_entry:
             month_name = MONTH_ABBREVS[month_idx]
             raise ValueError(
-                f"{month_name} 2024 last entry should be BUCKMAN 13, "
+                f"{month_name} {target_year} last entry should be BUCKMAN 13, "
                 f"found: {last_entry.strip()}"
             )
 
     print(
-        f"Parsed .wel file: {len(pre_2024_lines)} pre-2024, "
-        f"{len(year_2024_lines)} 2024, {len(post_2024_lines)} post-2024 lines"
+        f"Parsed .wel file: {len(pre_target_lines)} pre-{target_year}, "
+        f"{len(target_year_lines)} {target_year}, "
+        f"{len(post_target_lines)} post-{target_year} lines"
     )
 
     return WelFileData(
-        pre_2024_lines=pre_2024_lines,
-        year_2024_lines=year_2024_lines,
-        post_2024_lines=post_2024_lines,
+        pre_target_lines=pre_target_lines,
+        target_year_lines=target_year_lines,
+        post_target_lines=post_target_lines,
+        target_year=target_year,
     )
 
 
-def read_table2_pumping_data(
-    csv_path: str = TABLE2_CSV_PATH,
-) -> Dict[int, Dict[str, float]]:
+def read_table2_pumping_data(csv_path: str) -> Dict[int, Dict[str, float]]:
     """
-    Read 2024 monthly pumping data from Table 2 CSV.
+    Read yearly monthly pumping data from Table 2 CSV.
 
     Scientific basis: Standard CSV parsing of hydrologic pumping records.
 
@@ -343,13 +473,6 @@ def read_table2_pumping_data(
 # Well order in the .wel file (matches validation file)
 WELL_ORDER: list[int] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
-# Days per month for 2024 (leap year)
-DAYS_IN_MONTH_2024: Dict[str, int] = {
-    "JAN": 31, "FEB": 29, "MAR": 31, "APR": 30,
-    "MAY": 31, "JUN": 30, "JUL": 31, "AUG": 31,
-    "SEP": 30, "OCT": 31, "NOV": 30, "DEC": 31,
-}
-
 
 def generate_well_entry_line(
     layer: int,
@@ -406,12 +529,13 @@ def generate_month_header(line_ending: str = "\r\n") -> str:
     return f"        26{line_ending}"
 
 
-def generate_2024_well_entries(
+def generate_well_entries(
     pumping_data: Dict[int, Dict[str, float]],
+    target_year: int,
     line_ending: str = "\r\n",
 ) -> list[str]:
     """
-    Generate all 324 lines for 2024 well entries.
+    Generate all 324 lines for a year's well entries.
 
     Scientific basis: MODFLOW stress period format with monthly pumping rates
     split equally between two model layers.
@@ -421,11 +545,12 @@ def generate_2024_well_entries(
         2. Wells are ordered 1-13 (BUCKMAN 1 through BUCKMAN 13)
         3. For each well, Layer 1 comes before Layer 2
         4. Pumping data in acre-feet converted to ft³/s
-        5. 2024 is a leap year (February = 29 days)
+        5. Leap years handled automatically via calendar module
 
     Args:
         pumping_data: Dict keyed by well number (1-13), value is dict of
             month abbreviation → acre-feet
+        target_year: Year for the well entries
         line_ending: Line ending character(s) (default: CRLF)
 
     Returns:
@@ -435,7 +560,7 @@ def generate_2024_well_entries(
         ValueError: If pumping_data doesn't have all 13 wells
 
     Example:
-        >>> lines = generate_2024_well_entries(pumping_data)
+        >>> lines = generate_well_entries(pumping_data, 2024)
         >>> len(lines)
         324
     """
@@ -444,10 +569,13 @@ def generate_2024_well_entries(
         if well_num not in pumping_data:
             raise ValueError(f"Missing pumping data for well {well_num}")
 
+    # Get days per month for target year (handles leap years)
+    days_in_month = get_days_in_month(target_year)
+
     lines: list[str] = []
 
     for month in MONTH_ABBREVS:
-        days = DAYS_IN_MONTH_2024[month]
+        days = days_in_month[month]
 
         # Add header line
         lines.append(generate_month_header(line_ending))
@@ -475,7 +603,7 @@ def generate_2024_well_entries(
                         rate=rate,
                         well_name=well_name,
                         month=month,
-                        year=TARGET_YEAR,
+                        year=target_year,
                         line_ending=line_ending,
                     )
                 )
@@ -483,32 +611,25 @@ def generate_2024_well_entries(
     return lines
 
 
-# =============================================================================
-# EXPECTED LINE COUNT
-# =============================================================================
-EXPECTED_TOTAL_LINES: int = 54805  # Must match validation file
-
-
 def write_updated_wel_file(
     wel_data: WelFileData,
-    new_2024_lines: list[str],
-    output_dir: str = OUTPUT_DIR,
-    output_filename: str = OUTPUT_WEL_FILENAME,
+    new_year_lines: list[str],
+    output_dir: str,
+    output_filename: str,
 ) -> Path:
     """
-    Write the updated .wel file with new 2024 pumping data.
+    Write the updated .wel file with new year's pumping data.
 
     Scientific basis: MODFLOW well package file format preservation.
 
     Assumptions:
-        1. Pre-2024 and post-2024 sections preserved exactly as-is
-        2. New 2024 lines have same structure (324 lines)
+        1. Pre-target and post-target sections preserved exactly as-is
+        2. New year lines have same structure (324 lines)
         3. Line endings match input file (CRLF)
-        4. Total line count matches validation (54,805 lines)
 
     Args:
-        wel_data: Parsed WelFileData with pre/post 2024 sections
-        new_2024_lines: Generated 324 lines for 2024 data
+        wel_data: Parsed WelFileData with pre/post target year sections
+        new_year_lines: Generated 324 lines for target year data
         output_dir: Directory to write output file (created if needed)
         output_filename: Name of output file
 
@@ -516,20 +637,20 @@ def write_updated_wel_file(
         Path to the written file
 
     Raises:
-        ValueError: If line counts don't match expectations
+        ValueError: If new year lines count doesn't match expected
 
     Example:
-        >>> data = parse_wel_file()
-        >>> pumping = read_table2_pumping_data()
-        >>> lines_2024 = generate_2024_well_entries(pumping)
-        >>> output_path = write_updated_wel_file(data, lines_2024)
+        >>> data = parse_wel_file("input.wel", 2024)
+        >>> pumping = read_table2_pumping_data("2024_data.csv")
+        >>> new_lines = generate_well_entries(pumping, 2024)
+        >>> output_path = write_updated_wel_file(data, new_lines, "output/", "out.wel")
     """
-    # Validate new 2024 lines count
-    expected_2024_lines = 12 * LINES_PER_MONTH  # 324
-    if len(new_2024_lines) != expected_2024_lines:
+    # Validate new year lines count
+    expected_year_lines = 12 * LINES_PER_MONTH  # 324
+    if len(new_year_lines) != expected_year_lines:
         raise ValueError(
-            f"Expected {expected_2024_lines} lines for 2024 data, "
-            f"got {len(new_2024_lines)}"
+            f"Expected {expected_year_lines} lines for year data, "
+            f"got {len(new_year_lines)}"
         )
 
     # Create output directory if needed
@@ -538,27 +659,23 @@ def write_updated_wel_file(
 
     # Concatenate all sections
     all_lines = (
-        wel_data.pre_2024_lines
-        + new_2024_lines
-        + wel_data.post_2024_lines
+        wel_data.pre_target_lines
+        + new_year_lines
+        + wel_data.post_target_lines
     )
 
-    # Validate total line count
-    if len(all_lines) != EXPECTED_TOTAL_LINES:
-        raise ValueError(
-            f"Expected {EXPECTED_TOTAL_LINES} total lines, "
-            f"got {len(all_lines)}. "
-            f"Pre-2024: {len(wel_data.pre_2024_lines)}, "
-            f"2024: {len(new_2024_lines)}, "
-            f"Post-2024: {len(wel_data.post_2024_lines)}"
-        )
-
-    # Write file (using binary mode to preserve exact line endings)
+    # Write file (preserving line endings)
     file_path = output_path / output_filename
     with open(file_path, "w", newline="") as f:
         f.writelines(all_lines)
 
-    print(f"Wrote {len(all_lines)} lines to {file_path}")
+    target_year = wel_data.target_year
+    print(
+        f"Wrote {len(all_lines)} lines to {file_path} "
+        f"(pre: {len(wel_data.pre_target_lines)}, "
+        f"{target_year}: {len(new_year_lines)}, "
+        f"post: {len(wel_data.post_target_lines)})"
+    )
 
     return file_path
 
@@ -567,75 +684,65 @@ def write_updated_wel_file(
 # NAM FILE GENERATION
 # =============================================================================
 def generate_nam_file(
-    input_nam_path: str = INPUT_NAM_PATH,
-    output_dir: str = OUTPUT_DIR,
-    output_filename: str = OUTPUT_NAM_FILENAME,
+    target_year: int,
+    output_dir: str,
+    output_filename: str,
 ) -> Path:
     """
-    Generate updated .nam file for 2024 simulation.
+    Generate updated .nam file for a given year's simulation.
 
     Scientific basis: MODFLOW name file format specifying simulation files.
 
     Assumptions:
-        1. Input .nam uses CY2023.nam as template
-        2. Output matches validation/modflow/2024/CY2024.nam format
-        3. File replacements follow pattern: CY2023→CY2024, .wel→_2024.wel
-        4. Package types are uppercase (LIST, BAS, BCF, etc.)
-        5. Column alignment matches validation file
+        1. File naming follows pattern: CY{year}.lst, thruCY2165_{year}.wel, etc.
+        2. Package types are uppercase (LIST, BAS, BCF, etc.)
+        3. Column alignment matches validation file format
 
     Args:
-        input_nam_path: Path to input CY2023.nam file
+        target_year: Year for the simulation
         output_dir: Directory for output file (created if needed)
-        output_filename: Name of output file (default: CY2024.nam)
+        output_filename: Name of output file
 
     Returns:
         Path to the written .nam file
 
-    Raises:
-        FileNotFoundError: If input .nam file does not exist
-
     Example:
-        >>> output_path = generate_nam_file()
+        >>> output_path = generate_nam_file(2024, "output/modflow/2024", "CY2024.nam")
         >>> print(output_path)
         output/modflow/2024/CY2024.nam
     """
     from datetime import datetime
-
-    path = Path(input_nam_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input .nam file not found: {input_nam_path}")
 
     # Generate timestamp for header comment
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Header comment block (matching validation format)
     header_lines = [
-        "# MODFLOW Name File for Buckman Depletion Model - Year 2024\n",
+        f"# MODFLOW Name File for Buckman Depletion Model - Year {target_year}\n",
         f"# Automatically generated by Python script on {timestamp}\n",
         "# File Type      Unit File Name\n",
         "#------------------------------------\n",
     ]
 
     # File mapping table - package type, unit, file name
-    # Based on validation file format with uppercase types and column alignment
-    # Format: "{type:<15} {unit:<5} {filename}"
+    # Year-specific files use target_year in their names
     file_entries = [
-        ("LIST", "23", "CY2024.lst"),           # CY2023.lst → CY2024.lst
-        ("BAS", "21", "thruCY2165.bas"),         # unchanged
-        ("BCF", "11", "sflcs.bcf"),              # unchanged (uppercase type)
-        ("OC", "10", "thruCY2165.oc"),           # unchanged (uppercase type)
-        ("RIV", "14", "thruCY2165.riv"),         # unchanged (uppercase type)
-        ("GHB", "15", "thruCY2165.ghb"),         # unchanged (uppercase type)
-        ("SIP", "17", "sflcs.sip"),              # unchanged (uppercase type)
-        ("WEL", "12", "thruCY2165_2024.wel"),    # thruCY2165.wel → thruCY2165_2024.wel
-        ("DATA(BINARY)", "24", "CY2024_riv.flx"),  # CY2023_riv.flx → CY2024_riv.flx
-        ("DATA(BINARY)", "34", "CY2024_ghb.flx"),  # CY2023_ghb.flx → CY2024_ghb.flx
+        ("LIST", "23", f"CY{target_year}.lst"),
+        ("BAS", "21", "thruCY2165.bas"),
+        ("BCF", "11", "sflcs.bcf"),
+        ("OC", "10", "thruCY2165.oc"),
+        ("RIV", "14", "thruCY2165.riv"),
+        ("GHB", "15", "thruCY2165.ghb"),
+        ("SIP", "17", "sflcs.sip"),
+        ("WEL", "12", f"thruCY2165_{target_year}.wel"),
+        ("DATA(BINARY)", "24", f"CY{target_year}_riv.flx"),
+        ("DATA(BINARY)", "34", f"CY{target_year}_ghb.flx"),
     ]
 
     # Generate content lines with column alignment matching validation file
     content_lines: list[str] = []
     for pkg_type, unit, filename in file_entries:
-        # Validation format: type padded to 16 chars, unit padded to 6 chars, then filename
+        # Format: type padded to 16 chars, unit padded to 6 chars, then filename
         line = f"{pkg_type:<16}{unit:<6}{filename}\n"
         content_lines.append(line)
 
@@ -667,31 +774,35 @@ RATE_TOLERANCE: float = 0.0001
 class ValidationResult:
     """Result of validating .wel file against known-good validation file."""
 
-    def __init__(self) -> None:
+    def __init__(self, target_year: int) -> None:
+        self.target_year = target_year
         self.wells_checked: int = 0
         self.months_checked: int = 0
         self.pass_count: int = 0
         self.fail_count: int = 0
         self.failures: list[dict[str, object]] = []
-        self.wel_pre_2024_passed: bool = False
-        self.wel_post_2024_passed: bool = False
-        self.wel_2024_passed: bool = False
+        self.wel_pre_target_passed: bool = False
+        self.wel_post_target_passed: bool = False
+        self.wel_target_passed: bool = False
+        self.skipped: bool = False
 
     @property
     def all_passed(self) -> bool:
         """Check if all .wel validations passed."""
+        if self.skipped:
+            return True  # Skipped validation counts as "passed"
         return (
             self.fail_count == 0
-            and self.wel_pre_2024_passed
-            and self.wel_post_2024_passed
-            and self.wel_2024_passed
+            and self.wel_pre_target_passed
+            and self.wel_post_target_passed
+            and self.wel_target_passed
         )
 
 
 def validate_nam_file(
     generated_path: str,
-    validation_path: str = VALIDATION_NAM_PATH,
-) -> tuple[bool, list[str]]:
+    validation_path: str,
+) -> tuple[bool | None, list[str]]:
     """
     Compare generated .nam file against validation file.
 
@@ -699,26 +810,25 @@ def validate_nam_file(
     All non-comment lines must match exactly.
 
     Args:
-        generated_path: Path to generated CY2024.nam file
-        validation_path: Path to validation CY2024.nam file
+        generated_path: Path to generated .nam file
+        validation_path: Path to validation .nam file
 
     Returns:
-        Tuple of (passed: bool, errors: list of error messages)
+        Tuple of (passed: bool | None, errors: list of error messages)
+        If validation file doesn't exist, returns (None, [warning message])
 
     Example:
-        >>> passed, errors = validate_nam_file("output/modflow/2024/CY2024.nam")
-        >>> if not passed:
-        ...     for err in errors: print(err)
+        >>> passed, errors = validate_nam_file("output/CY2024.nam", "validation/CY2024.nam")
+        >>> if passed is None:
+        ...     print("Validation skipped - no validation file")
     """
-    from pathlib import Path
-
     gen_path = Path(generated_path)
     val_path = Path(validation_path)
 
     if not gen_path.exists():
         return False, [f"Generated .nam file not found: {generated_path}"]
     if not val_path.exists():
-        return False, [f"Validation .nam file not found: {validation_path}"]
+        return None, [f"Validation file not found (skipping): {validation_path}"]
 
     with open(gen_path, "r") as f:
         gen_lines = f.readlines()
@@ -751,33 +861,34 @@ def validate_nam_file(
 
 def validate_wel_file(
     generated_path: str,
-    validation_path: str = VALIDATION_WEL_PATH,
+    validation_path: str,
+    target_year: int,
     tolerance: float = RATE_TOLERANCE,
 ) -> ValidationResult:
     """
     Compare generated .wel file against validation file.
 
     Validates:
-    - Pre-2024 lines (1-8797): byte-identical
-    - 2024 pumping rates: within ±tolerance ft³/s
-    - Post-2024 lines (9122-54805): byte-identical
+    - Pre-target year lines: byte-identical
+    - Target year pumping rates: within ±tolerance ft³/s
+    - Post-target year lines: byte-identical
 
     Args:
-        generated_path: Path to generated thruCY2165_2024.wel file
-        validation_path: Path to validation thruCY2165_2024.wel file
-        tolerance: Maximum allowed difference in pumping rates (default: 0.00002)
+        generated_path: Path to generated .wel file
+        validation_path: Path to validation .wel file
+        target_year: Year being validated
+        tolerance: Maximum allowed difference in pumping rates
 
     Returns:
         ValidationResult object with detailed comparison results
+        If validation file doesn't exist, returns result with skipped=True
 
     Example:
-        >>> result = validate_wel_file("output/modflow/2024/thruCY2165_2024.wel")
+        >>> result = validate_wel_file("output/out.wel", "validation/val.wel", 2024)
         >>> if result.all_passed:
         ...     print("Validation PASSED")
     """
-    from pathlib import Path
-
-    result = ValidationResult()
+    result = ValidationResult(target_year)
     gen_path = Path(generated_path)
     val_path = Path(validation_path)
 
@@ -788,9 +899,10 @@ def validate_wel_file(
         })
         return result
     if not val_path.exists():
+        result.skipped = True
         result.failures.append({
-            "type": "file_missing",
-            "message": f"Validation .wel file not found: {validation_path}",
+            "type": "validation_skipped",
+            "message": f"Validation file not found (skipping): {validation_path}",
         })
         return result
 
@@ -810,46 +922,55 @@ def validate_wel_file(
         })
         return result
 
-    # Validate pre-2024 section (lines 1-8797, indices 0-8796)
-    pre_2024_errors: list[str] = []
-    for i in range(8797):
+    # Find year boundaries in the validation file dynamically
+    try:
+        start_idx, end_idx = find_year_boundaries(val_lines, target_year)
+    except ValueError as e:
+        result.failures.append({
+            "type": "boundary_error",
+            "message": f"Could not find {target_year} boundaries in validation file: {e}",
+        })
+        return result
+
+    # Validate pre-target section
+    pre_target_errors: list[str] = []
+    for i in range(start_idx):
         if gen_lines[i] != val_lines[i]:
-            pre_2024_errors.append(f"Line {i+1}")
-            if len(pre_2024_errors) >= 5:
+            pre_target_errors.append(f"Line {i+1}")
+            if len(pre_target_errors) >= 5:
                 break
 
-    if pre_2024_errors:
+    if pre_target_errors:
         result.failures.append({
-            "type": "pre_2024",
-            "message": f"Pre-2024 section differs at: {', '.join(pre_2024_errors)}",
+            "type": "pre_target",
+            "message": f"Pre-{target_year} section differs at: {', '.join(pre_target_errors)}",
         })
-        result.wel_pre_2024_passed = False
+        result.wel_pre_target_passed = False
     else:
-        result.wel_pre_2024_passed = True
+        result.wel_pre_target_passed = True
 
-    # Validate post-2024 section (lines 9122-54805, indices 9121-)
-    post_2024_errors: list[str] = []
-    for i in range(9121, len(val_lines)):
+    # Validate post-target section
+    post_target_errors: list[str] = []
+    for i in range(end_idx, len(val_lines)):
         if gen_lines[i] != val_lines[i]:
-            post_2024_errors.append(f"Line {i+1}")
-            if len(post_2024_errors) >= 5:
+            post_target_errors.append(f"Line {i+1}")
+            if len(post_target_errors) >= 5:
                 break
 
-    if post_2024_errors:
+    if post_target_errors:
         result.failures.append({
-            "type": "post_2024",
-            "message": f"Post-2024 section differs at: {', '.join(post_2024_errors)}",
+            "type": "post_target",
+            "message": f"Post-{target_year} section differs at: {', '.join(post_target_errors)}",
         })
-        result.wel_post_2024_passed = False
+        result.wel_post_target_passed = False
     else:
-        result.wel_post_2024_passed = True
+        result.wel_post_target_passed = True
 
-    # Validate 2024 section (lines 8798-9121, indices 8797-9120)
-    # Compare rates with tolerance
+    # Validate target year section - compare rates with tolerance
     rate_failures: list[dict[str, object]] = []
 
     for month_idx, month in enumerate(MONTH_ABBREVS):
-        month_start = 8797 + (month_idx * LINES_PER_MONTH)  # 0-indexed
+        month_start = start_idx + (month_idx * LINES_PER_MONTH)
 
         for entry_idx in range(WELLS_PER_MONTH):  # 26 entries per month
             line_idx = month_start + 1 + entry_idx  # Skip header line
@@ -899,15 +1020,16 @@ def validate_wel_file(
                 "difference": failure["difference"],
                 "line": failure["line"],
             })
-        result.wel_2024_passed = False
+        result.wel_target_passed = False
     else:
-        result.wel_2024_passed = True
+        result.wel_target_passed = True
 
     return result
 
 
 def print_validation_report(
-    nam_passed: bool,
+    target_year: int,
+    nam_passed: bool | None,
     nam_errors: list[str],
     wel_result: ValidationResult,
 ) -> None:
@@ -915,8 +1037,9 @@ def print_validation_report(
     Print detailed validation report to console.
 
     Args:
-        nam_passed: Whether .nam validation passed
-        nam_errors: List of .nam validation errors
+        target_year: Year being validated
+        nam_passed: Whether .nam validation passed (None if skipped)
+        nam_errors: List of .nam validation errors/warnings
         wel_result: ValidationResult from .wel file validation
     """
     print("\n" + "=" * 60)
@@ -925,93 +1048,109 @@ def print_validation_report(
 
     # .nam file results
     print("\n--- .nam File Validation ---")
-    if nam_passed:
-        print("✓ CY2024.nam matches validation file (ignoring comments)")
+    if nam_passed is None:
+        print(f"⚠ CY{target_year}.nam validation SKIPPED (no validation file)")
+        for msg in nam_errors:
+            print(f"  {msg}")
+    elif nam_passed:
+        print(f"✓ CY{target_year}.nam matches validation file (ignoring comments)")
     else:
-        print("✗ CY2024.nam FAILED validation:")
+        print(f"✗ CY{target_year}.nam FAILED validation:")
         for err in nam_errors:
             print(f"  {err}")
 
     # .wel file results
     print("\n--- .wel File Validation ---")
 
-    print(f"Pre-2024 section (lines 1-8797): ", end="")
-    if wel_result.wel_pre_2024_passed:
-        print("✓ PASSED (byte-identical)")
-    else:
-        print("✗ FAILED")
-
-    print(f"Post-2024 section (lines 9122-54805): ", end="")
-    if wel_result.wel_post_2024_passed:
-        print("✓ PASSED (byte-identical)")
-    else:
-        print("✗ FAILED")
-
-    print(f"\n2024 pumping rates validation:")
-    print(f"  Wells checked: {wel_result.wells_checked}")
-    print(f"  Months checked: {wel_result.months_checked}")
-    print(f"  Passed: {wel_result.pass_count}")
-    print(f"  Failed: {wel_result.fail_count}")
-
-    if wel_result.fail_count > 0:
-        print("\nRate differences exceeding tolerance:")
+    if wel_result.skipped:
+        print(f"⚠ .wel validation SKIPPED (no validation file)")
         for failure in wel_result.failures:
-            if failure.get("type") == "rate_mismatch":
-                print(
-                    f"  {failure['well']} {failure['month']}: "
-                    f"generated={failure['generated_rate']:.5f}, "
-                    f"validation={failure['validation_rate']:.5f}, "
-                    f"diff={failure['difference']:.6f}"
-                )
+            if failure.get("type") == "validation_skipped":
+                print(f"  {failure['message']}")
+    else:
+        print(f"Pre-{target_year} section: ", end="")
+        if wel_result.wel_pre_target_passed:
+            print("✓ PASSED (byte-identical)")
+        else:
+            print("✗ FAILED")
+
+        print(f"Post-{target_year} section: ", end="")
+        if wel_result.wel_post_target_passed:
+            print("✓ PASSED (byte-identical)")
+        else:
+            print("✗ FAILED")
+
+        print(f"\n{target_year} pumping rates validation:")
+        print(f"  Wells checked: {wel_result.wells_checked}")
+        print(f"  Months checked: {wel_result.months_checked}")
+        print(f"  Passed: {wel_result.pass_count}")
+        print(f"  Failed: {wel_result.fail_count}")
+
+        if wel_result.fail_count > 0:
+            print("\nRate differences exceeding tolerance:")
+            for failure in wel_result.failures:
+                if failure.get("type") == "rate_mismatch":
+                    print(
+                        f"  {failure['well']} {failure['month']}: "
+                        f"generated={failure['generated_rate']:.5f}, "
+                        f"validation={failure['validation_rate']:.5f}, "
+                        f"diff={failure['difference']:.6f}"
+                    )
 
     # Summary
     print("\n" + "-" * 60)
-    all_passed = nam_passed and wel_result.all_passed
+    nam_ok = nam_passed is None or nam_passed  # None (skipped) counts as OK
+    all_passed = nam_ok and wel_result.all_passed
     if all_passed:
-        print("Validation PASSED — generated files match validation files")
+        if nam_passed is None or wel_result.skipped:
+            print("Output generated successfully (validation skipped)")
+        else:
+            print("Validation PASSED - generated files match validation files")
     else:
-        print("Validation FAILED — see details above")
+        print("Validation FAILED - see details above")
     print("=" * 60)
 
 
 def run_validation(
-    output_dir: str = OUTPUT_DIR,
-    wel_filename: str = OUTPUT_WEL_FILENAME,
-    nam_filename: str = OUTPUT_NAM_FILENAME,
+    config: YearConfig,
 ) -> bool:
     """
     Run full validation of generated files against validation files.
 
+    Graceful degradation: if validation files don't exist, warns and returns True.
+
     Args:
-        output_dir: Directory containing generated files
-        wel_filename: Name of generated .wel file
-        nam_filename: Name of generated .nam file
+        config: YearConfig with paths to generated and validation files
 
     Returns:
-        True if all validations pass, False otherwise
+        True if all validations pass (or are skipped), False if any fail
 
     Example:
-        >>> success = run_validation()
+        >>> config = get_year_config(2024)
+        >>> success = run_validation(config)
         >>> if not success:
         ...     print("Validation failed!")
     """
-    from pathlib import Path
-
-    generated_wel = str(Path(output_dir) / wel_filename)
-    generated_nam = str(Path(output_dir) / nam_filename)
+    generated_wel = str(Path(config.output_dir) / config.output_wel_filename)
+    generated_nam = str(Path(config.output_dir) / config.output_nam_filename)
 
     print("\nValidating generated files against known-good validation files...")
 
     # Validate .nam file
-    nam_passed, nam_errors = validate_nam_file(generated_nam)
+    nam_passed, nam_errors = validate_nam_file(generated_nam, config.validation_nam_path)
 
     # Validate .wel file
-    wel_result = validate_wel_file(generated_wel)
+    wel_result = validate_wel_file(
+        generated_wel,
+        config.validation_wel_path,
+        config.target_year,
+    )
 
     # Print detailed report
-    print_validation_report(nam_passed, nam_errors, wel_result)
+    print_validation_report(config.target_year, nam_passed, nam_errors, wel_result)
 
-    return nam_passed and wel_result.all_passed
+    nam_ok = nam_passed is None or nam_passed  # None (skipped) counts as OK
+    return nam_ok and wel_result.all_passed
 
 
 # =============================================================================
@@ -1019,6 +1158,7 @@ def run_validation(
 # =============================================================================
 def print_pumping_summary(
     pumping_data: Dict[int, Dict[str, float]],
+    target_year: int,
 ) -> None:
     """
     Print per-well monthly pumping summary table (acre-feet and ft³/s side by side).
@@ -1031,16 +1171,19 @@ def print_pumping_summary(
     Args:
         pumping_data: Dict keyed by well number (1-13), value is dict of
             month abbreviation → acre-feet
+        target_year: Year for the pumping data (used for days in month calculation)
 
     Example:
-        >>> print_pumping_summary(pumping_data)
+        >>> print_pumping_summary(pumping_data, 2024)
         Well           Month    Acre-Feet    ft³/s (per layer)
         -----------------------------------------------------------
         BUCKMAN 1      JAN        16.888         -0.13733
         ...
     """
+    days_in_month = get_days_in_month(target_year)
+
     print("\n" + "=" * 70)
-    print("2024 MONTHLY PUMPING SUMMARY")
+    print(f"{target_year} MONTHLY PUMPING SUMMARY")
     print("=" * 70)
     print(f"{'Well':<15} {'Month':<6} {'Acre-Feet':>12} {'ft³/s (per layer)':>20}")
     print("-" * 70)
@@ -1049,7 +1192,7 @@ def print_pumping_summary(
         well_name = WELL_NAME_MAP[well_num]
         for month in MONTH_ABBREVS:
             acre_feet = pumping_data[well_num][month]
-            days = DAYS_IN_MONTH_2024[month]
+            days = days_in_month[month]
             rate = convert_af_to_ft3s(acre_feet, days)
             print(f"{well_name:<15} {month:<6} {acre_feet:>12.6f} {rate:>20.5f}")
 
@@ -1077,24 +1220,28 @@ def parse_args() -> "argparse.Namespace":
     Returns:
         Namespace with parsed arguments (year: int)
     """
-    import argparse
-
     parser = argparse.ArgumentParser(
-        description="Update MODFLOW Buckman Depletion Model from CY2023 to CY2024.",
+        description="Update MODFLOW Buckman Depletion Model for any calendar year.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python3 update_modflow_2024.py           # Run with default year (2024)
-  python3 update_modflow_2024.py --year 2024  # Explicit year
+  python3 update_modflow.py --year 2024    # Process 2024 (uses 2023 baseline as input)
+  python3 update_modflow.py --year 2025    # Process 2025 (uses 2024 output as input)
 
-Output files are written to output/modflow/2024/
+Input/Output:
+  For year N, the script reads from year N-1's output (or 2023 baseline for 2024).
+  Output files are written to output/modflow/{year}/
+
+Validation:
+  If validation files exist in validation/modflow/{year}/, results are compared.
+  If validation files don't exist, the script warns and continues.
         """,
     )
     parser.add_argument(
         "--year",
         type=int,
-        default=2024,
-        help="Target year for update (default: 2024)",
+        required=True,
+        help="Target year for update (e.g., 2024, 2025)",
     )
 
     return parser.parse_args()
@@ -1107,11 +1254,11 @@ def main() -> int:
     Runs the full pipeline:
     1. Read Table 2 pumping data (CSV)
     2. Convert acre-feet to ft³/s
-    3. Parse 2023 .wel file
-    4. Generate 2024 well entries
+    3. Parse source year .wel file
+    4. Generate target year well entries
     5. Write updated .wel file
     6. Generate updated .nam file
-    7. Validate against known-good files
+    7. Validate against known-good files (if they exist)
 
     Returns:
         Exit code: 0 on success, 1 on validation failure
@@ -1121,54 +1268,76 @@ def main() -> int:
         >>> sys.exit(exit_code)
     """
     args = parse_args()
+    target_year = args.year
 
-    if args.year != TARGET_YEAR:
-        print(f"Warning: Only year 2024 is supported. Got --year {args.year}")
-        print("Proceeding with 2024 data.")
+    # Get year-specific configuration
+    config = get_year_config(target_year)
 
     print("\n" + "=" * 60)
     print("MODFLOW Buckman Depletion Model Update")
-    print(f"Updating from CY2023 to CY{TARGET_YEAR}")
+    print(f"Updating from CY{config.source_year} to CY{target_year}")
     print("=" * 60)
+
+    # Check that input files exist
+    if not Path(config.input_wel_path).exists():
+        print(f"\n✗ Error: Input .wel file not found: {config.input_wel_path}")
+        if target_year > BASELINE_YEAR:
+            print(f"  Hint: Run the script for year {config.source_year} first.")
+        return 1
+
+    if not Path(config.table2_csv_path).exists():
+        print(f"\n✗ Error: Table 2 CSV not found: {config.table2_csv_path}")
+        return 1
 
     # Step 1: Read Table 2 pumping data
     print("\n[1/7] Reading Table 2 pumping data...")
-    pumping_data = read_table2_pumping_data()
+    pumping_data = read_table2_pumping_data(config.table2_csv_path)
     print(f"  ✓ Read pumping data for {len(pumping_data)} wells")
 
     # Step 2: Convert acre-feet to ft³/s (done during entry generation)
     print("\n[2/7] Converting acre-feet to ft³/s...")
     print("  ✓ Conversion formula: rate = -(AF/2) × 43560 / (days × 86400)")
-    print(f"  ✓ 2024 is leap year (February = 29 days)")
+    leap_status = "leap year" if config.is_leap_year else "not a leap year"
+    feb_days = 29 if config.is_leap_year else 28
+    print(f"  ✓ {target_year} is {leap_status} (February = {feb_days} days)")
 
-    # Step 3: Parse 2023 .wel file
-    print("\n[3/7] Parsing 2023 .wel file...")
-    wel_data = parse_wel_file()
-    print(f"  ✓ Pre-2024: {len(wel_data.pre_2024_lines)} lines")
-    print(f"  ✓ 2024: {len(wel_data.year_2024_lines)} lines")
-    print(f"  ✓ Post-2024: {len(wel_data.post_2024_lines)} lines")
+    # Step 3: Parse source year .wel file
+    print(f"\n[3/7] Parsing {config.source_year} .wel file...")
+    wel_data = parse_wel_file(config.input_wel_path, target_year)
+    print(f"  ✓ Pre-{target_year}: {len(wel_data.pre_target_lines)} lines")
+    print(f"  ✓ {target_year}: {len(wel_data.target_year_lines)} lines")
+    print(f"  ✓ Post-{target_year}: {len(wel_data.post_target_lines)} lines")
 
-    # Step 4: Generate 2024 well entries
-    print("\n[4/7] Generating 2024 well entries...")
-    new_2024_lines = generate_2024_well_entries(pumping_data)
-    print(f"  ✓ Generated {len(new_2024_lines)} lines (12 months × 27 lines)")
+    # Step 4: Generate target year well entries
+    print(f"\n[4/7] Generating {target_year} well entries...")
+    new_year_lines = generate_well_entries(pumping_data, target_year)
+    print(f"  ✓ Generated {len(new_year_lines)} lines (12 months × 27 lines)")
 
     # Step 5: Write updated .wel file
     print("\n[5/7] Writing updated .wel file...")
-    wel_output_path = write_updated_wel_file(wel_data, new_2024_lines)
+    wel_output_path = write_updated_wel_file(
+        wel_data,
+        new_year_lines,
+        config.output_dir,
+        config.output_wel_filename,
+    )
     print(f"  ✓ Written to {wel_output_path}")
 
     # Step 6: Generate updated .nam file
     print("\n[6/7] Generating updated .nam file...")
-    nam_output_path = generate_nam_file()
+    nam_output_path = generate_nam_file(
+        target_year,
+        config.output_dir,
+        config.output_nam_filename,
+    )
     print(f"  ✓ Written to {nam_output_path}")
 
     # Print pumping summary table
-    print_pumping_summary(pumping_data)
+    print_pumping_summary(pumping_data, target_year)
 
     # Step 7: Validate against known-good files
     print("\n[7/7] Validating against known-good files...")
-    validation_passed = run_validation()
+    validation_passed = run_validation(config)
 
     # Return exit code
     if validation_passed:

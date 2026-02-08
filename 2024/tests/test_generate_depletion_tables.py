@@ -328,3 +328,36 @@ def test_extract_stream_depletions_2024_missing_year():
     fake_data = {2023: {"R POJOAQUE": {"jan": 0.1}}}
     result = extract_stream_depletions_2024(fake_data)
     assert result == {}
+
+
+# =============================================================================
+# US-015 Tests: Main Script Entry Point
+# =============================================================================
+
+
+def test_main_accepts_year_parameter():
+    """Verify main function accepts year parameter."""
+    from generate_depletion_tables import main
+    import inspect
+    sig = inspect.signature(main)
+    assert 'year' in sig.parameters
+    # Default should be None (uses global YEAR)
+    assert sig.parameters['year'].default is None
+
+
+def test_main_returns_int():
+    """Verify main returns an integer exit code."""
+    from generate_depletion_tables import main
+    import inspect
+    # Check return type annotation
+    sig = inspect.signature(main)
+    assert sig.return_annotation == int
+
+
+def test_main_docstring_mentions_workflow_steps():
+    """Verify main has docstring documenting workflow steps."""
+    from generate_depletion_tables import main
+    assert main.__doc__ is not None
+    assert "US-001" in main.__doc__
+    assert "US-014" in main.__doc__
+    assert "workflow" in main.__doc__.lower() or "Workflow" in main.__doc__
