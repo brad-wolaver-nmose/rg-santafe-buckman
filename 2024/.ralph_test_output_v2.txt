@@ -1,0 +1,141 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/bradwolaver/projects/rg/santafe/2024
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.10.0
+collected 105 items
+
+tests/test_generate_depletion_tables.py .......                          [  6%]
+tests/test_ingest_buckman_data.py ....................                   [ 25%]
+tests/test_stream_depletions.py FFFFFFFFFFF                              [ 36%]
+tests/test_update_modflow_2024.py ...................................... [ 72%]
+.............................                                            [100%]
+
+=================================== FAILURES ===================================
+_____________________________ test_module_imports ______________________________
+
+    def test_module_imports():
+        """Verify module imports without syntax errors."""
+>       import stream_depletions
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:19: ModuleNotFoundError
+____________________________ test_cfs_to_af_exists _____________________________
+
+    def test_cfs_to_af_exists():
+        """Verify unit conversion function exists."""
+>       from stream_depletions import cfs_to_acre_feet
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:24: ModuleNotFoundError
+_____________________________ test_cfs_to_af_runs ______________________________
+
+    def test_cfs_to_af_runs():
+        """
+        Verify cfs_to_acre_feet executes without crashing.
+    
+        Hand calculation check:
+        - 1 cfs for 30 days = 1 * 30 * 1.9835 = 59.505 AF
+        """
+>       from stream_depletions import cfs_to_acre_feet
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:35: ModuleNotFoundError
+____________________________ test_cfs_to_af_sanity _____________________________
+
+    def test_cfs_to_af_sanity():
+        """
+        Verify conversion produces physically reasonable values.
+    
+        Scientific basis:
+        - 1 cfs = 1 ft³/s = 86,400 ft³/day
+        - 1 AF = 43,560 ft³
+        - So 1 cfs for 1 day = 86400/43560 = 1.9835 AF
+    
+        Test: 0.1 cfs for 31 days (January) should be ~6.15 AF
+        """
+>       from stream_depletions import cfs_to_acre_feet
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:57: ModuleNotFoundError
+________________________ test_core_2003_residuals_exist ________________________
+
+    def test_core_2003_residuals_exist():
+        """Verify Core (2003) analytical model constants are defined."""
+>       from stream_depletions import CORE_2003_POJOAQUE, CORE_2003_TESUQUE
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:67: ModuleNotFoundError
+________________________ test_core_2003_pojoaque_value _________________________
+
+    def test_core_2003_pojoaque_value():
+        """
+        Verify Pojoaque residual value matches Core (2003) table.
+    
+        From Core (2003) PROJECTION.XLS:
+        - 2015: 0.316 AF (last positive value)
+        - 2024: 0 (residual exhausted after 2015)
+        """
+>       from stream_depletions import get_analytical_residual
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:88: ModuleNotFoundError
+_________________________ test_core_2003_tesuque_value _________________________
+
+    def test_core_2003_tesuque_value():
+        """
+        Verify Tesuque residual value matches Core (2003) table.
+    
+        From Core (2003) PROJECTION.XLS:
+        - 2024: 12.877 AF
+        """
+>       from stream_depletions import get_analytical_residual
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:106: ModuleNotFoundError
+_________________________ test_otowi_cell_definitions __________________________
+
+    def test_otowi_cell_definitions():
+        """Verify Otowi gage cell lists are defined correctly."""
+>       from stream_depletions import ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:116: ModuleNotFoundError
+___________________________ test_days_per_month_2024 ___________________________
+
+    def test_days_per_month_2024():
+        """Verify 2024 days per month (leap year) is defined correctly."""
+>       from stream_depletions import DAYS_2024
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:132: ModuleNotFoundError
+____________________ test_parse_postprocessor_output_exists ____________________
+
+    def test_parse_postprocessor_output_exists():
+        """Verify parser function exists."""
+>       from stream_depletions import parse_postprocessor_output
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:141: ModuleNotFoundError
+___________________________ test_print_error_exists ____________________________
+
+    def test_print_error_exists():
+        """Verify forensic error printing function exists."""
+>       from stream_depletions import print_error
+E       ModuleNotFoundError: No module named 'stream_depletions'
+
+tests/test_stream_depletions.py:147: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_stream_depletions.py::test_module_imports - ModuleNotFoundE...
+FAILED tests/test_stream_depletions.py::test_cfs_to_af_exists - ModuleNotFoun...
+FAILED tests/test_stream_depletions.py::test_cfs_to_af_runs - ModuleNotFoundE...
+FAILED tests/test_stream_depletions.py::test_cfs_to_af_sanity - ModuleNotFoun...
+FAILED tests/test_stream_depletions.py::test_core_2003_residuals_exist - Modu...
+FAILED tests/test_stream_depletions.py::test_core_2003_pojoaque_value - Modul...
+FAILED tests/test_stream_depletions.py::test_core_2003_tesuque_value - Module...
+FAILED tests/test_stream_depletions.py::test_otowi_cell_definitions - ModuleN...
+FAILED tests/test_stream_depletions.py::test_days_per_month_2024 - ModuleNotF...
+FAILED tests/test_stream_depletions.py::test_parse_postprocessor_output_exists
+FAILED tests/test_stream_depletions.py::test_print_error_exists - ModuleNotFo...
+======================== 11 failed, 94 passed in 1.03s =========================

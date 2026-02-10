@@ -1,0 +1,4 @@
+{"timestamp":"2026-02-03T16:53:50Z","event":"ALL_COMPLETE","message":"All tasks marked complete","details":{"iterations":1}}
+{"timestamp":"2026-02-03T23:45:27Z","event":"ROLLBACK","message":"Changes stashed","details":{"stash_message":"ralph-rollback-iteration-1-2026-02-03T23:45:26Z"}}
+{"timestamp":"2026-02-03T23:45:29Z","event":"ITERATION_START","message":"Beginning iteration","details":{"iteration":2,"task":"Check if Wine is installed; print installation instructions if missing","attempt":1}}
+{"timestamp":"2026-02-03T23:47:45Z","event":"EXIT","message":"Script exited","details":{"exit_code":130,"elapsed":"00:04:22"}}

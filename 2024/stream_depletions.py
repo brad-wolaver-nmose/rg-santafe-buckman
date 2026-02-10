@@ -944,7 +944,9 @@ def generate_table5_data(
     lc_springs_cfs = [year_data["LC SPRINGS"][m] for m in months]
 
     # Convert to annual acre-feet
-    annual_af = cfs_monthly_to_af_annual(lc_springs_cfs)
+    # NOTE: MODFLOW superposition output is already CUMULATIVE depletion
+    # The LC SPRINGS values represent total depletion from all pumping 1988-year
+    cumulative_af = cfs_monthly_to_af_annual(lc_springs_cfs)
 
     # Get previous year's cumulative total
     previous_year = year - 1
@@ -959,8 +961,8 @@ def generate_table5_data(
         closest_year = max(y for y in available_years if y <= previous_year)
         previous_cumulative = LA_CIENEGA_CUMULATIVE[closest_year]
 
-    # Calculate new cumulative
-    cumulative_af = previous_cumulative + annual_af
+    # Calculate annual increment (this year's contribution to cumulative)
+    annual_af = cumulative_af - previous_cumulative
 
     return {
         "year": year,

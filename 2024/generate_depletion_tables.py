@@ -413,7 +413,7 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
     Returns:
         Nested dict: {year: {identifier: {month: value_cfs}}}
         - year: Integer year (1988, 1989, ..., 2024, ...)
-        - identifier: Cell key "LAY_ROW_COL" or stream name
+        - identifier: Cell key "LAY ROW COL" (space-separated) or stream name
         - month: Three-letter lowercase month name
         - value_cfs: Flow in cubic feet per second
 
@@ -502,7 +502,7 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
             values = values_str.split()
 
             if len(values) >= 12:
-                cell_key = f"{lay}_{row}_{col}"
+                cell_key = f"{lay} {row} {col}"
                 parsed_data[current_year][cell_key] = {}
                 for i, month in enumerate(MONTH_NAMES):
                     parsed_data[current_year][cell_key][month] = float(values[i])
@@ -512,6 +512,8 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
         stream_match = stream_pattern.match(line)
         if stream_match:
             stream_name = stream_match.group(1).strip()
+            # Normalize multiple spaces to single space (e.g., "RIV  TOTAL" -> "RIV TOTAL")
+            stream_name = re.sub(r"\s+", " ", stream_name)
             values_str = stream_match.group(2).strip()
             values = values_str.split()
 
@@ -555,7 +557,7 @@ STREAM_NAMES: list[str] = [
     "R POJOAQUE",   # Rio Pojoaque-Nambe tributary
     "R TESUQUE",    # Rio Tesuque tributary
     "RIO GRANDE",   # Rio Grande main stem
-    "RIV  TOTAL",   # Total river depletions (note: double space in source file)
+    "RIV TOTAL",    # Total river depletions (normalized from double space in source file)
     "LC SPRINGS",   # La Cienega Springs
 ]
 

@@ -127,3 +127,35 @@ mkdir -p YOUR_PROJECT/dev YOUR_PROJECT/review
 ## License
 
 MIT
+
+---
+
+## Buckman Wellfield Workflow
+
+This repository also contains the Buckman wellfield annual depletion calculation workflow, used for Santa Fe water rights compliance.
+
+### Quick Start
+
+```bash
+# Generate Tables 1 & 2 (pumping data)
+python3 ingest_buckman_data.py --year 2024
+
+# Generate Tables 3, 4, 5 (depletion calculations)
+python3 generate_depletion_tables.py --year 2024
+```
+
+### Output Tables
+
+| Table | Description |
+|-------|-------------|
+| Table 1 | Historical pumping by well (1988-present) |
+| Table 2 | Current year monthly pumping detail |
+| Table 3 | Rio Pojoaque-Nambe & Rio Tesuque depletions |
+| Table 4 | Rio Grande above/below Otowi depletions |
+| Table 5 | La Cienega Springs cumulative depletions |
+
+### Documentation
+
+- **Workflow Guide:** [docs/BUCKMAN_WORKFLOW.md](docs/BUCKMAN_WORKFLOW.md)
+- **Tables 1 & 2 Methodology:** [output/ingested_data/METHODOLOGY_Tables_1_2.md](output/ingested_data/METHODOLOGY_Tables_1_2.md)
+- **Tables 3, 4, 5 Methodology:** [output/depletion/METHODOLOGY_Tables_3_4_5.md](output/depletion/METHODOLOGY_Tables_3_4_5.md)
