@@ -161,7 +161,7 @@ def create_example_workbooks():
     ws1 = wb1.active
     ws1.title = "Table_2_Example"
     apply_table2_formatting(ws1)
-    wb1.save("/home/bradwolaver/projects/rg/santafe/2024/example_table2_format.xlsx")
+    wb1.save("/home/bradwolaver/projects/rg/santafe/buckman/example_table2_format.xlsx")
     print("Created: example_table2_format.xlsx")
 
     # Example 2: Table_1 style
@@ -169,7 +169,7 @@ def create_example_workbooks():
     ws2 = wb2.active
     ws2.title = "Table1_Example"
     apply_table1_formatting(ws2)
-    wb2.save("/home/bradwolaver/projects/rg/santafe/2024/example_table1_format.xlsx")
+    wb2.save("/home/bradwolaver/projects/rg/santafe/buckman/example_table1_format.xlsx")
     print("Created: example_table1_format.xlsx")
 
 

@@ -33,26 +33,28 @@ This document describes the annual process to calculate stream depletion impacts
 
 ### Step 1: Obtain Pumping Data
 
-Get monthly XML reports from City of Santa Fe for the reporting year.
+Get daily pumping data CSV from City of Santa Fe for the reporting year.
 
-Place CSV exports in `input/` directory with naming convention:
+Place CSV in `input/csv/` directory with naming convention:
 ```
-input/YYYY_MM_MON.csv
+input/csv/Buckman_Well_Prod_YYYY.csv
 ```
-Example: `input/2024_01_JAN.csv`, `input/2024_02_FEB.csv`, etc.
+Example: `input/csv/Buckman_Well_Prod_2025.csv`
+
+The CSV contains 365/366 daily rows with MGD values for all 13 Buckman wells.
 
 ---
 
 ### Step 2: Generate Tables 1 & 2 (Pumping Data)
 
 ```bash
-python3 ingest_buckman_data.py --year YYYY
+python3 step1_ingest_buckman_data.py --year YYYY
 ```
 
 **Outputs:**
-- `output/ingested_data/YYYY_Table_1_updated.xlsx`
-- `output/ingested_data/YYYY_Table_2_output.xlsx`
-- `output/modflow/YYYY/thruCY2165_YYYY.wel` (MODFLOW well file)
+- `output/ingested_data/YYYY_Table_1_updated.xlsx` - Historical pumping by well
+- `output/ingested_data/YYYY_Table_2_output.xlsx` - Monthly pumping detail
+- `output/ingested_data/YYYY_MM_MON.csv` - Monthly breakdown files
 
 **Verify:**
 - Total pumping is within historical range (typically 500-6000 AFY)
@@ -61,17 +63,27 @@ python3 ingest_buckman_data.py --year YYYY
 
 ---
 
-### Step 3: Verify WEL File
+### Step 3: Generate MODFLOW Files
 
-Manually inspect the generated WEL file to ensure:
+```bash
+python3 step2_update_modflow.py --year YYYY
+```
+
+**Inputs:**
+- For baseline year (2024): `input/modflow/2023/thruCY2165.wel`
+- For subsequent years: `output/modflow/{YYYY-1}/thruCY2165_{YYYY-1}.wel`
+
+**Outputs:**
+- `output/modflow/YYYY/thruCY2165_YYYY.wel` - Updated well file
+- `output/modflow/YYYY/CY{YYYY}.nam` - MODFLOW name file
+
+**Verify WEL File:**
+```bash
+head -50 output/modflow/YYYY/thruCY2165_YYYY.wel
+```
 - Total pumping matches Table 2 annual total
 - All 13 wells are present
 - Monthly values look reasonable
-
-```bash
-# Quick check of WEL file
-head -50 output/modflow/YYYY/thruCY2165_YYYY.wel
-```
 
 ---
 
@@ -110,7 +122,7 @@ wine sfmodflx_2245.exe
 ### Step 6: Generate Tables 3, 4, 5 (Depletion Tables)
 
 ```bash
-python3 generate_depletion_tables.py --year YYYY
+python3 step3_generate_depletion_tables.py --year YYYY
 ```
 
 **Outputs:**
@@ -142,13 +154,25 @@ Apply sanity checks:
 
 ```bash
 # Step 2: Generate Tables 1 & 2
-python3 ingest_buckman_data.py --year 2024
+python3 step1_ingest_buckman_data.py --year 2024
+
+# Step 3: Generate MODFLOW files
+python3 step2_update_modflow.py --year 2024
 
 # Step 5: Run post-processor (if needed)
 cd output/modflow/2024/depletions && wine sfmodflx_2245.exe
 
 # Step 6: Generate Tables 3, 4, 5
-python3 generate_depletion_tables.py --year 2024
+python3 step3_generate_depletion_tables.py --year 2024
+```
+
+### Example: Processing 2025 Data
+```bash
+# After getting Buckman_Well_Prod_2025.csv in input/csv/:
+python3 step1_ingest_buckman_data.py --year 2025
+python3 step2_update_modflow.py --year 2025
+# Run MODFLOW96, then:
+python3 step3_generate_depletion_tables.py --year 2025
 ```
 
 ---
@@ -157,16 +181,19 @@ python3 generate_depletion_tables.py --year 2024
 
 ```
 .
-├── input/                              # Monthly pumping CSV files
-│   ├── 2024_01_JAN.csv
-│   ├── 2024_02_FEB.csv
-│   └── ...
+├── input/
+│   ├── csv/                            # Daily pumping CSV (input)
+│   │   └── Buckman_Well_Prod_YYYY.csv  # 365/366 daily rows
+│   └── modflow/                        # Baseline MODFLOW files
+│       └── 2023/                       # Original baseline year
+│           └── thruCY2165.wel
 │
 ├── output/
 │   ├── ingested_data/                  # Tables 1 & 2
-│   │   ├── 2024_Table_1_updated.xlsx
-│   │   ├── 2024_Table_2_output.xlsx
-│   │   └── METHODOLOGY_Tables_1_2.md
+│   │   ├── YYYY_Table_1_updated.xlsx   # Historical pumping
+│   │   ├── YYYY_Table_2_output.xlsx    # Monthly pumping detail
+│   │   ├── YYYY_01_JAN.csv             # Monthly breakdown (output)
+│   │   └── ...
 │   │
 │   ├── depletion/                      # Tables 3, 4, 5
 │   │   ├── TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx
@@ -189,9 +216,10 @@ python3 generate_depletion_tables.py --year 2024
 │   ├── TABLE 4 - Rio Grande, above below Otowi.xlsx
 │   └── Table 5 - La Cienega Spring.jpg
 │
-├── ingest_buckman_data.py              # Tables 1 & 2 generator
-├── generate_depletion_tables.py        # Tables 3, 4, 5 generator
-└── stream_depletions.py                # Core depletion calculations
+├── step1_ingest_buckman_data.py        # Tables 1 & 2 generator
+├── step2_update_modflow.py             # MODFLOW WEL/NAM file generator
+├── step3_generate_depletion_tables.py  # Tables 3, 4, 5 generator
+└── stream_depletions.py                # Library: depletion calculations
 ```
 
 ---

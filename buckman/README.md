@@ -80,7 +80,10 @@ Autonomous coding agent loop with guardrails.
 │       └── reference/           # Supporting reference files
 │
 ├── ralph.sh                     # Autonomous agent loop
-├── ingest_buckman_data.py       # Main entry point
+├── step1_ingest_buckman_data.py # Ingest daily pumping CSV → Tables 1 & 2
+├── step2_update_modflow.py      # Generate MODFLOW WEL/NAM files
+├── step3_generate_depletion_tables.py  # Parse MODFLOW output → Tables 3-5
+├── stream_depletions.py         # Library: depletion calculation functions
 ├── requirements.txt             # Dependencies
 ├── mypy.ini                     # Type checking config
 ├── pytest.ini                   # Test config
@@ -134,14 +137,36 @@ MIT
 
 This repository also contains the Buckman wellfield annual depletion calculation workflow, used for Santa Fe water rights compliance.
 
+### Script Architecture
+
+| Script | Type | Purpose |
+|--------|------|---------|
+| `step1_ingest_buckman_data.py` | CLI | Ingest daily pumping CSV → Tables 1 & 2 |
+| `step2_update_modflow.py` | CLI | Generate MODFLOW WEL/NAM files |
+| `step3_generate_depletion_tables.py` | CLI | Parse MODFLOW output → Tables 3, 4, 5 |
+| `stream_depletions.py` | Library | Depletion calculation functions (imported by step3) |
+
 ### Quick Start
 
 ```bash
-# Generate Tables 1 & 2 (pumping data)
-python3 ingest_buckman_data.py --year 2024
+# Step 1: Generate Tables 1 & 2 (pumping data)
+python3 step1_ingest_buckman_data.py --year 2024
 
-# Generate Tables 3, 4, 5 (depletion calculations)
-python3 generate_depletion_tables.py --year 2024
+# Step 2: Generate MODFLOW WEL/NAM files
+python3 step2_update_modflow.py --year 2024
+
+# Step 3: Run MODFLOW96 (external, via Wine)
+# Step 4: Generate Tables 3, 4, 5 (depletion calculations)
+python3 step3_generate_depletion_tables.py --year 2024
+```
+
+### Year-Agnostic Processing
+
+All CLI scripts use the same `--year` flag and support processing any year:
+```bash
+python3 step1_ingest_buckman_data.py --year 2025
+python3 step2_update_modflow.py --year 2025
+python3 step3_generate_depletion_tables.py --year 2025
 ```
 
 ### Output Tables

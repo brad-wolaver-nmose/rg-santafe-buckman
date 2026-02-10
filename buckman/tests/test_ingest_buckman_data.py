@@ -16,12 +16,12 @@ import pytest
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import ingest_buckman_data  # noqa: F401
+    import step1_ingest_buckman_data  # noqa: F401
 
 
 def test_constants_defined():
     """Verify all required constants are defined."""
-    import ingest_buckman_data as m
+    import step1_ingest_buckman_data as m
 
     assert hasattr(m, "OUTPUT_DIR")
     assert hasattr(m, "MG_TO_AF_FACTOR")
@@ -35,7 +35,7 @@ def test_constants_defined():
 
 def test_well_ose_map_has_13_wells():
     """Verify WELL_OSE_MAP contains all 13 wells."""
-    from ingest_buckman_data import WELL_OSE_MAP
+    from step1_ingest_buckman_data import WELL_OSE_MAP
 
     assert len(WELL_OSE_MAP) == 13
     for i in range(1, 14):
@@ -46,7 +46,7 @@ def test_well_ose_map_has_13_wells():
 
 def test_months_ordered_has_12():
     """Verify MONTHS_ORDERED has 12 month tuples."""
-    from ingest_buckman_data import MONTHS_ORDERED
+    from step1_ingest_buckman_data import MONTHS_ORDERED
 
     assert len(MONTHS_ORDERED) == 12
     assert MONTHS_ORDERED[0] == ("01", "JAN")
@@ -55,7 +55,7 @@ def test_months_ordered_has_12():
 
 def test_mg_to_af_factor():
     """Verify conversion factor is approximately correct."""
-    from ingest_buckman_data import MG_TO_AF_FACTOR
+    from step1_ingest_buckman_data import MG_TO_AF_FACTOR
 
     # USGS: 1 MG = 3.06889 AF (1,000,000 / 325,851)
     assert 3.06 < MG_TO_AF_FACTOR < 3.07
@@ -68,10 +68,10 @@ def test_mg_to_af_factor():
 def test_no_ocr_imports():
     """Verify PDF/OCR imports have been removed."""
 
-    import ingest_buckman_data
+    import step1_ingest_buckman_data
 
     # These modules should NOT be imported by the script
-    module_text = open(ingest_buckman_data.__file__).read()
+    module_text = open(step1_ingest_buckman_data.__file__).read()
     assert "import pytesseract" not in module_text
     assert "from pdf2image" not in module_text
     assert "import pdf2image" not in module_text
@@ -79,7 +79,7 @@ def test_no_ocr_imports():
 
 def test_no_ocr_functions():
     """Verify OCR-specific functions have been removed."""
-    import ingest_buckman_data as m
+    import step1_ingest_buckman_data as m
 
     assert not hasattr(m, "check_system_dependencies")
     assert not hasattr(m, "WellData")
@@ -96,13 +96,13 @@ def test_no_ocr_functions():
 
 def test_read_source_csv_exists():
     """Verify read_source_csv function exists and is callable."""
-    from ingest_buckman_data import read_source_csv
+    from step1_ingest_buckman_data import read_source_csv
     assert callable(read_source_csv)
 
 
 def test_read_source_csv_runs():
     """Verify read_source_csv executes with the real CSV file."""
-    from ingest_buckman_data import read_source_csv
+    from step1_ingest_buckman_data import read_source_csv
 
     csv_path = "./input/csv/Buckman_Well_Prod_2024.csv"
     if not os.path.exists(csv_path):
@@ -127,7 +127,7 @@ def test_read_source_csv_runs():
 
 def test_validate_daily_data_exists():
     """Verify validate_daily_data function exists and is callable."""
-    from ingest_buckman_data import validate_daily_data
+    from step1_ingest_buckman_data import validate_daily_data
     assert callable(validate_daily_data)
 
 
@@ -137,7 +137,7 @@ def test_validate_daily_data_exists():
 
 def test_verify_daily_sums_exists():
     """Verify verify_daily_sums function exists and is callable."""
-    from ingest_buckman_data import verify_daily_sums
+    from step1_ingest_buckman_data import verify_daily_sums
     assert callable(verify_daily_sums)
 
 
@@ -147,7 +147,7 @@ def test_verify_daily_sums_exists():
 
 def test_aggregate_monthly_exists():
     """Verify aggregate_monthly function exists and is callable."""
-    from ingest_buckman_data import aggregate_monthly
+    from step1_ingest_buckman_data import aggregate_monthly
     assert callable(aggregate_monthly)
 
 
@@ -157,7 +157,7 @@ def test_aggregate_monthly_exists():
 
 def test_generate_monthly_csv_exists():
     """Verify generate_monthly_csv function exists and is callable."""
-    from ingest_buckman_data import generate_monthly_csv
+    from step1_ingest_buckman_data import generate_monthly_csv
     assert callable(generate_monthly_csv)
 
 
@@ -167,7 +167,7 @@ def test_generate_monthly_csv_exists():
 
 def test_generate_table2_output_exists():
     """Verify generate_table2_output function exists and is callable."""
-    from ingest_buckman_data import generate_table2_output
+    from step1_ingest_buckman_data import generate_table2_output
     assert callable(generate_table2_output)
 
 
@@ -177,7 +177,7 @@ def test_generate_table2_output_exists():
 
 def test_generate_qa_summary_exists():
     """Verify generate_qa_summary function exists and is callable."""
-    from ingest_buckman_data import generate_qa_summary
+    from step1_ingest_buckman_data import generate_qa_summary
     assert callable(generate_qa_summary)
 
 
@@ -187,7 +187,7 @@ def test_generate_qa_summary_exists():
 
 def test_verify_annual_sums_exists():
     """Verify verify_annual_sums function exists and is callable."""
-    from ingest_buckman_data import verify_annual_sums
+    from step1_ingest_buckman_data import verify_annual_sums
     assert callable(verify_annual_sums)
 
 
@@ -197,7 +197,7 @@ def test_verify_annual_sums_exists():
 
 def test_pint_mg_to_af_conversion():
     """Verify pint-based MG to AF conversion produces correct result."""
-    from ingest_buckman_data import ureg
+    from step1_ingest_buckman_data import ureg
 
     mg_qty = 1.0 * ureg.million_gallon
     af_qty = mg_qty.to(ureg.acre_foot)
@@ -209,7 +209,7 @@ def test_pint_mg_to_af_conversion():
 
 def test_pint_mg_to_af_zero():
     """Verify pint conversion handles zero correctly."""
-    from ingest_buckman_data import ureg
+    from step1_ingest_buckman_data import ureg
 
     mg_qty = 0.0 * ureg.million_gallon
     af_qty = mg_qty.to(ureg.acre_foot)
@@ -228,7 +228,7 @@ def test_end_to_end_smoke():
     This is NOT a precision test. It verifies the pipeline runs without
     crashing and produces output files.
     """
-    from ingest_buckman_data import (
+    from step1_ingest_buckman_data import (
         aggregate_monthly,
         read_source_csv,
         validate_daily_data,
@@ -263,7 +263,7 @@ def test_annual_mg_sanity():
     The CSV Sum row shows BWP total of ~447 MG for 2024.
     This catches order-of-magnitude errors.
     """
-    from ingest_buckman_data import read_source_csv
+    from step1_ingest_buckman_data import read_source_csv
 
     csv_path = "./input/csv/Buckman_Well_Prod_2024.csv"
     if not os.path.exists(csv_path):

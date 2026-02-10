@@ -3,14 +3,17 @@
 Stream depletion calculations for MODFLOW post-processor output.
 
 Scientific Basis:
-- Superposition model: MODFLOW calculates depletions from 1988-2024 pumping
+- Superposition model: MODFLOW calculates depletions from 1988-{year} pumping
 - Analytical residuals: Core (2003) provides pre-1988 pumping effects
 - Unit conversion: cfs * days * 86400 / 43560 = acre-feet
+
+Year-agnostic: Handles any year including leap year detection.
 
 References:
 - Core, A.A. (2003). Santa Fe River Water Budget Model Technical Report.
 """
 
+import calendar
 from pathlib import Path
 from typing import Any
 
@@ -19,8 +22,36 @@ from typing import Any
 # CONFIGURATION CONSTANTS
 # =============================================================================
 
-# Days per month for 2024 (leap year - scientifically accurate)
-DAYS_2024: list[int] = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+def get_days_in_year(year: int) -> list[int]:
+    """
+    Return days per month for given year, handling leap years.
+
+    Scientific basis:
+    - Leap years have 29 days in February, non-leap years have 28
+    - Leap year rule: divisible by 4, except centuries unless divisible by 400
+    - Uses Python calendar module for correctness
+
+    Args:
+        year: Calendar year (e.g., 2024, 2025)
+
+    Returns:
+        List of 12 integers, days in each month [Jan..Dec]
+
+    Example:
+        >>> get_days_in_year(2024)  # Leap year
+        [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        >>> get_days_in_year(2025)  # Non-leap year
+        [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    """
+    return [
+        31,
+        29 if calendar.isleap(year) else 28,
+        31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    ]
+
+
+# Days per month for 2024 (leap year) - kept for backward compatibility
+DAYS_2024: list[int] = get_days_in_year(2024)
 
 # Days per month from validation files (non-leap year pattern)
 # Note: Validation files use 28 for February regardless of year

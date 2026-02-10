@@ -1705,8 +1705,9 @@ def main() -> int:
         description="Ingest Buckman Well Field daily CSV data and generate reports"
     )
     parser.add_argument(
-        "year",
+        "--year",
         type=int,
+        required=True,
         help="Year to process (e.g., 2024, 2025)"
     )
     args = parser.parse_args()

@@ -11,12 +11,12 @@ import pytest
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import update_modflow
+    import step2_update_modflow
 
 
 def test_convert_function_exists():
     """Verify the acre-feet to ft3/s conversion function exists and is callable."""
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     assert callable(convert_af_to_ft3s)
 
@@ -31,7 +31,7 @@ def test_convert_af_to_ft3s_known_answer():
 
     Tolerance is wide (0.001) because this is a smoke test, not a precision test.
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=16.887963, days_in_month=31, num_layers=2)
 
@@ -46,7 +46,7 @@ def test_convert_af_to_ft3s_known_answer():
 
 def test_convert_zero_pumping():
     """Verify zero acre-feet produces zero (or near-zero) rate."""
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=0.0, days_in_month=31, num_layers=2)
     assert abs(result) < 1e-10, f"Expected zero rate for zero pumping, got {result}"
@@ -59,7 +59,7 @@ def test_leap_year_february():
     Well 6 FEB 2024: 0.199476 acre-feet, 29 days.
     Per-layer rate ≈ -0.00173 ft3/s.
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     days_feb_2024 = calendar.monthrange(2024, 2)[1]
     assert days_feb_2024 == 29, f"2024 is a leap year, February should have 29 days"
@@ -74,7 +74,7 @@ def test_leap_year_february():
 
 def test_well_name_mapping_exists():
     """Verify the well name mapping constant is defined and has 13 entries."""
-    from update_modflow import WELL_NAME_MAP
+    from step2_update_modflow import WELL_NAME_MAP
 
     assert isinstance(WELL_NAME_MAP, dict)
     assert len(WELL_NAME_MAP) == 13, (
@@ -88,7 +88,7 @@ def test_well_name_mapping_exists():
 
 def test_read_table2_function_exists():
     """Verify the read_table2_pumping_data function exists and is callable."""
-    from update_modflow import read_table2_pumping_data
+    from step2_update_modflow import read_table2_pumping_data
 
     assert callable(read_table2_pumping_data)
 
@@ -98,7 +98,7 @@ def test_read_table2_pumping_data():
     Verify CSV parsing returns dict with 13 wells and 12 months each.
     Uses actual Table 2 CSV file.
     """
-    from update_modflow import read_table2_pumping_data
+    from step2_update_modflow import read_table2_pumping_data
 
     result = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
 
@@ -126,7 +126,7 @@ def test_read_table2_pumping_data():
 
 def test_read_table2_no_negative_values():
     """Verify all pumping values are non-negative."""
-    from update_modflow import read_table2_pumping_data
+    from step2_update_modflow import read_table2_pumping_data
 
     result = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
 
@@ -149,7 +149,7 @@ def test_convert_hand_check_well1_jan():
     16.887963 AF, 31 days -> per-layer rate ≈ -0.13733 ft³/s
     (PRD says -0.13730 but exact calculation is -0.137328...)
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=16.887963, days_in_month=31, num_layers=2)
 
@@ -166,7 +166,7 @@ def test_convert_hand_check_well6_feb():
 
     0.199476 AF, 29 days -> per-layer rate ≈ -0.00173 ft³/s
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=0.199476, days_in_month=29, num_layers=2)
 
@@ -182,7 +182,7 @@ def test_convert_hand_check_well10_dec():
 
     12.235564 AF, 31 days -> per-layer rate ≈ -0.09950 ft³/s
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=12.235564, days_in_month=31, num_layers=2)
 
@@ -199,7 +199,7 @@ def test_convert_output_precision():
     The conversion function returns a float; formatting is the caller's
     responsibility. This test verifies the values are stable at 5 decimals.
     """
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     result = convert_af_to_ft3s(acre_feet=16.887963, days_in_month=31, num_layers=2)
     formatted = f"{result:.5f}"
@@ -209,7 +209,7 @@ def test_convert_output_precision():
 
 def test_convert_negative_acre_feet_raises():
     """Verify negative acre-feet raises ValueError."""
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     with pytest.raises(ValueError, match="acre_feet must be >= 0"):
         convert_af_to_ft3s(acre_feet=-1.0, days_in_month=31, num_layers=2)
@@ -217,7 +217,7 @@ def test_convert_negative_acre_feet_raises():
 
 def test_convert_invalid_days_raises():
     """Verify invalid days_in_month raises ValueError."""
-    from update_modflow import convert_af_to_ft3s
+    from step2_update_modflow import convert_af_to_ft3s
 
     with pytest.raises(ValueError, match="days_in_month must be 1-31"):
         convert_af_to_ft3s(acre_feet=10.0, days_in_month=0, num_layers=2)
@@ -233,14 +233,14 @@ def test_convert_invalid_days_raises():
 
 def test_parse_wel_file_function_exists():
     """Verify parse_wel_file function exists and is callable."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     assert callable(parse_wel_file)
 
 
 def test_parse_wel_file_returns_welfiledata():
     """Verify parse_wel_file returns WelFileData object with all sections."""
-    from update_modflow import parse_wel_file, WelFileData
+    from step2_update_modflow import parse_wel_file, WelFileData
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -256,7 +256,7 @@ def test_parse_wel_file_2024_section_size():
 
     12 months × 27 lines/month (1 header + 26 well entries)
     """
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -273,7 +273,7 @@ def test_parse_wel_file_preserves_total_lines():
 
     pre_2024 + 2024 + post_2024 = 54,805
     """
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -285,7 +285,7 @@ def test_parse_wel_file_preserves_total_lines():
 
 def test_parse_wel_file_pre_2024_ends_before_jan_2024():
     """Verify pre-2024 lines end with DEC 2023 data."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -298,7 +298,7 @@ def test_parse_wel_file_pre_2024_ends_before_jan_2024():
 
 def test_parse_wel_file_2024_section_starts_with_header():
     """Verify 2024 section starts with header line '26'."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -310,7 +310,7 @@ def test_parse_wel_file_2024_section_starts_with_header():
 
 def test_parse_wel_file_2024_first_entry_is_buckman1_jan():
     """Verify first well entry in 2024 is BUCKMAN 1 JAN 2024."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -323,7 +323,7 @@ def test_parse_wel_file_2024_first_entry_is_buckman1_jan():
 
 def test_parse_wel_file_2024_last_entry_is_buckman13_dec():
     """Verify last well entry in 2024 is BUCKMAN 13 DEC 2024."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -335,7 +335,7 @@ def test_parse_wel_file_2024_last_entry_is_buckman13_dec():
 
 def test_parse_wel_file_post_2024_starts_with_jan_2025():
     """Verify post-2024 section starts with JAN 2025 header."""
-    from update_modflow import parse_wel_file
+    from step2_update_modflow import parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -359,7 +359,7 @@ def test_parse_wel_file_post_2024_starts_with_jan_2025():
 
 def test_generate_well_entry_line_exists():
     """Verify generate_well_entry_line function exists and is callable."""
-    from update_modflow import generate_well_entry_line
+    from step2_update_modflow import generate_well_entry_line
 
     assert callable(generate_well_entry_line)
 
@@ -370,7 +370,7 @@ def test_generate_well_entry_line_format():
 
     Format: {layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}
     """
-    from update_modflow import generate_well_entry_line
+    from step2_update_modflow import generate_well_entry_line
 
     line = generate_well_entry_line(
         layer=1, row=13, col=11, rate=-0.13730,
@@ -384,7 +384,7 @@ def test_generate_well_entry_line_format():
 
 def test_generate_well_entry_line_zero_rate():
     """Verify zero rate is formatted as -0.00000."""
-    from update_modflow import generate_well_entry_line
+    from step2_update_modflow import generate_well_entry_line
 
     line = generate_well_entry_line(
         layer=1, row=14, col=11, rate=-0.0,
@@ -396,7 +396,7 @@ def test_generate_well_entry_line_zero_rate():
 
 def test_generate_month_header():
     """Verify month header line format."""
-    from update_modflow import generate_month_header
+    from step2_update_modflow import generate_month_header
 
     header = generate_month_header(line_ending="\n")
     assert header == "        26\n", f"Expected '        26\\n', got: {repr(header)}"
@@ -404,7 +404,7 @@ def test_generate_month_header():
 
 def test_generate_well_entries_exists():
     """Verify generate_well_entries function exists and is callable."""
-    from update_modflow import generate_well_entries
+    from step2_update_modflow import generate_well_entries
 
     assert callable(generate_well_entries)
 
@@ -415,7 +415,7 @@ def test_generate_well_entries_count():
 
     12 months × 27 lines (1 header + 26 entries) = 324
     """
-    from update_modflow import generate_well_entries, read_table2_pumping_data
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
@@ -427,7 +427,7 @@ def test_generate_well_entries_structure():
     """
     Verify each month block has correct structure: 1 header + 26 entries.
     """
-    from update_modflow import generate_well_entries, read_table2_pumping_data
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
@@ -459,7 +459,7 @@ def test_generate_well_entries_well_order():
     """
     Verify wells appear in correct order: 1, 2, 3A, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13.
     """
-    from update_modflow import generate_well_entries, read_table2_pumping_data
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
@@ -489,7 +489,7 @@ def test_generate_well_entries_well_order():
 
 def test_generate_well_entries_layer_order():
     """Verify Layer 1 comes before Layer 2 for each well."""
-    from update_modflow import generate_well_entries, read_table2_pumping_data
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
@@ -508,7 +508,7 @@ def test_generate_well_entries_layer_order():
 
 def test_generate_well_entries_rates_are_negative():
     """Verify all pumping rates are negative (MODFLOW convention)."""
-    from update_modflow import generate_well_entries, read_table2_pumping_data
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
@@ -534,7 +534,7 @@ def test_generate_well_entries_matches_validation_jan():
 
     This is a key integration test that verifies the format matches exactly.
     """
-    from update_modflow import (
+    from step2_update_modflow import (
         generate_well_entries, read_table2_pumping_data
     )
     from pathlib import Path
@@ -599,14 +599,14 @@ def test_generate_well_entries_matches_validation_jan():
 
 def test_write_updated_wel_file_exists():
     """Verify write_updated_wel_file function exists and is callable."""
-    from update_modflow import write_updated_wel_file
+    from step2_update_modflow import write_updated_wel_file
 
     assert callable(write_updated_wel_file)
 
 
 def test_write_updated_wel_file_creates_directory(tmp_path):
     """Verify function creates output directory if it doesn't exist."""
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file
     )
@@ -632,7 +632,7 @@ def test_write_updated_wel_file_creates_directory(tmp_path):
 
 def test_write_updated_wel_file_line_count(tmp_path):
     """Verify written file has exactly 54,805 lines."""
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file
     )
@@ -659,7 +659,7 @@ def test_write_updated_wel_file_line_count(tmp_path):
 
 def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
     """Verify pre-2024 section is preserved exactly."""
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file
     )
@@ -691,7 +691,7 @@ def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
 
 def test_write_updated_wel_file_preserves_post_2024(tmp_path):
     """Verify post-2024 section is preserved exactly."""
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file
     )
@@ -724,7 +724,7 @@ def test_write_updated_wel_file_preserves_post_2024(tmp_path):
 
 def test_write_updated_wel_file_invalid_2024_count_raises(tmp_path):
     """Verify error raised if year lines count is wrong."""
-    from update_modflow import parse_wel_file, write_updated_wel_file
+    from step2_update_modflow import parse_wel_file, write_updated_wel_file
 
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -746,14 +746,14 @@ def test_write_updated_wel_file_invalid_2024_count_raises(tmp_path):
 
 def test_generate_nam_file_exists():
     """Verify generate_nam_file function exists and is callable."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     assert callable(generate_nam_file)
 
 
 def test_generate_nam_file_creates_file(tmp_path):
     """Verify generate_nam_file creates output file."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     result_path = generate_nam_file(
         2024,
@@ -767,7 +767,7 @@ def test_generate_nam_file_creates_file(tmp_path):
 
 def test_generate_nam_file_creates_directory(tmp_path):
     """Verify generate_nam_file creates output directory if needed."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     output_dir = tmp_path / "nested" / "output" / "dir"
 
@@ -783,7 +783,7 @@ def test_generate_nam_file_creates_directory(tmp_path):
 
 def test_generate_nam_file_has_header_comments(tmp_path):
     """Verify output file has header comment block."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     result_path = generate_nam_file(
         2024,
@@ -808,7 +808,7 @@ def test_generate_nam_file_has_header_comments(tmp_path):
 
 def test_generate_nam_file_replaces_cy2023_with_cy2024(tmp_path):
     """Verify CY2023 references are replaced with CY2024."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     result_path = generate_nam_file(
         2024,
@@ -838,7 +838,7 @@ def test_generate_nam_file_replaces_cy2023_with_cy2024(tmp_path):
 
 def test_generate_nam_file_replaces_wel_filename(tmp_path):
     """Verify .wel filename is updated to thruCY2165_2024.wel."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     result_path = generate_nam_file(
         2024,
@@ -865,7 +865,7 @@ def test_generate_nam_file_replaces_wel_filename(tmp_path):
 
 def test_generate_nam_file_uppercase_package_types(tmp_path):
     """Verify package types are uppercase (LIST, BAS, BCF, etc.)."""
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     result_path = generate_nam_file(
         2024,
@@ -893,7 +893,7 @@ def test_generate_nam_file_matches_validation_content(tmp_path):
     Ignores comment lines (timestamps will differ) and compares
     all non-comment lines.
     """
-    from update_modflow import generate_nam_file
+    from step2_update_modflow import generate_nam_file
 
     validation_nam_path = "validation/modflow/2024/CY2024.nam"
 
@@ -939,7 +939,7 @@ def test_generate_nam_file_matches_validation_content(tmp_path):
 
 def test_validation_result_class_exists():
     """Verify ValidationResult class exists."""
-    from update_modflow import ValidationResult
+    from step2_update_modflow import ValidationResult
 
     result = ValidationResult(2024)  # target_year is now required
     assert hasattr(result, "wells_checked")
@@ -952,14 +952,14 @@ def test_validation_result_class_exists():
 
 def test_validate_nam_file_exists():
     """Verify validate_nam_file function exists and is callable."""
-    from update_modflow import validate_nam_file
+    from step2_update_modflow import validate_nam_file
 
     assert callable(validate_nam_file)
 
 
 def test_validate_nam_file_passes_for_matching_files(tmp_path):
     """Verify validate_nam_file passes when files match (ignoring comments)."""
-    from update_modflow import generate_nam_file, validate_nam_file
+    from step2_update_modflow import generate_nam_file, validate_nam_file
 
     # Generate a .nam file
     generated_path = generate_nam_file(
@@ -977,7 +977,7 @@ def test_validate_nam_file_passes_for_matching_files(tmp_path):
 
 def test_validate_nam_file_against_validation(tmp_path):
     """Verify generated .nam file passes validation against known-good file."""
-    from update_modflow import generate_nam_file, validate_nam_file
+    from step2_update_modflow import generate_nam_file, validate_nam_file
 
     # Generate a .nam file
     generated_path = generate_nam_file(
@@ -997,7 +997,7 @@ def test_validate_nam_file_against_validation(tmp_path):
 
 def test_validate_nam_file_fails_for_missing_generated_file(tmp_path):
     """Verify validate_nam_file fails gracefully for missing generated file."""
-    from update_modflow import validate_nam_file
+    from step2_update_modflow import validate_nam_file
 
     passed, errors = validate_nam_file(
         "/nonexistent/path.nam",
@@ -1011,7 +1011,7 @@ def test_validate_nam_file_fails_for_missing_generated_file(tmp_path):
 
 def test_validate_nam_file_skips_for_missing_validation_file(tmp_path):
     """Verify validate_nam_file returns None (skip) for missing validation file."""
-    from update_modflow import validate_nam_file, generate_nam_file
+    from step2_update_modflow import validate_nam_file, generate_nam_file
 
     # Generate a valid nam file
     generated_path = generate_nam_file(
@@ -1033,14 +1033,14 @@ def test_validate_nam_file_skips_for_missing_validation_file(tmp_path):
 
 def test_validate_wel_file_exists():
     """Verify validate_wel_file function exists and is callable."""
-    from update_modflow import validate_wel_file
+    from step2_update_modflow import validate_wel_file
 
     assert callable(validate_wel_file)
 
 
 def test_validate_wel_file_returns_validation_result():
     """Verify validate_wel_file returns ValidationResult object."""
-    from update_modflow import validate_wel_file, ValidationResult
+    from step2_update_modflow import validate_wel_file, ValidationResult
 
     # Test with non-existent file (should return result with failure)
     result = validate_wel_file(
@@ -1064,7 +1064,7 @@ def test_validate_wel_file_full_pipeline(tmp_path):
     4. Write updated .wel file
     5. Validate against validation file
     """
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file,
         validate_wel_file
@@ -1108,14 +1108,14 @@ def test_validate_wel_file_full_pipeline(tmp_path):
 
 def test_print_validation_report_exists():
     """Verify print_validation_report function exists and is callable."""
-    from update_modflow import print_validation_report
+    from step2_update_modflow import print_validation_report
 
     assert callable(print_validation_report)
 
 
 def test_run_validation_exists():
     """Verify run_validation function exists and is callable."""
-    from update_modflow import run_validation
+    from step2_update_modflow import run_validation
 
     assert callable(run_validation)
 
@@ -1124,7 +1124,7 @@ def test_run_validation_full_pipeline(tmp_path):
     """
     Integration test: Full validation pipeline with generated files.
     """
-    from update_modflow import (
+    from step2_update_modflow import (
         parse_wel_file, read_table2_pumping_data,
         generate_well_entries, write_updated_wel_file,
         generate_nam_file, run_validation, get_year_config
@@ -1161,28 +1161,28 @@ def test_run_validation_full_pipeline(tmp_path):
 # =============================================================================
 def test_parse_args_exists():
     """Verify parse_args function exists and is callable."""
-    from update_modflow import parse_args
+    from step2_update_modflow import parse_args
 
     assert callable(parse_args)
 
 
 def test_main_exists():
     """Verify main function exists and is callable."""
-    from update_modflow import main
+    from step2_update_modflow import main
 
     assert callable(main)
 
 
 def test_print_pumping_summary_exists():
     """Verify print_pumping_summary function exists and is callable."""
-    from update_modflow import print_pumping_summary
+    from step2_update_modflow import print_pumping_summary
 
     assert callable(print_pumping_summary)
 
 
 def test_print_pumping_summary_runs_without_error(capsys):
     """Verify print_pumping_summary runs with valid pumping data."""
-    from update_modflow import print_pumping_summary, read_table2_pumping_data
+    from step2_update_modflow import print_pumping_summary, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     print_pumping_summary(pumping_data, 2024)
@@ -1200,7 +1200,7 @@ def test_main_returns_zero_on_success():
     Integration test: main() should return 0 on success.
     """
     import sys
-    from update_modflow import main
+    from step2_update_modflow import main
 
     # Temporarily override argv to avoid argparse reading test runner args
     # Now requires --year argument
@@ -1219,7 +1219,7 @@ def test_script_runs_end_to_end(capsys):
     Integration test: Full script runs and prints expected progress messages.
     """
     import sys
-    from update_modflow import main
+    from step2_update_modflow import main
 
     original_argv = sys.argv
     sys.argv = ["update_modflow.py", "--year", "2024"]

@@ -42,8 +42,8 @@ def check_theme_colors(filepath):
 
 if __name__ == "__main__":
     files = [
-        "/home/bradwolaver/projects/rg/santafe/2024/validation/Table_2_2024.xlsx",
-        "/home/bradwolaver/projects/rg/santafe/2024/validation/Table_1_data_afy_2024.xlsx"
+        "/home/bradwolaver/projects/rg/santafe/buckman/validation/Table_2_2024.xlsx",
+        "/home/bradwolaver/projects/rg/santafe/buckman/validation/Table_1_data_afy_2024.xlsx"
     ]
 
     for f in files:

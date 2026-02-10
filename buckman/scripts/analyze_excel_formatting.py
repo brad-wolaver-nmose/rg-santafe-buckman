@@ -191,8 +191,8 @@ def analyze_excel_file(filepath):
 
 if __name__ == "__main__":
     files = [
-        "/home/bradwolaver/projects/rg/santafe/2024/validation/Table_2_2024.xlsx",
-        "/home/bradwolaver/projects/rg/santafe/2024/validation/Table_1_data_afy_2024.xlsx"
+        "/home/bradwolaver/projects/rg/santafe/buckman/validation/Table_2_2024.xlsx",
+        "/home/bradwolaver/projects/rg/santafe/buckman/validation/Table_1_data_afy_2024.xlsx"
     ]
 
     for filepath in files:

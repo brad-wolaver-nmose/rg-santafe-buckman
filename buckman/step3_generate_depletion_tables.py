@@ -2,14 +2,16 @@
 """
 Stream Depletion Tables from MODFLOW Post-Processor
 
-This script processes MODFLOW binary output files (CY2024_ghb.flx and CY2024_riv.flx)
+This script processes MODFLOW binary output files (CY{year}_ghb.flx and CY{year}_riv.flx)
 using the sfmodflx_2245 post-processor to generate stream depletion tables for the
-2024 Buckman Well Field annual report.
+Buckman Well Field annual report.
 
 Scientific Basis:
-- Superposition model: MODFLOW calculates depletions from 1988-2024 pumping
+- Superposition model: MODFLOW calculates depletions from 1988-{year} pumping
 - Analytical residuals: Core (2003) provides pre-1988 pumping effects
 - Unit conversion: cfs × days × 86400 / 43560 = acre-feet
+
+Year-agnostic: Pass --year to process any year (default: 2024).
 """
 
 import shutil
@@ -22,24 +24,46 @@ from pathlib import Path
 # CONFIGURATION CONSTANTS
 # =============================================================================
 
-# Source directory containing MODFLOW flux output files
-MODFLOW_OUTPUT_DIR: str = "./output/modflow/2024/modflow/"
-
-# Destination directory for post-processor input/output
-DEPLETIONS_DIR: str = "./output/modflow/2024/depletions/"
-
 # Output directory for generated XLSX tables
 OUTPUT_DIR: str = "./output/depletion/"
 
 # Validation directory
 VALIDATION_DIR: str = "./validation/"
 
-# Processing year
-YEAR: int = 2024
+# Default processing year
+DEFAULT_YEAR: int = 2024
 
-# Flux file names (MODFLOW binary output)
-RIV_FLUX_FILE: str = "CY2024_riv.flx"
-GHB_FLUX_FILE: str = "CY2024_ghb.flx"
+
+# =============================================================================
+# YEAR-PARAMETERIZED PATH FUNCTIONS
+# =============================================================================
+
+def get_modflow_output_dir(year: int) -> str:
+    """Return MODFLOW output directory for given year."""
+    return f"./output/modflow/{year}/modflow/"
+
+
+def get_depletions_dir(year: int) -> str:
+    """Return post-processor working directory for given year."""
+    return f"./output/modflow/{year}/depletions/"
+
+
+def get_flux_files(year: int) -> tuple[str, str]:
+    """Return (riv_flux_file, ghb_flux_file) for given year."""
+    return f"CY{year}_riv.flx", f"CY{year}_ghb.flx"
+
+
+def get_output_file_prefix(year: int) -> str:
+    """Return output file prefix for given year."""
+    return f"CY{year}"
+
+
+# Legacy constants for backward compatibility (used if year not passed)
+YEAR: int = DEFAULT_YEAR
+MODFLOW_OUTPUT_DIR: str = get_modflow_output_dir(DEFAULT_YEAR)
+DEPLETIONS_DIR: str = get_depletions_dir(DEFAULT_YEAR)
+RIV_FLUX_FILE: str = get_flux_files(DEFAULT_YEAR)[0]
+GHB_FLUX_FILE: str = get_flux_files(DEFAULT_YEAR)[1]
 
 
 # =============================================================================
@@ -70,7 +94,7 @@ def print_error(what_failed: str, location: str, actual: str, expected: str, con
 # US-001: Copy Flux Files to Post-Processor Directory
 # =============================================================================
 
-def copy_flux_files() -> bool:
+def copy_flux_files(year: int | None = None) -> bool:
     """
     Copy MODFLOW flux files to the post-processor directory.
 
@@ -80,9 +104,12 @@ def copy_flux_files() -> bool:
     - Files must be accessible to post-processor for depletion calculation
 
     Assumptions:
-    1. Source flux files exist in MODFLOW_OUTPUT_DIR
-    2. Destination directory DEPLETIONS_DIR exists
-    3. Post-processor sfmodflx_2245.exe is in DEPLETIONS_DIR
+    1. Source flux files exist in MODFLOW output directory for the year
+    2. Destination directory (depletions dir) exists
+    3. Post-processor sfmodflx_2245.exe is in depletions directory
+
+    Args:
+        year: Processing year. If None, uses DEFAULT_YEAR.
 
     Returns:
         True if both files copied successfully, False otherwise
@@ -91,7 +118,7 @@ def copy_flux_files() -> bool:
         None - prints forensic error messages and returns False on failure
 
     Example:
-        >>> success = copy_flux_files()
+        >>> success = copy_flux_files(2024)
         Copying flux files to post-processor directory...
           CY2024_riv.flx: 31484640 bytes -> output/modflow/2024/depletions/
           CY2024_ghb.flx: 31484640 bytes -> output/modflow/2024/depletions/
@@ -99,15 +126,19 @@ def copy_flux_files() -> bool:
         >>> success
         True
     """
-    print("Copying flux files to post-processor directory...")
+    if year is None:
+        year = DEFAULT_YEAR
 
-    source_dir = Path(MODFLOW_OUTPUT_DIR)
-    dest_dir = Path(DEPLETIONS_DIR)
+    print(f"Copying flux files to post-processor directory for year {year}...")
+
+    source_dir = Path(get_modflow_output_dir(year))
+    dest_dir = Path(get_depletions_dir(year))
+    riv_flux_file, ghb_flux_file = get_flux_files(year)
 
     # List of files to copy: (filename, description)
     flux_files = [
-        (RIV_FLUX_FILE, "river boundary flux"),
-        (GHB_FLUX_FILE, "general head boundary flux"),
+        (riv_flux_file, "river boundary flux"),
+        (ghb_flux_file, "general head boundary flux"),
     ]
 
     # Check source directory exists
@@ -187,8 +218,8 @@ def copy_flux_files() -> bool:
 # Post-processor executable name
 POST_PROCESSOR_EXE: str = "sfmodflx_2245.exe"
 
-# Output filename prefix (post-processor creates file with this name)
-OUTPUT_FILE_PREFIX: str = "CY2024"
+# Legacy output filename prefix (for backward compatibility)
+OUTPUT_FILE_PREFIX: str = get_output_file_prefix(DEFAULT_YEAR)
 
 
 def check_wine_installed() -> bool:
@@ -215,7 +246,7 @@ def check_wine_installed() -> bool:
         return False
 
 
-def run_post_processor() -> bool:
+def run_post_processor(year: int | None = None) -> bool:
     """
     Execute sfmodflx_2245.exe via Wine with automated input.
 
@@ -227,9 +258,12 @@ def run_post_processor() -> bool:
 
     Assumptions:
     1. Wine is installed and functional
-    2. sfmodflx_2245.exe exists in DEPLETIONS_DIR
-    3. Flux files (CY2024_riv.flx, CY2024_ghb.flx) are in DEPLETIONS_DIR
+    2. sfmodflx_2245.exe exists in depletions directory
+    3. Flux files (CY{year}_riv.flx, CY{year}_ghb.flx) are in depletions directory
     4. Post-processor expects three stdin inputs: riv_file, ghb_file, output_prefix
+
+    Args:
+        year: Processing year. If None, uses DEFAULT_YEAR.
 
     Returns:
         True if post-processor ran successfully, False otherwise
@@ -238,7 +272,7 @@ def run_post_processor() -> bool:
         None - prints forensic error messages and returns False on failure
 
     Example:
-        >>> success = run_post_processor()
+        >>> success = run_post_processor(2024)
         Running post-processor via Wine...
           Command: wine sfmodflx_2245.exe
           Working directory: output/modflow/2024/depletions/
@@ -248,7 +282,10 @@ def run_post_processor() -> bool:
         >>> success
         True
     """
-    print("Running post-processor via Wine...")
+    if year is None:
+        year = DEFAULT_YEAR
+
+    print(f"Running post-processor via Wine for year {year}...")
 
     # Check if Wine is installed
     print("  Checking Wine installation...")
@@ -266,7 +303,9 @@ def run_post_processor() -> bool:
         print("    macOS: brew install wine-stable")
         return False
 
-    depletions_dir = Path(DEPLETIONS_DIR)
+    depletions_dir = Path(get_depletions_dir(year))
+    riv_flux_file, ghb_flux_file = get_flux_files(year)
+    output_file_prefix = get_output_file_prefix(year)
 
     # Check post-processor executable exists
     exe_path = depletions_dir / POST_PROCESSOR_EXE
@@ -281,15 +320,15 @@ def run_post_processor() -> bool:
         return False
 
     # Check flux files exist in depletions directory
-    riv_path = depletions_dir / RIV_FLUX_FILE
-    ghb_path = depletions_dir / GHB_FLUX_FILE
+    riv_path = depletions_dir / riv_flux_file
+    ghb_path = depletions_dir / ghb_flux_file
 
     if not riv_path.exists():
         print_error(
             "RIV flux file not found in depletions directory",
             str(riv_path.resolve()),
             "File does not exist",
-            f"{RIV_FLUX_FILE} copied to depletions directory",
+            f"{riv_flux_file} copied to depletions directory",
             "Run copy_flux_files() before run_post_processor()"
         )
         return False
@@ -299,18 +338,18 @@ def run_post_processor() -> bool:
             "GHB flux file not found in depletions directory",
             str(ghb_path.resolve()),
             "File does not exist",
-            f"{GHB_FLUX_FILE} copied to depletions directory",
+            f"{ghb_flux_file} copied to depletions directory",
             "Run copy_flux_files() before run_post_processor()"
         )
         return False
 
     # Prepare stdin input for post-processor
     # Format: three lines - riv file, ghb file, output prefix
-    stdin_input = f"{RIV_FLUX_FILE}\n{GHB_FLUX_FILE}\n{OUTPUT_FILE_PREFIX}\n"
+    stdin_input = f"{riv_flux_file}\n{ghb_flux_file}\n{output_file_prefix}\n"
 
     print(f"  Command: wine {POST_PROCESSOR_EXE}")
     print(f"  Working directory: {depletions_dir}/")
-    print(f"  Inputs: {RIV_FLUX_FILE}, {GHB_FLUX_FILE}, {OUTPUT_FILE_PREFIX}")
+    print(f"  Inputs: {riv_flux_file}, {ghb_flux_file}, {output_file_prefix}")
 
     # Run the post-processor
     # Use ./ prefix to ensure Wine runs the local exe, not a system path
@@ -338,13 +377,13 @@ def run_post_processor() -> bool:
             return False
 
         # Verify output file was created
-        output_path = depletions_dir / OUTPUT_FILE_PREFIX
+        output_path = depletions_dir / output_file_prefix
         if not output_path.exists():
             print_error(
                 "Post-processor output file not created",
                 str(output_path.resolve()),
                 "File does not exist",
-                f"{OUTPUT_FILE_PREFIX} created by post-processor",
+                f"{output_file_prefix} created by post-processor",
                 "Post-processor may have failed silently or used different output path"
             )
             print(f"\n  stdout:\n{result.stdout}")
@@ -353,7 +392,7 @@ def run_post_processor() -> bool:
 
         output_size = output_path.stat().st_size
         print(f"Post-processor completed successfully.")
-        print(f"  Output file: {OUTPUT_FILE_PREFIX} ({output_size:,} bytes)")
+        print(f"  Output file: {output_file_prefix} ({output_size:,} bytes)")
 
         return True
 
@@ -390,7 +429,10 @@ MONTH_NAMES: list[str] = ["jan", "feb", "mar", "apr", "may", "jun",
                           "jul", "aug", "sep", "oct", "nov", "dec"]
 
 
-def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
+def parse_post_processor_output(
+    file_path: str | None = None,
+    year: int | None = None
+) -> ParsedData:
     """
     Parse the sfmodflx_2245 post-processor output file.
 
@@ -407,8 +449,8 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
     4. Values are in cubic feet per second (cfs)
 
     Args:
-        file_path: Path to post-processor output file. If None, uses default
-                   DEPLETIONS_DIR/OUTPUT_FILE_PREFIX
+        file_path: Path to post-processor output file. If None, constructs from year.
+        year: Processing year for default path construction. If None, uses DEFAULT_YEAR.
 
     Returns:
         Nested dict: {year: {identifier: {month: value_cfs}}}
@@ -421,7 +463,7 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
         None - prints forensic error messages and returns empty dict on failure
 
     Example:
-        >>> data = parse_post_processor_output()
+        >>> data = parse_post_processor_output(year=2024)
         Parsing post-processor output...
           File: output/modflow/2024/depletions/CY2024
           Years parsed: 37 (1988-2024)
@@ -432,8 +474,11 @@ def parse_post_processor_output(file_path: str | None = None) -> ParsedData:
     from pathlib import Path
     import re
 
+    if year is None:
+        year = DEFAULT_YEAR
+
     if file_path is None:
-        file_path = str(Path(DEPLETIONS_DIR) / OUTPUT_FILE_PREFIX)
+        file_path = str(Path(get_depletions_dir(year)) / get_output_file_prefix(year))
 
     print("Parsing post-processor output...")
 
@@ -562,26 +607,28 @@ STREAM_NAMES: list[str] = [
 ]
 
 
-def extract_stream_depletions_2024(
+def extract_stream_depletions(
     parsed_data: ParsedData,
+    year: int | None = None,
 ) -> dict[str, list[float]]:
     """
-    Extract 2024 monthly stream depletions from parsed data.
+    Extract monthly stream depletions from parsed data for a given year.
 
     Scientific Basis:
     - Post-processor calculates depletions for each stream reach
     - Monthly values are in cubic feet per second (cfs)
-    - These represent superposition model results from 1988-2024 pumping
+    - These represent superposition model results from 1988-{year} pumping
     - Must be converted to acre-feet and combined with Core (2003) residuals
 
     Assumptions:
-    1. parsed_data contains 2024 year with stream data
+    1. parsed_data contains the target year with stream data
     2. All 12 months are present for each stream
     3. Stream names match exactly (including whitespace)
 
     Args:
         parsed_data: Nested dict from parse_post_processor_output()
                     Format: {year: {identifier: {month: value_cfs}}}
+        year: Year to extract. If None, uses DEFAULT_YEAR.
 
     Returns:
         Dict mapping stream name to list of 12 monthly cfs values [jan..dec]
@@ -591,36 +638,39 @@ def extract_stream_depletions_2024(
         None - prints forensic error messages and returns empty dict on failure
 
     Example:
-        >>> data = parse_post_processor_output()
-        >>> depletions = extract_stream_depletions_2024(data)
+        >>> data = parse_post_processor_output(year=2024)
+        >>> depletions = extract_stream_depletions(data, year=2024)
         Extracting 2024 stream depletions...
           R POJOAQUE: jan=0.083581, ..., dec=0.086123, annual_mean=0.084562 cfs
           ...
         >>> depletions["R POJOAQUE"][0]  # January value
         0.083581
     """
-    print("Extracting 2024 stream depletions...")
+    if year is None:
+        year = DEFAULT_YEAR
 
-    # Check for 2024 data
-    if 2024 not in parsed_data:
+    print(f"Extracting {year} stream depletions...")
+
+    # Check for target year data
+    if year not in parsed_data:
         print_error(
-            "Year 2024 not found in parsed data",
-            "extract_stream_depletions_2024()",
+            f"Year {year} not found in parsed data",
+            "extract_stream_depletions()",
             f"Years available: {sorted(parsed_data.keys())[:5]}...",
-            "2024 present in parsed data",
-            "Post-processor output may not include 2024 or parsing failed",
+            f"{year} present in parsed data",
+            f"Post-processor output may not include {year} or parsing failed",
         )
         return {}
 
-    year_data = parsed_data[2024]
+    year_data = parsed_data[year]
     stream_depletions: dict[str, list[float]] = {}
 
     # Extract each stream's monthly values
     for stream_name in STREAM_NAMES:
         if stream_name not in year_data:
             print_error(
-                f"Stream '{stream_name}' not found in 2024 data",
-                "extract_stream_depletions_2024()",
+                f"Stream '{stream_name}' not found in {year} data",
+                "extract_stream_depletions()",
                 f"Identifiers: {list(year_data.keys())[:10]}...",
                 f"'{stream_name}' present in year data",
                 "Stream name may have different formatting in output file",
@@ -635,7 +685,7 @@ def extract_stream_depletions_2024(
             if month not in stream_data:
                 print_error(
                     f"Month '{month}' not found for stream '{stream_name}'",
-                    "extract_stream_depletions_2024()",
+                    "extract_stream_depletions()",
                     f"Months available: {list(stream_data.keys())}",
                     f"All 12 months present",
                     "Parsing may have missed some months",
@@ -655,6 +705,12 @@ def extract_stream_depletions_2024(
 
     print(f"  Extracted {len(stream_depletions)} streams successfully.")
     return stream_depletions
+
+
+# Backward compatibility alias for old function name
+def extract_stream_depletions_2024(parsed_data: ParsedData) -> dict[str, list[float]]:
+    """Deprecated: Use extract_stream_depletions(parsed_data, year=2024) instead."""
+    return extract_stream_depletions(parsed_data, year=2024)
 
 
 # =============================================================================
@@ -691,7 +747,7 @@ def main(year: int | None = None) -> int:
     import stream_depletions as sd
 
     if year is None:
-        year = YEAR
+        year = DEFAULT_YEAR
 
     print(f"=== Stream Depletion Table Generator for {year} ===")
     print()
@@ -703,21 +759,21 @@ def main(year: int | None = None) -> int:
     print()
 
     # US-001: Copy flux files
-    if not copy_flux_files():
+    if not copy_flux_files(year):
         print("\nFailed at US-001: Copy flux files")
         return 1
 
     print("\n=== US-001 Complete ===\n")
 
     # US-002: Run post-processor via Wine
-    if not run_post_processor():
+    if not run_post_processor(year):
         print("\nFailed at US-002: Run post-processor")
         return 1
 
     print("\n=== US-002 Complete ===\n")
 
     # US-003: Parse post-processor output
-    parsed_data = parse_post_processor_output()
+    parsed_data = parse_post_processor_output(year=year)
     if not parsed_data:
         print("\nFailed at US-003: Parse post-processor output")
         return 1
@@ -725,7 +781,7 @@ def main(year: int | None = None) -> int:
     print("\n=== US-003 Complete ===\n")
 
     # US-004: Extract stream depletions
-    stream_depletions = extract_stream_depletions_2024(parsed_data)
+    stream_depletions = extract_stream_depletions(parsed_data, year=year)
     if not stream_depletions:
         print("\nFailed at US-004: Extract stream depletions")
         return 1
@@ -899,8 +955,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--year",
         type=int,
-        default=YEAR,
-        help=f"Processing year (default: {YEAR})"
+        default=DEFAULT_YEAR,
+        help=f"Processing year (default: {DEFAULT_YEAR})"
     )
 
     args = parser.parse_args()
