@@ -1049,23 +1049,29 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
     """
     print("Generating Table 1 output...")
 
-    # 1. Read validation/Table_1_data_afy_{year}.xlsx
+    # 1. Read template file (validation file or previous year's output)
     validation_path = Path(VALIDATION_DIR) / f"Table_1_data_afy_{year}.xlsx"
 
+    # Fallback to previous year's output if validation file doesn't exist
     if not validation_path.exists():
-        print_error(
-            "Validation file not found",
-            f"generate_table1_output for year {year}",
-            "File does not exist",
-            f"{validation_path}",
-            (
-                "Create validation file before running. Options:\n"
-                f"  1. Copy previous year's Table_1_data_afy_{year - 1}.xlsx\n"
-                f"  2. Use output/{year - 1}_Table_1_updated.xlsx as template\n"
-                "  3. Create new file matching Table 1 Excel format"
+        fallback_path = Path(OUTPUT_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
+        if fallback_path.exists():
+            validation_path = fallback_path
+            print(f"  Using {year - 1} output as template (no validation file for {year})")
+        else:
+            print_error(
+                "No template file found for Table 1",
+                f"generate_table1_output for year {year}",
+                "Neither validation file nor previous year output exists",
+                f"validation/Table_1_data_afy_{year}.xlsx OR output/{year - 1}/{year - 1}_Table_1_updated.xlsx",
+                (
+                    "Create template file with historical data. Options:\n"
+                    f"  1. Copy Table_1_data_afy_{year - 1}.xlsx to validation/\n"
+                    f"  2. Ensure {year - 1} was processed first (creates output template)\n"
+                    "  3. Create new file with historical 1988-present AFY data"
+                )
             )
-        )
-        return 1
+            return 1
 
     try:
         table1_df = pd.read_excel(validation_path)
@@ -1079,6 +1085,21 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
             f"Check that {validation_path} is a valid Excel file"
         )
         return 1
+
+    # Check for NaN values in Total column for numeric year rows
+    year_rows = table1_df[
+        table1_df['Well:'].apply(lambda x: isinstance(x, (int, float)) and not pd.isna(x))
+    ]
+    nan_totals = year_rows[year_rows['Total'].isna()]
+    if len(nan_totals) > 0:
+        nan_years = nan_totals['Well:'].tolist()
+        print(f"  WARNING: Found {len(nan_totals)} years with missing Total: {nan_years}")
+        # Recalculate missing totals from well columns
+        well_cols = [1, 2, '3/3A', 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        for idx in nan_totals.index:
+            recalc_total = table1_df.loc[idx, well_cols].sum()
+            table1_df.loc[idx, 'Total'] = recalc_total
+            print(f"    Recalculated Total for {int(table1_df.loc[idx, 'Well:'])}: {recalc_total:.2f} AFY")
 
     # 2. Insert 2024 row with year_afy_data
     # Build 2024 row (mixed key types: str 'Well:' + int well nums + str '3/3A')
@@ -1328,14 +1349,10 @@ def write_table1_xlsx(
                 cell.border = row_border
 
         # Column O: Total
+        # Write actual value (not formula) to ensure pandas can read it back
         total_val = year_rows.iloc[i].get('Total')
         if pd.notna(total_val):
-            # For the current year row, use a SUM formula
-            if int(year_val) == year:
-                cell_o = ws.cell(row=excel_row, column=15,
-                                 value=f'=SUM(B{excel_row}:N{excel_row})')
-            else:
-                cell_o = ws.cell(row=excel_row, column=15, value=float(total_val))
+            cell_o = ws.cell(row=excel_row, column=15, value=float(total_val))
             cell_o.font = font_normal
             cell_o.number_format = num_fmt
             cell_o.border = row_border
