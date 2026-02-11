@@ -1282,11 +1282,14 @@ def main() -> int:
     if not Path(config.input_wel_path).exists():
         print(f"\n✗ Error: Input .wel file not found: {config.input_wel_path}")
         if target_year > BASELINE_YEAR:
-            print(f"  Hint: Run the script for year {config.source_year} first.")
+            print(f"  Hint: Run 'python3 step2_update_modflow.py --year {config.source_year}' first.")
+        else:
+            print(f"  Hint: Ensure baseline 2023 input files exist in input/modflow/2023/")
         return 1
 
     if not Path(config.table2_csv_path).exists():
         print(f"\n✗ Error: Table 2 CSV not found: {config.table2_csv_path}")
+        print(f"  Hint: Run 'python3 step1_ingest_buckman_data.py --year {target_year}' first.")
         return 1
 
     # Step 1: Read Table 2 pumping data

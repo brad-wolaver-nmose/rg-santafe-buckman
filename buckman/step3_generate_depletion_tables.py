@@ -714,6 +714,77 @@ def extract_stream_depletions_2024(parsed_data: ParsedData) -> dict[str, list[fl
 
 
 # =============================================================================
+# PREREQUISITE CHECKS
+# =============================================================================
+
+def check_prerequisites(year: int) -> bool:
+    """
+    Check required inputs exist before processing.
+
+    Validates that all required input files are present before starting
+    the depletion table workflow. Provides clear error messages with hints.
+
+    Args:
+        year: Year to process (e.g., 2024, 2025)
+
+    Returns:
+        True if all prerequisites are met, False otherwise
+    """
+    depletions_dir = Path(get_depletions_dir(year))
+    modflow_dir = Path(get_modflow_output_dir(year))
+    riv_flux, ghb_flux = get_flux_files(year)
+
+    # Check MODFLOW output directory exists
+    if not modflow_dir.exists():
+        print_error(
+            "MODFLOW output directory not found",
+            str(modflow_dir),
+            "Directory does not exist",
+            f"MODFLOW output for {year}",
+            f"Run 'python3 step2_update_modflow.py --year {year}' then run MODFLOW96"
+        )
+        return False
+
+    # Check flux files exist
+    for flux_file in [riv_flux, ghb_flux]:
+        flux_path = modflow_dir / flux_file
+        if not flux_path.exists():
+            print_error(
+                f"Flux file not found: {flux_file}",
+                str(flux_path),
+                "File does not exist",
+                "MODFLOW flux output file",
+                f"Run MODFLOW96 with CY{year}.nam to generate flux files"
+            )
+            return False
+
+    # Check depletions directory exists
+    if not depletions_dir.exists():
+        print_error(
+            "Depletions directory not found",
+            str(depletions_dir),
+            "Directory does not exist",
+            f"Depletions working directory for {year}",
+            f"Create directory and copy sfmodflx_2245.exe post-processor"
+        )
+        return False
+
+    # Check post-processor exists
+    exe_path = depletions_dir / "sfmodflx_2245.exe"
+    if not exe_path.exists():
+        print_error(
+            "Post-processor not found",
+            str(exe_path),
+            "File does not exist",
+            "sfmodflx_2245.exe in depletions directory",
+            "Copy post-processor executable to depletions directory"
+        )
+        return False
+
+    return True
+
+
+# =============================================================================
 # MAIN ENTRY POINT (US-015)
 # =============================================================================
 
@@ -751,6 +822,10 @@ def main(year: int | None = None) -> int:
 
     print(f"=== Stream Depletion Table Generator for {year} ===")
     print()
+
+    # Check prerequisites before processing
+    if not check_prerequisites(year):
+        return 1
 
     # Create output directory if not exists
     output_dir = Path(OUTPUT_DIR)

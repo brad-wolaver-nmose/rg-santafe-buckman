@@ -1648,6 +1648,43 @@ def verify_annual_sums(
 
 
 # =============================================================================
+# PREREQUISITE CHECKS
+# =============================================================================
+
+def check_prerequisites(year: int) -> bool:
+    """
+    Check required inputs exist before processing.
+
+    Validates that all required input files are present before starting
+    the ingestion workflow. Provides clear error messages with hints.
+
+    Args:
+        year: Year to process (e.g., 2024, 2025)
+
+    Returns:
+        True if all prerequisites are met, False otherwise
+    """
+    csv_path = Path(INPUT_CSV_PATH.format(year=year))
+
+    if not csv_path.exists():
+        print_error(
+            "Input CSV file not found",
+            str(csv_path),
+            "File does not exist",
+            f"Buckman_Well_Prod_{year}.csv in input/csv/",
+            "Obtain pumping data CSV from City of Santa Fe"
+        )
+        return False
+
+    # Optional: warn about validation file (needed for Table 1)
+    validation_path = Path(VALIDATION_DIR) / f"Table_1_data_afy_{year}.xlsx"
+    if not validation_path.exists():
+        print(f"  Note: {validation_path} not found - Table 1 generation may be limited")
+
+    return True
+
+
+# =============================================================================
 # MAIN FUNCTION (US-011)
 # =============================================================================
 
@@ -1717,20 +1754,13 @@ def main() -> int:
     print(f"Processing year: {year}")
     print("=" * 60)
 
+    # Check prerequisites before processing
+    if not check_prerequisites(year):
+        return 1
+
     try:
         # 1. Construct CSV path from year
         csv_path = INPUT_CSV_PATH.format(year=year)
-
-        # 2. Check if CSV exists (done in read_source_csv, but check here for clearer error)
-        if not Path(csv_path).exists():
-            print_error(
-                "CSV file not found",
-                csv_path,
-                "File does not exist",
-                f"CSV file with daily MGD data for {year}",
-                f"Cannot process {year} pumping data - missing source file"
-            )
-            return 1
 
         # 3. Create output directory if needed
         Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)

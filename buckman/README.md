@@ -169,6 +169,52 @@ python3 step2_update_modflow.py --year 2025
 python3 step3_generate_depletion_tables.py --year 2025
 ```
 
+---
+
+## Processing a New Year
+
+When annual pumping data arrives (e.g., for 2025):
+
+### Prerequisites
+
+1. Previous year's MODFLOW output exists: `output/modflow/2024/thruCY2165_2024.wel`
+2. New year's pumping CSV: `input/csv/Buckman_Well_Prod_2025.csv`
+
+### Step-by-Step
+
+```bash
+# 1. Ingest pumping data → Tables 1 & 2
+python3 step1_ingest_buckman_data.py --year 2025
+
+# 2. Generate MODFLOW files (automatically chains from prior year)
+python3 step2_update_modflow.py --year 2025
+
+# 3. Run MODFLOW96 (external - via Wine on Linux)
+cd output/modflow/2025/depletions && wine sfmodflx_2245.exe
+
+# 4. Generate depletion Tables 3, 4, 5
+python3 step3_generate_depletion_tables.py --year 2025
+```
+
+### What If Something Fails?
+
+Each script checks prerequisites and tells you what to run first:
+
+```
+✗ Error: Table 2 CSV not found: output/ingested_data/2025_Table_2_output.csv
+  Hint: Run 'python3 step1_ingest_buckman_data.py --year 2025' first.
+```
+
+### Workflow Dependencies
+
+```
+Step 1 ──→ Step 2 ──→ [MODFLOW96] ──→ Step 3
+   │           │                          │
+   └── needs   └── needs step1's          └── needs MODFLOW
+       CSV         output + prior              flux files
+       file        year's WEL file
+```
+
 ### Output Tables
 
 | Table | Description |
