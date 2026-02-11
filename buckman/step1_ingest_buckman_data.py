@@ -1056,7 +1056,8 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
         print_error(
             "Validation file not found",
             f"generate_table1_output for year {year}",
-            f"Expected: {validation_path}",
+            "File does not exist",
+            f"{validation_path}",
             (
                 "Create validation file before running. Options:\n"
                 f"  1. Copy previous year's Table_1_data_afy_{year - 1}.xlsx\n"
@@ -1074,6 +1075,7 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
             "Failed to read validation file",
             f"generate_table1_output for year {year}",
             str(e),
+            "Valid Excel file with historical Table 1 data",
             f"Check that {validation_path} is a valid Excel file"
         )
         return 1
