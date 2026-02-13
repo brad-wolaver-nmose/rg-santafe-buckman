@@ -39,13 +39,27 @@ DEFAULT_YEAR: int = 2024
 # =============================================================================
 
 def get_modflow_output_dir(year: int) -> str:
-    """Return MODFLOW output directory for given year."""
-    return f"./output/modflow/{year}/modflow/"
+    """Return MODFLOW output directory for given year.
+
+    Directory structure:
+    - 2024 and earlier: output/modflow/{year}/modflow/ (legacy nested)
+    - 2025 and later: output/modflow/{year}/ (flat, new standard)
+    """
+    if year <= 2024:
+        return f"./output/modflow/{year}/modflow/"
+    return f"./output/modflow/{year}/"
 
 
 def get_depletions_dir(year: int) -> str:
-    """Return post-processor working directory for given year."""
-    return f"./output/modflow/{year}/depletions/"
+    """Return post-processor working directory for given year.
+
+    Directory structure:
+    - 2024 and earlier: output/modflow/{year}/depletions/ (legacy nested)
+    - 2025 and later: output/modflow/{year}/ (flat, new standard)
+    """
+    if year <= 2024:
+        return f"./output/modflow/{year}/depletions/"
+    return f"./output/modflow/{year}/"
 
 
 def get_flux_files(year: int) -> tuple[str, str]:
@@ -163,6 +177,11 @@ def copy_flux_files(year: int | None = None) -> bool:
         )
         return False
 
+    # Check if source and destination are the same directory (flat structure)
+    same_dir = source_dir.resolve() == dest_dir.resolve()
+    if same_dir:
+        print("  Source and destination are same directory (flat structure)")
+
     # Copy each flux file
     for filename, description in flux_files:
         source_path = source_dir / filename
@@ -178,6 +197,12 @@ def copy_flux_files(year: int | None = None) -> bool:
                 f"MODFLOW must generate {filename} before post-processing"
             )
             return False
+
+        # Skip copy if same directory (file already in place)
+        if same_dir:
+            file_size = source_path.stat().st_size
+            print(f"  {filename}: {file_size:,} bytes (already in place)")
+            continue
 
         # Copy file
         try:
@@ -1013,8 +1038,12 @@ def main(year: int | None = None) -> int:
     print(f"  - {table5_path}")
     print(f"\nValidation status: {validation_results['overall_status']}")
 
-    if validation_results['overall_status'] == 'OK':
+    overall_status = validation_results['overall_status']
+    if overall_status == 'OK':
         print("\nAll validations passed!")
+        return 0
+    elif overall_status == 'OK_WITH_SKIPPED':
+        print("\nValidations passed. Some tables were skipped (no reference data for this year).")
         return 0
     else:
         print("\nSome validations failed - see details above.")

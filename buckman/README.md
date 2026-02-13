@@ -186,13 +186,24 @@ When annual pumping data arrives (e.g., for 2025):
 # 1. Ingest pumping data → Tables 1 & 2
 python3 step1_ingest_buckman_data.py --year 2025
 
-# 2. Generate MODFLOW files (automatically chains from prior year)
+# 2. Generate MODFLOW files (copies 10 support files to output dir)
 python3 step2_update_modflow.py --year 2025
 
-# 3. Run MODFLOW96 (external - via Wine on Linux)
-cd output/modflow/2025/depletions && wine sfmodflx_2245.exe
+# 3. Run MODFLOW96 (via Wine on Linux)
+cd output/modflow/2025
+wine modflow96.exe CY2025.nam
 
-# 4. Generate depletion Tables 3, 4, 5
+# 4. Verify MODFLOW run (auto-generates report)
+python3 verify_modflow_run.py
+
+# 5. Run post-processor for depletion data
+wine sfmodflx_2245.exe
+
+# 6. Verify depletion output
+python3 verify_depletion.py
+
+# 7. Generate depletion Tables 3, 4, 5
+cd ../../..
 python3 step3_generate_depletion_tables.py --year 2025
 ```
 

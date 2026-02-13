@@ -94,12 +94,33 @@ head -50 output/modflow/YYYY/thruCY2165_YYYY.wel
 Navigate to model directory and run MODFLOW:
 ```bash
 cd output/modflow/YYYY
-# Run MODFLOW with appropriate NAM file
+wine modflow96.exe CY{YYYY}.nam
 ```
 
 **Outputs:**
-- `CYYYYY_ghb.flx` (~31 MB)
-- `CYYYYY_riv.flx` (~31 MB)
+- `CY{YYYY}_ghb.flx` (~31 MB)
+- `CY{YYYY}_riv.flx` (~31 MB)
+- `CY{YYYY}.lst` (listing file)
+
+---
+
+### Step 4a: Verify MODFLOW Run
+
+Run the verification script to check MODFLOW output:
+```bash
+python3 verify_modflow_run.py
+```
+
+The script auto-detects the year from the directory name and checks:
+- Output files exist (lst, ghb.flx, riv.flx)
+- Listing file shows normal termination
+- Pumping rates match Table 2 values
+
+**Output:** `{YYYY}_verify_modflow.md` - Verification report
+
+**If verification fails:** Check the markdown report for specific issues. Common problems:
+- Missing flux files → MODFLOW didn't run to completion
+- Pumping rate mismatch → Re-run Step 3 (step2_update_modflow.py)
 
 ---
 
@@ -108,14 +129,33 @@ cd output/modflow/YYYY
 Run the stream flux post-processor to extract depletion data:
 
 ```bash
-cd output/modflow/YYYY/depletions
+cd output/modflow/YYYY
 wine sfmodflx_2245.exe
 ```
 
 **Output:**
-- `CYYYYY` text file (~1.5 MB)
+- `CY{YYYY}_dep` text file (~1.5 MB)
 
-**Verify:** File contains data through the reporting year with LC SPRINGS, R POJOAQUE, R TESUQUE, and RIO GRANDE sections.
+---
+
+### Step 5a: Verify Depletion Output
+
+Run the verification script to check post-processor output:
+```bash
+python3 verify_depletion.py
+```
+
+The script auto-detects the year from the directory name and checks:
+- File structure (timesteps, year sections)
+- Summary values for all locations (R POJOAQUE, R TESUQUE, RIO GRANDE, LC SPRINGS)
+- Reasonableness vs. prior year (within 50% tolerance)
+- All values are positive (depletion reduces streamflow)
+
+**Output:** `{YYYY}_verify_depletion.md` - Verification report with monthly comparison
+
+**If verification fails:** Check the markdown report for specific issues:
+- File structure error → Re-run sfmodflx_2245.exe
+- Large deviation from prior year → Verify pumping data is correct
 
 ---
 
@@ -154,24 +194,36 @@ Apply sanity checks:
 
 ```bash
 # Step 2: Generate Tables 1 & 2
-python3 step1_ingest_buckman_data.py --year 2024
+python3 step1_ingest_buckman_data.py --year 2025
 
-# Step 3: Generate MODFLOW files
-python3 step2_update_modflow.py --year 2024
+# Step 3: Generate MODFLOW files (copies 10 support files)
+python3 step2_update_modflow.py --year 2025
 
-# Step 5: Run post-processor (if needed)
-cd output/modflow/2024/depletions && wine sfmodflx_2245.exe
+# Steps 4-5a: Run MODFLOW and post-processor
+cd output/modflow/2025
+wine modflow96.exe CY2025.nam        # Step 4: Run MODFLOW
+python3 verify_modflow_run.py        # Step 4a: Verify MODFLOW output
+wine sfmodflx_2245.exe               # Step 5: Run post-processor
+python3 verify_depletion.py          # Step 5a: Verify depletion output
 
 # Step 6: Generate Tables 3, 4, 5
-python3 step3_generate_depletion_tables.py --year 2024
+cd ../../..
+python3 step3_generate_depletion_tables.py --year 2025
 ```
 
-### Example: Processing 2025 Data
+### Example: Processing 2025 Data (Full Workflow)
 ```bash
 # After getting Buckman_Well_Prod_2025.csv in input/csv/:
 python3 step1_ingest_buckman_data.py --year 2025
 python3 step2_update_modflow.py --year 2025
-# Run MODFLOW96, then:
+
+cd output/modflow/2025
+wine modflow96.exe CY2025.nam
+python3 verify_modflow_run.py
+wine sfmodflx_2245.exe
+python3 verify_depletion.py
+
+cd ../../..
 python3 step3_generate_depletion_tables.py --year 2025
 ```
 
@@ -186,7 +238,17 @@ python3 step3_generate_depletion_tables.py --year 2025
 │   │   └── Buckman_Well_Prod_YYYY.csv  # 365/366 daily rows
 │   └── modflow/                        # Baseline MODFLOW files
 │       └── 2023/                       # Original baseline year
-│           └── thruCY2165.wel
+│           ├── thruCY2165.wel          # Well file template
+│           ├── thruCY2165.bas          # Basic package
+│           ├── thruCY2165.ghb          # General Head Boundary
+│           ├── thruCY2165.oc           # Output Control
+│           ├── thruCY2165.riv          # River package
+│           ├── sflcs.bcf               # Block-Centered Flow
+│           ├── sflcs.sip               # Solver
+│           ├── modflow96.exe           # MODFLOW96 executable
+│           ├── sfmodflx_2245.exe       # Post-processor executable
+│           ├── verify_modflow_run.py   # MODFLOW verification script
+│           └── verify_depletion.py     # Depletion verification script
 │
 ├── output/
 │   ├── ingested_data/                  # Tables 1 & 2
@@ -196,18 +258,25 @@ python3 step3_generate_depletion_tables.py --year 2025
 │   │   └── ...
 │   │
 │   ├── depletion/                      # Tables 3, 4, 5
-│   │   ├── TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx
-│   │   ├── TABLE_4_Rio_Grande_Otowi_2024.xlsx
-│   │   ├── TABLE_5_La_Cienega_Springs_2024.xlsx
+│   │   ├── TABLE_3_Rio_Pojoaque_Tesuque_YYYY.xlsx
+│   │   ├── TABLE_4_Rio_Grande_Otowi_YYYY.xlsx
+│   │   ├── TABLE_5_La_Cienega_Springs_YYYY.xlsx
 │   │   └── METHODOLOGY_Tables_3_4_5.md
 │   │
-│   └── modflow/                        # MODFLOW files
-│       └── 2024/
-│           ├── thruCY2165_2024.wel     # Well file
-│           └── depletions/
-│               ├── CY2024              # Post-processor output
-│               ├── CY2024_ghb.flx      # GHB flux file
-│               └── CY2024_riv.flx      # RIV flux file
+│   └── modflow/                        # MODFLOW files (per year)
+│       └── YYYY/
+│           ├── thruCY2165_YYYY.wel     # Well file (generated)
+│           ├── CY{YYYY}.nam            # NAM file (generated)
+│           ├── CY{YYYY}.lst            # Listing file (MODFLOW output)
+│           ├── CY{YYYY}_ghb.flx        # GHB flux file (MODFLOW output)
+│           ├── CY{YYYY}_riv.flx        # RIV flux file (MODFLOW output)
+│           ├── CY{YYYY}_dep            # Depletion file (post-processor)
+│           ├── {YYYY}_verify_modflow.md    # MODFLOW verification report
+│           ├── {YYYY}_verify_depletion.md  # Depletion verification report
+│           ├── modflow96.exe           # (copied from baseline)
+│           ├── sfmodflx_2245.exe       # (copied from baseline)
+│           ├── verify_modflow_run.py   # (copied from baseline)
+│           └── verify_depletion.py     # (copied from baseline)
 │
 ├── validation/                         # Reference validation files
 │   ├── Table_1_data_afy_2024.xlsx

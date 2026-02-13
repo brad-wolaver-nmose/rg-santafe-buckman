@@ -1625,8 +1625,12 @@ def write_table5_xlsx(
 # =============================================================================
 
 # Validation tolerances
-VALIDATION_TOLERANCE_AF: float = 0.01       # Acre-feet comparison tolerance
+VALIDATION_TOLERANCE_AF: float = 0.01       # Acre-feet comparison tolerance (strict, for verified years)
 VALIDATION_TOLERANCE_CFS: float = 0.000001  # CFS comparison tolerance
+VALIDATION_TOLERANCE_PROJECTED_AF: float = 0.5  # Looser tolerance for projected years (2025+)
+
+# Last year with verified (not projected) validation data
+LAST_VERIFIED_YEAR: int = 2024
 
 
 def validate_table3(
@@ -1641,6 +1645,8 @@ def validate_table3(
     - Table 3 shows analytical residuals + superposition impacts for tributaries
     - Pojoaque residual should be 0 after 2015
     - Tesuque residual should be 12.877 AF for 2024
+    - For years > 2024, validation file contains projections (not verified data)
+      so a looser tolerance is used and status is PROJECTED_OK/PROJECTED_WARN
 
     Args:
         validation_path: Path to validation XLSX file
@@ -1650,12 +1656,13 @@ def validate_table3(
     Returns:
         dict with structure:
         {
-            'status': 'OK' | 'FAILED',
+            'status': 'OK' | 'FAILED' | 'PROJECTED_OK' | 'PROJECTED_WARN',
             'comparisons': [
                 {'field': str, 'calc': float, 'valid': float, 'diff': float, 'ok': bool},
                 ...
             ],
-            'errors': list[str]
+            'errors': list[str],
+            'is_projected': bool
         }
     """
     import openpyxl
@@ -1665,11 +1672,16 @@ def validate_table3(
         return {
             'status': 'FAILED',
             'comparisons': [],
-            'errors': [f"Validation file not found: {validation_path}"]
+            'errors': [f"Validation file not found: {validation_path}"],
+            'is_projected': False
         }
 
     comparisons: list[dict[str, Any]] = []
     errors: list[str] = []
+
+    # Determine if this is a projected year (no verified ground truth)
+    is_projected = year > LAST_VERIFIED_YEAR
+    tolerance = VALIDATION_TOLERANCE_PROJECTED_AF if is_projected else VALIDATION_TOLERANCE_AF
 
     # Load validation workbook (data_only=True to get calculated values)
     wb = openpyxl.load_workbook(validation_path, data_only=True)
@@ -1687,7 +1699,8 @@ def validate_table3(
         return {
             'status': 'FAILED',
             'comparisons': [],
-            'errors': [f"Year {year} not found in validation file"]
+            'errors': [f"Year {year} not found in validation file"],
+            'is_projected': is_projected
         }
 
     # Extract validation values for year row
@@ -1729,7 +1742,7 @@ def validate_table3(
 
     for field_name, calc_val, valid_val in fields:
         diff = abs(calc_val - valid_val)
-        ok = diff <= VALIDATION_TOLERANCE_AF
+        ok = diff <= tolerance
         comparisons.append({
             'field': field_name,
             'calc': calc_val,
@@ -1740,12 +1753,18 @@ def validate_table3(
         if not ok:
             errors.append(f"{field_name}: calc={calc_val:.6f}, valid={valid_val:.6f}, diff={diff:.6f}")
 
-    status = 'OK' if all(c['ok'] for c in comparisons) else 'FAILED'
+    # Determine status based on year type
+    all_ok = all(c['ok'] for c in comparisons)
+    if is_projected:
+        status = 'PROJECTED_OK' if all_ok else 'PROJECTED_WARN'
+    else:
+        status = 'OK' if all_ok else 'FAILED'
 
     return {
         'status': status,
         'comparisons': comparisons,
-        'errors': errors
+        'errors': errors,
+        'is_projected': is_projected
     }
 
 
@@ -1760,6 +1779,8 @@ def validate_table4(
     Scientific basis:
     - Table 4 shows Rio Grande cell-level depletions by month
     - Rows 56-60 contain key validation values (Above/Below Otowi AF, Buckman wells)
+    - Validation data is only available for 2024 (hardcoded in Excel file)
+    - For years > 2024, validation is SKIPPED (no ground truth exists)
 
     Args:
         validation_path: Path to validation XLSX file
@@ -1769,15 +1790,29 @@ def validate_table4(
     Returns:
         dict with structure:
         {
-            'status': 'OK' | 'FAILED',
+            'status': 'OK' | 'FAILED' | 'SKIPPED',
             'comparisons': [
                 {'field': str, 'calc': float, 'valid': float, 'diff': float, 'ok': bool},
                 ...
             ],
-            'errors': list[str]
+            'errors': list[str],
+            'message': str (optional, for SKIPPED status)
         }
     """
     import openpyxl
+
+    # Table 4 validation file contains only 2024 data (hardcoded rows)
+    # For other years, skip validation with informative message
+    if year != 2024:
+        return {
+            'status': 'SKIPPED',
+            'comparisons': [],
+            'errors': [],
+            'message': (
+                f"Validation data only available for 2024; "
+                f"{year} results not validated (this is expected for new years)"
+            )
+        }
 
     validation_path = Path(validation_path)
     if not validation_path.exists():
@@ -1972,24 +2007,47 @@ def validate_all_tables(
     Returns:
         dict with structure:
         {
-            'overall_status': 'OK' | 'FAILED',
+            'overall_status': 'OK' | 'FAILED' | 'OK_WITH_SKIPPED',
             'table3': validation result dict,
             'table4': validation result dict,
             'table5': validation result dict,
         }
+
+    Overall status logic:
+    - OK: All tables validated and passed
+    - OK_WITH_SKIPPED: Some tables skipped (no reference data), others passed
+    - FAILED: At least one table failed validation (potential bug)
     """
     table3_result = validate_table3(table3_validation_path, table3_data, year)
     table4_result = validate_table4(table4_validation_path, table4_data, year)
     table5_result = validate_table5(table5_data, year)
 
-    all_ok = (
-        table3_result['status'] == 'OK' and
-        table4_result['status'] == 'OK' and
-        table5_result['status'] == 'OK'
-    )
+    # Categorize statuses
+    skipped_or_projected = {'SKIPPED', 'PROJECTED_OK', 'PROJECTED_WARN'}
+    failure_statuses = {'FAILED'}
+
+    statuses = [
+        table3_result['status'],
+        table4_result['status'],
+        table5_result['status']
+    ]
+
+    # Check for any hard failures
+    has_failure = any(s in failure_statuses for s in statuses)
+
+    # Check if any were skipped or projected
+    has_skipped_or_projected = any(s in skipped_or_projected for s in statuses)
+
+    # Determine overall status
+    if has_failure:
+        overall_status = 'FAILED'
+    elif has_skipped_or_projected:
+        overall_status = 'OK_WITH_SKIPPED'
+    else:
+        overall_status = 'OK'
 
     return {
-        'overall_status': 'OK' if all_ok else 'FAILED',
+        'overall_status': overall_status,
         'table3': table3_result,
         'table4': table4_result,
         'table5': table5_result,
@@ -1999,6 +2057,13 @@ def validate_all_tables(
 def print_validation_results(validation_results: dict[str, Any]) -> None:
     """
     Print validation results to console in structured format.
+
+    Handles status values:
+    - OK: Validation passed (strict tolerance)
+    - FAILED: Validation failed (potential bug)
+    - SKIPPED: No validation data available for this year
+    - PROJECTED_OK: Validation against projections passed (looser tolerance)
+    - PROJECTED_WARN: Validation against projections shows significant divergence
 
     Args:
         validation_results: Result from validate_all_tables()
@@ -2011,6 +2076,8 @@ def print_validation_results(validation_results: dict[str, Any]) -> None:
     t3 = validation_results['table3']
     print(f"\nTable 3 - Rio Pojoaque-Nambe & Rio Tesuque: {t3['status']}")
     print("-" * 40)
+    if t3.get('is_projected'):
+        print("  Note: Comparing against projected values (not verified data)")
     for comp in t3['comparisons']:
         status = "OK" if comp['ok'] else "NOT_OK"
         print(f"  {comp['field']:30s}: calc={comp['calc']:12.6f}, valid={comp['valid']:12.6f}, diff={comp['diff']:.6f} [{status}]")
@@ -2019,11 +2086,16 @@ def print_validation_results(validation_results: dict[str, Any]) -> None:
     t4 = validation_results['table4']
     print(f"\nTable 4 - Rio Grande Otowi: {t4['status']}")
     print("-" * 40)
-    # Only print annual totals and any failures
-    for comp in t4['comparisons']:
-        if 'Annual' in comp['field'] or not comp['ok']:
-            status = "OK" if comp['ok'] else "NOT_OK"
-            print(f"  {comp['field']:30s}: calc={comp['calc']:12.6f}, valid={comp['valid']:12.6f}, diff={comp['diff']:.6f} [{status}]")
+    if t4['status'] == 'SKIPPED':
+        # Print message for skipped validation
+        message = t4.get('message', 'Validation skipped (no reference data)')
+        print(f"  {message}")
+    else:
+        # Only print annual totals and any failures
+        for comp in t4['comparisons']:
+            if 'Annual' in comp['field'] or not comp['ok']:
+                status = "OK" if comp['ok'] else "NOT_OK"
+                print(f"  {comp['field']:30s}: calc={comp['calc']:12.6f}, valid={comp['valid']:12.6f}, diff={comp['diff']:.6f} [{status}]")
 
     # Table 5
     t5 = validation_results['table5']

@@ -8,6 +8,7 @@ Year-agnostic: Pass --year to process any year. Source files come from (year-1).
 """
 import argparse
 import calendar
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict
@@ -150,6 +151,27 @@ WELL_GRID_MAP: Dict[str, tuple[int, int]] = {
     "BUCKMAN 12": (19, 15),
     "BUCKMAN 13": (20, 16),
 }
+
+# =============================================================================
+# BASELINE FILES CONFIGURATION
+# =============================================================================
+# Directory containing original 2023 MODFLOW files (static, unchanged)
+BASELINE_DIR: str = "input/modflow/2023"
+
+# Files to copy from baseline to output directory
+# These are required by MODFLOW96 but don't change between years
+BASELINE_FILES_TO_COPY: list[str] = [
+    "modflow96.exe",  # MODFLOW96 executable
+    "sflcs.bcf",  # Block-Centered Flow package
+    "sflcs.sip",  # Strongly Implicit Procedure solver
+    "thruCY2165.bas",  # Basic package
+    "thruCY2165.ghb",  # General Head Boundary package
+    "thruCY2165.oc",  # Output Control
+    "thruCY2165.riv",  # River package
+    "sfmodflx_2245.exe",  # Stream flux post-processor for depletion tables
+    "verify_modflow_run.py",  # MODFLOW output verification script
+    "verify_depletion.py",  # Depletion output verification script
+]
 
 # =============================================================================
 # TEMPORAL CONSTANTS
@@ -761,6 +783,58 @@ def generate_nam_file(
     return file_path
 
 
+def copy_baseline_files(output_dir: str) -> list[Path]:
+    """
+    Copy MODFLOW baseline support files to output directory.
+
+    These files are static (unchanged from 2023 baseline) and required
+    by MODFLOW96 to run the depletion model. The .wel and .nam files
+    are generated separately with year-specific data.
+
+    Scientific basis: MODFLOW96 requires all package files to be in the
+    same directory as the .nam file for model execution.
+
+    Assumptions:
+        1. Baseline files exist in BASELINE_DIR (input/modflow/2023/)
+        2. Output directory exists or will be created
+        3. Files are copied without modification (binary-safe copy)
+
+    Args:
+        output_dir: Target directory for copying files
+
+    Returns:
+        List of paths to copied files
+
+    Raises:
+        FileNotFoundError: If any baseline file is missing
+
+    Example:
+        >>> copied = copy_baseline_files("output/modflow/2025")
+        >>> len(copied)
+        7
+    """
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    copied: list[Path] = []
+    baseline = Path(BASELINE_DIR)
+
+    for filename in BASELINE_FILES_TO_COPY:
+        src = baseline / filename
+        dst = output_path / filename
+
+        if not src.exists():
+            raise FileNotFoundError(
+                f"Baseline file not found: {src}\n"
+                f"  Expected location: {BASELINE_DIR}/{filename}"
+            )
+
+        shutil.copy2(src, dst)
+        copied.append(dst)
+
+    return copied
+
+
 # =============================================================================
 # VALIDATION FUNCTIONS
 # =============================================================================
@@ -1293,31 +1367,31 @@ def main() -> int:
         return 1
 
     # Step 1: Read Table 2 pumping data
-    print("\n[1/7] Reading Table 2 pumping data...")
+    print("\n[1/8] Reading Table 2 pumping data...")
     pumping_data = read_table2_pumping_data(config.table2_csv_path)
     print(f"  ✓ Read pumping data for {len(pumping_data)} wells")
 
     # Step 2: Convert acre-feet to ft³/s (done during entry generation)
-    print("\n[2/7] Converting acre-feet to ft³/s...")
+    print("\n[2/8] Converting acre-feet to ft³/s...")
     print("  ✓ Conversion formula: rate = -(AF/2) × 43560 / (days × 86400)")
     leap_status = "leap year" if config.is_leap_year else "not a leap year"
     feb_days = 29 if config.is_leap_year else 28
     print(f"  ✓ {target_year} is {leap_status} (February = {feb_days} days)")
 
     # Step 3: Parse source year .wel file
-    print(f"\n[3/7] Parsing {config.source_year} .wel file...")
+    print(f"\n[3/8] Parsing {config.source_year} .wel file...")
     wel_data = parse_wel_file(config.input_wel_path, target_year)
     print(f"  ✓ Pre-{target_year}: {len(wel_data.pre_target_lines)} lines")
     print(f"  ✓ {target_year}: {len(wel_data.target_year_lines)} lines")
     print(f"  ✓ Post-{target_year}: {len(wel_data.post_target_lines)} lines")
 
     # Step 4: Generate target year well entries
-    print(f"\n[4/7] Generating {target_year} well entries...")
+    print(f"\n[4/8] Generating {target_year} well entries...")
     new_year_lines = generate_well_entries(pumping_data, target_year)
     print(f"  ✓ Generated {len(new_year_lines)} lines (12 months × 27 lines)")
 
     # Step 5: Write updated .wel file
-    print("\n[5/7] Writing updated .wel file...")
+    print("\n[5/8] Writing updated .wel file...")
     wel_output_path = write_updated_wel_file(
         wel_data,
         new_year_lines,
@@ -1327,7 +1401,7 @@ def main() -> int:
     print(f"  ✓ Written to {wel_output_path}")
 
     # Step 6: Generate updated .nam file
-    print("\n[6/7] Generating updated .nam file...")
+    print("\n[6/8] Generating updated .nam file...")
     nam_output_path = generate_nam_file(
         target_year,
         config.output_dir,
@@ -1335,11 +1409,18 @@ def main() -> int:
     )
     print(f"  ✓ Written to {nam_output_path}")
 
+    # Step 7: Copy baseline MODFLOW files
+    print("\n[7/8] Copying baseline MODFLOW files...")
+    copied_files = copy_baseline_files(config.output_dir)
+    print(f"  ✓ Copied {len(copied_files)} files from {BASELINE_DIR}:")
+    for f in copied_files:
+        print(f"    - {f.name}")
+
     # Print pumping summary table
     print_pumping_summary(pumping_data, target_year)
 
-    # Step 7: Validate against known-good files
-    print("\n[7/7] Validating against known-good files...")
+    # Step 8: Validate against known-good files
+    print("\n[8/8] Validating against known-good files...")
     validation_passed = run_validation(config)
 
     # Return exit code
