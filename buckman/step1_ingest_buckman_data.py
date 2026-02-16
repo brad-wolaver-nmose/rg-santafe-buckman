@@ -57,10 +57,22 @@ VALIDATION_DIR: str = "./validation"
 # Calculation: 1,000,000 gallons / 325,851 gallons/AF = 3.06889 AF/MG
 MG_TO_AF_FACTOR: float = 3.06889
 
-# Tolerance for daily BWP total verification (MGD)
+# Three-tier tolerance thresholds for daily BWP verification (MGD)
 # Each day's per-well sum is compared to the BWP formula column
-# Physical interpretation: 0.001 MGD = 1,000 gallons/day difference threshold
-DAILY_SUM_TOLERANCE_MGD: float = 0.001
+# Tier 1: Absolute noise floor - below instrument precision (database artifacts)
+# Set to 0.0015 MGD to catch 100-gallon rounding artifacts (900-1,500 gal range)
+NOISE_THRESHOLD_MGD: float = 0.0015  # 1,500 gal/day - database precision artifacts
+
+# Tier 2: Informational threshold - expected Excel rounding differences
+DAILY_SUM_TOLERANCE_INFO_MGD: float = 0.001  # 1,000 gal/day tolerance
+
+# Tier 3: Error threshold - significant mismatches requiring CSV review
+DAILY_SUM_TOLERANCE_ERROR_MGD: float = 0.005  # 5,000 gal/day threshold
+
+# Physical interpretation:
+# - 0.0015 MGD = 1,500 gal/day (catches 100-gal database rounding: 900-1,500 gal range)
+# - 0.001 MGD = 1,000 gal/day (typical Excel formula rounding tolerance)
+# - 0.005 MGD = 5,000 gal/day (~0.2% of average daily production)
 
 # Tolerance for annual Sum row verification (MG)
 # Our 12-month totals are compared to the CSV's Sum row per well
@@ -378,23 +390,34 @@ def validate_daily_data(daily_df: pd.DataFrame) -> pd.DataFrame:
     return flags_df
 
 
-def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_TOLERANCE_MGD) -> pd.DataFrame:
+def verify_daily_sums(
+    daily_df: pd.DataFrame,
+    info_threshold_mgd: float = DAILY_SUM_TOLERANCE_INFO_MGD,
+    error_threshold_mgd: float = DAILY_SUM_TOLERANCE_ERROR_MGD
+) -> pd.DataFrame:
     """
-    Verify each day's per-well sum matches the BWP total column.
+    Verify each day's per-well sum matches the BWP total using three-tier classification.
 
     Scientific Basis:
     - BWP (Buckman Well Field total) should equal sum of individual well flows
-    - Discrepancies indicate data entry errors or formula issues in source CSV
-    - Tolerance of 0.001 MGD = 1,000 gallons/day (acceptable rounding error)
+    - Three-tier approach distinguishes: noise < rounding < errors
+    - Tier 1 (Noise): BWP < 0.0015 MGD → database precision artifacts (100-gal rounding)
+    - Tier 2 (Formula): all wells=0 but BWP ≥ 0.0015 → CSV formula error
+    - Tier 3 (Rounding): Difference tolerance for Excel precision (0.001-0.005 MGD)
+    - BWP column comes from CSV's own formula, NOT external validation files
 
     Assumptions:
-    1. BWP_Total column exists in daily_df
-    2. All well columns are numeric (MGD values)
-    3. NaN values treated as 0.0 MGD (well not pumping)
+    1. City database stores values with 100-gallon precision (observed: 900-1,500 gal range)
+    2. Values < 1,500 gal/day are below well flow meter precision (±1% of 0.05-10 MGD)
+    3. Well pumps do not operate below ~0.05 MGD (typical minimum discharge)
+    4. BWP_Total column exists in daily_df (from CSV "BWP|Flow Mgd|MGD|Formula")
+    5. All well columns are numeric (MGD values)
+    6. NaN values treated as 0.0 MGD (well not pumping)
 
     Args:
         daily_df: DataFrame with Date + 13 well MGD columns + BWP_Total column
-        tolerance_mgd: Maximum acceptable difference in MGD (default: 0.001)
+        info_threshold_mgd: Informational threshold for rounding differences (default: 0.001)
+        error_threshold_mgd: Error threshold requiring CSV review (default: 0.005)
 
     Returns:
         verification_df: DataFrame with columns:
@@ -402,35 +425,35 @@ def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_T
         - Calculated_Sum: Sum of wells 1-13 (MGD)
         - BWP_Total: Value from BWP total column (MGD)
         - Difference: abs(Calculated_Sum - BWP_Total) (MGD)
-        - Verification: "OK" if difference <= tolerance, "NOT_OK" otherwise
+        - Severity: "OK", "INFO", or "ERROR"
 
     Raises:
         ValueError: If required columns are missing from daily_df
 
     Example:
-        >>> # Mock data with one mismatch
+        >>> # Mock data with INFO and ERROR mismatches
         >>> daily_df = pd.DataFrame({
-        ...     'Date': ['1/1/2024', '1/2/2024'],
-        ...     'BWell 1': [1.0, 2.0],
-        ...     'BWell 2': [0.5, 0.5],
+        ...     'Date': ['1/1/2024', '1/2/2024', '1/3/2024'],
+        ...     'BWell 1': [1.0, 2.0, 3.0],
+        ...     'BWell 2': [0.5, 0.5, 0.5],
         ...     # ... (11 more wells, all zeros)
-        ...     'BWP_Total': [1.5, 2.6]  # Second day has 0.1 MGD error
+        ...     'BWP_Total': [1.5, 2.502, 3.51]  # Day 2: INFO, Day 3: ERROR
         ... })
-        >>> verification_df = verify_daily_sums(daily_df, tolerance_mgd=0.001)
-        >>> print(verification_df.loc[1, 'Verification'])
-        NOT_OK
-        >>> print(verification_df.loc[1, 'Difference'])
-        0.1
+        >>> verification_df = verify_daily_sums(daily_df)
+        >>> print(verification_df['Severity'].tolist())
+        ['OK', 'INFO', 'ERROR']
 
-        Hand calculation for 1/2/2024:
-        - Sum = 2.0 + 0.5 + 0 + ... + 0 = 2.5 MGD
-        - BWP = 2.6 MGD
-        - Diff = |2.5 - 2.6| = 0.1 MGD > 0.001 → NOT_OK
+        Hand calculation for 1/3/2024:
+        - Sum = 3.0 + 0.5 + 0 + ... + 0 = 3.5 MGD
+        - BWP = 3.51 MGD
+        - Diff = |3.5 - 3.51| = 0.01 MGD > 0.005 → ERROR
 
     Validation:
-        Compare mismatched dates to source CSV to identify data entry errors
+        Compare ERROR-flagged dates to source CSV to identify formula errors
     """
-    print(f"Verifying daily sums (tolerance: {tolerance_mgd:.4f} MGD)...")
+    print(f"Verifying daily sums (INFO threshold: {info_threshold_mgd:.4f} MGD, "
+          f"ERROR threshold: {error_threshold_mgd:.4f} MGD)...")
+    print("  (BWP column is from CSV formula, not external validation data)")
 
     # 1. Sum wells 1-13 for each day (treating NaN as 0)
     daily_df_copy = daily_df.copy()
@@ -440,8 +463,37 @@ def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_T
     bwp_total = daily_df_copy['BWP_Total'].fillna(0)
     difference = abs(calculated_sum - bwp_total)
 
-    # 4. Mark OK if diff <= tolerance, NOT_OK otherwise
-    verification = difference.apply(lambda d: "OK" if d <= tolerance_mgd else "NOT_OK")
+    # 4. Three-tier categorization: Noise → Formula Error → Precision Tolerance
+    # Tier 1: Absolute noise threshold (database precision artifacts)
+    # Tier 2: Formula error check (logical inconsistency)
+    # Tier 3: Standard precision tolerance (Excel rounding)
+    all_wells_zero = (daily_df_copy[CSV_WELL_COLUMNS].fillna(0) == 0).all(axis=1)
+    bwp_total_series = daily_df_copy['BWP_Total'].fillna(0)
+
+    def categorize_severity(idx: int, diff: float) -> str:
+        bwp = bwp_total_series.iloc[idx]
+        wells_zero = all_wells_zero.iloc[idx]
+
+        # TIER 1: Absolute noise threshold (database precision artifacts)
+        # Flag NON-ZERO values below 1,500 gal/day as INFO (database rounding artifacts)
+        # Exception: BWP=0 with all wells=0 is valid and should pass to Tier 3
+        if 0 < bwp < NOISE_THRESHOLD_MGD:
+            return "INFO"  # Below instrument precision (database artifact)
+
+        # TIER 2: Formula error check (logical inconsistency)
+        # If all wells show zero but BWP ≥ noise threshold, flag as ERROR
+        if wells_zero and bwp >= NOISE_THRESHOLD_MGD:
+            return "ERROR"  # Real formula error (not noise)
+
+        # TIER 3: Standard precision tolerance (Excel rounding)
+        if diff <= info_threshold_mgd:
+            return "OK"
+        elif diff <= error_threshold_mgd:
+            return "INFO"  # Expected rounding difference
+        else:
+            return "ERROR"  # Significant mismatch
+
+    severity = pd.Series([categorize_severity(i, diff) for i, diff in enumerate(difference)])
 
     # Create verification DataFrame
     verification_df = pd.DataFrame({
@@ -449,20 +501,43 @@ def verify_daily_sums(daily_df: pd.DataFrame, tolerance_mgd: float = DAILY_SUM_T
         'Calculated_Sum': calculated_sum,
         'BWP_Total': bwp_total,
         'Difference': difference,
-        'Verification': verification
+        'Severity': severity
     })
 
-    # 5. Print summary (count of OK vs NOT_OK)
-    ok_count = (verification == "OK").sum()
-    not_ok_count = (verification == "NOT_OK").sum()
-    print(f"Daily sum verification: {ok_count} OK, {not_ok_count} NOT_OK")
+    # 5. Print summary with severity breakdown
+    ok_count = (severity == "OK").sum()
+    info_count = (severity == "INFO").sum()
+    error_count = (severity == "ERROR").sum()
 
-    if not_ok_count > 0:
-        print(f"  WARNING: {not_ok_count} days have sum mismatches exceeding tolerance")
-        # Show first few mismatches
-        mismatches = verification_df[verification_df['Verification'] == 'NOT_OK'].head(5)
-        for _, row in mismatches.iterrows():
-            print(f"    {row['Date'].strftime('%Y-%m-%d')}: calc={row['Calculated_Sum']:.4f}, "
+    print(f"\nDaily sum verification:")
+    print(f"  ✅ {ok_count} days OK (within {info_threshold_mgd:.4f} MGD)")
+
+    if info_count > 0:
+        print(f"  ℹ️  {info_count} days INFO (rounding differences or database noise)")
+        print(f"      Causes: (1) Excel formula rounding, (2) Database precision artifacts (< {NOISE_THRESHOLD_MGD:.4f} MGD)")
+        print("      Impact: None - monthly totals use individual well values, not BWP")
+
+    if error_count > 0:
+        print(f"\n  ❌ {error_count} days ERROR (>{error_threshold_mgd:.4f} MGD - requires review)")
+        print("      Action: Check source CSV for formula errors or data entry issues\n")
+        print("  ERROR-level mismatches (source CSV may have formula errors):")
+
+        error_rows = verification_df[verification_df['Severity'] == 'ERROR']
+        for _, row in error_rows.iterrows():
+            print(f"    🔴 {row['Date'].strftime('%Y-%m-%d')}: calc={row['Calculated_Sum']:.4f}, "
+                  f"BWP={row['BWP_Total']:.4f}, diff={row['Difference']:.4f} MGD")
+
+            # Additional diagnostic for anomalous cases (all wells = 0 but BWP != 0)
+            day_wells = daily_df_copy[daily_df_copy['Date'] == row['Date']][CSV_WELL_COLUMNS]
+            if (day_wells.fillna(0) == 0).all().all() and row['BWP_Total'] != 0:
+                print(f"         ⚠️  All wells=0 but BWP≠0 - check CSV formula")
+
+    # Show INFO-level details if present
+    if info_count > 0 and info_count <= 10:
+        print(f"\n  INFO-level details (rounding differences):")
+        info_rows = verification_df[verification_df['Severity'] == 'INFO']
+        for _, row in info_rows.iterrows():
+            print(f"    ⚪ {row['Date'].strftime('%Y-%m-%d')}: calc={row['Calculated_Sum']:.4f}, "
                   f"BWP={row['BWP_Total']:.4f}, diff={row['Difference']:.4f} MGD")
 
     # 6. Return verification_df
@@ -1533,15 +1608,17 @@ def generate_qa_summary(
             'Monthly_MG_Total': f"{flag_info.get('mg_total', 0.0):.3f}"
         })
 
-    # 2. Section 2: Extract daily verification NOT_OK rows
-    mismatches = daily_verification[daily_verification['Verification'] == 'NOT_OK']
+    # 2. Section 2: Extract daily verification INFO and ERROR rows
+    # Include both INFO and ERROR severity levels in the QA summary
+    mismatches = daily_verification[daily_verification['Severity'].isin(['INFO', 'ERROR'])]
     mismatch_data = []
     for _, row in mismatches.iterrows():
         mismatch_data.append({
             'Date': row['Date'].strftime('%Y-%m-%d'),
             'Calculated_Sum': f"{row['Calculated_Sum']:.4f}",
             'BWP_Total': f"{row['BWP_Total']:.4f}",
-            'Difference': f"{row['Difference']:.4f}"
+            'Difference': f"{row['Difference']:.4f}",
+            'Severity': row['Severity']
         })
 
     # 3-4. If both sections empty, write "No data quality issues found"
@@ -1816,8 +1893,12 @@ def main() -> int:
         # 5. Call validate_daily_data()
         flags_df = validate_daily_data(daily_df)
 
-        # 6. Call verify_daily_sums()
-        daily_verification = verify_daily_sums(daily_df)
+        # 6. Call verify_daily_sums() with dual thresholds
+        daily_verification = verify_daily_sums(
+            daily_df,
+            info_threshold_mgd=DAILY_SUM_TOLERANCE_INFO_MGD,
+            error_threshold_mgd=DAILY_SUM_TOLERANCE_ERROR_MGD
+        )
 
         # 7. Call aggregate_monthly()
         monthly_data = aggregate_monthly(daily_df, flags_df)

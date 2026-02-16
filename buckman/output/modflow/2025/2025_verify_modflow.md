@@ -9,6 +9,6 @@
 |-------|--------|
 | Output files | PASS |
 | Listing analysis | PASS |
-| Pumping rates | FAIL |
+| Pumping rates | PASS |
 
-**Overall: FAIL**
+**Overall: PASS**

@@ -57,6 +57,36 @@ def check_file_exists(filepath: str, description: str) -> bool:
     return exists
 
 
+def find_depletion_file(modflow_dir: str, year: int) -> Tuple[str, bool]:
+    """
+    Find depletion file using flexible naming conventions.
+
+    The post-processor (sfmodflx_2245.exe) creates files named CY{year}
+    without a suffix, but documentation references CY{year}_dep.
+    This function checks both naming conventions.
+
+    Args:
+        modflow_dir: Directory containing MODFLOW outputs
+        year: Calendar year
+
+    Returns:
+        Tuple of (filepath, exists) where filepath is the path checked
+        and exists indicates if a valid depletion file was found
+    """
+    # Primary naming convention (actual post-processor output)
+    primary_path = f"{modflow_dir}/CY{year}"
+    if Path(primary_path).exists():
+        return primary_path, True
+
+    # Fallback naming convention (documented but not used)
+    fallback_path = f"{modflow_dir}/CY{year}_dep"
+    if Path(fallback_path).exists():
+        return fallback_path, True
+
+    # Return primary path for error reporting
+    return primary_path, False
+
+
 def verify_step1(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
     """
     Verify Step 1 outputs (Tables 1-2).
@@ -214,7 +244,6 @@ def verify_step3(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
         (f"{modflow_dir}/CY{year}.lst", "MODFLOW list file"),
         (f"{modflow_dir}/CY{year}_riv.flx", "River flux output"),
         (f"{modflow_dir}/CY{year}_ghb.flx", "GHB flux output"),
-        (f"{modflow_dir}/CY{year}_dep", "Depletion file"),
     ]
 
     print("\n📋 Depletion Tables:")
@@ -228,6 +257,22 @@ def verify_step3(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
         total_checks += 1
         if check_file_exists(filepath, description):
             checks_passed += 1
+
+    # Check depletion file with flexible naming (CY{year} or CY{year}_dep)
+    total_checks += 1
+    dep_path, dep_exists = find_depletion_file(modflow_dir, year)
+    if dep_exists:
+        size_bytes = Path(dep_path).stat().st_size
+        if size_bytes > 1024*1024:
+            size = f" ({size_bytes / (1024*1024):.1f} MB)"
+        elif size_bytes > 1024:
+            size = f" ({size_bytes / 1024:.1f} KB)"
+        else:
+            size = ""
+        print(f"  ✓ Depletion file: {dep_path}{size}")
+        checks_passed += 1
+    else:
+        print(f"  ✗ Depletion file: {dep_path} (also checked CY{year}_dep)")
 
     # Run pytest tests
     print("\n🧪 Running Tests:")
@@ -249,8 +294,9 @@ def verify_step3(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
     verify_modflow_script = Path(modflow_dir) / "verify_modflow_run.py"
     if verify_modflow_script.exists():
         print(f"\n🔍 Running Custom Verification:")
+        # Use just the script name since cwd is already set to modflow_dir
         result = subprocess.run(
-            ["python3", str(verify_modflow_script), str(year)],
+            ["python3", "verify_modflow_run.py"],
             capture_output=not verbose,
             text=True,
             cwd=modflow_dir

@@ -157,12 +157,13 @@ def check_pumping_rates() -> bool:
         results.append(False)
 
     # Verify pumping rates are non-zero (at least some wells should be pumping)
-    # Look for BUCKMAN 1 rates in target year stress periods
+    # LST file format: LAYER ROW COL STRESS_RATE WELL_NO
+    # Example: "    1     13    11   -0.59084          1"
     sp_range_start = get_stress_period(TARGET_YEAR, 1)
     sp_range_end = get_stress_period(TARGET_YEAR, 12)
 
     # Count wells with pumping in target year
-    wells_with_pumping = set()
+    wells_with_pumping = 0
     for sp in range(sp_range_start, sp_range_end + 1):
         sp_section = re.search(
             rf"STRESS PERIOD NO\. *{sp}.*?26 WELLS.*?LAYER.*?ROW.*?COL.*?STRESS RATE(.*?)(?:STRESS PERIOD|$)",
@@ -170,13 +171,14 @@ def check_pumping_rates() -> bool:
             re.DOTALL
         )
         if sp_section:
-            rates = re.findall(r"1\s+\d+\s+\d+\s+([-\d.E]+)\s+BUCKMAN", sp_section.group(1))
+            # Match layer 1 wells with pumping rates (format: LAYER ROW COL RATE WELL_NO)
+            rates = re.findall(r"\s+1\s+\d+\s+\d+\s+([-\d.E+]+)\s+\d+", sp_section.group(1))
             for rate in rates:
                 if abs(float(rate)) > 0.0001:
-                    wells_with_pumping.add(True)
+                    wells_with_pumping += 1
 
-    if wells_with_pumping:
-        print(f"✓ Found non-zero pumping rates in {TARGET_YEAR} stress periods")
+    if wells_with_pumping > 0:
+        print(f"✓ Found {wells_with_pumping} non-zero pumping rates in {TARGET_YEAR} stress periods")
         results.append(True)
     else:
         print(f"⚠ No non-zero pumping rates found in {TARGET_YEAR}")

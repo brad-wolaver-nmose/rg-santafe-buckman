@@ -25,7 +25,9 @@ def test_constants_defined():
 
     assert hasattr(m, "OUTPUT_DIR")
     assert hasattr(m, "MG_TO_AF_FACTOR")
-    assert hasattr(m, "DAILY_SUM_TOLERANCE_MGD")
+    # Two-tier tolerance system for QA: INFO (review) and ERROR (action required)
+    assert hasattr(m, "DAILY_SUM_TOLERANCE_INFO_MGD")
+    assert hasattr(m, "DAILY_SUM_TOLERANCE_ERROR_MGD")
     assert hasattr(m, "ANNUAL_SUM_TOLERANCE_MG")
     assert hasattr(m, "MONTHS_ABBREV")
     assert hasattr(m, "MONTHS_ORDERED")
