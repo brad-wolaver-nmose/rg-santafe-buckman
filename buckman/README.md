@@ -186,34 +186,28 @@ When annual pumping data arrives (e.g., for 2025):
 ### Step-by-Step
 
 ```bash
-# 1. Ingest pumping data → Tables 1 & 2
+# Step 1: Ingest pumping data → Tables 1 & 2
 # Script shows which Table 1 template is being used (validation file or prior year)
 python3 step1_ingest_buckman_data.py --year 2025
 
-# 2. Generate MODFLOW files (auto-copies 10 baseline files from 2023)
+# Step 2: Generate MODFLOW files (auto-copies 10 baseline files from 2023)
 # Script shows input source year and file paths
 python3 step2_update_modflow.py --year 2025
 
-# 3. Run MODFLOW96 (via Wine on Linux)
-cd output/modflow/2025
-wine modflow96.exe CY2025.nam
+# Step 3: Run MODFLOW96 with verification (30-45 minutes)
+# Wrapper script handles Wine execution, logging, and automatic verification
+./step3_run_modflow.sh --year 2025
 
-# 4. Verify MODFLOW run (auto-generates report)
-python3 verify_modflow_run.py
+# Step 4: Generate depletion Tables 3, 4, 5
+# Script auto-runs post-processor (sfmodflx_2245.exe) and parses output
+python3 step4_generate_depletion_tables.py --year 2025
 
-# 5. Run post-processor for depletion data
-wine sfmodflx_2245.exe
+# Step 5: Comprehensive workflow verification (runs all tests)
+python3 step5_verify_workflow.py --year 2025
 
-# 6. Verify depletion output (auto-generates comparison report)
-python3 verify_depletion.py
-
-# 7. Generate depletion Tables 3, 4, 5
-# Script shows directory structure and flux file sizes
-cd ../../..
-python3 step3_generate_depletion_tables.py --year 2025
-
-# 8. Comprehensive workflow verification (runs all tests)
-python3 step4_verify_workflow.py --year 2025
+# Step 6: (Optional) Commit results
+git add output/
+git commit -m "Complete 2025 Buckman workflow"
 ```
 
 ### Enhanced Features
@@ -222,12 +216,13 @@ python3 step4_verify_workflow.py --year 2025
 Each script now shows which input files are being used:
 - step1: Reports Table 1 template source (validation file or prior year)
 - step2: Reports source year and input WEL file path
-- step3: Reports directory structure (nested ≤2024, flat 2025+) and flux file sizes
+- step3: Shows MODFLOW runtime and verification status
+- step4: Reports directory structure (nested ≤2024, flat 2025+) and flux file sizes
 
 **Automated Verification:**
-- `step4_verify_workflow.py`: Comprehensive check of all outputs and test suite
-- `verify_modflow_run.py`: MODFLOW-specific checks (convergence, mass balance)
-- `verify_depletion.py`: Depletion output reasonableness checks
+- `step3_run_modflow.sh`: Includes MODFLOW convergence verification (verify_modflow_run.py)
+- `step5_verify_workflow.py`: Comprehensive check of all outputs and test suite
+- Both generate markdown reports for documentation
 
 **File Propagation:**
 Year-to-year chaining is automatic:

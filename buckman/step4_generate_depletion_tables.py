@@ -792,7 +792,7 @@ def check_prerequisites(year: int) -> bool:
     print(f"  - TABLE_5_La_Cienega_Springs_{year}.xlsx")
 
     print("\n➡️  Next Step:")
-    print(f"  python3 step4_verify_workflow.py --year {year}")
+    print(f"  python3 step5_verify_workflow.py --year {year}")
     print("="*70 + "\n")
 
     # Check MODFLOW output directory exists
@@ -802,7 +802,7 @@ def check_prerequisites(year: int) -> bool:
             str(modflow_dir),
             "Directory does not exist",
             f"MODFLOW output for {year}",
-            f"Run 'python3 step2_update_modflow.py --year {year}' then run MODFLOW96"
+            f"Run 'python3 step2_update_modflow.py --year {year}' then './step3_run_modflow.sh --year {year}'"
         )
         return False
 

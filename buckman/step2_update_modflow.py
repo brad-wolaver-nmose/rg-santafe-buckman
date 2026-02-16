@@ -1438,10 +1438,8 @@ def main() -> int:
     print(f"  - CY{target_year}.nam (MODFLOW name file)")
     print(f"  - 10 baseline files copied from 2023")
 
-    print("\n➡️  Next Step (MANUAL):")
-    print(f"  cd output/modflow/{target_year}")
-    print(f"  wine modflow96.exe CY{target_year}.nam")
-    print(f"  wine sfmodflx_2245.exe  # Enter CY{target_year} when prompted")
+    print("\n➡️  Next Step:")
+    print(f"  ./step3_run_modflow.sh --year {target_year}")
     print("="*70 + "\n")
 
     # Check that input files exist
