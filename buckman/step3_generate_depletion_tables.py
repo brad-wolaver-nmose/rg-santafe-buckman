@@ -792,7 +792,7 @@ def check_prerequisites(year: int) -> bool:
     print(f"  - TABLE_5_La_Cienega_Springs_{year}.xlsx")
 
     print("\n➡️  Next Step:")
-    print(f"  python3 verify_workflow.py --year {year}")
+    print(f"  python3 step4_verify_workflow.py --year {year}")
     print("="*70 + "\n")
 
     # Check MODFLOW output directory exists

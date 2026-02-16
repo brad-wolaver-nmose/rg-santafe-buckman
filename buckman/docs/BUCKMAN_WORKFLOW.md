@@ -344,7 +344,7 @@ The workflow chains years together - each year depends on outputs from the previ
 After completing all steps for a year, run comprehensive verification:
 
 ```bash
-python3 verify_workflow.py --year 2025
+python3 step4_verify_workflow.py --year 2025
 ```
 
 This automated script will:
@@ -356,13 +356,13 @@ This automated script will:
 **Usage examples:**
 ```bash
 # Verify entire workflow for 2025
-python3 verify_workflow.py --year 2025
+python3 step4_verify_workflow.py --year 2025
 
 # Verify only step 3 (depletion tables)
-python3 verify_workflow.py --year 2025 --step 3
+python3 step4_verify_workflow.py --year 2025 --step 3
 
 # Show detailed test output
-python3 verify_workflow.py --year 2025 --verbose
+python3 step4_verify_workflow.py --year 2025 --verbose
 ```
 
 See `docs/FILE_DEPENDENCIES.md` for visual dependency diagram and `docs/NEW_YEAR_CHECKLIST.md` for detailed processing checklist.

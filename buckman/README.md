@@ -146,6 +146,7 @@ This repository contains the Buckman wellfield annual depletion calculation work
 | `step1_ingest_buckman_data.py` | CLI | Ingest daily pumping CSV → Tables 1 & 2 |
 | `step2_update_modflow.py` | CLI | Generate MODFLOW WEL/NAM files |
 | `step3_generate_depletion_tables.py` | CLI | Parse MODFLOW output → Tables 3, 4, 5 |
+| `step4_verify_workflow.py` | CLI | Comprehensive workflow verification for a given year |
 | `stream_depletions.py` | Library | Depletion calculation functions (imported by step3) |
 
 ### Quick Start
@@ -186,9 +187,11 @@ When annual pumping data arrives (e.g., for 2025):
 
 ```bash
 # 1. Ingest pumping data → Tables 1 & 2
+# Script shows which Table 1 template is being used (validation file or prior year)
 python3 step1_ingest_buckman_data.py --year 2025
 
-# 2. Generate MODFLOW files (copies 10 support files to output dir)
+# 2. Generate MODFLOW files (auto-copies 10 baseline files from 2023)
+# Script shows input source year and file paths
 python3 step2_update_modflow.py --year 2025
 
 # 3. Run MODFLOW96 (via Wine on Linux)
@@ -201,32 +204,64 @@ python3 verify_modflow_run.py
 # 5. Run post-processor for depletion data
 wine sfmodflx_2245.exe
 
-# 6. Verify depletion output
+# 6. Verify depletion output (auto-generates comparison report)
 python3 verify_depletion.py
 
 # 7. Generate depletion Tables 3, 4, 5
+# Script shows directory structure and flux file sizes
 cd ../../..
 python3 step3_generate_depletion_tables.py --year 2025
+
+# 8. Comprehensive workflow verification (runs all tests)
+python3 step4_verify_workflow.py --year 2025
 ```
+
+### Enhanced Features
+
+**File Source Visibility:**
+Each script now shows which input files are being used:
+- step1: Reports Table 1 template source (validation file or prior year)
+- step2: Reports source year and input WEL file path
+- step3: Reports directory structure (nested ≤2024, flat 2025+) and flux file sizes
+
+**Automated Verification:**
+- `step4_verify_workflow.py`: Comprehensive check of all outputs and test suite
+- `verify_modflow_run.py`: MODFLOW-specific checks (convergence, mass balance)
+- `verify_depletion.py`: Depletion output reasonableness checks
+
+**File Propagation:**
+Year-to-year chaining is automatic:
+- Table 1: Uses prior year output if no validation file exists
+- WEL file: Extends from prior year (2024→2023, 2025→2024, etc.)
+- Baseline files: 10 support files auto-copied from 2023 baseline to each year's output
 
 ### What If Something Fails?
 
-Each script checks prerequisites and tells you what to run first:
+Each script checks prerequisites and shows exactly which files are needed:
 
 ```
-✗ Error: Table 2 CSV not found: output/ingested_data/2025_Table_2_output.csv
-  Hint: Run 'python3 step1_ingest_buckman_data.py --year 2025' first.
+✗ Error: Input .wel file not found: output/modflow/2024/thruCY2165_2024.wel
+  Cause: Year 2024 has not been processed through Step 2
+  Solution: Run 'python3 step2_update_modflow.py --year 2024' first.
 ```
 
 ### Workflow Dependencies
 
 ```
-Step 1 ──→ Step 2 ──→ [MODFLOW96] ──→ Step 3
-   │           │                          │
-   └── needs   └── needs step1's          └── needs MODFLOW
-       CSV         output + prior              flux files
-       file        year's WEL file
+Year N-1 ──────────────> Year N
+   │                        │
+   ├─ Table 1 (template) ──>│ Extends historical data
+   ├─ WEL file ────────────>│ Appends new year pumping
+   └─ 2023 baseline ───────>│ 10 support files copied
 ```
+
+**File Dependency Chain:**
+- **Table 1:** Uses validation file OR prior year output as template
+- **WEL file:** Chains from prior year (2024→2023, 2025→2024, etc.)
+- **Baseline files:** 10 MODFLOW support files copied from 2023 baseline
+- **Tables 2-5:** Generated fresh each year
+
+See [docs/FILE_DEPENDENCIES.md](docs/FILE_DEPENDENCIES.md) for visual diagram.
 
 ### Output Tables
 
@@ -240,6 +275,13 @@ Step 1 ──→ Step 2 ──→ [MODFLOW96] ──→ Step 3
 
 ### Documentation
 
-- **Workflow Guide:** [docs/BUCKMAN_WORKFLOW.md](docs/BUCKMAN_WORKFLOW.md)
-- **Tables 1 & 2 Methodology:** [output/ingested_data/METHODOLOGY_Tables_1_2.md](output/ingested_data/METHODOLOGY_Tables_1_2.md)
-- **Tables 3, 4, 5 Methodology:** [output/depletion/METHODOLOGY_Tables_3_4_5.md](output/depletion/METHODOLOGY_Tables_3_4_5.md)
+For complete workflow details and troubleshooting:
+- **Main Workflow Guide:** [docs/BUCKMAN_WORKFLOW.md](docs/BUCKMAN_WORKFLOW.md)
+- **File Dependencies:** [docs/FILE_DEPENDENCIES.md](docs/FILE_DEPENDENCIES.md) - Visual file flow diagram
+- **Processing Checklist:** [docs/NEW_YEAR_CHECKLIST.md](docs/NEW_YEAR_CHECKLIST.md) - Step-by-step guide
+
+Methodology documentation:
+- **Tables 1 & 2:** [output/ingested_data/METHODOLOGY_Tables_1_2.md](output/ingested_data/METHODOLOGY_Tables_1_2.md)
+- **Tables 3, 4, 5:** [output/depletion/METHODOLOGY_Tables_3_4_5.md](output/depletion/METHODOLOGY_Tables_3_4_5.md)
+
+**See [docs/BUCKMAN_WORKFLOW.md](docs/BUCKMAN_WORKFLOW.md) for complete workflow details.**
