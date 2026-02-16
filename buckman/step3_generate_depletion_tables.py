@@ -759,6 +759,42 @@ def check_prerequisites(year: int) -> bool:
     modflow_dir = Path(get_modflow_output_dir(year))
     riv_flux, ghb_flux = get_flux_files(year)
 
+    # Print checklist-style directory structure detection
+    print("\n" + "="*70)
+    print(f"STEP 3: GENERATE DEPLETION TABLES - YEAR {year}")
+    print("="*70)
+
+    # Detect structure
+    if year <= 2024:
+        structure = "NESTED (output/modflow/{year}/modflow/)"
+    else:
+        structure = "FLAT (output/modflow/{year}/)"
+    print(f"📋 Directory Structure: {structure}")
+    print(f"  - MODFLOW output: {modflow_dir}")
+    print(f"  - Depletions dir: {depletions_dir}")
+
+    # Check file sizes
+    import os
+    print(f"\n📋 Flux Files:")
+    riv_path = modflow_dir / riv_flux
+    ghb_path = modflow_dir / ghb_flux
+    if riv_path.exists() and ghb_path.exists():
+        riv_size = os.path.getsize(riv_path) / (1024*1024)
+        ghb_size = os.path.getsize(ghb_path) / (1024*1024)
+        print(f"  ✓ {riv_flux}: {riv_size:.1f} MB")
+        print(f"  ✓ {ghb_flux}: {ghb_size:.1f} MB")
+    else:
+        print(f"  ⚠ Flux files not found (will fail later)")
+
+    print("\n📦 Outputs (after completion):")
+    print(f"  - TABLE_3_Rio_Pojoaque_Tesuque_{year}.xlsx")
+    print(f"  - TABLE_4_Rio_Grande_Otowi_{year}.xlsx")
+    print(f"  - TABLE_5_La_Cienega_Springs_{year}.xlsx")
+
+    print("\n➡️  Next Step:")
+    print(f"  python3 verify_workflow.py --year {year}")
+    print("="*70 + "\n")
+
     # Check MODFLOW output directory exists
     if not modflow_dir.exists():
         print_error(

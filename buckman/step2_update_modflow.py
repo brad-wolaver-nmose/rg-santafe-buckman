@@ -783,6 +783,73 @@ def generate_nam_file(
     return file_path
 
 
+def verify_nam_file_references(nam_path: str, output_dir: str) -> bool:
+    """
+    Verify all files referenced in .nam file exist.
+
+    Scientific basis: MODFLOW96 requires all package files referenced in the
+    name file to exist in the same directory for successful model execution.
+
+    Assumptions:
+        1. NAM file follows MODFLOW96 format (PACKAGE_CODE UNIT filename)
+        2. All referenced files should be in output_dir
+        3. Comment lines start with '#'
+
+    Args:
+        nam_path: Path to generated .nam file
+        output_dir: Directory where referenced files should exist
+
+    Returns:
+        True if all files exist, False otherwise
+
+    Raises:
+        None (returns False for missing files)
+
+    Example:
+        >>> verify_nam_file_references("output/modflow/2025/CY2025.nam", "output/modflow/2025")
+        ✓ NAM file verified: all 8 referenced files exist
+        True
+
+    Validation reference: Compare referenced files against MODFLOW96 package requirements
+    """
+    from pathlib import Path
+
+    nam_file = Path(nam_path)
+    output_path = Path(output_dir)
+
+    if not nam_file.exists():
+        print(f"✗ NAM file not found: {nam_path}")
+        return False
+
+    referenced_files = []
+    missing_files = []
+
+    with open(nam_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            # Skip comments and blank lines
+            if not line or line.startswith('#'):
+                continue
+            # Extract filename from MODFLOW package lines (format: "PACKAGE_CODE UNIT filename")
+            parts = line.split()
+            if len(parts) >= 3:
+                filename = parts[2]
+                referenced_files.append(filename)
+                file_path = output_path / filename
+                if not file_path.exists():
+                    missing_files.append(filename)
+
+    if missing_files:
+        print(f"\n✗ NAM file references {len(missing_files)} missing file(s):")
+        for f in missing_files:
+            print(f"    - {f}")
+        print(f"  Total referenced: {len(referenced_files)}")
+        return False
+
+    print(f"  ✓ NAM file verified: all {len(referenced_files)} referenced files exist")
+    return True
+
+
 def copy_baseline_files(output_dir: str) -> list[Path]:
     """
     Copy MODFLOW baseline support files to output directory.
@@ -1352,6 +1419,31 @@ def main() -> int:
     print(f"Updating from CY{config.source_year} to CY{target_year}")
     print("=" * 60)
 
+    # Print checklist-style input sources
+    print("\n" + "="*70)
+    print(f"STEP 2: UPDATE MODFLOW - YEAR {target_year}")
+    print("="*70)
+    print(f"📋 Input Sources:")
+    print(f"  - Source year: {config.source_year}")
+    if target_year == BASELINE_YEAR:
+        print(f"  - Mode: BASELINE (using 2023 input files)")
+        print(f"  - WEL file: {config.input_wel_path}")
+    else:
+        print(f"  - Mode: CHAINED (using {config.source_year} outputs)")
+        print(f"  - WEL file: {config.input_wel_path}")
+    print(f"  - Table 2: {config.table2_csv_path}")
+
+    print("\n📦 Outputs (after completion):")
+    print(f"  - thruCY2165_{target_year}.wel (extended well file)")
+    print(f"  - CY{target_year}.nam (MODFLOW name file)")
+    print(f"  - 10 baseline files copied from 2023")
+
+    print("\n➡️  Next Step (MANUAL):")
+    print(f"  cd output/modflow/{target_year}")
+    print(f"  wine modflow96.exe CY{target_year}.nam")
+    print(f"  wine sfmodflx_2245.exe  # Enter CY{target_year} when prompted")
+    print("="*70 + "\n")
+
     # Check that input files exist
     if not Path(config.input_wel_path).exists():
         print(f"\n✗ Error: Input .wel file not found: {config.input_wel_path}")
@@ -1415,6 +1507,10 @@ def main() -> int:
     print(f"  ✓ Copied {len(copied_files)} files from {BASELINE_DIR}:")
     for f in copied_files:
         print(f"    - {f.name}")
+
+    # Step 7.5: Verify NAM file references
+    print("\n[7.5/8] Verifying NAM file references...")
+    verify_nam_file_references(str(nam_output_path), config.output_dir)
 
     # Print pumping summary table
     print_pumping_summary(pumping_data, target_year)

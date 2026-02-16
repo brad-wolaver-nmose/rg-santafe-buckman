@@ -135,7 +135,9 @@ MIT
 
 ## Buckman Wellfield Workflow
 
-This repository also contains the Buckman wellfield annual depletion calculation workflow, used for Santa Fe water rights compliance.
+This repository contains the Buckman wellfield annual depletion calculation workflow for Santa Fe water rights compliance.
+
+**📖 For complete workflow details, see [docs/BUCKMAN_WORKFLOW.md](docs/BUCKMAN_WORKFLOW.md)**
 
 ### Script Architecture
 

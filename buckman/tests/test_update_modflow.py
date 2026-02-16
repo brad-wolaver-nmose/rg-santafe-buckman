@@ -1229,13 +1229,14 @@ def test_script_runs_end_to_end(capsys):
         captured = capsys.readouterr()
 
         # Verify progress messages
-        assert "[1/7] Reading Table 2 pumping data" in captured.out
-        assert "[2/7] Converting acre-feet to ft³/s" in captured.out
-        assert "[3/7] Parsing" in captured.out and ".wel file" in captured.out
-        assert "[4/7] Generating" in captured.out and "well entries" in captured.out
-        assert "[5/7] Writing updated .wel file" in captured.out
-        assert "[6/7] Generating updated .nam file" in captured.out
-        assert "[7/7] Validating against known-good files" in captured.out
+        assert "[1/8] Reading Table 2 pumping data" in captured.out
+        assert "[2/8] Converting acre-feet to ft³/s" in captured.out
+        assert "[3/8] Parsing" in captured.out and ".wel file" in captured.out
+        assert "[4/8] Generating" in captured.out and "well entries" in captured.out
+        assert "[5/8] Writing updated .wel file" in captured.out
+        assert "[6/8] Generating updated .nam file" in captured.out
+        assert "[7/8] Copying baseline MODFLOW files" in captured.out
+        assert "[8/8] Validating against known-good files" in captured.out
         assert "Validation PASSED" in captured.out or "successfully" in captured.out
         assert result == 0
     finally:

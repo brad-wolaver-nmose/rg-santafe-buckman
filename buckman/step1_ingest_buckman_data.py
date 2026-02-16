@@ -1695,10 +1695,36 @@ def check_prerequisites(year: int) -> bool:
         )
         return False
 
-    # Optional: warn about validation file (needed for Table 1)
+    # Print checklist-style prerequisite status
+    print("\n" + "="*70)
+    print(f"STEP 1: INGEST PUMPING DATA - YEAR {year}")
+    print("="*70)
+    print("✓ Prerequisites:")
+    print(f"  - Input CSV: input/csv/Buckman_Well_Prod_{year}.csv [FOUND]")
+
+    # Check Table 1 template availability
     validation_path = Path(VALIDATION_DIR) / f"Table_1_data_afy_{year}.xlsx"
-    if not validation_path.exists():
-        print(f"  Note: {validation_path} not found - Table 1 generation may be limited")
+    fallback_path = Path(OUTPUT_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
+
+    print("\n📋 Table 1 Template Source:")
+    if validation_path.exists():
+        print(f"  ✓ Using validation file: {validation_path.name}")
+    elif fallback_path.exists():
+        print(f"  ✓ Using {year - 1} output as template: {fallback_path.name}")
+    else:
+        print(f"  ⚠ WARNING: No template found!")
+        print(f"    - Primary: {validation_path.name} [NOT FOUND]")
+        print(f"    - Fallback: {fallback_path} [NOT FOUND]")
+        print(f"    ⚠ Table 1 generation will fail unless template is created.")
+
+    print("\n📦 Outputs (after completion):")
+    print(f"  - {year}_Table_1_updated.xlsx (historical AFY by well)")
+    print(f"  - {year}_Table_2_output.xlsx (monthly pumping)")
+    print(f"  - 12 monthly CSV files")
+
+    print("\n➡️  Next Step:")
+    print(f"  python3 step2_update_modflow.py --year {year}")
+    print("="*70 + "\n")
 
     return True
 

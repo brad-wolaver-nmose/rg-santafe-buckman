@@ -314,11 +314,70 @@ If calculated values don't match validation:
 
 ---
 
+## File Dependency Chain
+
+The workflow chains years together - each year depends on outputs from the previous year.
+
+### First Year (2024 Baseline)
+- Uses 2023 baseline files from `input/modflow/2023/`
+- Table 1 starts from validation template
+- Creates foundation for all subsequent years
+
+### Subsequent Years (2025+)
+- WEL file: Extends from year N-1 output
+- Table 1: Extends from year N-1 output (if no validation file)
+- Baseline files: Copied fresh from 2023 baseline
+
+**Important:** Always process years sequentially (2024 → 2025 → 2026, etc.)
+
+### Troubleshooting Missing Files
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Input .wel file not found" | Year N-1 not processed | Run step2 for year N-1 first |
+| "Table 2 CSV not found" | Step 1 not run | Run step1 for current year |
+| "No template found for Table 1" | Missing validation file AND year N-1 not processed | Create validation file OR run year N-1 first |
+| "Flux file not found" | MODFLOW96 not run | Run MODFLOW96 with CY{year}.nam |
+
+### Workflow Verification
+
+After completing all steps for a year, run comprehensive verification:
+
+```bash
+python3 verify_workflow.py --year 2025
+```
+
+This automated script will:
+- Check all output files exist
+- Run pytest test suite
+- Run custom verification scripts (verify_modflow_run.py, verify_depletion.py)
+- Provide pass/fail summary
+
+**Usage examples:**
+```bash
+# Verify entire workflow for 2025
+python3 verify_workflow.py --year 2025
+
+# Verify only step 3 (depletion tables)
+python3 verify_workflow.py --year 2025 --step 3
+
+# Show detailed test output
+python3 verify_workflow.py --year 2025 --verbose
+```
+
+See `docs/FILE_DEPENDENCIES.md` for visual dependency diagram and `docs/NEW_YEAR_CHECKLIST.md` for detailed processing checklist.
+
+---
+
 ## Technical Documentation
 
 For detailed methodology:
 - [Tables 1 & 2 Methodology](../output/ingested_data/METHODOLOGY_Tables_1_2.md)
 - [Tables 3, 4, 5 Methodology](../output/depletion/METHODOLOGY_Tables_3_4_5.md)
+
+For workflow reference:
+- [File Dependencies](FILE_DEPENDENCIES.md) - Visual diagram of year-to-year file flow
+- [New Year Checklist](NEW_YEAR_CHECKLIST.md) - Step-by-step processing guide
 
 ---
 
