@@ -99,7 +99,7 @@ wine sfmodflx_2245.exe
 
 ```bash
 cd ../../..  # Return to project root
-python3 step3_generate_depletion_tables.py --year {YEAR}
+python3 step4_generate_depletion_tables.py --year {YEAR}
 ```
 
 **Verify:**

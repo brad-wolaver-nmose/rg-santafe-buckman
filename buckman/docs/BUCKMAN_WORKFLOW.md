@@ -162,7 +162,7 @@ The script auto-detects the year from the directory name and checks:
 ### Step 6: Generate Tables 3, 4, 5 (Depletion Tables)
 
 ```bash
-python3 step3_generate_depletion_tables.py --year YYYY
+python3 step4_generate_depletion_tables.py --year YYYY
 ```
 
 **Outputs:**
@@ -208,7 +208,7 @@ python3 verify_depletion.py          # Step 5a: Verify depletion output
 
 # Step 6: Generate Tables 3, 4, 5
 cd ../../..
-python3 step3_generate_depletion_tables.py --year 2025
+python3 step4_generate_depletion_tables.py --year 2025
 ```
 
 ### Example: Processing 2025 Data (Full Workflow)
@@ -224,7 +224,7 @@ wine sfmodflx_2245.exe
 python3 verify_depletion.py
 
 cd ../../..
-python3 step3_generate_depletion_tables.py --year 2025
+python3 step4_generate_depletion_tables.py --year 2025
 ```
 
 ---
@@ -287,7 +287,7 @@ python3 step3_generate_depletion_tables.py --year 2025
 │
 ├── step1_ingest_buckman_data.py        # Tables 1 & 2 generator
 ├── step2_update_modflow.py             # MODFLOW WEL/NAM file generator
-├── step3_generate_depletion_tables.py  # Tables 3, 4, 5 generator
+├── step4_generate_depletion_tables.py  # Tables 3, 4, 5 generator
 └── stream_depletions.py                # Library: depletion calculations
 ```
 
@@ -344,7 +344,7 @@ The workflow chains years together - each year depends on outputs from the previ
 After completing all steps for a year, run comprehensive verification:
 
 ```bash
-python3 step4_verify_workflow.py --year 2025
+python3 step5_verify_workflow.py --year 2025
 ```
 
 This automated script will:
@@ -356,13 +356,13 @@ This automated script will:
 **Usage examples:**
 ```bash
 # Verify entire workflow for 2025
-python3 step4_verify_workflow.py --year 2025
+python3 step5_verify_workflow.py --year 2025
 
 # Verify only step 3 (depletion tables)
-python3 step4_verify_workflow.py --year 2025 --step 3
+python3 step5_verify_workflow.py --year 2025 --step 3
 
 # Show detailed test output
-python3 step4_verify_workflow.py --year 2025 --verbose
+python3 step5_verify_workflow.py --year 2025 --verbose
 ```
 
 See `docs/FILE_DEPENDENCIES.md` for visual dependency diagram and `docs/NEW_YEAR_CHECKLIST.md` for detailed processing checklist.

@@ -76,8 +76,8 @@ VERIFICATION_RESULTS.md - This results file
 
 ## Next Step
 
-Ready for **Step 5: Generate Depletion Tables**
+Ready for **Step 4: Generate Depletion Tables**
 
 ```bash
-python3 step3_generate_depletion_tables.py --year 2025
+python3 step4_generate_depletion_tables.py --year 2025
 ```

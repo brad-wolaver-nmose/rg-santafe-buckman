@@ -15,30 +15,30 @@ from pathlib import Path
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import step3_generate_depletion_tables
+    import step4_generate_depletion_tables
 
 
 def test_copy_flux_files_exists():
     """Verify copy_flux_files function exists and is callable."""
-    from step3_generate_depletion_tables import copy_flux_files
+    from step4_generate_depletion_tables import copy_flux_files
     assert callable(copy_flux_files)
 
 
 def test_print_error_exists():
     """Verify print_error function exists and is callable."""
-    from step3_generate_depletion_tables import print_error
+    from step4_generate_depletion_tables import print_error
     assert callable(print_error)
 
 
 def test_main_exists():
     """Verify main function exists and is callable."""
-    from step3_generate_depletion_tables import main
+    from step4_generate_depletion_tables import main
     assert callable(main)
 
 
 def test_constants_defined():
     """Verify configuration constants are defined."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         MODFLOW_OUTPUT_DIR,
         DEPLETIONS_DIR,
         OUTPUT_DIR,
@@ -54,7 +54,7 @@ def test_constants_defined():
 
 def test_print_error_runs_without_crash(capsys):
     """Verify print_error executes with sample inputs."""
-    from step3_generate_depletion_tables import print_error
+    from step4_generate_depletion_tables import print_error
 
     print_error(
         "Test failure",
@@ -71,7 +71,7 @@ def test_print_error_runs_without_crash(capsys):
 
 def test_copy_flux_files_returns_bool():
     """Verify copy_flux_files returns a boolean value."""
-    from step3_generate_depletion_tables import copy_flux_files
+    from step4_generate_depletion_tables import copy_flux_files
 
     # This test assumes the source files exist (integration test)
     # If files don't exist, function should still return a bool (False)
@@ -86,19 +86,19 @@ def test_copy_flux_files_returns_bool():
 
 def test_check_wine_installed_exists():
     """Verify check_wine_installed function exists and is callable."""
-    from step3_generate_depletion_tables import check_wine_installed
+    from step4_generate_depletion_tables import check_wine_installed
     assert callable(check_wine_installed)
 
 
 def test_run_post_processor_exists():
     """Verify run_post_processor function exists and is callable."""
-    from step3_generate_depletion_tables import run_post_processor
+    from step4_generate_depletion_tables import run_post_processor
     assert callable(run_post_processor)
 
 
 def test_us002_constants_defined():
     """Verify US-002 configuration constants are defined."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         POST_PROCESSOR_EXE,
         OUTPUT_FILE_PREFIX,
     )
@@ -108,14 +108,14 @@ def test_us002_constants_defined():
 
 def test_check_wine_installed_returns_bool():
     """Verify check_wine_installed returns a boolean value."""
-    from step3_generate_depletion_tables import check_wine_installed
+    from step4_generate_depletion_tables import check_wine_installed
     result = check_wine_installed()
     assert isinstance(result, bool)
 
 
 def test_run_post_processor_returns_bool():
     """Verify run_post_processor returns a boolean value."""
-    from step3_generate_depletion_tables import run_post_processor
+    from step4_generate_depletion_tables import run_post_processor
     # This will return True if Wine is installed and files exist,
     # or False with error messages if prerequisites missing
     result = run_post_processor()
@@ -129,13 +129,13 @@ def test_run_post_processor_returns_bool():
 
 def test_parse_post_processor_output_exists():
     """Verify parse_post_processor_output function exists and is callable."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     assert callable(parse_post_processor_output)
 
 
 def test_us003_constants_defined():
     """Verify US-003 configuration constants are defined."""
-    from step3_generate_depletion_tables import MONTH_NAMES
+    from step4_generate_depletion_tables import MONTH_NAMES
     assert len(MONTH_NAMES) == 12
     assert MONTH_NAMES[0] == "jan"
     assert MONTH_NAMES[11] == "dec"
@@ -143,14 +143,14 @@ def test_us003_constants_defined():
 
 def test_parse_post_processor_output_returns_dict():
     """Verify parse_post_processor_output returns a dict."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     assert isinstance(result, dict)
 
 
 def test_parse_post_processor_output_has_years():
     """Verify parsed data contains year keys as integers."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     # If post-processor output exists, should have year data
     if result:
@@ -163,7 +163,7 @@ def test_parse_post_processor_output_has_years():
 
 def test_parse_post_processor_output_has_stream_data():
     """Verify parsed data contains stream summary rows for 2024."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -177,7 +177,7 @@ def test_parse_post_processor_output_has_stream_data():
 
 def test_parse_post_processor_output_has_monthly_values():
     """Verify parsed data contains all 12 months for streams."""
-    from step3_generate_depletion_tables import parse_post_processor_output, MONTH_NAMES
+    from step4_generate_depletion_tables import parse_post_processor_output, MONTH_NAMES
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -191,7 +191,7 @@ def test_parse_post_processor_output_has_monthly_values():
 
 def test_parse_post_processor_output_sample_values():
     """Verify parsed 2024 values match expected from file inspection."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -212,7 +212,7 @@ def test_parse_post_processor_output_sample_values():
 
 def test_parse_post_processor_output_has_cell_data():
     """Verify parsed data contains cell rows for 2024."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -224,7 +224,7 @@ def test_parse_post_processor_output_has_cell_data():
 
 def test_parse_post_processor_output_cell_sample_value():
     """Verify parsed cell value for Buckman wells matches file."""
-    from step3_generate_depletion_tables import parse_post_processor_output
+    from step4_generate_depletion_tables import parse_post_processor_output
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -240,13 +240,13 @@ def test_parse_post_processor_output_cell_sample_value():
 
 def test_extract_stream_depletions_2024_exists():
     """Verify extract_stream_depletions_2024 function exists and is callable."""
-    from step3_generate_depletion_tables import extract_stream_depletions_2024
+    from step4_generate_depletion_tables import extract_stream_depletions_2024
     assert callable(extract_stream_depletions_2024)
 
 
 def test_us004_constants_defined():
     """Verify US-004 configuration constants are defined."""
-    from step3_generate_depletion_tables import STREAM_NAMES
+    from step4_generate_depletion_tables import STREAM_NAMES
     assert len(STREAM_NAMES) == 5
     assert "R POJOAQUE" in STREAM_NAMES
     assert "R TESUQUE" in STREAM_NAMES
@@ -257,7 +257,7 @@ def test_us004_constants_defined():
 
 def test_extract_stream_depletions_2024_returns_dict():
     """Verify extract_stream_depletions_2024 returns a dict."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         extract_stream_depletions_2024,
         parse_post_processor_output,
     )
@@ -268,7 +268,7 @@ def test_extract_stream_depletions_2024_returns_dict():
 
 def test_extract_stream_depletions_2024_has_all_streams():
     """Verify result contains all 5 stream names."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         extract_stream_depletions_2024,
         parse_post_processor_output,
         STREAM_NAMES,
@@ -282,7 +282,7 @@ def test_extract_stream_depletions_2024_has_all_streams():
 
 def test_extract_stream_depletions_2024_has_12_months():
     """Verify each stream has exactly 12 monthly values."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         extract_stream_depletions_2024,
         parse_post_processor_output,
     )
@@ -297,7 +297,7 @@ def test_extract_stream_depletions_2024_has_12_months():
 
 def test_extract_stream_depletions_2024_sample_values():
     """Verify sample values match known values from post-processor output."""
-    from step3_generate_depletion_tables import (
+    from step4_generate_depletion_tables import (
         extract_stream_depletions_2024,
         parse_post_processor_output,
     )
@@ -316,14 +316,14 @@ def test_extract_stream_depletions_2024_sample_values():
 
 def test_extract_stream_depletions_2024_empty_parsed_data():
     """Verify function handles empty parsed data gracefully."""
-    from step3_generate_depletion_tables import extract_stream_depletions_2024
+    from step4_generate_depletion_tables import extract_stream_depletions_2024
     result = extract_stream_depletions_2024({})
     assert result == {}
 
 
 def test_extract_stream_depletions_2024_missing_year():
     """Verify function handles missing 2024 year gracefully."""
-    from step3_generate_depletion_tables import extract_stream_depletions_2024
+    from step4_generate_depletion_tables import extract_stream_depletions_2024
     # Create parsed data with wrong year
     fake_data = {2023: {"R POJOAQUE": {"jan": 0.1}}}
     result = extract_stream_depletions_2024(fake_data)
@@ -337,7 +337,7 @@ def test_extract_stream_depletions_2024_missing_year():
 
 def test_main_accepts_year_parameter():
     """Verify main function accepts year parameter."""
-    from step3_generate_depletion_tables import main
+    from step4_generate_depletion_tables import main
     import inspect
     sig = inspect.signature(main)
     assert 'year' in sig.parameters
@@ -347,7 +347,7 @@ def test_main_accepts_year_parameter():
 
 def test_main_returns_int():
     """Verify main returns an integer exit code."""
-    from step3_generate_depletion_tables import main
+    from step4_generate_depletion_tables import main
     import inspect
     # Check return type annotation
     sig = inspect.signature(main)
@@ -356,7 +356,7 @@ def test_main_returns_int():
 
 def test_main_docstring_mentions_workflow_steps():
     """Verify main has docstring documenting workflow steps."""
-    from step3_generate_depletion_tables import main
+    from step4_generate_depletion_tables import main
     assert main.__doc__ is not None
     assert "US-001" in main.__doc__
     assert "US-014" in main.__doc__

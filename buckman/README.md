@@ -82,7 +82,9 @@ Autonomous coding agent loop with guardrails.
 ├── ralph.sh                     # Autonomous agent loop
 ├── step1_ingest_buckman_data.py # Ingest daily pumping CSV → Tables 1 & 2
 ├── step2_update_modflow.py      # Generate MODFLOW WEL/NAM files
-├── step3_generate_depletion_tables.py  # Parse MODFLOW output → Tables 3-5
+├── step3_run_modflow.sh         # Run MODFLOW96 with verification
+├── step4_generate_depletion_tables.py  # Parse MODFLOW output → Tables 3-5
+├── step5_verify_workflow.py     # Comprehensive workflow verification
 ├── stream_depletions.py         # Library: depletion calculation functions
 ├── requirements.txt             # Dependencies
 ├── mypy.ini                     # Type checking config
@@ -145,23 +147,10 @@ This repository contains the Buckman wellfield annual depletion calculation work
 |--------|------|---------|
 | `step1_ingest_buckman_data.py` | CLI | Ingest daily pumping CSV → Tables 1 & 2 |
 | `step2_update_modflow.py` | CLI | Generate MODFLOW WEL/NAM files |
-| `step3_generate_depletion_tables.py` | CLI | Parse MODFLOW output → Tables 3, 4, 5 |
-| `step4_verify_workflow.py` | CLI | Comprehensive workflow verification for a given year |
-| `stream_depletions.py` | Library | Depletion calculation functions (imported by step3) |
-
-### Quick Start
-
-```bash
-# Step 1: Generate Tables 1 & 2 (pumping data)
-python3 step1_ingest_buckman_data.py --year 2024
-
-# Step 2: Generate MODFLOW WEL/NAM files
-python3 step2_update_modflow.py --year 2024
-
-# Step 3: Run MODFLOW96 (external, via Wine)
-# Step 4: Generate Tables 3, 4, 5 (depletion calculations)
-python3 step3_generate_depletion_tables.py --year 2024
-```
+| `step3_run_modflow.sh` | CLI | Run MODFLOW96 with verification (30-45 min) |
+| `step4_generate_depletion_tables.py` | CLI | Parse MODFLOW output → Tables 3, 4, 5 |
+| `step5_verify_workflow.py` | CLI | Comprehensive workflow verification for a given year |
+| `stream_depletions.py` | Library | Depletion calculation functions (imported by step4) |
 
 ### Year-Agnostic Processing
 
@@ -169,7 +158,9 @@ All CLI scripts use the same `--year` flag and support processing any year:
 ```bash
 python3 step1_ingest_buckman_data.py --year 2025
 python3 step2_update_modflow.py --year 2025
-python3 step3_generate_depletion_tables.py --year 2025
+./step3_run_modflow.sh --year 2025
+python3 step4_generate_depletion_tables.py --year 2025
+python3 step5_verify_workflow.py --year 2025
 ```
 
 ---
