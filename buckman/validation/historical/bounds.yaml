@@ -1,0 +1,200 @@
+# Historical Bounds for Buckman Wellfield Validation
+# Generated: 2026-02-17
+# Years included: 2022, 2023, 2024
+#
+# Usage: Load with PyYAML and compare year N outputs against these bounds.
+# Hard fails indicate physics violations. Soft flags indicate statistical outliers.
+
+metadata:
+  generated: "2026-02-17"
+  years_included: [2022, 2023, 2024]
+  units: "acre-feet (AF)"
+  source: "validation/historical/extraction_log.md"
+
+# =============================================================================
+# TABLE 1: ANNUAL PUMPING BY WELL
+# =============================================================================
+table1_annual_pumping:
+  description: "Annual groundwater pumping by well (acre-feet)"
+
+  total_annual:
+    min: 866.48
+    max: 1372.90
+    mean: 1071.62
+    std: 266.95
+    # For ballpark: allow 2x historical max as soft flag, 3x as hard fail
+    soft_max: 2745.80  # 2x historical max
+    hard_max: 4118.70  # 3x historical max
+    hard_min: 0.0      # Cannot have negative pumping
+
+  # Individual well bounds (min, max observed 2022-2024)
+  wells:
+    Well_B1:
+      min: 224.06
+      max: 601.27
+      mean: 427.82
+    Well_B2:
+      min: 0.01
+      max: 0.01
+      mean: 0.01
+    Well_B3_3A:
+      min: 0.40
+      max: 56.23
+      mean: 18.95
+    Well_B4:
+      min: 38.18
+      max: 63.35
+      mean: 49.62
+    Well_B5:
+      min: 0.00
+      max: 0.00
+      mean: 0.00
+    Well_B6:
+      min: 7.92
+      max: 152.22
+      mean: 56.02
+    Well_B7:
+      min: 0.31
+      max: 1.00
+      mean: 0.54
+    Well_B8:
+      min: 111.46
+      max: 196.50
+      mean: 139.81
+    Well_B9:
+      min: 0.52
+      max: 11.81
+      mean: 4.29
+    Well_B10:
+      min: 45.17
+      max: 151.41
+      mean: 80.66
+    Well_B11:
+      min: 13.62
+      max: 89.00
+      mean: 38.75
+    Well_B12:
+      min: 0.18
+      max: 9.80
+      mean: 3.39
+    Well_B13:
+      min: 127.85
+      max: 212.02
+      mean: 152.57
+
+# =============================================================================
+# TABLE 3: STREAM DEPLETIONS (CUMULATIVE)
+# =============================================================================
+table3_stream_depletions:
+  description: "Cumulative stream depletions (acre-feet)"
+
+  rio_pojoaque_nambe:
+    # Values: 59.844, 60.323, 60.797
+    min: 59.844
+    max: 60.797
+    mean: 60.321
+    std: 0.477
+    # HARD FAIL: Cumulative depletion must be >= previous year
+    monotonic_increasing: true
+
+  rio_tesuque:
+    # Values: 33.490, 33.491, 33.583
+    min: 33.490
+    max: 33.583
+    mean: 33.521
+    std: 0.053
+    monotonic_increasing: true
+
+# =============================================================================
+# TABLE 4: RIO GRANDE DEPLETIONS
+# =============================================================================
+table4_rio_grande_depletions:
+  description: "Rio Grande depletions Above/Below Otowi (acre-feet per month and annual)"
+
+  above_otowi_annual:
+    # Values: 101.21, 101.23, 101.43
+    min: 101.21
+    max: 101.43
+    mean: 101.29
+    std: 0.12
+
+  below_otowi_annual:
+    # Values: 783.23, 802.34, 842.94
+    min: 783.23
+    max: 842.94
+    mean: 809.50
+    std: 30.67
+
+# =============================================================================
+# TABLE 5: LA CIENEGA SPRING DEPLETIONS
+# =============================================================================
+table5_la_cienega:
+  description: "Cumulative La Cienega Spring depletions (acre-feet)"
+
+  annual:
+    # Values: 3.37, 3.54, 3.74
+    min: 3.37
+    max: 3.74
+    mean: 3.55
+    std: 0.19
+    monotonic_increasing: true
+
+# =============================================================================
+# DERIVED RATIOS (For Consistency Checks)
+# =============================================================================
+derived_ratios:
+  description: "Ratios that should remain relatively stable year-over-year"
+
+  # Depletion / Pumping ratio (how much river depletion per unit pumping)
+  depletion_pumping_ratio:
+    description: "Total stream depletion / Total annual pumping"
+    # 2022: (59.844 + 33.490) / 975.47 = 0.0956
+    # 2023: (60.323 + 33.491) / 866.48 = 0.1083
+    # 2024: (60.797 + 33.583) / 1372.90 = 0.0688
+    min: 0.0688
+    max: 0.1083
+    mean: 0.0909
+    note: "Ratio varies with pumping intensity; lower ratio in high-pumping years"
+
+# =============================================================================
+# TIME SERIES DATA (For P5 Temporal Consistency Regression)
+# =============================================================================
+time_series:
+  description: "Raw annual values for regression fitting in P5"
+
+  years: [2022, 2023, 2024]
+
+  annual_pumping_af:
+    values: [975.47, 866.48, 1372.90]
+
+  rio_pojoaque_nambe_depletion_af:
+    values: [59.844, 60.323, 60.797]
+
+  rio_tesuque_depletion_af:
+    values: [33.490, 33.491, 33.583]
+
+  la_cienega_depletion_af:
+    values: [3.37, 3.54, 3.74]
+
+  rio_grande_above_otowi_af:
+    values: [101.21, 101.23, 101.43]
+
+  rio_grande_below_otowi_af:
+    values: [783.23, 802.34, 842.94]
+
+# =============================================================================
+# VALIDATION THRESHOLDS
+# =============================================================================
+thresholds:
+  description: "Thresholds for ballpark_check.py"
+
+  # Sigma multipliers for flagging
+  soft_flag_sigma: 2.0   # Flag if > 2 sigma from historical mean
+  hard_fail_sigma: 3.0   # Fail if > 3 sigma from historical mean
+
+  # Absolute bounds (physics-based)
+  min_pumping_af: 0.0    # Cannot pump negative water
+  max_pumping_af: 5000.0 # Engineering limit (unrealistic above this)
+
+  # Monotonicity tolerance (for cumulative depletions)
+  monotonic_tolerance_af: 0.01  # Allow tiny floating-point errors

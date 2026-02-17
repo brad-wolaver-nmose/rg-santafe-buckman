@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "generated": "2026-02-17",
+    "algorithm": "SHA-256",
+    "purpose": "Integrity verification for historical baseline files"
+  },
+  "files": {
+    "raw_extractions/2022_Table_1_raw.csv": "c1a09d9095b8fea6afa595c8f7ff9ab917f59fca8311a3dd28c2df114b953fff",
+    "raw_extractions/2022_Table_2_raw.csv": "9987fb9137296408f0c520f6c1d7a3baa3e9208cc5e31bb2b8fa997e33797a4f",
+    "raw_extractions/2022_Table_3_raw.csv": "daa3fd0206669ed06552acb98e53f939970e27dac5cbc9981e47e554ccd98f6d",
+    "raw_extractions/2022_Table_4_raw.csv": "37cd0a282f5d95131303d372fe46e2a092fca613f879fd1774f3800e055d147b",
+    "raw_extractions/2022_Table_5_raw.csv": "0812a13c3e2dd0b926021186130198a4b05516c48700dc746a96e6b238b0267b",
+    "raw_extractions/2023_Table_1_raw.csv": "bd9fd5f1070a8965bab6bc46790ca3efd4d88445e9c8aaf80b27c3c65dbe998e",
+    "raw_extractions/2023_Table_2_raw.csv": "0a22d4d84a634e42051f327b6fbd6c41ac77afc6b4c64a39feed246953f19bc9",
+    "raw_extractions/2023_Table_3_raw.csv": "254744eb64222eef864001a0b165d443309550090e4a474f3d00359f3ea6525b",
+    "raw_extractions/2023_Table_4_raw.csv": "0e4e41f29c27e22c43fc130890e73749f58be333a8a0ef89bb02d1b049533711",
+    "raw_extractions/2023_Table_5_raw.csv": "756229bce0ee6e79f2884fa7aea9b5add8ab8f3e30339577d6e6765dbdbfc940",
+    "raw_extractions/2024_Table_1_raw.csv": "610f51975f785a0a29af298ebbcf35550aa22e8bafd10288720b5777b74b0b5d",
+    "raw_extractions/2024_Table_2_raw.csv": "6d1ceda4f6a65b66572bdd599af75557afb76773ebf83b029f8929f88c7497c4",
+    "raw_extractions/2024_Table_3_raw.csv": "c81f4c6a876204e674f60cc4c195731f2c68293a4c43faf89699a42fc20d8d13",
+    "raw_extractions/2024_Table_4_raw.csv": "b6308e09c5f3c26d687fc9334b5e4e73ad6951cd949ef90799345818a86b0b45",
+    "raw_extractions/2024_Table_5_raw.csv": "a8cfb869b595b08431514b36f6017df73e366a65f642a42d7aa9c3cffbdacde7",
+    "Table_1_historical.xlsx": "cc0c3b2b70f93a29bf839e3b5242bacfb9298a8b24292025756a13768bfb42b1",
+    "Table_2_historical.xlsx": "5d02ecab134a0d7fa44b253b0b3c4dc90379261101aa0cad39a6228277b30ba9",
+    "Table_3_historical.xlsx": "8874b59665e99579235e864935fb760486a4f2e411c5fc77fbb2f2b35ae810ae",
+    "Table_4_historical.xlsx": "fc50c3d180299fff1e62beb658153af43eb7aeef65915e7e1f1a5a354a1d24a7",
+    "Table_5_historical.xlsx": "36b5b1032c62a6e5115cb44ee1e4ff808e10bda82014f6476ecd3db919fe7b12",
+    "bounds.yaml": "cc64e86a299deb71e8d1d77c6a698b3d8bda92ab42c92b7f77c77f28abaf91e1",
+    "extraction_log.md": "c8d06baf368a488d64f90aaaa1f6ac4d28a33ceb08f46a9bcdc8c4b30e7a44bd"
+  }
+}

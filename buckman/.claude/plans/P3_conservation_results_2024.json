@@ -1,0 +1,70 @@
+{
+  "year": 2024,
+  "timestamp": "2026-02-17T13:55:55.826887",
+  "results": [
+    {
+      "check_name": "budget_closure",
+      "status": "PASS",
+      "description": "Max discrepancy 0.01% < 0.1% (2123 stress periods checked)",
+      "actual_value": 0.01,
+      "expected_value": 0.1,
+      "tolerance": 0.1,
+      "details": {
+        "stress_periods_checked": 2123
+      },
+      "timestamp": "2026-02-17T13:55:55.778578"
+    },
+    {
+      "check_name": "pumping_conservation",
+      "status": "PASS",
+      "description": "Input 1372.92 AF = Applied 1372.92 AF (delta=0.000%)",
+      "actual_value": 1372.9215867768594,
+      "expected_value": 1372.924213,
+      "tolerance": 0.1,
+      "details": {
+        "wells_compared": 13,
+        "year": 2024
+      },
+      "timestamp": "2026-02-17T13:55:55.824780"
+    },
+    {
+      "check_name": "depletion_constraint",
+      "status": "PASS",
+      "description": "Annual ratio 0.749 (depletion/pumping) - physics satisfied. 1028.0 AF depletion / 1372.9 AF pumping",
+      "actual_value": 0.7487811337480802,
+      "expected_value": 1.0,
+      "tolerance": 0.001,
+      "details": {
+        "annual_depletion_af": 1028.02,
+        "annual_pumping_af": 1372.92,
+        "monthly_depletion_af": [
+          71.3,
+          68.55,
+          70.7,
+          70.96,
+          78.57,
+          81.88,
+          100.63,
+          107.91,
+          99.48,
+          101.19,
+          87.84,
+          89.01
+        ]
+      },
+      "timestamp": "2026-02-17T13:55:55.826764"
+    },
+    {
+      "check_name": "table_sum_integrity",
+      "status": "PASS",
+      "description": "28 sum checks passed",
+      "actual_value": null,
+      "expected_value": null,
+      "tolerance": 0.01,
+      "details": {
+        "checks_performed": 28
+      },
+      "timestamp": "2026-02-17T13:55:55.826874"
+    }
+  ]
+}
