@@ -183,6 +183,30 @@ time_series:
     values: [783.23, 802.34, 842.94]
 
 # =============================================================================
+# MONTHLY PROFILE (For P5 Seasonal Pattern Validation)
+# =============================================================================
+monthly_profile:
+  description: "Normalized monthly pumping distribution (fraction of annual total)"
+  source: "Computed from Table_2_historical.xlsx - averaged across 2022-2024"
+
+  # Mean monthly profile computed from 2022-2024 Table 2 data
+  # Each value = average fraction of annual pumping in that month
+  # Sum of all months = 1.0 (100%)
+  mean_profile:
+    JAN: 0.005463   # 0.55% - Winter minimum
+    FEB: 0.053194   # 5.32%
+    MAR: 0.060795   # 6.08%
+    APR: 0.040871   # 4.09%
+    MAY: 0.120065   # 12.01% - Spring increase
+    JUN: 0.162429   # 16.24% - Summer peak begins
+    JUL: 0.177519   # 17.75% - Summer peak
+    AUG: 0.190877   # 19.09% - Annual maximum
+    SEP: 0.079137   # 7.91% - Fall decline
+    OCT: 0.059248   # 5.92%
+    NOV: 0.006716   # 0.67% - Winter minimum
+    DEC: 0.043684   # 4.37%
+
+# =============================================================================
 # VALIDATION THRESHOLDS
 # =============================================================================
 thresholds:
