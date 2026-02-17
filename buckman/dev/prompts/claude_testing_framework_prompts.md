@@ -258,37 +258,57 @@ Wire all checks into the manifest system from Layer 6.
 
 ---
 
-## PROMPT 7: Layer 4 — Perturbation / Sensitivity Testing (Future)
+## PROMPT 7: Layer 0.5 — Pipeline Edge Case Testing
 
-> **Note:** Only use this prompt after Layers 1–3, 5, and 6 are stable and tested.
+> **Note:** This replaces the original Layer 4 Perturbation Testing. See `.claude/plans/P7_VERIFICATION_OMITTED.md` for the full perturbation framework design and rationale for omission.
 
 ```
-Now implement Layer 4: Perturbation and Sensitivity Testing.
+Now implement Layer 0.5: Pipeline Edge Case Testing.
 
-This is the adversarial layer. Create a module (e.g., tests/test_perturbation.py) that generates perturbed input datasets and runs the full pipeline on each one. This will be computationally expensive (multiple MODFLOW runs), so design it to run separately from the standard pipeline — it's a deep-dive test, not a per-run check.
+This layer validates that the pipeline's Python code handles unexpected, malformed, or boundary-condition inputs correctly. These tests run in <30 seconds with NO MODFLOW execution — they test our code, not the model.
 
-Implement these perturbation scenarios:
+Why "Layer 0.5": These tests logically fit between Layer 0 (smoke tests) and Layer 1 (conservation checks). They validate input handling BEFORE any MODFLOW execution.
 
-1. NOISE TEST: Add ±5% uniform random noise to all pumping values. Run pipeline. Compare outputs against unperturbed baseline. Assert changes are proportional (output changes should be roughly proportional to input changes, not wildly amplified).
+Create tests/test_edge_cases.py with the following test categories:
 
-2. TIME-SHIFT TEST: Shift one well's pumping data by one stress period (forward). Run pipeline. Assert that only the output values related to that well and nearby reaches change significantly, and that the changes are physically reasonable.
+1. INPUT VALIDATION TESTS:
+   - test_missing_input_file: step1 with nonexistent CSV raises clear FileNotFoundError
+   - test_empty_csv: CSV with headers but no data rows produces clear error
+   - test_malformed_csv_missing_columns: Missing column (e.g., 'BWell 5') identifies which column
+   - test_csv_wrong_encoding: Non-UTF-8 file rejected with encoding error
+   - test_csv_with_extra_columns: Extra columns ignored without crashing
 
-3. ZERO-WELL TEST: Zero out pumping for one well entirely. Run pipeline. Assert the total depletion decreases by a reasonable amount proportional to that well's contribution. If a minor well causes a huge depletion change at a distant reach, flag it as a model pathology.
+2. DATA QUALITY TESTS:
+   - test_missing_days_in_input: CSV with <365 rows produces warning with count
+   - test_duplicate_dates: Duplicate date entries detected and reported
+   - test_out_of_order_dates: Unsorted dates handled or rejected with message
+   - test_negative_pumping_value: Negative MGD rejected as physically impossible
+   - test_unreasonably_large_pumping: Value >100 MGD flagged as likely error
+   - test_nan_values_in_input: NaN/blank cells produce error identifying row/column
 
-4. DOUBLE-PUMP TEST: Double one well's pumping for one month. Run pipeline. Assert depletion increases proportionally.
+3. BOUNDARY CONDITION TESTS:
+   - test_zero_pumping_all_wells: All wells = 0 completes without error
+   - test_zero_pumping_one_well: Single well = 0 handled correctly
+   - test_single_day_of_pumping: Only Jan 1 has data, monthly aggregation correct
+   - test_leap_year_handling: 366 vs 365 days handled correctly
+   - test_february_days: Feb has 28 or 29 days depending on year
 
-5. SWAPPED-WELL TEST: Swap pumping data between two wells of similar magnitude. Run pipeline. Assert total depletion changes by a small, physically reasonable amount.
+4. FILE OPERATION TESTS:
+   - test_output_directory_missing: Missing dir created or clear error
+   - test_output_file_exists: Existing file overwritten without error
+   - test_input_file_permissions: Unreadable file produces permission error
 
-For each scenario:
-- Generate the perturbed input programmatically (don't manually edit files)
-- Run the full pipeline
-- Compare against the unperturbed baseline
-- Report results as a sensitivity summary table
-- Clean up temporary files after each run
+5. WEL FILE INTEGRITY TESTS:
+   - test_wel_file_line_count: Exactly 324 lines per year
+   - test_wel_file_crlf_endings: Windows CRLF for MODFLOW96 compatibility
+   - test_wel_file_column_alignment: Fixed-width columns match MODFLOW spec
+   - test_well_name_mapping: Well 3 maps to 'BUCKMAN 3A'
+   - test_pumping_rate_sign: All rates negative (extraction convention)
+   - test_layer_split: Pumping split equally between Layer 1 and 2
 
-Make the module configurable: which wells to perturb, what perturbation magnitudes, which scenarios to run. Default to running all scenarios on all wells, but allow selective runs for debugging.
+Use pytest fixtures to create test data programmatically. Use parameterized tests where appropriate. All tests must produce clear, diagnostic error messages that identify: what failed, where, actual vs expected, how to fix.
 
-Include a command-line interface: python tests/test_perturbation.py --scenario noise --well BW-1
+Add pytest marker 'edge_cases' to pytest.ini for selective execution: pytest -m edge_cases
 ```
 
 ---
@@ -302,6 +322,7 @@ All individual layers are built. Now wire them together.
     - Runs ballpark_check.py FIRST (fast sanity check from P2.5, <5 sec)
     - If ballpark has HARD FAILS, stop immediately with exit code 2
     - Runs Layer 0 (smoke) checks
+    - Runs Layer 0.5 (edge case) checks — input validation, data quality, boundary conditions
     - Runs Layer 1 (conservation) checks
     - Runs Layer 2 (temporal consistency) checks
     - Runs Layer 3 (cross-comparison) checks
@@ -318,10 +339,17 @@ All individual layers are built. Now wire them together.
   3. Ensure the Layer 5 regression harness (run_regression_2024.py) remains a SEPARATE standalone script. It should be run manually before deploying any
   pipeline changes, not as part of every production run.
   4. Create a brief README.md in the tests/ directory explaining:
-    - What each test layer does (including ballpark check from P2.5)
+    - What each test layer does:
+      - Layer 0: Smoke tests (does code run?)
+      - Layer 0.5: Edge case tests (input validation, data quality, boundary conditions)
+      - Layer 1: Conservation checks (mass balance)
+      - Layer 2: Temporal consistency (year-over-year changes)
+      - Layer 3: Cross-comparison (external validation)
+      - Layer 5: Regression harness (frozen 2024 baseline)
+      - Layer 6: Provenance manifest
     - How to run the full test suite
     - How to run the regression harness
-    - How to run perturbation tests
+    - How to run edge case tests selectively: pytest -m edge_cases
     - What to do when a test flags (review procedure)
     - Where the manifest file is written
 
@@ -334,5 +362,5 @@ All individual layers are built. Now wire them together.
 
 - If Claude Code's context window gets long during implementation, you can start a new session and say: "Read TESTING_FRAMEWORK.md and the existing test code in tests/ to get up to speed. We're implementing Layer [N] next."
 - After each layer, run the tests against actual data to verify they work before moving on.
-- Layer 4 (perturbation) is optional for now — build it when the other layers are stable and you have time for the multiple MODFLOW runs it requires.
+- **Layer 4 (perturbation) was intentionally omitted.** After critical review, we determined that 54 hours of compute to verify MODFLOW physics provides no value for a compliance pipeline. See `.claude/plans/P7_VERIFICATION_OMITTED.md` for the full design and rationale. Layer 0.5 (edge case tests) replaces it with <30 second tests that catch actual production failure modes.
 - Keep the handoff document in the project permanently — it serves as the architectural spec for the test harness, which is useful for your successor.
