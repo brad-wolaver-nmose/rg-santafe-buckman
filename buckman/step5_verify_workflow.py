@@ -337,6 +337,16 @@ def main() -> int:
         action="store_true",
         help="Show detailed test output"
     )
+    parser.add_argument(
+        "--allow-hash-mismatch",
+        action="store_true",
+        help="Continue even if baseline file hashes don't match (logged in manifest)"
+    )
+    parser.add_argument(
+        "--no-manifest",
+        action="store_true",
+        help="Skip manifest generation"
+    )
 
     args = parser.parse_args()
 
@@ -374,10 +384,38 @@ def main() -> int:
 
     if total_passed == total_checks:
         print("\n🎉 All verifications passed!")
-        return 0
+        exit_code = 0
     else:
         print(f"\n⚠️  {total_checks - total_passed} verification(s) failed")
-        return 1
+        exit_code = 1
+
+    # Generate provenance manifest (Layer 6)
+    if not args.no_manifest:
+        print_section("PROVENANCE MANIFEST")
+        try:
+            from src.pipeline_manifest import (
+                HashMismatchError,
+                PipelineManifest,
+                print_manifest_summary,
+            )
+
+            manifest_gen = PipelineManifest(
+                year=args.year,
+                project_root=Path(__file__).parent,
+                allow_hash_mismatch=args.allow_hash_mismatch,
+            )
+            manifest = manifest_gen.generate()
+            manifest_path = manifest_gen.save(manifest)
+            print_manifest_summary(manifest)
+        except HashMismatchError as e:
+            print(f"❌ {e}")
+            return 2
+        except ImportError as e:
+            print(f"⚠️  Manifest generation skipped: {e}")
+        except Exception as e:
+            print(f"⚠️  Manifest generation failed: {e}")
+
+    return exit_code
 
 
 if __name__ == "__main__":

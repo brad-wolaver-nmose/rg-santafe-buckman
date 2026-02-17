@@ -1,0 +1,250 @@
+{
+  "manifest_version": "1.0",
+  "year": 2024,
+  "input_manifest": [
+    {
+      "name": "thruCY2165.wel",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.wel",
+      "sha256": "7bb62f160837d5862318482916011d31f021d03d1c536df2d27c2baf9ef40a59",
+      "size_bytes": 3310649,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "thruCY2165.bas",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.bas",
+      "sha256": "999d1d3eaaf0f20436dea690ddc4b5785b6218861c83c74d45c29ba8abc88968",
+      "size_bytes": 99787,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "thruCY2165.ghb",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.ghb",
+      "sha256": "1c0ae6c774ff743e2a06c33fdae1716dafa0504ec9116d0fd6f12f0c03342965",
+      "size_bytes": 37224,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "thruCY2165.riv",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.riv",
+      "sha256": "3b0a10a7995651ec09aaa29c30190625a82d7c18354597f0338704cbaccd659f",
+      "size_bytes": 37706,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "thruCY2165.oc",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.oc",
+      "sha256": "b7b1a86127b01eaa662adafbf0936a3fe93361fdae096536a1d66801c0902e02",
+      "size_bytes": 333206,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "sflcs.bcf",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/sflcs.bcf",
+      "sha256": "abd982121a0b994d2e5a46b38d7799ff72d97509f7a541f52fed188d87db6eb8",
+      "size_bytes": 21452,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "sflcs.sip",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/sflcs.sip",
+      "sha256": "a7896748a3f2eb89e54418746bf9720e8c0078420c34456f800e1431314bbfcf",
+      "size_bytes": 74,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "CY2023.nam",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/CY2023.nam",
+      "sha256": "74e478de45988b6e464e964162ec372fa1d08b59690829b2e0dfd9e0cd04aab0",
+      "size_bytes": 252,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Table_1_historical.xlsx",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_1_historical.xlsx",
+      "sha256": "cc0c3b2b70f93a29bf839e3b5242bacfb9298a8b24292025756a13768bfb42b1",
+      "size_bytes": 5341,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Table_2_historical.xlsx",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_2_historical.xlsx",
+      "sha256": "5d02ecab134a0d7fa44b253b0b3c4dc90379261101aa0cad39a6228277b30ba9",
+      "size_bytes": 7906,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Table_3_historical.xlsx",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_3_historical.xlsx",
+      "sha256": "8874b59665e99579235e864935fb760486a4f2e411c5fc77fbb2f2b35ae810ae",
+      "size_bytes": 5044,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Table_4_historical.xlsx",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_4_historical.xlsx",
+      "sha256": "fc50c3d180299fff1e62beb658153af43eb7aeef65915e7e1f1a5a354a1d24a7",
+      "size_bytes": 5045,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Table_5_historical.xlsx",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_5_historical.xlsx",
+      "sha256": "36b5b1032c62a6e5115cb44ee1e4ff808e10bda82014f6476ecd3db919fe7b12",
+      "size_bytes": 5000,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "bounds.yaml",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/bounds.yaml",
+      "sha256": "cc64e86a299deb71e8d1d77c6a698b3d8bda92ab42c92b7f77c77f28abaf91e1",
+      "size_bytes": 5709,
+      "row_count": null,
+      "date_range": null
+    },
+    {
+      "name": "Buckman_Well_Prod_2024.csv (regression)",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/2024/inputs/Buckman_Well_Prod_2024.csv",
+      "sha256": "dd987f16e44e440696f40c3632745b710812383c5c3c4248b01c3aa06e76d52c",
+      "size_bytes": 17937,
+      "row_count": 370,
+      "date_range": null
+    }
+  ],
+  "hash_verification": {
+    "status": "VERIFIED",
+    "baseline_file": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/hashes.json",
+    "files_checked": 22,
+    "mismatches": [],
+    "override_flag_used": false
+  },
+  "pipeline_manifest": {
+    "git_commit": "d609eb9fbf28bf6269fe32300b516a1d07b499f9",
+    "git_status": "dirty",
+    "python_version": "3.10.12",
+    "scripts": [
+      {
+        "name": "step1_ingest_buckman_data.py",
+        "modified": "2026-02-16T11:22:12.409936"
+      },
+      {
+        "name": "step2_update_modflow.py",
+        "modified": "2026-02-16T11:58:36.618709"
+      },
+      {
+        "name": "step3_run_modflow.sh",
+        "modified": "2026-02-16T12:08:36.879112"
+      },
+      {
+        "name": "step4_generate_depletion_tables.py",
+        "modified": "2026-02-16T11:58:53.428726"
+      },
+      {
+        "name": "step5_verify_workflow.py",
+        "modified": "2026-02-17T14:51:10.162549"
+      },
+      {
+        "name": "stream_depletions.py",
+        "modified": "2026-02-12T10:58:57.155856"
+      }
+    ],
+    "executables": [
+      {
+        "name": "modflow96.exe",
+        "modified": "2024-04-08T17:06:10",
+        "size_bytes": 963496
+      },
+      {
+        "name": "sfmodflx_2245.exe",
+        "modified": "2026-02-12T09:38:13.142625",
+        "size_bytes": 462632
+      }
+    ]
+  },
+  "test_results_manifest": {
+    "layer_0_smoke": {
+      "total": 190,
+      "passed": 190,
+      "failed": 0,
+      "status": "PASS",
+      "timestamp": "2026-02-17T14:53:49.103177"
+    },
+    "layer_1_conservation": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "status": "PASS",
+      "tests": [
+        {
+          "test_name": "budget_closure",
+          "status": "PASS",
+          "value_tested": 0.01,
+          "threshold": 0.1,
+          "timestamp": "2026-02-17T13:55:55.778578"
+        },
+        {
+          "test_name": "pumping_conservation",
+          "status": "PASS",
+          "value_tested": 1372.9215867768594,
+          "threshold": 0.1,
+          "timestamp": "2026-02-17T13:55:55.824780"
+        },
+        {
+          "test_name": "depletion_constraint",
+          "status": "PASS",
+          "value_tested": 0.7487811337480802,
+          "threshold": 0.001,
+          "timestamp": "2026-02-17T13:55:55.826764"
+        },
+        {
+          "test_name": "table_sum_integrity",
+          "status": "PASS",
+          "value_tested": null,
+          "threshold": 0.01,
+          "timestamp": "2026-02-17T13:55:55.826874"
+        }
+      ],
+      "timestamp": "2026-02-17T13:55:55.826887"
+    },
+    "ballpark_check": {
+      "status": "PASS",
+      "exit_code": 0,
+      "hard_fails": 0,
+      "soft_flags": 0,
+      "timestamp": "2026-02-17T14:53:49.523221"
+    }
+  },
+  "flag_register": {
+    "entries": [],
+    "note": "Populated by Layer 2 (temporal) and Layer 3 (cross-comparison) checks",
+    "entry_format": {
+      "test_name": "",
+      "flagged_value": null,
+      "threshold": null,
+      "disposition": "",
+      "analyst_initials": "",
+      "date": ""
+    }
+  },
+  "run_metadata": {
+    "pipeline_start": "2026-02-17T14:53:44.954022",
+    "pipeline_end": "2026-02-17T14:53:44.954029",
+    "total_runtime_seconds": 7e-06,
+    "machine_name": "OSE-HYDRO-D0P3",
+    "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
+    "os_version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
+    "python_executable": "/usr/bin/python3"
+  }
+}
