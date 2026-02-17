@@ -1,0 +1,11 @@
+{
+    "description": "SHA-256 hashes of frozen 2024 input files for regression testing",
+    "frozen_date": "2025-02-17",
+    "files": {
+        "Buckman_Well_Prod_2024.csv": {
+            "sha256": "dd987f16e44e440696f40c3632745b710812383c5c3c4248b01c3aa06e76d52c",
+            "size_bytes": 17937,
+            "description": "Daily well production data for 2024 (MGD for 13 wells)"
+        }
+    }
+}
