@@ -429,8 +429,8 @@ def compare_tables() -> dict[str, Any]:
 
     # Also check Tables 1 and 2 (pumping data from step1)
     pumping_tables = [
-        ("Table_1_data_afy_2024.xlsx", "Table_1_expected.xlsx", "Table_1"),
-        ("Table_2_2024.xlsx", "Table_2_expected.xlsx", "Table_2"),
+        ("2024_Table_1_updated.xlsx", "Table_1_expected.xlsx", "Table_1"),
+        ("2024_Table_2_output.xlsx", "Table_2_expected.xlsx", "Table_2"),
     ]
 
     pumping_output_dir = PROJECT_ROOT / "output" / "ingested_data"
