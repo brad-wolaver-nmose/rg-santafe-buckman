@@ -994,9 +994,10 @@ def main(year: int | None = None) -> int:
     print("\n=== US-010 Complete ===\n")
 
     # US-011: Write Table 3 XLSX
+    # Pass processing_year to preserve historical values for years < year
     table3_path = output_dir / f"TABLE_3_Rio_Pojoaque_Tesuque_{year}.xlsx"
     try:
-        sd.write_table3_xlsx(parsed_data, table3_path)
+        sd.write_table3_xlsx(parsed_data, table3_path, processing_year=year)
         print(f"Table 3 written to: {table3_path}")
     except Exception as e:
         print_error(

@@ -170,7 +170,9 @@ def check_pumping_rates() -> bool:
             re.DOTALL
         )
         if sp_section:
-            rates = re.findall(r"1\s+\d+\s+\d+\s+([-\d.E]+)\s+BUCKMAN", sp_section.group(1))
+            # MODFLOW format: LAYER ROW COL STRESS_RATE WELL_NO
+            # Example:    1     13    11   -0.13733          1
+            rates = re.findall(r"\s+1\s+\d+\s+\d+\s+([-\d.E]+)\s+\d+", sp_section.group(1))
             for rate in rates:
                 if abs(float(rate)) > 0.0001:
                     wells_with_pumping.add(True)

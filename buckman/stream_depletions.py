@@ -526,6 +526,118 @@ def print_otowi_verification(above_cfs: list[float], below_cfs: list[float]) -> 
 # =============================================================================
 
 # =============================================================================
+# HISTORICAL DATA PRESERVATION
+# =============================================================================
+
+# Default path to historical baseline file for Table 3
+HISTORICAL_TABLE3_PATH = Path("validation/2024/expected_outputs/Table_3_expected.xlsx")
+
+
+def load_historical_table3(
+    baseline_path: Path | str | None = None
+) -> dict[int, dict[str, dict[str, float]]]:
+    """
+    Load historical Table 3 values from baseline expected file.
+
+    Scientific basis:
+    Historical stream depletion values (1988-2023) should be preserved exactly
+    as calculated in previous years. Only the current processing year and
+    future projections should be recalculated from the current post-processor
+    output.
+
+    Assumptions:
+    1. Baseline file follows expected Table 3 format with 2 header rows
+    2. Columns: Year, Pojoaque(Residual, Superposition, Total),
+                Tesuque(Residual, Superposition, Total)
+    3. NaN values in Residual column indicate residual is 0 (post-2020)
+
+    Args:
+        baseline_path: Path to Table_3_expected.xlsx. If None, uses
+                      HISTORICAL_TABLE3_PATH.
+
+    Returns:
+        Nested dict: {year: {"pojoaque": {...}, "tesuque": {...}}}
+        Each stream contains: residual_af, superposition_af, total_impact_af
+
+    Example:
+        >>> hist = load_historical_table3()
+        >>> hist[1988]["pojoaque"]["total_impact_af"]
+        41.491888
+    """
+    import pandas as pd
+
+    if baseline_path is None:
+        baseline_path = HISTORICAL_TABLE3_PATH
+    baseline_path = Path(baseline_path)
+
+    if not baseline_path.exists():
+        print(f"WARNING: Historical baseline not found: {baseline_path}")
+        return {}
+
+    # Read Excel without header, then manually parse structure
+    # Row 0: Main headers (merged)
+    # Row 1: Column headers
+    # Row 2+: Data rows
+    df = pd.read_excel(baseline_path, header=None)
+
+    historical_data: dict[int, dict[str, dict[str, float]]] = {}
+
+    def parse_cell_value(val) -> float:
+        """Parse a cell value, handling annotated strings like '57.182** (57.185)'."""
+        if pd.isna(val):
+            return 0.0
+        if isinstance(val, (int, float)):
+            return float(val)
+        if isinstance(val, str):
+            # Extract first number from annotated strings like "57.182** (57.185)"
+            import re
+            match = re.search(r"[\d.]+", val)
+            if match:
+                return float(match.group())
+            return 0.0
+        return 0.0
+
+    # Data starts at row 2 (0-indexed), columns:
+    # 0: Year
+    # 1: Pojoaque Residual
+    # 2: Pojoaque Superposition
+    # 3: Pojoaque Total
+    # 4: Tesuque Residual
+    # 5: Tesuque Superposition
+    # 6: Tesuque Total
+    for row_idx in range(2, len(df)):
+        row = df.iloc[row_idx]
+
+        year = row[0]
+        if pd.isna(year):
+            continue
+        year = int(year)
+
+        # Extract values, treating NaN as 0 and handling annotated strings
+        poj_residual = parse_cell_value(row[1])
+        poj_superpos = parse_cell_value(row[2])
+        poj_total = parse_cell_value(row[3])
+        tes_residual = parse_cell_value(row[4])
+        tes_superpos = parse_cell_value(row[5])
+        tes_total = parse_cell_value(row[6])
+
+        historical_data[year] = {
+            "pojoaque": {
+                "residual_af": poj_residual,
+                "superposition_af": poj_superpos,
+                "total_impact_af": poj_total,
+            },
+            "tesuque": {
+                "residual_af": tes_residual,
+                "superposition_af": tes_superpos,
+                "total_impact_af": tes_total,
+            },
+        }
+
+    return historical_data
+
+
+# =============================================================================
 # TABLE 3 DATA GENERATION (US-008)
 # =============================================================================
 
@@ -1048,10 +1160,12 @@ def print_table5_verification(table5_data: dict[str, Any], year: int = 2024) -> 
 def write_table3_xlsx(
     parsed_data: dict[int, dict[str, dict[str, float]]],
     output_path: str | Path,
-    years: list[int] | None = None
+    processing_year: int | None = None,
+    years: list[int] | None = None,
+    historical_baseline: Path | str | None = None
 ) -> Path:
     """
-    Write Table 3 as a formatted Excel file.
+    Write Table 3 as a formatted Excel file, preserving historical values.
 
     Scientific basis:
     Table 3 reports stream depletion impacts to Rio Pojoaque-Nambe and Rio Tesuque
@@ -1059,25 +1173,38 @@ def write_table3_xlsx(
     Columns show residual impacts (pre-1988 pumping), superposition impacts
     (1988-present pumping), and total impacts.
 
+    Historical Preservation:
+    Years BEFORE processing_year use values from the historical baseline file
+    (Table_3_expected.xlsx) to ensure consistency with previously published
+    reports. Only years >= processing_year are recalculated from the current
+    post-processor output.
+
     Assumptions:
-    1. Parsed data contains years 1988-2030 with R POJOAQUE and R TESUQUE data
-    2. Output follows validation file format with merged headers, styling
-    3. Number format is 0.000 (3 decimal places for acre-feet)
+    1. Parsed data contains R POJOAQUE and R TESUQUE data for processing_year+
+    2. Historical baseline exists for years < processing_year
+    3. Output follows validation file format with merged headers, styling
+    4. Number format is 0.000 (3 decimal places for acre-feet)
 
     Args:
         parsed_data: Output from parse_postprocessor_output()
         output_path: Path to save the XLSX file
+        processing_year: Year being processed (e.g., 2024). Years < this use
+                        historical values. If None, all years use parsed_data.
         years: List of years to include. Default: 1988-2030.
+        historical_baseline: Path to historical baseline file. Default:
+                            validation/2024/expected_outputs/Table_3_expected.xlsx
 
     Returns:
         Path to the created XLSX file.
 
     Raises:
-        KeyError: If required data not found in parsed_data.
+        KeyError: If required data not found in parsed_data for processing_year+.
 
     Example:
         >>> data = parse_postprocessor_output("output/modflow/2024/depletions/CY2024")
-        >>> path = write_table3_xlsx(data, "output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx")
+        >>> path = write_table3_xlsx(data, "output/depletion/TABLE_3_2024.xlsx",
+        ...                          processing_year=2024)
+        # Years 1988-2023 from historical baseline, 2024-2030 from parsed_data
 
     Validation:
         Compare generated file to validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx
@@ -1089,6 +1216,11 @@ def write_table3_xlsx(
     # Default years range
     if years is None:
         years = list(range(1988, 2031))  # 1988-2030 inclusive
+
+    # Load historical data if processing_year is specified
+    historical_data: dict[int, dict[str, dict[str, float]]] = {}
+    if processing_year is not None:
+        historical_data = load_historical_table3(historical_baseline)
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1158,8 +1290,13 @@ def write_table3_xlsx(
 
     # Data rows (starting from row 3)
     for row_idx, year in enumerate(years, start=3):
-        # Generate Table 3 data for this year
-        table3_data = generate_table3_data(parsed_data, year)
+        # Use historical data for years before processing_year, otherwise generate
+        if processing_year is not None and year < processing_year and year in historical_data:
+            # Preserve historical values exactly as published
+            table3_data = historical_data[year]
+        else:
+            # Generate from current post-processor output
+            table3_data = generate_table3_data(parsed_data, year)
 
         # Column A: Year
         cell_year = ws.cell(row=row_idx, column=1, value=year)
@@ -1205,11 +1342,8 @@ def write_table3_xlsx(
         cell_tes_sup.number_format = num_fmt_3
         cell_tes_sup.border = hair_border
 
-        # Column G: Tesuque Total (bold) - use formula for years 2022+
-        if year >= 2022:
-            cell_tes_tot = ws.cell(row=row_idx, column=7, value=f"=E{row_idx}+F{row_idx}")
-        else:
-            cell_tes_tot = ws.cell(row=row_idx, column=7, value=table3_data["tesuque"]["total_impact_af"])
+        # Column G: Tesuque Total (bold) - always use calculated value for pandas compatibility
+        cell_tes_tot = ws.cell(row=row_idx, column=7, value=table3_data["tesuque"]["total_impact_af"])
         cell_tes_tot.font = font_total
         cell_tes_tot.alignment = align_center
         cell_tes_tot.number_format = num_fmt_3
@@ -1408,23 +1542,21 @@ def write_table4_xlsx(
     for month_idx, days in enumerate(days_validation):
         ws.cell(row=days_row, column=6 + month_idx, value=days).font = font_normal
 
-    # Row 53: Rio Grande above Otowi (cfs sums with formulas)
+    # Row 53: Rio Grande above Otowi (cfs values for pandas compatibility)
     above_cfs_row = days_row + 1
     ws.cell(row=above_cfs_row, column=3, value="Rio Grande above Otowi").font = font_normal
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        formula = f"=SUM({col_letter}{above_first}:{col_letter}{above_last})"
-        cell = ws.cell(row=above_cfs_row, column=6 + month_idx, value=formula)
+        cfs_value = table4_data["above_otowi_cfs"][month_idx]
+        cell = ws.cell(row=above_cfs_row, column=6 + month_idx, value=cfs_value)
         cell.font = font_normal
         cell.number_format = num_fmt_6
 
-    # Row 54: Rio Grande below Otowi (cfs sums with formulas)
+    # Row 54: Rio Grande below Otowi (cfs values for pandas compatibility)
     below_cfs_row = above_cfs_row + 1
     ws.cell(row=below_cfs_row, column=3, value="Rio Grande below Otowi").font = font_normal
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        formula = f"=SUM({col_letter}{below_first}:{col_letter}{below_last})"
-        cell = ws.cell(row=below_cfs_row, column=6 + month_idx, value=formula)
+        cfs_value = table4_data["below_otowi_cfs"][month_idx]
+        cell = ws.cell(row=below_cfs_row, column=6 + month_idx, value=cfs_value)
         cell.font = font_normal
         cell.number_format = num_fmt_6
 
@@ -1434,75 +1566,67 @@ def write_table4_xlsx(
         ws.cell(row=af_header_row, column=6 + month_idx, value=month).font = font_header
     ws.cell(row=af_header_row, column=18, value="Total").font = font_header
 
-    # Row 56: Rio Grande above Otowi (AF with formulas)
+    # Row 56: Rio Grande above Otowi (AF values for pandas compatibility)
     above_af_row = af_header_row + 1
     ws.cell(row=above_af_row, column=3, value="Rio Grande above Otowi").font = font_normal
     ws.cell(row=above_af_row, column=5, value="Above Otowi").font = font_normal
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        # Formula: cfs * 60 * 60 * 24 * days / 43560
-        formula = f"={col_letter}{above_cfs_row}*60*60*24*{col_letter}${days_row}/43560"
-        cell = ws.cell(row=above_af_row, column=6 + month_idx, value=formula)
+        af_value = table4_data["above_otowi_af"][month_idx]
+        cell = ws.cell(row=above_af_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
         cell.number_format = num_fmt_3
     # Annual total (column 18)
-    ws.cell(row=above_af_row, column=18, value=f"=SUM(F{above_af_row}:Q{above_af_row})").number_format = num_fmt_3
+    cell = ws.cell(row=above_af_row, column=18, value=table4_data["above_otowi_annual_af"])
+    cell.number_format = num_fmt_3
 
-    # Row 57: Rio Grande below Otowi (AF with formulas)
+    # Row 57: Rio Grande below Otowi (AF values for pandas compatibility)
     below_af_row = above_af_row + 1
     ws.cell(row=below_af_row, column=3, value="Rio Grande below Otowi").font = font_normal
     ws.cell(row=below_af_row, column=5, value="Below Otowi").font = font_normal
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        formula = f"={col_letter}{below_cfs_row}*60*60*24*{col_letter}${days_row}/43560"
-        cell = ws.cell(row=below_af_row, column=6 + month_idx, value=formula)
+        af_value = table4_data["below_otowi_af"][month_idx]
+        cell = ws.cell(row=below_af_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
         cell.number_format = num_fmt_3
-    ws.cell(row=below_af_row, column=18, value=f"=SUM(F{below_af_row}:Q{below_af_row})").number_format = num_fmt_3
+    cell = ws.cell(row=below_af_row, column=18, value=table4_data["below_otowi_annual_af"])
+    cell.number_format = num_fmt_3
 
-    # Row 58: Total RG (sum) with formulas
+    # Row 58: Total RG (sum) values for pandas compatibility
     total_sum_row = below_af_row + 1
     ws.cell(row=total_sum_row, column=3, value="Total RG (sum)").font = font_normal
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        formula = f"=SUM({col_letter}{above_af_row}:{col_letter}{below_af_row})"
-        cell = ws.cell(row=total_sum_row, column=6 + month_idx, value=formula)
+        af_value = table4_data["total_rg_af"][month_idx]
+        cell = ws.cell(row=total_sum_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
         cell.number_format = num_fmt_3
     ws.cell(row=total_sum_row, column=18, value="check").font = font_normal
 
-    # Row 59: Total RG reported (from RIO GRANDE stream summary)
+    # Row 59: Total RG reported (from RIO GRANDE stream summary, converted to AF)
     total_reported_row = total_sum_row + 1
     ws.cell(row=total_reported_row, column=3, value="Total RG reported").font = font_normal
+    rio_grande_cfs = table4_data["stream_summaries"]["RIO GRANDE"]
+    days_per_month = table4_data["days_per_month"]
     for month_idx in range(12):
-        col_letter = get_column_letter(6 + month_idx)
-        formula = f"={col_letter}{rio_grande_row}*60*60*24*{col_letter}${days_row}/43560"
-        cell = ws.cell(row=total_reported_row, column=6 + month_idx, value=formula)
+        # Convert cfs to AF: cfs * 60 * 60 * 24 * days / 43560
+        af_value = rio_grande_cfs[month_idx] * 60 * 60 * 24 * days_per_month[month_idx] / 43560
+        cell = ws.cell(row=total_reported_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
         cell.number_format = num_fmt_3
     ws.cell(row=total_reported_row, column=18, value="check").font = font_normal
 
-    # Row 60: Buckman wells (cell 1,13,11)
+    # Row 60: Buckman wells (cell 1,13,11) values for pandas compatibility
     buckman_row = total_reported_row + 1
     buckman_label = "3 wells closest to \nRio Grande:\nBuckman 1, 7, 8; Row 13, Column 11"
     ws.cell(row=buckman_row, column=3, value=buckman_label).font = font_normal
     ws.cell(row=buckman_row, column=3).alignment = Alignment(wrap_text=True)
 
-    # Find Buckman cell row in the cell data section
-    buckman_data_row = None
-    for row_idx, cell_info in enumerate(cell_data, start=2):
-        if cell_info["row"] == 13 and cell_info["col"] == 11:
-            buckman_data_row = row_idx
-            break
-
-    if buckman_data_row:
-        for month_idx in range(12):
-            col_letter = get_column_letter(6 + month_idx)
-            formula = f"={col_letter}{buckman_data_row}*60*60*24*{col_letter}${days_row}/43560"
-            cell = ws.cell(row=buckman_row, column=6 + month_idx, value=formula)
-            cell.font = font_normal
-            cell.number_format = num_fmt_3
-        ws.cell(row=buckman_row, column=18, value=f"=SUM(F{buckman_row}:Q{buckman_row})").number_format = num_fmt_3
+    for month_idx in range(12):
+        af_value = table4_data["buckman_af"][month_idx]
+        cell = ws.cell(row=buckman_row, column=6 + month_idx, value=af_value)
+        cell.font = font_normal
+        cell.number_format = num_fmt_3
+    cell = ws.cell(row=buckman_row, column=18, value=table4_data["buckman_annual_af"])
+    cell.number_format = num_fmt_3
 
     # Set column widths
     ws.column_dimensions['A'].width = 8

@@ -157,22 +157,22 @@ def check_pumping_rates() -> bool:
         results.append(False)
 
     # Verify pumping rates are non-zero (at least some wells should be pumping)
-    # Simplified two-stage approach: find stress period section, then extract rates
+    # Look for BUCKMAN 1 rates in target year stress periods
     sp_range_start = get_stress_period(TARGET_YEAR, 1)
     sp_range_end = get_stress_period(TARGET_YEAR, 12)
 
     # Count wells with pumping in target year
     wells_with_pumping = set()
     for sp in range(sp_range_start, sp_range_end + 1):
-        # Stage 1: Find stress period section (more flexible pattern)
-        sp_pattern = rf"STRESS PERIOD NO\.\s*{sp},\s*LENGTH\s*=.*?(?=STRESS PERIOD NO\.|$)"
-        sp_section = re.search(sp_pattern, content, re.DOTALL)
-
+        sp_section = re.search(
+            rf"STRESS PERIOD NO\. *{sp}.*?26 WELLS.*?LAYER.*?ROW.*?COL.*?STRESS RATE(.*?)(?:STRESS PERIOD|$)",
+            content,
+            re.DOTALL
+        )
         if sp_section:
-            # Stage 2: Find all well rates in this section (any line with LAYER ROW COL RATE format)
-            # Pattern matches: LAYER(int) ROW(int) COL(int) RATE(float/scientific)
-            rate_pattern = r"\s+\d+\s+\d+\s+\d+\s+([-\d.E]+)"
-            rates = re.findall(rate_pattern, sp_section.group(0))
+            # MODFLOW format: LAYER ROW COL STRESS_RATE WELL_NO
+            # Example:    1     13    11   -0.13733          1
+            rates = re.findall(r"\s+1\s+\d+\s+\d+\s+([-\d.E]+)\s+\d+", sp_section.group(1))
             for rate in rates:
                 if abs(float(rate)) > 0.0001:
                     wells_with_pumping.add(True)

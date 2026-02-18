@@ -1003,9 +1003,9 @@ def write_table2_xlsx(table_rows: list[dict], year: int, xlsx_path: Path) -> Non
             cell.fill = white_fill
             cell.border = row_border
 
-        # Column N: Total (SUM formula)
+        # Column N: Total (calculated value for pandas compatibility)
         cell_n = ws.cell(row=excel_row, column=14,
-                         value=f'=SUM(B{excel_row}:M{excel_row})')
+                         value=row_data['Total'])
         cell_n.font = font_normal
         cell_n.number_format = num_fmt
         cell_n.fill = white_fill
@@ -1020,25 +1020,26 @@ def write_table2_xlsx(table_rows: list[dict], year: int, xlsx_path: Path) -> Non
 
     # --- Row 15: Total row ---
     total_row_excel = 15
+    total_row_data = table_rows[13]  # Total row is index 13 (after 13 wells)
     cell_a = ws.cell(row=total_row_excel, column=1, value='Total')
     cell_a.font = font_bold
     cell_a.alignment = align_center
     cell_a.fill = white_fill
     cell_a.border = medium_border
 
-    # Columns B-M: SUM formulas for each month
-    for col_idx in range(2, 14):
-        col_letter = get_column_letter(col_idx)
+    # Columns B-M: Monthly totals (calculated values for pandas compatibility)
+    for col_offset, month in enumerate(month_abbrevs):
+        col_idx = col_offset + 2
         cell = ws.cell(row=total_row_excel, column=col_idx,
-                       value=f'=SUM({col_letter}2:{col_letter}14)')
+                       value=total_row_data[month])
         cell.font = font_normal
         cell.number_format = num_fmt
         cell.fill = white_fill
         cell.border = medium_border
 
-    # Column N: Grand total
+    # Column N: Grand total (calculated value for pandas compatibility)
     cell_n = ws.cell(row=total_row_excel, column=14,
-                     value=f'=SUM(B{total_row_excel}:M{total_row_excel})')
+                     value=total_row_data['Total'])
     cell_n.font = font_normal
     cell_n.number_format = num_fmt
     cell_n.fill = white_fill
@@ -1052,25 +1053,34 @@ def write_table2_xlsx(table_rows: list[dict], year: int, xlsx_path: Path) -> Non
     cell_o.border = medium_border
 
     # --- Summary area (Q14:T15) ---
+    # Calculate summary values from table_rows
+    # Wells 10-13 are indices 9-12 (wells numbered 10, 11, 12, 13)
+    wells_10_13_af = sum(table_rows[i]['Total'] for i in range(9, 13))
+    # Wells 1, 7, 8 are indices 0, 6, 7
+    wells_1_7_8_af = table_rows[0]['Total'] + table_rows[6]['Total'] + table_rows[7]['Total']
+    grand_total = total_row_data['Total']
+    pct_10_13 = wells_10_13_af / grand_total if grand_total > 0 else 0.0
+    pct_1_7_8 = wells_1_7_8_af / grand_total if grand_total > 0 else 0.0
+
     # Row 14 labels
     ws.cell(row=14, column=17, value='wells 10-13').font = font_normal  # Q14
     ws.cell(row=14, column=18, value='% total').font = font_normal      # R14
     ws.cell(row=14, column=19, value='wells 1, 7, 8').font = font_normal  # S14
 
-    # Row 15 formulas
-    cell_q15 = ws.cell(row=15, column=17, value='=SUM(N11:N14)')  # Wells 10-13 sum
+    # Row 15 values (calculated for pandas compatibility)
+    cell_q15 = ws.cell(row=15, column=17, value=wells_10_13_af)  # Wells 10-13 sum
     cell_q15.font = font_normal
     cell_q15.number_format = num_fmt
 
-    cell_r15 = ws.cell(row=15, column=18, value='=Q15/N15')  # Wells 10-13 %
+    cell_r15 = ws.cell(row=15, column=18, value=pct_10_13)  # Wells 10-13 %
     cell_r15.font = font_normal
     cell_r15.number_format = pct_fmt
 
-    cell_s15 = ws.cell(row=15, column=19, value='=N2+N8+N9')  # Wells 1,7,8 sum
+    cell_s15 = ws.cell(row=15, column=19, value=wells_1_7_8_af)  # Wells 1,7,8 sum
     cell_s15.font = font_normal
     cell_s15.number_format = num_fmt
 
-    cell_t15 = ws.cell(row=15, column=20, value='=S15/N15')  # Wells 1,7,8 %
+    cell_t15 = ws.cell(row=15, column=20, value=pct_1_7_8)  # Wells 1,7,8 %
     cell_t15.font = font_normal
     cell_t15.number_format = pct_fmt
 
