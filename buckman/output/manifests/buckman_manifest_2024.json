@@ -109,8 +109,8 @@
     {
       "name": "bounds.yaml",
       "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/bounds.yaml",
-      "sha256": "cc64e86a299deb71e8d1d77c6a698b3d8bda92ab42c92b7f77c77f28abaf91e1",
-      "size_bytes": 5709,
+      "sha256": "27645f14c927ee3002c93e6cf329f27575a3ae4b2f29cf8d389d302240ff95f3",
+      "size_bytes": 6743,
       "row_count": null,
       "date_range": null
     },
@@ -131,7 +131,7 @@
     "override_flag_used": false
   },
   "pipeline_manifest": {
-    "git_commit": "d609eb9fbf28bf6269fe32300b516a1d07b499f9",
+    "git_commit": "3c44a8884b936a76e47aaab13b6cf53849d6c616",
     "git_status": "dirty",
     "python_version": "3.10.12",
     "scripts": [
@@ -153,7 +153,7 @@
       },
       {
         "name": "step5_verify_workflow.py",
-        "modified": "2026-02-17T14:51:10.162549"
+        "modified": "2026-02-17T17:09:36.607236"
       },
       {
         "name": "stream_depletions.py",
@@ -175,11 +175,11 @@
   },
   "test_results_manifest": {
     "layer_0_smoke": {
-      "total": 190,
-      "passed": 190,
+      "total": 220,
+      "passed": 220,
       "failed": 0,
       "status": "PASS",
-      "timestamp": "2026-02-17T14:53:49.103177"
+      "timestamp": "2026-02-18T08:20:58.267490"
     },
     "layer_1_conservation": {
       "total": 4,
@@ -223,7 +223,7 @@
       "exit_code": 0,
       "hard_fails": 0,
       "soft_flags": 0,
-      "timestamp": "2026-02-17T14:53:49.523221"
+      "timestamp": "2026-02-18T08:20:58.688011"
     }
   },
   "flag_register": {
@@ -239,12 +239,44 @@
     }
   },
   "run_metadata": {
-    "pipeline_start": "2026-02-17T14:53:44.954022",
-    "pipeline_end": "2026-02-17T14:53:44.954029",
-    "total_runtime_seconds": 7e-06,
+    "pipeline_start": "2026-02-18T08:20:54.208350",
+    "pipeline_end": "2026-02-18T08:20:54.208356",
+    "total_runtime_seconds": 6e-06,
     "machine_name": "OSE-HYDRO-D0P3",
     "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
     "os_version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
     "python_executable": "/usr/bin/python3"
+  },
+  "test_results": {
+    "layers": [
+      {
+        "name": "Layer 0 (smoke)",
+        "passed": 186,
+        "failed": 0,
+        "skipped": 3,
+        "duration_sec": 3.5019917488098145,
+        "hard_fail": false,
+        "failed_tests": []
+      },
+      {
+        "name": "Layer 0.5 (edge)",
+        "passed": 30,
+        "failed": 0,
+        "skipped": 0,
+        "duration_sec": 0.4258270263671875,
+        "hard_fail": false,
+        "failed_tests": []
+      },
+      {
+        "name": "Layer 1 (conservation)",
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "duration_sec": 0.39192652702331543,
+        "hard_fail": false,
+        "failed_tests": []
+      }
+    ],
+    "flags": []
   }
 }

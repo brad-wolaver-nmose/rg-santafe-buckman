@@ -10,6 +10,9 @@ import os
 import pandas as pd
 import pytest
 
+# Apply Layer 0 marker to all tests in this file
+pytestmark = pytest.mark.layer0
+
 # ---------------------------------------------------------------------------
 # US-001: Configuration Constants and Well Mapping
 # ---------------------------------------------------------------------------

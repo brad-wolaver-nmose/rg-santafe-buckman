@@ -18,8 +18,9 @@ Usage:
 
 Exit Codes:
     0 - All checks passed
-    1 - Soft flags raised (human review recommended)
-    2 - Hard fails detected (physics violations)
+    1 - Script error/crash (reserved for Python exceptions)
+    2 - Soft flags raised (human review recommended, continue)
+    3 - Hard fails detected (physics violations, STOP)
 
 Author: Claude Code (Anthropic)
 Date: 2026-02-17
@@ -574,7 +575,8 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         bounds_path: Path to bounds.yaml file.
 
     Returns:
-        0 if all checks pass, 1 if soft flags, 2 if hard fails.
+        0 if all checks pass, 2 if soft flags, 3 if hard fails.
+        (Exit code 1 is reserved for Python exceptions/crashes)
     """
     print(f"=" * 60)
     print(f"BALLPARK CHECK: Year {year}")
@@ -588,7 +590,7 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         bounds = load_bounds(bounds_path)
     except FileNotFoundError as e:
         print(f"ERROR: {e}")
-        return 2
+        return 3  # Hard fail - missing required files
 
     # Load output tables
     try:
@@ -597,7 +599,7 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         table5 = load_table5(outputs_dir)
     except FileNotFoundError as e:
         print(f"ERROR: {e}")
-        return 2
+        return 3  # Hard fail - missing required files
 
     # Run all checks
     all_results: list[CheckResult] = []
@@ -638,8 +640,8 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         for r in hard_fails:
             print(f"  - {r.name}: {r.message}")
         print()
-        print("EXIT CODE: 2 (hard fails detected)")
-        return 2
+        print("EXIT CODE: 3 (hard fails detected - STOP)")
+        return 3
 
     if soft_flags:
         print()
@@ -647,8 +649,8 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         for r in soft_flags:
             print(f"  - {r.name}: {r.message}")
         print()
-        print("EXIT CODE: 1 (soft flags raised)")
-        return 1
+        print("EXIT CODE: 2 (soft flags raised - continue with review)")
+        return 2
 
     print()
     print("All checks passed! Safe to proceed with full regression.")
@@ -664,8 +666,9 @@ def main():
         epilog="""
 Exit Codes:
   0 - All checks passed
-  1 - Soft flags raised (human review recommended)
-  2 - Hard fails detected (physics violations)
+  1 - Script error/crash (reserved for Python exceptions)
+  2 - Soft flags raised (human review recommended, continue)
+  3 - Hard fails detected (physics violations, STOP)
 
 Examples:
   python ballpark_check.py --year 2024

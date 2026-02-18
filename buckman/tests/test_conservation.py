@@ -901,6 +901,9 @@ def main() -> int:
 # =============================================================================
 import pytest
 
+# Apply Layer 1 conservation marker to all tests in this section
+pytestmark = pytest.mark.conservation
+
 
 @pytest.fixture
 def paths_2024():

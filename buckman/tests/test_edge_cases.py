@@ -27,6 +27,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+# Apply Layer 0.5 marker to all tests in this file
+pytestmark = pytest.mark.edge_cases
+
 # Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 

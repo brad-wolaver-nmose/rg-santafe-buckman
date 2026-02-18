@@ -1,0 +1,6081 @@
+{
+  "created": 1771428051.7290692,
+  "duration": 3.5019917488098145,
+  "exitcode": 0,
+  "root": "/home/bradwolaver/projects/rg/santafe/buckman",
+  "environment": {},
+  "summary": {
+    "passed": 186,
+    "skipped": 3,
+    "total": 189,
+    "collected": 223,
+    "deselected": 34
+  },
+  "collectors": [
+    {
+      "nodeid": "",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests",
+          "type": "Package"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_conservation.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
+          "type": "Function",
+          "lineno": 913,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
+          "type": "Function",
+          "lineno": 923,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
+          "type": "Function",
+          "lineno": 937,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
+          "type": "Function",
+          "lineno": 951,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestInputValidation",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation::test_missing_input_file_step2",
+          "type": "Function",
+          "lineno": 196,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation::test_empty_csv_step2",
+          "type": "Function",
+          "lineno": 207,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation::test_csv_missing_well_step2",
+          "type": "Function",
+          "lineno": 215,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation::test_csv_with_extra_columns",
+          "type": "Function",
+          "lineno": 226,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation::test_missing_wel_file_step2",
+          "type": "Function",
+          "lineno": 248,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestDataQuality",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality::test_negative_pumping_value",
+          "type": "Function",
+          "lineno": 266,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality::test_negative_rate_conversion",
+          "type": "Function",
+          "lineno": 277,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality::test_invalid_days_in_month",
+          "type": "Function",
+          "lineno": 288,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality::test_nan_in_dataframe",
+          "type": "Function",
+          "lineno": 300,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality::test_unreasonably_large_pumping",
+          "type": "Function",
+          "lineno": 312,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_zero_pumping_all_wells",
+          "type": "Function",
+          "lineno": 342,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_zero_pumping_one_well",
+          "type": "Function",
+          "lineno": 356,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_leap_year_february_days",
+          "type": "Function",
+          "lineno": 378,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_non_leap_year_february_days",
+          "type": "Function",
+          "lineno": 390,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_year_config_leap_year",
+          "type": "Function",
+          "lineno": 397,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_conversion_zero_acre_feet",
+          "type": "Function",
+          "lineno": 407,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions::test_very_small_pumping_value",
+          "type": "Function",
+          "lineno": 415,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestFileOperations",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestFileOperations::test_output_directory_created",
+          "type": "Function",
+          "lineno": 432,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestFileOperations::test_output_file_overwrite",
+          "type": "Function",
+          "lineno": 465,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestFileOperations::test_unreadable_input_file",
+          "type": "Function",
+          "lineno": 497,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_generate_well_entries_line_count",
+          "type": "Function",
+          "lineno": 520,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_wel_file_crlf_endings",
+          "type": "Function",
+          "lineno": 529,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_wel_file_column_alignment",
+          "type": "Function",
+          "lineno": 540,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_well_name_mapping_well3",
+          "type": "Function",
+          "lineno": 564,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_pumping_rate_sign_negative",
+          "type": "Function",
+          "lineno": 574,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_layer_split_two_entries",
+          "type": "Function",
+          "lineno": 591,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_well_grid_mapping",
+          "type": "Function",
+          "lineno": 622,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity::test_month_header_format",
+          "type": "Function",
+          "lineno": 634,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py::TestIntegration",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestIntegration::test_full_step2_pipeline_with_valid_data",
+          "type": "Function",
+          "lineno": 656,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestIntegration::test_conversion_roundtrip_consistency",
+          "type": "Function",
+          "lineno": 671,
+          "deselected": true
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_edge_cases.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_edge_cases.py::TestInputValidation",
+          "type": "Class"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestDataQuality",
+          "type": "Class"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestBoundaryConditions",
+          "type": "Class"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestFileOperations",
+          "type": "Class"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestWelFileIntegrity",
+          "type": "Class"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py::TestIntegration",
+          "type": "Class"
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_module_imports",
+          "type": "Function",
+          "lineno": 18
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_exists",
+          "type": "Function",
+          "lineno": 23
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_exists",
+          "type": "Function",
+          "lineno": 29
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_main_exists",
+          "type": "Function",
+          "lineno": 35
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_constants_defined",
+          "type": "Function",
+          "lineno": 41
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_runs_without_crash",
+          "type": "Function",
+          "lineno": 57
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_returns_bool",
+          "type": "Function",
+          "lineno": 74
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_exists",
+          "type": "Function",
+          "lineno": 89
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_exists",
+          "type": "Function",
+          "lineno": 95
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_us002_constants_defined",
+          "type": "Function",
+          "lineno": 101
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_returns_bool",
+          "type": "Function",
+          "lineno": 111
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_returns_bool",
+          "type": "Function",
+          "lineno": 118
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_exists",
+          "type": "Function",
+          "lineno": 132
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_us003_constants_defined",
+          "type": "Function",
+          "lineno": 138
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_returns_dict",
+          "type": "Function",
+          "lineno": 146
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_years",
+          "type": "Function",
+          "lineno": 153
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_stream_data",
+          "type": "Function",
+          "lineno": 166
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_monthly_values",
+          "type": "Function",
+          "lineno": 180
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_sample_values",
+          "type": "Function",
+          "lineno": 194
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_cell_data",
+          "type": "Function",
+          "lineno": 215
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_cell_sample_value",
+          "type": "Function",
+          "lineno": 227
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_exists",
+          "type": "Function",
+          "lineno": 243
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_us004_constants_defined",
+          "type": "Function",
+          "lineno": 249
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_returns_dict",
+          "type": "Function",
+          "lineno": 260
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_all_streams",
+          "type": "Function",
+          "lineno": 271
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_12_months",
+          "type": "Function",
+          "lineno": 285
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_sample_values",
+          "type": "Function",
+          "lineno": 300
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_empty_parsed_data",
+          "type": "Function",
+          "lineno": 319
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_missing_year",
+          "type": "Function",
+          "lineno": 326
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_main_accepts_year_parameter",
+          "type": "Function",
+          "lineno": 340
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_main_returns_int",
+          "type": "Function",
+          "lineno": 350
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py::test_main_docstring_mentions_workflow_steps",
+          "type": "Function",
+          "lineno": 359
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_module_imports",
+          "type": "Function",
+          "lineno": 19
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_constants_defined",
+          "type": "Function",
+          "lineno": 24
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_well_ose_map_has_13_wells",
+          "type": "Function",
+          "lineno": 40
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_months_ordered_has_12",
+          "type": "Function",
+          "lineno": 51
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_mg_to_af_factor",
+          "type": "Function",
+          "lineno": 60
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_no_ocr_imports",
+          "type": "Function",
+          "lineno": 72
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_no_ocr_functions",
+          "type": "Function",
+          "lineno": 84
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_read_source_csv_exists",
+          "type": "Function",
+          "lineno": 101
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_read_source_csv_runs",
+          "type": "Function",
+          "lineno": 107
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_validate_daily_data_exists",
+          "type": "Function",
+          "lineno": 132
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_verify_daily_sums_exists",
+          "type": "Function",
+          "lineno": 142
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_aggregate_monthly_exists",
+          "type": "Function",
+          "lineno": 152
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_generate_monthly_csv_exists",
+          "type": "Function",
+          "lineno": 162
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_generate_table2_output_exists",
+          "type": "Function",
+          "lineno": 172
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_generate_qa_summary_exists",
+          "type": "Function",
+          "lineno": 182
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_verify_annual_sums_exists",
+          "type": "Function",
+          "lineno": 192
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_pint_mg_to_af_conversion",
+          "type": "Function",
+          "lineno": 202
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_pint_mg_to_af_zero",
+          "type": "Function",
+          "lineno": 214
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_end_to_end_smoke",
+          "type": "Function",
+          "lineno": 228
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py::test_annual_mg_sanity",
+          "type": "Function",
+          "lineno": 263
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_module_imports",
+          "type": "Function",
+          "lineno": 19
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_exists",
+          "type": "Function",
+          "lineno": 212
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_runs",
+          "type": "Function",
+          "lineno": 30
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_sanity",
+          "type": "Function",
+          "lineno": 48
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_core_2003_residuals_exist",
+          "type": "Function",
+          "lineno": 67
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_core_2003_pojoaque_value",
+          "type": "Function",
+          "lineno": 82
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_core_2003_tesuque_value",
+          "type": "Function",
+          "lineno": 101
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_otowi_cell_definitions",
+          "type": "Function",
+          "lineno": 116
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_days_per_month_2024",
+          "type": "Function",
+          "lineno": 132
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_parse_postprocessor_output_exists",
+          "type": "Function",
+          "lineno": 141
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_error_exists",
+          "type": "Function",
+          "lineno": 147
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_extract_otowi_depletions_exists",
+          "type": "Function",
+          "lineno": 153
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_otowi_verification_exists",
+          "type": "Function",
+          "lineno": 159
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_extract_otowi_depletions_with_mock_data",
+          "type": "Function",
+          "lineno": 165
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_exists",
+          "type": "Function",
+          "lineno": 192
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_runs",
+          "type": "Function",
+          "lineno": 198
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_january",
+          "type": "Function",
+          "lineno": 218
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_february_leap_year",
+          "type": "Function",
+          "lineno": 233
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_raises_on_negative",
+          "type": "Function",
+          "lineno": 254
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_raises_on_invalid_month",
+          "type": "Function",
+          "lineno": 262
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_exists",
+          "type": "Function",
+          "lineno": 273
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_constant_flow",
+          "type": "Function",
+          "lineno": 279
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_raises_on_wrong_length",
+          "type": "Function",
+          "lineno": 300
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_raises_on_negative",
+          "type": "Function",
+          "lineno": 311
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_exists",
+          "type": "Function",
+          "lineno": 322
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_with_mock",
+          "type": "Function",
+          "lineno": 328
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_raises_on_missing_year",
+          "type": "Function",
+          "lineno": 369
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_raises_on_missing_stream",
+          "type": "Function",
+          "lineno": 379
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table3_verification_exists",
+          "type": "Function",
+          "lineno": 395
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table3_verification_runs",
+          "type": "Function",
+          "lineno": 401
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_buckman_wells_cell_constant",
+          "type": "Function",
+          "lineno": 428
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_exists",
+          "type": "Function",
+          "lineno": 435
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_with_mock",
+          "type": "Function",
+          "lineno": 441
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_year",
+          "type": "Function",
+          "lineno": 505
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_stream",
+          "type": "Function",
+          "lineno": 515
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_exists",
+          "type": "Function",
+          "lineno": 532
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_runs",
+          "type": "Function",
+          "lineno": 538
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_la_cienega_cumulative_constant",
+          "type": "Function",
+          "lineno": 578
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_exists",
+          "type": "Function",
+          "lineno": 595
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_with_mock",
+          "type": "Function",
+          "lineno": 601
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_year",
+          "type": "Function",
+          "lineno": 644
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_lc_springs",
+          "type": "Function",
+          "lineno": 654
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_exists",
+          "type": "Function",
+          "lineno": 668
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_runs",
+          "type": "Function",
+          "lineno": 674
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_exists",
+          "type": "Function",
+          "lineno": 699
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_creates_file",
+          "type": "Function",
+          "lineno": 705
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_formatting",
+          "type": "Function",
+          "lineno": 751
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_2024_values",
+          "type": "Function",
+          "lineno": 786
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_exists",
+          "type": "Function",
+          "lineno": 826
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_creates_file",
+          "type": "Function",
+          "lineno": 832
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_cell_data",
+          "type": "Function",
+          "lineno": 893
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_formulas",
+          "type": "Function",
+          "lineno": 944
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_exists",
+          "type": "Function",
+          "lineno": 1001
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_creates_file",
+          "type": "Function",
+          "lineno": 1007
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
+          "type": "Function",
+          "lineno": 1040
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
+          "type": "Function",
+          "lineno": 1063
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
+          "type": "Function",
+          "lineno": 1085
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
+          "type": "Function",
+          "lineno": 1119
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
+          "type": "Function",
+          "lineno": 1127
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
+          "type": "Function",
+          "lineno": 1133
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
+          "type": "Function",
+          "lineno": 1139
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
+          "type": "Function",
+          "lineno": 1145
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
+          "type": "Function",
+          "lineno": 1151
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
+          "type": "Function",
+          "lineno": 1157
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
+          "type": "Function",
+          "lineno": 1172
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
+          "type": "Function",
+          "lineno": 1187
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
+          "type": "Function",
+          "lineno": 1206
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
+          "type": "Function",
+          "lineno": 1222
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
+          "type": "Function",
+          "lineno": 1244
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
+          "type": "Function",
+          "lineno": 1276
+        }
+      ]
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_update_modflow.py::test_module_imports",
+          "type": "Function",
+          "lineno": 14
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_function_exists",
+          "type": "Function",
+          "lineno": 19
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_af_to_ft3s_known_answer",
+          "type": "Function",
+          "lineno": 26
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_zero_pumping",
+          "type": "Function",
+          "lineno": 49
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_leap_year_february",
+          "type": "Function",
+          "lineno": 57
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_well_name_mapping_exists",
+          "type": "Function",
+          "lineno": 77
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_read_table2_function_exists",
+          "type": "Function",
+          "lineno": 91
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_read_table2_pumping_data",
+          "type": "Function",
+          "lineno": 98
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_read_table2_no_negative_values",
+          "type": "Function",
+          "lineno": 129
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well1_jan",
+          "type": "Function",
+          "lineno": 147
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well6_feb",
+          "type": "Function",
+          "lineno": 165
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well10_dec",
+          "type": "Function",
+          "lineno": 181
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_output_precision",
+          "type": "Function",
+          "lineno": 197
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_negative_acre_feet_raises",
+          "type": "Function",
+          "lineno": 212
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_convert_invalid_days_raises",
+          "type": "Function",
+          "lineno": 220
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_function_exists",
+          "type": "Function",
+          "lineno": 236
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_returns_welfiledata",
+          "type": "Function",
+          "lineno": 243
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_section_size",
+          "type": "Function",
+          "lineno": 255
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_preserves_total_lines",
+          "type": "Function",
+          "lineno": 272
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_pre_2024_ends_before_jan_2024",
+          "type": "Function",
+          "lineno": 288
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_section_starts_with_header",
+          "type": "Function",
+          "lineno": 301
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_first_entry_is_buckman1_jan",
+          "type": "Function",
+          "lineno": 313
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_last_entry_is_buckman13_dec",
+          "type": "Function",
+          "lineno": 326
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_post_2024_starts_with_jan_2025",
+          "type": "Function",
+          "lineno": 338
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_exists",
+          "type": "Function",
+          "lineno": 362
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_format",
+          "type": "Function",
+          "lineno": 369
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_zero_rate",
+          "type": "Function",
+          "lineno": 387
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_month_header",
+          "type": "Function",
+          "lineno": 399
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_exists",
+          "type": "Function",
+          "lineno": 407
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_count",
+          "type": "Function",
+          "lineno": 414
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_structure",
+          "type": "Function",
+          "lineno": 428
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_well_order",
+          "type": "Function",
+          "lineno": 460
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_layer_order",
+          "type": "Function",
+          "lineno": 492
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_rates_are_negative",
+          "type": "Function",
+          "lineno": 511
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_matches_validation_jan",
+          "type": "Function",
+          "lineno": 533
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_exists",
+          "type": "Function",
+          "lineno": 602
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_creates_directory",
+          "type": "Function",
+          "lineno": 609
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_line_count",
+          "type": "Function",
+          "lineno": 635
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_pre_2024",
+          "type": "Function",
+          "lineno": 662
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_post_2024",
+          "type": "Function",
+          "lineno": 694
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_invalid_2024_count_raises",
+          "type": "Function",
+          "lineno": 727
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_exists",
+          "type": "Function",
+          "lineno": 749
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_file",
+          "type": "Function",
+          "lineno": 756
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_directory",
+          "type": "Function",
+          "lineno": 770
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_has_header_comments",
+          "type": "Function",
+          "lineno": 786
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_cy2023_with_cy2024",
+          "type": "Function",
+          "lineno": 811
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_wel_filename",
+          "type": "Function",
+          "lineno": 841
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_uppercase_package_types",
+          "type": "Function",
+          "lineno": 868
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_matches_validation_content",
+          "type": "Function",
+          "lineno": 891
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validation_result_class_exists",
+          "type": "Function",
+          "lineno": 942
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_exists",
+          "type": "Function",
+          "lineno": 955
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_passes_for_matching_files",
+          "type": "Function",
+          "lineno": 962
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_against_validation",
+          "type": "Function",
+          "lineno": 980
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_fails_for_missing_generated_file",
+          "type": "Function",
+          "lineno": 1000
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_skips_for_missing_validation_file",
+          "type": "Function",
+          "lineno": 1014
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_exists",
+          "type": "Function",
+          "lineno": 1036
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_returns_validation_result",
+          "type": "Function",
+          "lineno": 1043
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_full_pipeline",
+          "type": "Function",
+          "lineno": 1058
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_print_validation_report_exists",
+          "type": "Function",
+          "lineno": 1111
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_run_validation_exists",
+          "type": "Function",
+          "lineno": 1118
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_run_validation_full_pipeline",
+          "type": "Function",
+          "lineno": 1125
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_parse_args_exists",
+          "type": "Function",
+          "lineno": 1164
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_main_exists",
+          "type": "Function",
+          "lineno": 1171
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_exists",
+          "type": "Function",
+          "lineno": 1178
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_runs_without_error",
+          "type": "Function",
+          "lineno": 1185
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_main_returns_zero_on_success",
+          "type": "Function",
+          "lineno": 1200
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py::test_script_runs_end_to_end",
+          "type": "Function",
+          "lineno": 1219
+        }
+      ]
+    },
+    {
+      "nodeid": "tests",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_conservation.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_edge_cases.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_generate_depletion_tables.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_ingest_buckman_data.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py",
+          "type": "Module"
+        },
+        {
+          "nodeid": "tests/test_update_modflow.py",
+          "type": "Module"
+        }
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_module_imports",
+      "lineno": 18,
+      "outcome": "passed",
+      "keywords": [
+        "test_module_imports",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0002464080025674775,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00037813300150446594,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.072700049728155e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_exists",
+      "lineno": 23,
+      "outcome": "passed",
+      "keywords": [
+        "test_copy_flux_files_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.966700311750174e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.18950032023713e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.88339932821691e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_exists",
+      "lineno": 29,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_error_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.011999307200313e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.034199370536953e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.030399865470827e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_main_exists",
+      "lineno": 35,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0367005062289536e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.641099753323942e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.674500764347613e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_constants_defined",
+      "lineno": 41,
+      "outcome": "passed",
+      "keywords": [
+        "test_constants_defined",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0031001339666545e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.638100603595376e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.30510039627552e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_runs_without_crash",
+      "lineno": 57,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_error_runs_without_crash",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00021780999668408185,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.84679936664179e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.67840023804456e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_returns_bool",
+      "lineno": 74,
+      "outcome": "passed",
+      "keywords": [
+        "test_copy_flux_files_returns_bool",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.848599539604038e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.045205114991404116,
+        "outcome": "passed",
+        "stdout": "Copying flux files to post-processor directory for year 2024...\n  CY2024_riv.flx: 31,484,640 bytes -> output/modflow/2024/depletions/\n  CY2024_ghb.flx: 31,484,640 bytes -> output/modflow/2024/depletions/\nFlux files copied successfully.\n"
+      },
+      "teardown": {
+        "duration": 0.00017081698752008379,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_exists",
+      "lineno": 89,
+      "outcome": "passed",
+      "keywords": [
+        "test_check_wine_installed_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011024900595657527,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0006204970122780651,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00012762700498569757,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_exists",
+      "lineno": 95,
+      "outcome": "passed",
+      "keywords": [
+        "test_run_post_processor_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.932300261221826e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00013127501006238163,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0011084470024798065,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_us002_constants_defined",
+      "lineno": 101,
+      "outcome": "passed",
+      "keywords": [
+        "test_us002_constants_defined",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00018825400911737233,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012697400234173983,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.957099296618253e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_returns_bool",
+      "lineno": 111,
+      "outcome": "passed",
+      "keywords": [
+        "test_check_wine_installed_returns_bool",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.729199958499521e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0018671830039238557,
+        "outcome": "passed",
+        "stdout": "  Wine version: wine-6.0.3 (Ubuntu 6.0.3~repack-1)\n"
+      },
+      "teardown": {
+        "duration": 0.00012039199646096677,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_returns_bool",
+      "lineno": 118,
+      "outcome": "passed",
+      "keywords": [
+        "test_run_post_processor_returns_bool",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00019127300765831023,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 1.6939124580094358,
+        "outcome": "passed",
+        "stdout": "Running post-processor via Wine for year 2024...\n  Checking Wine installation...\n  Wine version: wine-6.0.3 (Ubuntu 6.0.3~repack-1)\n  Command: wine sfmodflx_2245.exe\n  Working directory: output/modflow/2024/depletions/\n  Inputs: CY2024_riv.flx, CY2024_ghb.flx, CY2024\nPost-processor completed successfully.\n  Output file: CY2024 (1,481,893 bytes)\n"
+      },
+      "teardown": {
+        "duration": 0.00019683499704115093,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_exists",
+      "lineno": 132,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00015258201165124774,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015208200784400105,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00014103300054557621,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_us003_constants_defined",
+      "lineno": 138,
+      "outcome": "passed",
+      "keywords": [
+        "test_us003_constants_defined",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001241320132976398,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012591300765052438,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00012574699940159917,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_returns_dict",
+      "lineno": 146,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_returns_dict",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00018100498709827662,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.07158971999888308,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.00017382099758833647,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_years",
+      "lineno": 153,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_has_years",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.9829987953417e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.04393141700711567,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.0001552519970573485,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_stream_data",
+      "lineno": 166,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_has_stream_data",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.452599286101758e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.05204867299471516,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.00013698799011763185,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_monthly_values",
+      "lineno": 180,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_has_monthly_values",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.32920050015673e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.06328541999391746,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.00015111800166778266,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_sample_values",
+      "lineno": 194,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_sample_values",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 9.037800191435963e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.05310477600141894,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.0002990850043715909,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_cell_data",
+      "lineno": 215,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_has_cell_data",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00019133299065288156,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.05631220299983397,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.0001987309951800853,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_cell_sample_value",
+      "lineno": 227,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_post_processor_output_cell_sample_value",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00015241600340232253,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.04143675300292671,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
+      },
+      "teardown": {
+        "duration": 0.0001345979981124401,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_exists",
+      "lineno": 243,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_exists",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.350099960807711e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.90330008789897e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.848400855436921e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_us004_constants_defined",
+      "lineno": 249,
+      "outcome": "passed",
+      "keywords": [
+        "test_us004_constants_defined",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.811700586695224e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.726800686214119e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.798900722060353e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_returns_dict",
+      "lineno": 260,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_returns_dict",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.150000263005495e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03511330900073517,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
+      },
+      "teardown": {
+        "duration": 0.00013503700029104948,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_all_streams",
+      "lineno": 271,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_has_all_streams",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.81259877840057e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.04001155900186859,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
+      },
+      "teardown": {
+        "duration": 0.00034867599606513977,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_12_months",
+      "lineno": 285,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_has_12_months",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00013790799130219966,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03784899199672509,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
+      },
+      "teardown": {
+        "duration": 0.00014543699217028916,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_sample_values",
+      "lineno": 300,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_sample_values",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.378300117328763e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03748736099805683,
+        "outcome": "passed",
+        "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
+      },
+      "teardown": {
+        "duration": 0.0001503690000390634,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_empty_parsed_data",
+      "lineno": 319,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_empty_parsed_data",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.829099533613771e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001373289996990934,
+        "outcome": "passed",
+        "stdout": "Extracting 2024 stream depletions...\nERROR: Year 2024 not found in parsed data\n  Location: extract_stream_depletions()\n  Actual: Years available: []...\n  Expected: 2024 present in parsed data\n  Physical context: Post-processor output may not include 2024 or parsing failed\n"
+      },
+      "teardown": {
+        "duration": 0.00010248199396301061,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_missing_year",
+      "lineno": 326,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_stream_depletions_2024_missing_year",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.390299288090318e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012420699931681156,
+        "outcome": "passed",
+        "stdout": "Extracting 2024 stream depletions...\nERROR: Year 2024 not found in parsed data\n  Location: extract_stream_depletions()\n  Actual: Years available: [2023]...\n  Expected: 2024 present in parsed data\n  Physical context: Post-processor output may not include 2024 or parsing failed\n"
+      },
+      "teardown": {
+        "duration": 9.92880086414516e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_main_accepts_year_parameter",
+      "lineno": 340,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_accepts_year_parameter",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.157700358424336e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001352969993604347,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010835401189979166,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_main_returns_int",
+      "lineno": 350,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_returns_int",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.25819991203025e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010843899508472532,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.480899850837886e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_generate_depletion_tables.py::test_main_docstring_mentions_workflow_steps",
+      "lineno": 359,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_docstring_mentions_workflow_steps",
+        "test_generate_depletion_tables.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.604300870094448e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.755598926451057e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.597900498192757e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_module_imports",
+      "lineno": 19,
+      "outcome": "passed",
+      "keywords": [
+        "test_module_imports",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.030399865470827e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.1630371479986934,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0006437630072468892,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_constants_defined",
+      "lineno": 24,
+      "outcome": "passed",
+      "keywords": [
+        "test_constants_defined",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0002831399906426668,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001222160062752664,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.032200275920331e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_well_ose_map_has_13_wells",
+      "lineno": 40,
+      "outcome": "passed",
+      "keywords": [
+        "test_well_ose_map_has_13_wells",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.738599040545523e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.410601003561169e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.254400406964123e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_months_ordered_has_12",
+      "lineno": 51,
+      "outcome": "passed",
+      "keywords": [
+        "test_months_ordered_has_12",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.150000263005495e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.689800986554474e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.952600961085409e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_mg_to_af_factor",
+      "lineno": 60,
+      "outcome": "passed",
+      "keywords": [
+        "test_mg_to_af_factor",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.409400132019073e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010210499749518931,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.152599573601037e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_no_ocr_imports",
+      "lineno": 72,
+      "outcome": "passed",
+      "keywords": [
+        "test_no_ocr_imports",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.137500167824328e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0003737510123755783,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.326899842359126e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_no_ocr_functions",
+      "lineno": 84,
+      "outcome": "passed",
+      "keywords": [
+        "test_no_ocr_functions",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.39060017419979e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.911298937164247e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.985299114603549e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_read_source_csv_exists",
+      "lineno": 101,
+      "outcome": "passed",
+      "keywords": [
+        "test_read_source_csv_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.15820026723668e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.088399433996528e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.700599624309689e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_read_source_csv_runs",
+      "lineno": 107,
+      "outcome": "skipped",
+      "keywords": [
+        "test_read_source_csv_runs",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.58270000712946e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011898699449375272,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 114, 'Skipped: Source CSV not found')"
+      },
+      "teardown": {
+        "duration": 8.620000153314322e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_validate_daily_data_exists",
+      "lineno": 132,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_daily_data_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.474100518971682e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.097301179077476e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.845498865004629e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_verify_daily_sums_exists",
+      "lineno": 142,
+      "outcome": "passed",
+      "keywords": [
+        "test_verify_daily_sums_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.190699059516191e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.068600098136812e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.713600305374712e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_aggregate_monthly_exists",
+      "lineno": 152,
+      "outcome": "passed",
+      "keywords": [
+        "test_aggregate_monthly_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.8434001402929425e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.975399446673691e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.526699871756136e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_generate_monthly_csv_exists",
+      "lineno": 162,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_monthly_csv_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.983100658748299e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.676800305489451e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.783098797313869e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_generate_table2_output_exists",
+      "lineno": 172,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table2_output_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.8434001402929425e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.070800347719342e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.765799480490386e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_generate_qa_summary_exists",
+      "lineno": 182,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_qa_summary_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.8591991546563804e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.309499778784811e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.609900447074324e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_verify_annual_sums_exists",
+      "lineno": 192,
+      "outcome": "passed",
+      "keywords": [
+        "test_verify_annual_sums_exists",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.22609950369224e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.992500857450068e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.705301348119974e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_pint_mg_to_af_conversion",
+      "lineno": 202,
+      "outcome": "passed",
+      "keywords": [
+        "test_pint_mg_to_af_conversion",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.044900510460138e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0004963829996995628,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.810701208654791e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_pint_mg_to_af_zero",
+      "lineno": 214,
+      "outcome": "passed",
+      "keywords": [
+        "test_pint_mg_to_af_zero",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.159799522720277e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00020597300317604095,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.249199552461505e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_end_to_end_smoke",
+      "lineno": 228,
+      "outcome": "skipped",
+      "keywords": [
+        "test_end_to_end_smoke",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.29010028205812e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010207999730482697,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 245, 'Skipped: Source CSV not found')"
+      },
+      "teardown": {
+        "duration": 0.00023343799693975598,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_ingest_buckman_data.py::test_annual_mg_sanity",
+      "lineno": 263,
+      "outcome": "skipped",
+      "keywords": [
+        "test_annual_mg_sanity",
+        "test_ingest_buckman_data.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.689901056233793e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001348410005448386,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 275, 'Skipped: Source CSV not found')"
+      },
+      "teardown": {
+        "duration": 8.088599133770913e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_module_imports",
+      "lineno": 19,
+      "outcome": "passed",
+      "keywords": [
+        "test_module_imports",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.239800131879747e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0005932920030318201,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0002129760105162859,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_exists",
+      "lineno": 212,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001694230013526976,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00018218100012745708,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00015142200572881848,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_runs",
+      "lineno": 30,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_runs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011372700100764632,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.466298797633499e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.089600305538625e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_sanity",
+      "lineno": 48,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_sanity",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.921699969097972e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.874199945945293e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.616200986783952e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_core_2003_residuals_exist",
+      "lineno": 67,
+      "outcome": "passed",
+      "keywords": [
+        "test_core_2003_residuals_exist",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.497299182228744e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.074699144344777e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.674998778384179e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_core_2003_pojoaque_value",
+      "lineno": 82,
+      "outcome": "passed",
+      "keywords": [
+        "test_core_2003_pojoaque_value",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.686901128385216e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001064020034391433,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.411900151055306e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_core_2003_tesuque_value",
+      "lineno": 101,
+      "outcome": "passed",
+      "keywords": [
+        "test_core_2003_tesuque_value",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.983299681451172e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.118199184536934e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.54630018491298e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_otowi_cell_definitions",
+      "lineno": 116,
+      "outcome": "passed",
+      "keywords": [
+        "test_otowi_cell_definitions",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.879601278342307e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.921900785528123e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.137299351394176e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_days_per_month_2024",
+      "lineno": 132,
+      "outcome": "passed",
+      "keywords": [
+        "test_days_per_month_2024",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.698400491382927e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.807000318076462e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.0780992498621345e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_parse_postprocessor_output_exists",
+      "lineno": 141,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_postprocessor_output_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.612600944004953e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.432100781239569e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.728799780830741e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_error_exists",
+      "lineno": 147,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_error_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.849899025633931e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.602800567634404e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.242099334485829e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_extract_otowi_depletions_exists",
+      "lineno": 153,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_otowi_depletions_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.704199429601431e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.516100256703794e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.230099825188518e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_otowi_verification_exists",
+      "lineno": 159,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_otowi_verification_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.807899287901819e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.552500417456031e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.124000356066972e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_extract_otowi_depletions_with_mock_data",
+      "lineno": 165,
+      "outcome": "passed",
+      "keywords": [
+        "test_extract_otowi_depletions_with_mock_data",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.696900188922882e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011609800276346505,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.530599785037339e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_exists",
+      "lineno": 192,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_residual_verification_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00016939399938564748,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.625999569427222e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.49659923510626e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_runs",
+      "lineno": 198,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_residual_verification_runs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0002464160061208531,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011350000568199903,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010266099707223475,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_january",
+      "lineno": 218,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_january",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.22930092504248e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.167899457272142e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.708900036755949e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_february_leap_year",
+      "lineno": 233,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_february_leap_year",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0376987676136196e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.007599924691021e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.505000055767596e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_raises_on_negative",
+      "lineno": 254,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_raises_on_negative",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.820801015943289e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00019547800184227526,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.961800681892782e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_raises_on_invalid_month",
+      "lineno": 262,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_to_af_raises_on_invalid_month",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.058199505787343e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015843901201151311,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.842700531706214e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_exists",
+      "lineno": 273,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_monthly_to_af_annual_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.69430077727884e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.401700713671744e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.528999074362218e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_constant_flow",
+      "lineno": 279,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_monthly_to_af_annual_constant_flow",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.519599992316216e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.873900176491588e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.504599878098816e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_raises_on_wrong_length",
+      "lineno": 300,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_monthly_to_af_annual_raises_on_wrong_length",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.945599696133286e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001603540003998205,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.836399552412331e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_cfs_monthly_to_af_annual_raises_on_negative",
+      "lineno": 311,
+      "outcome": "passed",
+      "keywords": [
+        "test_cfs_monthly_to_af_annual_raises_on_negative",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.961699935141951e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015018398698884994,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.755199865438044e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_exists",
+      "lineno": 322,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table3_data_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.810300353914499e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.54720060992986e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.381999992299825e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_with_mock",
+      "lineno": 328,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table3_data_with_mock",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.909499304834753e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.075900015886873e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.6305001382716e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_raises_on_missing_year",
+      "lineno": 369,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table3_data_raises_on_missing_year",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.800899816676974e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00015628000255674124,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.836399552412331e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table3_data_raises_on_missing_stream",
+      "lineno": 379,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table3_data_raises_on_missing_stream",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.089000089559704e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00013909800327382982,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.908600335009396e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table3_verification_exists",
+      "lineno": 395,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table3_verification_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.905400030314922e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.596100865863264e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.319300155155361e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table3_verification_runs",
+      "lineno": 401,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table3_verification_runs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001840740005718544,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001197340025100857,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.660700743552297e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_buckman_wells_cell_constant",
+      "lineno": 428,
+      "outcome": "passed",
+      "keywords": [
+        "test_buckman_wells_cell_constant",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.057698919903487e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.685900734737515e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.562800263054669e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_exists",
+      "lineno": 435,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table4_data_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.827999848406762e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.398400000762194e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.686100095976144e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_with_mock",
+      "lineno": 441,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table4_data_with_mock",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.190499698277563e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00020661400048993528,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.614699668716639e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_year",
+      "lineno": 505,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table4_data_raises_on_missing_year",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.843600956723094e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.140399924945086e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.758200470358133e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_stream",
+      "lineno": 515,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table4_data_raises_on_missing_stream",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.8218996855430305e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00021084598847664893,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.018799078650773e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_exists",
+      "lineno": 532,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table4_verification_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.9215002693235874e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.666600529570132e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.319199746940285e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_runs",
+      "lineno": 538,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table4_verification_runs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00021861999994143844,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011705100769177079,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.670000872574747e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_la_cienega_cumulative_constant",
+      "lineno": 578,
+      "outcome": "passed",
+      "keywords": [
+        "test_la_cienega_cumulative_constant",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0407008277252316e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.081800140440464e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.35290052741766e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_exists",
+      "lineno": 595,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table5_data_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.685399810317904e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.58149947412312e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.36120093986392e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_with_mock",
+      "lineno": 601,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table5_data_with_mock",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.651399937458336e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.921700307633728e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.259098881855607e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_year",
+      "lineno": 644,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table5_data_raises_on_missing_year",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.663199408445507e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.032100206241012e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.647199916187674e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_lc_springs",
+      "lineno": 654,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_table5_data_raises_on_missing_lc_springs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.8331992477178574e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00017505499999970198,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.598100299015641e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_exists",
+      "lineno": 668,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table5_verification_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.9116995544172823e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.675600889138877e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.349400791805238e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_runs",
+      "lineno": 674,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_table5_verification_runs",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0002002340042963624,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00013428401143755764,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010226000449620187,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_exists",
+      "lineno": 699,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table3_xlsx_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.210799620021135e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.817400571890175e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.438500713557005e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_creates_file",
+      "lineno": 705,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table3_xlsx_creates_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0013823469926137477,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.014963263995014131,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001538059877930209,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_formatting",
+      "lineno": 751,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table3_xlsx_formatting",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006065149937057868,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00803331600036472,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00012161199992988259,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_2024_values",
+      "lineno": 786,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table3_xlsx_2024_values",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006413889932446182,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.008693188006873243,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001197179954033345,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_exists",
+      "lineno": 826,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table4_xlsx_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.771799573674798e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.26359901111573e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.288499909918755e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_creates_file",
+      "lineno": 832,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table4_xlsx_creates_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004944750107824802,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.04552484599116724,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00015576800797134638,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_cell_data",
+      "lineno": 893,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table4_xlsx_cell_data",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006558680033776909,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.021933765994617715,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0003869250067509711,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_formulas",
+      "lineno": 944,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table4_xlsx_formulas",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0011420619994169101,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.022731691002263688,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00015576800797134638,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_exists",
+      "lineno": 1001,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table5_xlsx_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.716400770936161e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.677599882707e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.616200986783952e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_creates_file",
+      "lineno": 1007,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table5_xlsx_creates_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0005821310041937977,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.006504846998723224,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00013144800323061645,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
+      "lineno": 1040,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table5_xlsx_formatting",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.001211295006214641,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.006117028999142349,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00012007199984509498,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
+      "lineno": 1063,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table5_xlsx_2024_value",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004588870069710538,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.006183545992826112,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00011591200018301606,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
+      "lineno": 1085,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_table5_xlsx_default_years",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004718269919976592,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.009639181007514708,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00013315000978764147,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
+      "lineno": 1119,
+      "outcome": "passed",
+      "keywords": [
+        "test_validation_constants_exist",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.990300946403295e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.803200034890324e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.489700849168003e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
+      "lineno": 1127,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table3_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.120899681467563e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.483198714908212e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.034599886741489e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
+      "lineno": 1133,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table4_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.477500184904784e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011187000200152397,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.112399129662663e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
+      "lineno": 1139,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table5_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.3521001720801e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.893600220791996e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.299499702639878e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
+      "lineno": 1145,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_all_tables_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.242499512154609e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.698300421703607e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.187400817405432e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
+      "lineno": 1151,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_validation_results_exists",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.337199010886252e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.843199662398547e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.269800698850304e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
+      "lineno": 1157,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table3_missing_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0133999795652926e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00019954799790866673,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.345299283973873e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
+      "lineno": 1172,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table4_missing_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.87930005369708e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010146200656890869,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.278600241988897e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
+      "lineno": 1187,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table5_returns_dict",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.400000711437315e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.220199717674404e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.918200910557061e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
+      "lineno": 1206,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table5_passing",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.656799814663827e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010096399637404829,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.775200017727911e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
+      "lineno": 1222,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_all_tables_returns_dict",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0286998632363975e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012232399603817612,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.873501115478575e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
+      "lineno": 1244,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table3_with_real_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0363003285601735e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.055411192995961756,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001394119899487123,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
+      "lineno": 1276,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_table4_with_real_file",
+        "test_stream_depletions.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.747899846639484e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.05820419300289359,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0002299539919476956,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_module_imports",
+      "lineno": 14,
+      "outcome": "passed",
+      "keywords": [
+        "test_module_imports",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00015828499454073608,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0016938990011112764,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00016810100350994617,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_function_exists",
+      "lineno": 19,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_function_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00013075901370029896,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001551629975438118,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00012415599485393614,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_af_to_ft3s_known_answer",
+      "lineno": 26,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_af_to_ft3s_known_answer",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011136199464090168,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.000143857003422454,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00011710300168488175,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_zero_pumping",
+      "lineno": 49,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_zero_pumping",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001071050064638257,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012211099965497851,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00011761199857573956,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_leap_year_february",
+      "lineno": 57,
+      "outcome": "passed",
+      "keywords": [
+        "test_leap_year_february",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 9.709899313747883e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00012330699246376753,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001366629876429215,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_well_name_mapping_exists",
+      "lineno": 77,
+      "outcome": "passed",
+      "keywords": [
+        "test_well_name_mapping_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011361199722159654,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011353299487382174,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010077799379359931,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_read_table2_function_exists",
+      "lineno": 91,
+      "outcome": "passed",
+      "keywords": [
+        "test_read_table2_function_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0001613589993212372,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011767400428652763,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.0315992818214e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_read_table2_pumping_data",
+      "lineno": 98,
+      "outcome": "passed",
+      "keywords": [
+        "test_read_table2_pumping_data",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.742999539710581e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.004151941000600345,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 9.879699791781604e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_read_table2_no_negative_values",
+      "lineno": 129,
+      "outcome": "passed",
+      "keywords": [
+        "test_read_table2_no_negative_values",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.647699385415763e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0021538420114666224,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 8.990798960439861e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well1_jan",
+      "lineno": 147,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_hand_check_well1_jan",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 9.860399586614221e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.076501009985805e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.356399823445827e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well6_feb",
+      "lineno": 165,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_hand_check_well6_feb",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.6995999077335e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.342400203924626e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.464099326170981e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_hand_check_well10_dec",
+      "lineno": 181,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_hand_check_well10_dec",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.381899584084749e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.725599036552012e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.33980123186484e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_output_precision",
+      "lineno": 197,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_output_precision",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.169900345616043e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.254100637510419e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.657600170001388e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_negative_acre_feet_raises",
+      "lineno": 212,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_negative_acre_feet_raises",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.9030993725173175e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001822990016080439,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.275100506376475e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_convert_invalid_days_raises",
+      "lineno": 220,
+      "outcome": "passed",
+      "keywords": [
+        "test_convert_invalid_days_raises",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.939099355600774e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00014165700122248381,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.333200483117253e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_function_exists",
+      "lineno": 236,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_function_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0461010434664786e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 6.898399442434311e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.83109974488616e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_returns_welfiledata",
+      "lineno": 243,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_returns_welfiledata",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 5.837201024405658e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.012247421997017227,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00013139500515535474,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_section_size",
+      "lineno": 255,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_2024_section_size",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004507839912548661,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.009660739990067668,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00013976699847262353,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_preserves_total_lines",
+      "lineno": 272,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_preserves_total_lines",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.192099630832672e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.008135685988236219,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00011489199823699892,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_pre_2024_ends_before_jan_2024",
+      "lineno": 288,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_pre_2024_ends_before_jan_2024",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.362899825442582e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00858060699829366,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00010969898721668869,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_section_starts_with_header",
+      "lineno": 301,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_2024_section_starts_with_header",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.384599302895367e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.007998358996701427,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 9.618100011721253e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_first_entry_is_buckman1_jan",
+      "lineno": 313,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_2024_first_entry_is_buckman1_jan",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.054398884065449e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.008609646989498287,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00012428600166458637,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_2024_last_entry_is_buckman13_dec",
+      "lineno": 326,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_2024_last_entry_is_buckman13_dec",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.799798913765699e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.008863255003234372,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00013137499627191573,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_wel_file_post_2024_starts_with_jan_2025",
+      "lineno": 338,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_wel_file_post_2024_starts_with_jan_2025",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.056100341491401e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.009614284004783258,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.00012943400361109525,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_exists",
+      "lineno": 362,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entry_line_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.881000055931509e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.752099529374391e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.975200085435063e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_format",
+      "lineno": 369,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entry_line_format",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.215799658093601e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.145799802150577e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.676799966953695e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entry_line_zero_rate",
+      "lineno": 387,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entry_line_zero_rate",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.005099567119032e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.498300692532212e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.398299931082875e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_month_header",
+      "lineno": 399,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_month_header",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.101200415287167e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001484059903305024,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.196899969130754e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_exists",
+      "lineno": 407,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.594300793949515e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 7.066900434438139e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.89049920765683e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_count",
+      "lineno": 414,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_count",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.325899448711425e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0051640830060932785,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 0.00010195800859946758,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_structure",
+      "lineno": 428,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_structure",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.147299766074866e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0025949660048354417,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 0.0001045640092343092,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_well_order",
+      "lineno": 460,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_well_order",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.987899541854858e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0023519740061601624,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 0.00010651399497874081,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_layer_order",
+      "lineno": 492,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_layer_order",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.862599497660995e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00226574600674212,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 8.561799768358469e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_rates_are_negative",
+      "lineno": 511,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_rates_are_negative",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.668698915746063e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.002270495009724982,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 9.426000178791583e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_well_entries_matches_validation_jan",
+      "lineno": 533,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_well_entries_matches_validation_jan",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.868800846859813e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.009433965999050997,
+        "outcome": "passed",
+        "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
+      },
+      "teardown": {
+        "duration": 0.00013208000746089965,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_exists",
+      "lineno": 602,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.494299254380167e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.801200940273702e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010968299466185272,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_creates_directory",
+      "lineno": 609,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_creates_directory",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006608120020246133,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.016138158011017367,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_write_updated_wel_file_cr0/new_output/modflow/2024/test.wel (pre: 8797, 2024: 324, post: 45684)\n"
+      },
+      "teardown": {
+        "duration": 0.00015818799147382379,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_line_count",
+      "lineno": 635,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_line_count",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.000660168007016182,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.020171063995803706,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_write_updated_wel_file_li0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+      },
+      "teardown": {
+        "duration": 0.00041594098729547113,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_pre_2024",
+      "lineno": 662,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_preserves_pre_2024",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006744550046278164,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.027413554009399377,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_write_updated_wel_file_pr0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+      },
+      "teardown": {
+        "duration": 0.00018143899796996266,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_post_2024",
+      "lineno": 694,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_preserves_post_2024",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0007325370097532868,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.028855953001766466,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_write_updated_wel_file_pr1/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+      },
+      "teardown": {
+        "duration": 0.00016632801271043718,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_invalid_2024_count_raises",
+      "lineno": 727,
+      "outcome": "passed",
+      "keywords": [
+        "test_write_updated_wel_file_invalid_2024_count_raises",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006787639867980033,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.008863759998348542,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
+      },
+      "teardown": {
+        "duration": 0.0002958999975817278,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_exists",
+      "lineno": 749,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.517499372828752e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00011376000475138426,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.878800483420491e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_file",
+      "lineno": 756,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_creates_file",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006097720033721998,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00026583499857224524,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_creates0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.00012035500549245626,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_directory",
+      "lineno": 770,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_creates_directory",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0005812750023324043,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00042938999831676483,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_creates1/nested/output/dir/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.00011317299504298717,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_has_header_comments",
+      "lineno": 786,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_has_header_comments",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0005186420021345839,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00025686700246296823,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_has_hea0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.00010614198981784284,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_cy2023_with_cy2024",
+      "lineno": 811,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_replaces_cy2023_with_cy2024",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004600329993991181,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00023872799647506326,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_replace0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.00010434900468681008,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_wel_filename",
+      "lineno": 841,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_replaces_wel_filename",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004961630038451403,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00022318300034385175,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_replace1/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 9.804600267671049e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_uppercase_package_types",
+      "lineno": 868,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_uppercase_package_types",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.000507957985973917,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00035008700797334313,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_upperca0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.00011579900456126779,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_matches_validation_content",
+      "lineno": 891,
+      "outcome": "passed",
+      "keywords": [
+        "test_generate_nam_file_matches_validation_content",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0005299209879012778,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00022177599021233618,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_generate_nam_file_matches0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 0.0001088940043700859,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validation_result_class_exists",
+      "lineno": 942,
+      "outcome": "passed",
+      "keywords": [
+        "test_validation_result_class_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.83109974488616e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.089801121968776e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.966199725866318e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_exists",
+      "lineno": 955,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_nam_file_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.32190058240667e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 9.365000005345792e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 6.827099423389882e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_passes_for_matching_files",
+      "lineno": 962,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_nam_file_passes_for_matching_files",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004507300036493689,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00021857800311408937,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_validate_nam_file_passes_0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 9.05820052139461e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_against_validation",
+      "lineno": 980,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_nam_file_against_validation",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006071149982744828,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00028364500030875206,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_validate_nam_file_against0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 9.962600597646087e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_fails_for_missing_generated_file",
+      "lineno": 1000,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_nam_file_fails_for_missing_generated_file",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0004215829976601526,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010389699309598655,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00014165800530463457,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_skips_for_missing_validation_file",
+      "lineno": 1014,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_nam_file_skips_for_missing_validation_file",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0005181989981792867,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00020452900207601488,
+        "outcome": "passed",
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_validate_nam_file_skips_f0/CY2024.nam\n"
+      },
+      "teardown": {
+        "duration": 8.843500108923763e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_exists",
+      "lineno": 1036,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_wel_file_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.501599273178726e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0001033000007737428,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.139399531297386e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_returns_validation_result",
+      "lineno": 1043,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_wel_file_returns_validation_result",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 6.0869992012158036e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00025353299861308187,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 7.08900042809546e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_full_pipeline",
+      "lineno": 1058,
+      "outcome": "passed",
+      "keywords": [
+        "test_validate_wel_file_full_pipeline",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0006748420128133148,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03322142800607253,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_validate_wel_file_full_pi0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+      },
+      "teardown": {
+        "duration": 0.00018358799570705742,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_print_validation_report_exists",
+      "lineno": 1111,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_validation_report_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 9.243900422006845e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010552599269431084,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010944899986498058,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_run_validation_exists",
+      "lineno": 1118,
+      "outcome": "passed",
+      "keywords": [
+        "test_run_validation_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.202598837669939e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.627100032754242e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.614499867893755e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_run_validation_full_pipeline",
+      "lineno": 1125,
+      "outcome": "passed",
+      "keywords": [
+        "test_run_validation_full_pipeline",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0021669819980161265,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.04407817299943417,
+        "outcome": "passed",
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-68/test_run_validation_full_pipel0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\nWrote .nam file to /tmp/pytest-of-bradwolaver/pytest-68/test_run_validation_full_pipel0/CY2024.nam\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n"
+      },
+      "teardown": {
+        "duration": 0.00047631999768782407,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_parse_args_exists",
+      "lineno": 1164,
+      "outcome": "passed",
+      "keywords": [
+        "test_parse_args_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00011546099267434329,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010895000013988465,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00010253000073134899,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_main_exists",
+      "lineno": 1171,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.00010179200035054237,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.00010448299872223288,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 9.579300240147859e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_exists",
+      "lineno": 1178,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_pumping_summary_exists",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 7.986600394360721e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 8.384000102523714e-05,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 8.327800605911762e-05,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_runs_without_error",
+      "lineno": 1185,
+      "outcome": "passed",
+      "keywords": [
+        "test_print_pumping_summary_runs_without_error",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.000438296003267169,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.0032427230034954846,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.0001777220022631809,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_main_returns_zero_on_success",
+      "lineno": 1200,
+      "outcome": "passed",
+      "keywords": [
+        "test_main_returns_zero_on_success",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 8.426699787378311e-05,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.03715545700106304,
+        "outcome": "passed",
+        "stdout": "\n============================================================\nMODFLOW Buckman Depletion Model Update\nUpdating from CY2023 to CY2024\n============================================================\n\n======================================================================\nSTEP 2: UPDATE MODFLOW - YEAR 2024\n======================================================================\n\ud83d\udccb Input Sources:\n  - Source year: 2023\n  - Mode: BASELINE (using 2023 input files)\n  - WEL file: input/modflow/2023/thruCY2165.wel\n  - Table 2: output/ingested_data/2024_Table_2_output.csv\n\n\ud83d\udce6 Outputs (after completion):\n  - thruCY2165_2024.wel (extended well file)\n  - CY2024.nam (MODFLOW name file)\n  - 10 baseline files copied from 2023\n\n\u27a1\ufe0f  Next Step:\n  ./step3_run_modflow.sh --year 2024\n======================================================================\n\n\n[1/8] Reading Table 2 pumping data...\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n  \u2713 Read pumping data for 13 wells\n\n[2/8] Converting acre-feet to ft\u00b3/s...\n  \u2713 Conversion formula: rate = -(AF/2) \u00d7 43560 / (days \u00d7 86400)\n  \u2713 2024 is leap year (February = 29 days)\n\n[3/8] Parsing 2023 .wel file...\nRead 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n  \u2713 Pre-2024: 8797 lines\n  \u2713 2024: 324 lines\n  \u2713 Post-2024: 45684 lines\n\n[4/8] Generating 2024 well entries...\n  \u2713 Generated 324 lines (12 months \u00d7 27 lines)\n\n[5/8] Writing updated .wel file...\nWrote 54805 lines to output/modflow/2024/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n  \u2713 Written to output/modflow/2024/thruCY2165_2024.wel\n\n[6/8] Generating updated .nam file...\nWrote .nam file to output/modflow/2024/CY2024.nam\n  \u2713 Written to output/modflow/2024/CY2024.nam\n\n[7/8] Copying baseline MODFLOW files...\n  \u2713 Copied 10 files from input/modflow/2023:\n    - modflow96.exe\n    - sflcs.bcf\n    - sflcs.sip\n    - thruCY2165.bas\n    - thruCY2165.ghb\n    - thruCY2165.oc\n    - thruCY2165.riv\n    - sfmodflx_2245.exe\n    - verify_modflow_run.py\n    - verify_depletion.py\n\n[7.5/8] Verifying NAM file references...\n\n\u2717 NAM file references 3 missing file(s):\n    - CY2024.lst\n    - CY2024_riv.flx\n    - CY2024_ghb.flx\n  Total referenced: 10\n\n======================================================================\n2024 MONTHLY PUMPING SUMMARY\n======================================================================\nWell            Month     Acre-Feet    ft\u00b3/s (per layer)\n----------------------------------------------------------------------\nBUCKMAN 1       JAN       16.887963             -0.13733\nBUCKMAN 1       FEB       38.805796             -0.33732\nBUCKMAN 1       MAR       10.882195             -0.08849\nBUCKMAN 1       APR       40.702355             -0.34201\nBUCKMAN 1       MAY       41.500260             -0.33747\nBUCKMAN 1       JUN       68.454100             -0.57520\nBUCKMAN 1       JUL      162.493326             -1.32135\nBUCKMAN 1       AUG      124.365749             -1.01131\nBUCKMAN 1       SEP       45.139933             -0.37930\nBUCKMAN 1       OCT       52.047948             -0.42324\nBUCKMAN 1       NOV        0.000000             -0.00000\nBUCKMAN 1       DEC        0.000000             -0.00000\nBUCKMAN 2       JAN        0.000000             -0.00000\nBUCKMAN 2       FEB        0.000000             -0.00000\nBUCKMAN 2       MAR        0.000000             -0.00000\nBUCKMAN 2       APR        0.000000             -0.00000\nBUCKMAN 2       MAY        0.000000             -0.00000\nBUCKMAN 2       JUN        0.003069             -0.00003\nBUCKMAN 2       JUL        0.000000             -0.00000\nBUCKMAN 2       AUG        0.000000             -0.00000\nBUCKMAN 2       SEP        0.000000             -0.00000\nBUCKMAN 2       OCT        0.006138             -0.00005\nBUCKMAN 2       NOV        0.000000             -0.00000\nBUCKMAN 2       DEC        0.000000             -0.00000\nBUCKMAN 3A      JAN        0.000000             -0.00000\nBUCKMAN 3A      FEB        0.067515             -0.00059\nBUCKMAN 3A      MAR        0.064446             -0.00052\nBUCKMAN 3A      APR        0.067515             -0.00057\nBUCKMAN 3A      MAY        0.380539             -0.00309\nBUCKMAN 3A      JUN       23.108552             -0.19418\nBUCKMAN 3A      JUL        0.791767             -0.00644\nBUCKMAN 3A      AUG        8.540651             -0.06945\nBUCKMAN 3A      SEP        0.049102             -0.00041\nBUCKMAN 3A      OCT        6.380170             -0.05188\nBUCKMAN 3A      NOV       16.725314             -0.14054\nBUCKMAN 3A      DEC        0.052171             -0.00042\nBUCKMAN 4       JAN        0.000000             -0.00000\nBUCKMAN 4       FEB        0.012275             -0.00011\nBUCKMAN 4       MAR        0.174925             -0.00142\nBUCKMAN 4       APR        0.082859             -0.00070\nBUCKMAN 4       MAY        0.082859             -0.00067\nBUCKMAN 4       JUN       24.468060             -0.20560\nBUCKMAN 4       JUL       20.156304             -0.16391\nBUCKMAN 4       AUG        8.249109             -0.06708\nBUCKMAN 4       SEP        3.213102             -0.02700\nBUCKMAN 4       OCT        6.895739             -0.05607\nBUCKMAN 4       NOV        0.000000             -0.00000\nBUCKMAN 4       DEC        0.000000             -0.00000\nBUCKMAN 5       JAN        0.000000             -0.00000\nBUCKMAN 5       FEB        0.000000             -0.00000\nBUCKMAN 5       MAR        0.000000             -0.00000\nBUCKMAN 5       APR        0.000000             -0.00000\nBUCKMAN 5       MAY        0.000000             -0.00000\nBUCKMAN 5       JUN        0.000000             -0.00000\nBUCKMAN 5       JUL        0.000000             -0.00000\nBUCKMAN 5       AUG        0.000000             -0.00000\nBUCKMAN 5       SEP        0.000000             -0.00000\nBUCKMAN 5       OCT        0.000000             -0.00000\nBUCKMAN 5       NOV        0.000000             -0.00000\nBUCKMAN 5       DEC        0.000000             -0.00000\nBUCKMAN 6       JAN        0.150374             -0.00122\nBUCKMAN 6       FEB        0.199476             -0.00173\nBUCKMAN 6       MAR        0.969761             -0.00789\nBUCKMAN 6       APR        0.000000             -0.00000\nBUCKMAN 6       MAY       19.536394             -0.15886\nBUCKMAN 6       JUN        5.606816             -0.04711\nBUCKMAN 6       JUL        0.125823             -0.00102\nBUCKMAN 6       AUG       72.099911             -0.58630\nBUCKMAN 6       SEP       40.444570             -0.33985\nBUCKMAN 6       OCT       13.088709             -0.10643\nBUCKMAN 6       NOV        0.000000             -0.00000\nBUCKMAN 6       DEC        0.000000             -0.00000\nBUCKMAN 7       JAN        0.076722             -0.00062\nBUCKMAN 7       FEB        0.113548             -0.00099\nBUCKMAN 7       MAR        0.073653             -0.00060\nBUCKMAN 7       APR        0.736528             -0.00619\nBUCKMAN 7       MAY        0.000000             -0.00000\nBUCKMAN 7       JUN        0.000000             -0.00000\nBUCKMAN 7       JUL        0.000000             -0.00000\nBUCKMAN 7       AUG        0.000000             -0.00000\nBUCKMAN 7       SEP        0.000000             -0.00000\nBUCKMAN 7       OCT        0.000000             -0.00000\nBUCKMAN 7       NOV        0.000000             -0.00000\nBUCKMAN 7       DEC        0.000000             -0.00000\nBUCKMAN 8       JAN        2.099104             -0.01707\nBUCKMAN 8       FEB        0.049102             -0.00043\nBUCKMAN 8       MAR        0.865420             -0.00704\nBUCKMAN 8       APR        2.850975             -0.02396\nBUCKMAN 8       MAY       26.926220             -0.21896\nBUCKMAN 8       JUN       11.133842             -0.09356\nBUCKMAN 8       JUL        0.079790             -0.00065\nBUCKMAN 8       AUG        1.740046             -0.01415\nBUCKMAN 8       SEP        2.623879             -0.02205\nBUCKMAN 8       OCT       15.595971             -0.12682\nBUCKMAN 8       NOV        0.000000             -0.00000\nBUCKMAN 8       DEC       47.502959             -0.38628\nBUCKMAN 9       JAN        0.067515             -0.00055\nBUCKMAN 9       FEB        0.055240             -0.00048\nBUCKMAN 9       MAR        0.064446             -0.00052\nBUCKMAN 9       APR        0.049102             -0.00041\nBUCKMAN 9       MAY        0.046033             -0.00037\nBUCKMAN 9       JUN        0.052171             -0.00044\nBUCKMAN 9       JUL        0.076722             -0.00062\nBUCKMAN 9       AUG        0.064446             -0.00052\nBUCKMAN 9       SEP        0.049102             -0.00041\nBUCKMAN 9       OCT        0.000000             -0.00000\nBUCKMAN 9       NOV        0.000000             -0.00000\nBUCKMAN 9       DEC        0.000000             -0.00000\nBUCKMAN 10      JAN        0.098204             -0.00080\nBUCKMAN 10      FEB        0.082859             -0.00072\nBUCKMAN 10      MAR        0.000000             -0.00000\nBUCKMAN 10      APR        0.000000             -0.00000\nBUCKMAN 10      MAY        0.181063             -0.00147\nBUCKMAN 10      JUN        0.067515             -0.00057\nBUCKMAN 10      JUL       60.269437             -0.49009\nBUCKMAN 10      AUG       44.219274             -0.35958\nBUCKMAN 10      SEP       24.102865             -0.20253\nBUCKMAN 10      OCT       10.084290             -0.08200\nBUCKMAN 10      NOV        0.076722             -0.00064\nBUCKMAN 10      DEC       12.235564             -0.09950\nBUCKMAN 11      JAN        0.000000             -0.00000\nBUCKMAN 11      FEB        0.000000             -0.00000\nBUCKMAN 11      MAR        0.000000             -0.00000\nBUCKMAN 11      APR        0.000000             -0.00000\nBUCKMAN 11      MAY        0.000000             -0.00000\nBUCKMAN 11      JUN        0.058308             -0.00049\nBUCKMAN 11      JUL        0.055240             -0.00045\nBUCKMAN 11      AUG        0.052171             -0.00042\nBUCKMAN 11      SEP        7.294692             -0.06130\nBUCKMAN 11      OCT        0.000000             -0.00000\nBUCKMAN 11      NOV        3.612054             -0.03035\nBUCKMAN 11      DEC        2.547158             -0.02071\nBUCKMAN 12      JAN        0.000000             -0.00000\nBUCKMAN 12      FEB        0.000000             -0.00000\nBUCKMAN 12      MAR        0.000000             -0.00000\nBUCKMAN 12      APR        0.000000             -0.00000\nBUCKMAN 12      MAY        0.000000             -0.00000\nBUCKMAN 12      JUN        0.082859             -0.00070\nBUCKMAN 12      JUL        0.000000             -0.00000\nBUCKMAN 12      AUG        5.112729             -0.04158\nBUCKMAN 12      SEP        3.025901             -0.02543\nBUCKMAN 12      OCT        0.199476             -0.00162\nBUCKMAN 12      NOV        0.076722             -0.00064\nBUCKMAN 12      DEC        1.304268             -0.01061\nBUCKMAN 13      JAN        0.000000             -0.00000\nBUCKMAN 13      FEB        0.000000             -0.00000\nBUCKMAN 13      MAR        0.000000             -0.00000\nBUCKMAN 13      APR        0.000000             -0.00000\nBUCKMAN 13      MAY        0.000000             -0.00000\nBUCKMAN 13      JUN       34.985059             -0.29397\nBUCKMAN 13      JUL       57.995408             -0.47160\nBUCKMAN 13      AUG       69.509789             -0.56523\nBUCKMAN 13      SEP       15.651211             -0.13151\nBUCKMAN 13      OCT       31.538724             -0.25646\nBUCKMAN 13      NOV        0.294611             -0.00248\nBUCKMAN 13      DEC        2.043864             -0.01662\n----------------------------------------------------------------------\n\nAnnual Totals (acre-feet):\n  BUCKMAN 1             601.28 AF\n  BUCKMAN 2               0.01 AF\n  BUCKMAN 3A             56.23 AF\n  BUCKMAN 4              63.34 AF\n  BUCKMAN 5               0.00 AF\n  BUCKMAN 6             152.22 AF\n  BUCKMAN 7               1.00 AF\n  BUCKMAN 8             111.47 AF\n  BUCKMAN 9               0.52 AF\n  BUCKMAN 10            151.42 AF\n  BUCKMAN 11             13.62 AF\n  BUCKMAN 12              9.80 AF\n  BUCKMAN 13            212.02 AF\n  TOTAL                1372.92 AF\n======================================================================\n\n[8/8] Validating against known-good files...\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n\n\u2713 All steps completed successfully!\n"
+      },
+      "teardown": {
+        "duration": 0.00019285999587737024,
+        "outcome": "passed"
+      }
+    },
+    {
+      "nodeid": "tests/test_update_modflow.py::test_script_runs_end_to_end",
+      "lineno": 1219,
+      "outcome": "passed",
+      "keywords": [
+        "test_script_runs_end_to_end",
+        "test_update_modflow.py",
+        "layer0",
+        "tests",
+        "buckman",
+        ""
+      ],
+      "setup": {
+        "duration": 0.0003133790014544502,
+        "outcome": "passed"
+      },
+      "call": {
+        "duration": 0.039272944995900616,
+        "outcome": "passed"
+      },
+      "teardown": {
+        "duration": 0.00035955599742010236,
+        "outcome": "passed"
+      }
+    }
+  ]
+}

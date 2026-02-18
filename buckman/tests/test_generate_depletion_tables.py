@@ -12,6 +12,9 @@ import pytest
 import shutil
 from pathlib import Path
 
+# Apply Layer 0 marker to all tests in this file
+pytestmark = pytest.mark.layer0
+
 
 def test_module_imports():
     """Verify module imports without syntax errors."""

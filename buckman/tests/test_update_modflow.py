@@ -8,6 +8,9 @@ They catch mechanical failures, not hydrological errors.
 import calendar
 import pytest
 
+# Apply Layer 0 marker to all tests in this file
+pytestmark = pytest.mark.layer0
+
 
 def test_module_imports():
     """Verify module imports without syntax errors."""

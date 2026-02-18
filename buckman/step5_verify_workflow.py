@@ -389,31 +389,42 @@ def main() -> int:
         print(f"\n⚠️  {total_checks - total_passed} verification(s) failed")
         exit_code = 1
 
-    # Generate provenance manifest (Layer 6)
+    # Run full test suite via run_all_tests.py (includes manifest generation)
     if not args.no_manifest:
-        print_section("PROVENANCE MANIFEST")
-        try:
-            from src.pipeline_manifest import (
-                HashMismatchError,
-                PipelineManifest,
-                print_manifest_summary,
-            )
+        print_section("FULL TEST SUITE (via run_all_tests.py)")
+        print("Note: Manifest generation delegated to run_all_tests.py")
+        print("      To skip tests and only verify files, use --no-manifest")
 
-            manifest_gen = PipelineManifest(
-                year=args.year,
-                project_root=Path(__file__).parent,
-                allow_hash_mismatch=args.allow_hash_mismatch,
-            )
-            manifest = manifest_gen.generate()
-            manifest_path = manifest_gen.save(manifest)
-            print_manifest_summary(manifest)
-        except HashMismatchError as e:
-            print(f"❌ {e}")
-            return 2
-        except ImportError as e:
-            print(f"⚠️  Manifest generation skipped: {e}")
-        except Exception as e:
-            print(f"⚠️  Manifest generation failed: {e}")
+        cmd = ["python3", "run_all_tests.py", "--year", str(args.year)]
+        if args.allow_hash_mismatch:
+            # run_all_tests.py handles this internally
+            pass
+        if args.verbose:
+            cmd.append("--verbose")
+
+        # Let output go to console (capture_output=False)
+        result = subprocess.run(cmd, capture_output=False, cwd=Path(__file__).parent)
+
+        # Interpret exit codes from run_all_tests.py
+        if result.returncode == 3:
+            print("\n" + "=" * 70)
+            print("CRITICAL: BALLPARK CHECK PHYSICS VIOLATION")
+            print("   Outputs should NOT be used.")
+            print("   This indicates a fundamental error in input data or model setup.")
+            print("=" * 70)
+            return 3
+        elif result.returncode == 1:
+            print("\n" + "=" * 70)
+            print("WARNING: TEST FAILURES DETECTED")
+            print("   Review failures before using outputs for compliance.")
+            print("   See test output above for details.")
+            print("=" * 70)
+            return 1
+        else:
+            print("\n✓ All hard-stop tests passed.")
+            # Update exit_code but don't override if file checks failed
+            if exit_code == 0:
+                exit_code = result.returncode
 
     return exit_code
 
