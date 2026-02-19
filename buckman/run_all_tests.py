@@ -852,6 +852,39 @@ Examples:
     # Print summary
     print_summary(results, args.verbose)
 
+    # Generate workflow log (regulatory compliance artifact)
+    try:
+        from src.workflow_logger import WorkflowLogger
+
+        # Determine status from exit code
+        if results.exit_code == 0:
+            if results.flags:
+                log_status = "FLAGS"
+            else:
+                log_status = "PASS"
+        elif results.exit_code == 3:
+            log_status = "FAIL"  # Physics violation
+        else:
+            log_status = "FAIL"
+
+        logger = WorkflowLogger(year=args.year, project_root=PROJECT_ROOT)
+        md_path, docx_path = logger.generate_and_save(status=log_status)
+
+        print()
+        print("=" * 70)
+        print("WORKFLOW LOG GENERATED")
+        print("=" * 70)
+        print(f"  Markdown: {md_path}")
+        print(f"  DOCX:     {docx_path}")
+        print()
+        print("This log documents the complete audit trail for regulatory compliance.")
+        print("=" * 70)
+
+    except ImportError as e:
+        print(f"\nWARNING: Workflow log generation skipped: {e}")
+    except Exception as e:
+        print(f"\nWARNING: Workflow log generation failed: {e}")
+
     return results.exit_code
 
 
