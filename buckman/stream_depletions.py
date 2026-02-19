@@ -1404,7 +1404,7 @@ def write_table4_xlsx(
         Compare generated file to validation/TABLE 4 - Rio Grande, above below Otowi.xlsx
     """
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Border, Font, Side
+    from openpyxl.styles import Alignment, Font
     from openpyxl.utils import get_column_letter
 
     output_path = Path(output_path)
