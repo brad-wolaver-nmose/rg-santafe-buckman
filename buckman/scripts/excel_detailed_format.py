@@ -23,7 +23,7 @@ def get_color_info(color_obj):
         # Fallback to index
         if hasattr(color_obj, 'index'):
             return f"Index:{color_obj.index}"
-    except:
+    except Exception:
         pass
     return "Unknown"
 
@@ -43,7 +43,7 @@ def analyze_file(filepath):
         print("="*70)
 
         # Basic structure
-        print(f"\n### Structure")
+        print("\n### Structure")
         print(f"- Dimensions: {ws.max_row} rows × {ws.max_column} columns")
         print(f"- Range: A1:{get_column_letter(ws.max_column)}{ws.max_row}")
 
@@ -58,7 +58,7 @@ def analyze_file(filepath):
                 print(f"  - {merged}")
 
         # Column widths
-        print(f"\n### Column Widths")
+        print("\n### Column Widths")
         width_groups = {}
         for col_num in range(1, ws.max_column + 1):
             col_letter = get_column_letter(col_num)
@@ -78,8 +78,8 @@ def analyze_file(filepath):
                 print(f"  - {cols[0][1]}-{cols[-1][1]} ({len(cols)} cols): {width}")
 
         # Header row
-        print(f"\n### Header Row (Row 1)")
-        print(f"Columns:")
+        print("\n### Header Row (Row 1)")
+        print("Columns:")
         for col_num in range(1, ws.max_column + 1):
             cell = ws.cell(row=1, column=col_num)
             col_letter = get_column_letter(col_num)
@@ -88,8 +88,8 @@ def analyze_file(filepath):
 
         # Header formatting (from A1)
         cell = ws.cell(row=1, column=1)
-        print(f"\nHeader Format (A1 example):")
-        print(f"  Font:")
+        print("\nHeader Format (A1 example):")
+        print("  Font:")
         print(f"    - Name: {cell.font.name}")
         print(f"    - Size: {cell.font.size}")
         print(f"    - Bold: {cell.font.bold}")
@@ -98,7 +98,7 @@ def analyze_file(filepath):
             print(f"    - Color: {get_color_info(cell.font.color)}")
 
         if cell.fill and cell.fill.fill_type:
-            print(f"  Fill:")
+            print("  Fill:")
             print(f"    - Type: {cell.fill.fill_type}")
             if cell.fill.start_color:
                 print(f"    - Start Color: {get_color_info(cell.fill.start_color)}")
@@ -106,11 +106,11 @@ def analyze_file(filepath):
                 print(f"    - End Color: {get_color_info(cell.fill.end_color)}")
 
         if cell.alignment:
-            print(f"  Alignment:")
+            print("  Alignment:")
             print(f"    - Horizontal: {cell.alignment.horizontal}")
             print(f"    - Vertical: {cell.alignment.vertical}")
             if cell.alignment.wrap_text:
-                print(f"    - Wrap Text: True")
+                print("    - Wrap Text: True")
 
         if cell.border:
             borders = []
@@ -126,7 +126,7 @@ def analyze_file(filepath):
                 print(f"  Borders: {', '.join(borders)}")
 
         # Data rows - sample first few
-        print(f"\n### Data Rows (Rows 2-6)")
+        print("\n### Data Rows (Rows 2-6)")
         for row_num in range(2, min(7, ws.max_row + 1)):
             print(f"\nRow {row_num}:")
 
@@ -168,7 +168,7 @@ def analyze_file(filepath):
             cell = ws.cell(row=ws.max_row, column=1)
             print(f"  A{ws.max_row}: '{cell.value}'")
             if cell.font.bold:
-                print(f"    - Font: BOLD")
+                print("    - Font: BOLD")
 
             # Check for formulas
             for col_num in range(2, min(ws.max_column + 1, 6)):
@@ -181,7 +181,7 @@ def analyze_file(filepath):
                         print(f"  {col_letter}{ws.max_row}: {cell.value}")
 
         # Number formats in use
-        print(f"\n### Number Formats Used")
+        print("\n### Number Formats Used")
         formats_used = set()
         for row_num in range(1, min(ws.max_row + 1, 20)):
             for col_num in range(1, ws.max_column + 1):

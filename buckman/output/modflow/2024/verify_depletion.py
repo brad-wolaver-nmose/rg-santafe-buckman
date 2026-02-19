@@ -22,7 +22,6 @@ Outputs:
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Auto-detect year from directory name
 SCRIPT_DIR = Path(__file__).parent
@@ -47,7 +46,7 @@ SUMMARY_ROWS = ["R POJOAQUE", "R TESUQUE", "RIO GRANDE", "RIV  TOTAL", "LC SPRIN
 MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 
 
-def parse_year_summary(content: str, year: int) -> Dict[str, List[float]]:
+def parse_year_summary(content: str, year: int) -> dict[str, list[float]]:
     """
     Extract summary row values for a specific year.
 
@@ -75,7 +74,7 @@ def parse_year_summary(content: str, year: int) -> Dict[str, List[float]]:
     section = content[start:end]
 
     # Parse summary rows
-    results: Dict[str, List[float]] = {}
+    results: dict[str, list[float]] = {}
 
     for label in SUMMARY_ROWS:
         # Match line starting with "0" followed by label
@@ -89,7 +88,7 @@ def parse_year_summary(content: str, year: int) -> Dict[str, List[float]]:
     return results
 
 
-def check_file_structure(filepath: Path) -> Tuple[bool, str]:
+def check_file_structure(filepath: Path) -> tuple[bool, str]:
     """Check file has expected structure."""
     if not filepath.exists():
         return False, f"File not found: {filepath}"
@@ -116,7 +115,7 @@ def main() -> int:
     print("=" * 70)
 
     all_passed = True
-    md_lines: List[str] = []
+    md_lines: list[str] = []
 
     # Markdown header
     md_lines.append(f"# Depletion Output Verification (CY{TARGET_YEAR})")
@@ -138,8 +137,8 @@ def main() -> int:
     ok_target, msg_target = check_file_structure(DEP_TARGET)
     print(f"CY{TARGET_YEAR}: {msg_target}")
 
-    md_lines.append(f"| File | Status |")
-    md_lines.append(f"|------|--------|")
+    md_lines.append("| File | Status |")
+    md_lines.append("|------|--------|")
     md_lines.append(f"| CY{TARGET_YEAR}_dep | {msg_target} |")
 
     if not ok_target:
@@ -183,7 +182,7 @@ def main() -> int:
 
     if not DEP_TARGET.exists():
         print(f"ERROR: Target file not found: {DEP_TARGET}")
-        md_lines.append(f"**ERROR:** Target file not found")
+        md_lines.append("**ERROR:** Target file not found")
         return 1
 
     content_target = DEP_TARGET.read_text()
@@ -242,7 +241,7 @@ def main() -> int:
     md_lines.append("")
 
     # Monthly breakdown for RIO GRANDE (primary metric)
-    print(f"\n--- RIO GRANDE Monthly Comparison ---")
+    print("\n--- RIO GRANDE Monthly Comparison ---")
     print(f"{'Month':<6} {f'{SOURCE_YEAR}':>12} {f'{TARGET_YEAR}':>12} {'Diff %':>10}")
     print("-" * 45)
 

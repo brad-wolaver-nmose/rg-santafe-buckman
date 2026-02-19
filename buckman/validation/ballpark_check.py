@@ -62,7 +62,7 @@ def load_bounds(bounds_path: Path) -> dict:
     if not bounds_path.exists():
         raise FileNotFoundError(f"Bounds file not found: {bounds_path}")
 
-    with open(bounds_path, "r") as f:
+    with open(bounds_path) as f:
         return yaml.safe_load(f)
 
 
@@ -578,11 +578,11 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         0 if all checks pass, 2 if soft flags, 3 if hard fails.
         (Exit code 1 is reserved for Python exceptions/crashes)
     """
-    print(f"=" * 60)
+    print("=" * 60)
     print(f"BALLPARK CHECK: Year {year}")
     print(f"Outputs directory: {outputs_dir}")
     print(f"Bounds file: {bounds_path}")
-    print(f"=" * 60)
+    print("=" * 60)
     print()
 
     # Load bounds

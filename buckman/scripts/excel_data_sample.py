@@ -3,7 +3,6 @@ Extract sample data from validation Excel files to show structure.
 """
 
 import openpyxl
-from openpyxl.utils import get_column_letter
 
 
 def show_data_sample(filepath):

@@ -17,7 +17,6 @@ import calendar
 from pathlib import Path
 from typing import Any
 
-
 # =============================================================================
 # CONFIGURATION CONSTANTS
 # =============================================================================
@@ -347,8 +346,8 @@ def print_residual_verification(year: int = 2024) -> None:
     print(f"\n=== {year} Core (2003) Analytical Model Residuals ===")
     print(f"Rio Pojoaque-Nambe: {pojoaque_residual:.3f} AF")
     print(f"Rio Tesuque:        {tesuque_residual:.3f} AF")
-    print(f"Note: Pojoaque residual exhausted after 2015 (now 0)")
-    print(f"      Tesuque residual continues through 2050+")
+    print("Note: Pojoaque residual exhausted after 2015 (now 0)")
+    print("      Tesuque residual continues through 2050+")
 
 
 # =============================================================================
@@ -390,7 +389,7 @@ def parse_postprocessor_output(file_path: str | Path) -> dict[int, dict[str, dic
     result: dict[int, dict[str, dict[str, float]]] = {}
     current_year: int | None = None
 
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         for line in f:
             # Check for year header: "YEAR: 2024        jan         feb ..."
             year_match = re.match(r"YEAR:\s+(\d{4})\s+jan", line)
@@ -912,12 +911,12 @@ def generate_table4_data(
 
     # Sort cells: first non-Otowi cells, then above Otowi, then below Otowi
     # Within each group, sort by (row, col)
-    non_otowi_cells = [(l, r, c) for l, r, c in all_cells
-                       if f"{l} {r} {c}" not in above_keys and f"{l} {r} {c}" not in below_keys]
-    above_cells_sorted = sorted([(l, r, c) for l, r, c in all_cells
-                                  if f"{l} {r} {c}" in above_keys], key=lambda x: (x[1], x[2]))
-    below_cells_sorted = sorted([(l, r, c) for l, r, c in all_cells
-                                  if f"{l} {r} {c}" in below_keys], key=lambda x: (x[1], x[2]))
+    non_otowi_cells = [(lay, r, c) for lay, r, c in all_cells
+                       if f"{lay} {r} {c}" not in above_keys and f"{lay} {r} {c}" not in below_keys]
+    above_cells_sorted = sorted([(lay, r, c) for lay, r, c in all_cells
+                                  if f"{lay} {r} {c}" in above_keys], key=lambda x: (x[1], x[2]))
+    below_cells_sorted = sorted([(lay, r, c) for lay, r, c in all_cells
+                                  if f"{lay} {r} {c}" in below_keys], key=lambda x: (x[1], x[2]))
 
     # Build ordered cell list matching validation file structure
     # Based on validation, order is: non-Otowi first, then Above sorted, then Below sorted
@@ -1008,13 +1007,13 @@ def print_table4_verification(table4_data: dict[str, Any], year: int = 2024) -> 
     print(f"Cells: {len(cell_data)} total ({above_count} above, {below_count} below, {other_count} other)")
 
     # Otowi depletions (AF)
-    print(f"\nRio Grande Depletions (Acre-Feet):")
+    print("\nRio Grande Depletions (Acre-Feet):")
     print(f"  Above Otowi:  {table4_data['above_otowi_annual_af']:>10.3f} AF")
     print(f"  Below Otowi:  {table4_data['below_otowi_annual_af']:>10.3f} AF")
     print(f"  Total RG:     {table4_data['total_rg_annual_af']:>10.3f} AF")
 
     # Buckman wells
-    print(f"\nBuckman Wells (Row 13, Col 11):")
+    print("\nBuckman Wells (Row 13, Col 11):")
     print(f"  Annual Total: {table4_data['buckman_annual_af']:>10.3f} AF")
 
     # Monthly breakdown (first 3 months as sample)
@@ -1244,7 +1243,6 @@ def write_table3_xlsx(
     hair_side = Side(style='hair')
     medium_border = Border(top=medium_side, bottom=medium_side)
     hair_border = Border(top=hair_side, bottom=hair_side)
-    hair_bottom = Border(bottom=hair_side)
 
     # Number format for acre-feet (3 decimal places)
     num_fmt_3 = '0.000'
@@ -1424,11 +1422,6 @@ def write_table4_xlsx(
     font_header = Font(name='Aptos', size=11, bold=True)
     font_normal = Font(name='Aptos', size=11, bold=False)
     align_center = Alignment(horizontal='center')
-    align_left = Alignment(horizontal='left')
-
-    # Border styles
-    hair_side = Side(style='hair')
-    hair_border = Border(bottom=hair_side)
 
     # Number formats
     num_fmt_6 = '0.000000'  # 6 decimal places for cfs
@@ -1470,33 +1463,14 @@ def write_table4_xlsx(
     # Calculate row numbers for key sections
     cell_data_end_row = 1 + len(cell_data)  # Row after last cell data
 
-    # Find first and last Above/Below Otowi rows for formulas
-    above_rows: list[int] = []
-    below_rows: list[int] = []
-    for row_idx, cell_info in enumerate(cell_data, start=2):
-        if cell_info["otowi"] == "above":
-            above_rows.append(row_idx)
-        elif cell_info["otowi"] == "below":
-            below_rows.append(row_idx)
-
-    above_first = min(above_rows) if above_rows else 20
-    above_last = max(above_rows) if above_rows else 29
-    below_first = min(below_rows) if below_rows else 30
-    below_last = max(below_rows) if below_rows else 45
-
     # Rows 46-50: Stream summaries
     # Format: KEY, YEAR, then stream name split across COL 3-5, then monthly values
     stream_row_start = cell_data_end_row + 1
     stream_names = ["RIO GRANDE", "R POJOAQUE", "LC SPRINGS", "R TESUQUE", "RIV TOTAL"]
     stream_keys = [2135, 2133, 2137, 2134, 2136]  # From validation
 
-    rio_grande_row = stream_row_start  # Need this for Total RG reported formula
-
     for i, stream_name in enumerate(stream_names):
         row = stream_row_start + i
-        if stream_name == "RIO GRANDE":
-            rio_grande_row = row
-
         ws.cell(row=row, column=1, value=stream_keys[i]).font = font_normal
         ws.cell(row=row, column=2, value=year).font = font_normal
 
@@ -1968,14 +1942,6 @@ def validate_table4(
     # Also check monthly values for Above Otowi (columns F-Q = 6-17)
     valid_above_monthly = [
         ws.cell(row=56, column=c).value or 0.0 for c in range(6, 18)
-    ]
-
-    valid_below_monthly = [
-        ws.cell(row=57, column=c).value or 0.0 for c in range(6, 18)
-    ]
-
-    valid_buckman_monthly = [
-        ws.cell(row=60, column=c).value or 0.0 for c in range(6, 18)
     ]
 
     # Get generated values (keys are at top level of generated_data)

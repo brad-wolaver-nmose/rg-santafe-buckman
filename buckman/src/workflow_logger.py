@@ -28,10 +28,8 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
-
 
 # =============================================================================
 # CONSTANTS
@@ -149,7 +147,7 @@ LA_CIENEGA_TEMPLATE = """
 """
 
 ASSUMPTIONS_TEMPLATE = """
-## Assumptions and Limitations
+## 8. Assumptions and Limitations
 
 ### MODFLOW96 Superposition Model
 - Linear superposition assumes aquifer response is proportional to pumping
@@ -413,46 +411,95 @@ class WorkflowLogger:
             return {"total_af": 0.0, "error": str(e)}
 
     def collect_depletion_data(self) -> dict:
-        """Extract depletion values from Tables 3-5."""
+        """Extract depletion values from Tables 3-5 by parsing actual XLSX files."""
         depletion_dir = self.project_root / "output/depletion"
-        data = {}
+        data: dict = {}
 
-        # Table 3 - Tributaries
+        # Table 3 - Tributaries (Rio Pojoaque & Rio Tesuque)
+        # Structure: Year | Pojoaque Residual | Pojoaque Super | Pojoaque Total |
+        #                 | Tesuque Residual  | Tesuque Super  | Tesuque Total
         for table3_path in depletion_dir.glob(f"TABLE_3_*{self.year}.xlsx"):
             try:
                 df = pd.read_excel(table3_path)
-                # Extract annual totals (last row typically contains totals)
-                data["pojoaque_af"] = 60.80  # Default for 2024
-                data["tesuque_af"] = 33.58   # Default for 2024
-                data["pojoaque_residual"] = 0.0  # 2015 onward
-                data["tesuque_residual"] = 12.88 if self.year == 2024 else 12.39
-            except Exception:
-                pass
+                # Column names after header row (row 0 has sub-headers)
+                # Unnamed: 0 = Year
+                # Unnamed: 3 = Pojoaque Total Impact
+                # Unnamed: 6 = Tesuque Total Impact
+                # Rio Pojoaque-Rio Nambe = Pojoaque Residual
+                # Rio Tesuque = Tesuque Residual
 
-        # Table 4 - Rio Grande
+                # Find the row for target year (skip header row 0)
+                year_col = df.columns[0]  # "Unnamed: 0" or "Year"
+                year_row = df[df[year_col] == self.year]
+
+                if not year_row.empty:
+                    # Pojoaque values (columns 1-3)
+                    pojoaque_residual = year_row.iloc[0, 1]  # Rio Pojoaque-Rio Nambe
+                    pojoaque_total = year_row.iloc[0, 3]     # Unnamed: 3 (Total)
+
+                    # Tesuque values (columns 4-6)
+                    tesuque_residual = year_row.iloc[0, 4]   # Rio Tesuque
+                    tesuque_total = year_row.iloc[0, 6]      # Unnamed: 6 (Total)
+
+                    # Handle NaN residuals (exhausted after 2015 for Pojoaque)
+                    data["pojoaque_af"] = float(pojoaque_total) if pd.notna(pojoaque_total) else 0.0
+                    data["pojoaque_residual"] = float(pojoaque_residual) if pd.notna(pojoaque_residual) else 0.0
+                    data["tesuque_af"] = float(tesuque_total) if pd.notna(tesuque_total) else 0.0
+                    data["tesuque_residual"] = float(tesuque_residual) if pd.notna(tesuque_residual) else 0.0
+            except Exception as e:
+                # Log error but continue - will use defaults if parsing fails
+                print(f"WARNING: Failed to parse Table 3: {e}")
+
+        # Table 4 - Rio Grande (Above/Below Otowi)
+        # Structure: Cell data rows, then summary rows with "Above Otowi"/"Below Otowi" labels
+        # The annual total is in the "Otowi" column (not "Total")
         for table4_path in depletion_dir.glob(f"TABLE_4_*{self.year}.xlsx"):
             try:
                 df = pd.read_excel(table4_path)
-                data["above_otowi_af"] = 101.43  # Default for 2024
-                data["below_otowi_af"] = 842.95  # Default for 2024
-            except Exception:
-                pass
 
-        # Table 5 - La Cienega
+                # Find rows with "Above Otowi" and "Below Otowi" in COL column
+                # Annual totals are in the "Otowi" column
+                if "COL" in df.columns and "Otowi" in df.columns:
+                    above_rows = df[df["COL"] == "Above Otowi"]
+                    below_rows = df[df["COL"] == "Below Otowi"]
+
+                    if not above_rows.empty:
+                        data["above_otowi_af"] = float(above_rows.iloc[0]["Otowi"])
+                    if not below_rows.empty:
+                        data["below_otowi_af"] = float(below_rows.iloc[0]["Otowi"])
+            except Exception as e:
+                print(f"WARNING: Failed to parse Table 4: {e}")
+
+        # Table 5 - La Cienega Springs (cumulative depletion)
+        # Structure: Year | Total (cumulative AF)
         for table5_path in depletion_dir.glob(f"TABLE_5_*{self.year}.xlsx"):
             try:
                 df = pd.read_excel(table5_path)
-                data["la_cienega_cumulative_af"] = 3.74  # Default for 2024
-                data["la_cienega_annual_af"] = 0.20      # Default for 2024
-            except Exception:
-                pass
+
+                # Find current year and previous year rows
+                if "Year" in df.columns and "Total" in df.columns:
+                    current_row = df[df["Year"] == self.year]
+                    prev_row = df[df["Year"] == (self.year - 1)]
+
+                    if not current_row.empty:
+                        cumulative = float(current_row.iloc[0]["Total"])
+                        data["la_cienega_cumulative_af"] = cumulative
+
+                        # Calculate annual increment
+                        if not prev_row.empty:
+                            prev_cumulative = float(prev_row.iloc[0]["Total"])
+                            data["la_cienega_annual_af"] = round(cumulative - prev_cumulative, 2)
+                        else:
+                            data["la_cienega_annual_af"] = cumulative  # First year
+            except Exception as e:
+                print(f"WARNING: Failed to parse Table 5: {e}")
 
         return data
 
     def collect_verification_results(self) -> dict:
         """Collect test results from JSON files."""
         results_dir = self.project_root / "output/test_results"
-        results = {"layers": [], "total_passed": 0, "total_failed": 0}
+        results: dict = {"layers": [], "total_passed": 0, "total_failed": 0}
 
         if not results_dir.exists():
             return results
@@ -489,7 +536,8 @@ class WorkflowLogger:
 
         try:
             with open(manifest_path) as f:
-                return json.load(f)
+                result: dict = json.load(f)
+                return result
         except Exception:
             return None
 
@@ -591,8 +639,8 @@ class WorkflowLogger:
         # Section 1: Metadata
         lines.append("## 1. Header / Metadata")
         lines.append("")
-        lines.append(f"| Field | Value |")
-        lines.append(f"|-------|-------|")
+        lines.append("| Field | Value |")
+        lines.append("|-------|-------|")
         lines.append(f"| **Run Timestamp** | {metadata['timestamp_human']} |")
         lines.append(f"| **Processing Year** | {metadata['year']} |")
         lines.append(f"| **Operator** | {metadata['operator']} |")
@@ -634,17 +682,17 @@ class WorkflowLogger:
         lines.append("")
         lines.append("### Step 1: Ingest Buckman Pumping Data")
         lines.append(f"- Input: `Buckman_Well_Prod_{self.year}.csv`")
-        lines.append(f"- Output: Tables 1 and 2 (historical and monthly pumping)")
+        lines.append("- Output: Tables 1 and 2 (historical and monthly pumping)")
         lines.append(f"- Records processed: {pumping_data.get('months_recorded', 12)} months")
         lines.append("")
 
         lines.append("### Step 2: Update MODFLOW Files")
-        lines.append(f"- Input: Prior year WEL file + Table 2 pumping data")
+        lines.append("- Input: Prior year WEL file + Table 2 pumping data")
         lines.append(f"- Output: `thruCY2165_{self.year}.wel`, `CY{self.year}.nam`")
         lines.append("")
 
         lines.append("### Step 3: Run MODFLOW96")
-        lines.append(f"- Executable: modflow96.exe (via Wine)")
+        lines.append("- Executable: modflow96.exe (via Wine)")
         lines.append(f"- Output: `CY{self.year}.lst`, flux files (.flx)")
         lines.append("")
 
@@ -836,7 +884,7 @@ def main():
         project_root=PROJECT_ROOT,
     )
 
-    print(f"Workflow log generated:")
+    print("Workflow log generated:")
     print(f"  Markdown: {md_path}")
     print(f"  DOCX: {docx_path}")
 

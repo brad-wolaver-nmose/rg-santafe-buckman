@@ -48,7 +48,7 @@ def summarize_excel(filepath):
                 print(f"  ... and {len(ws.merged_cells.ranges) - 5} more")
 
         # Column widths
-        print(f"\nCOLUMN WIDTHS:")
+        print("\nCOLUMN WIDTHS:")
         widths = {}
         for col_num in range(1, ws.max_column + 1):
             col_letter = get_column_letter(col_num)
@@ -63,7 +63,7 @@ def summarize_excel(filepath):
                 print(f"  {width}: {cols[0]}-{cols[-1]} ({len(cols)} columns)")
 
         # Header row analysis
-        print(f"\nHEADER ROW (Row 1):")
+        print("\nHEADER ROW (Row 1):")
         header_row = []
         for col_num in range(1, ws.max_column + 1):
             cell = ws.cell(row=1, column=col_num)
@@ -73,7 +73,7 @@ def summarize_excel(filepath):
 
         # Get unique formatting patterns from first cell
         cell = ws.cell(row=1, column=1)
-        print(f"\n  Header formatting (A1):")
+        print("\n  Header formatting (A1):")
         print(f"    Font: {cell.font.name}, Size: {cell.font.size}, Bold: {cell.font.bold}")
 
         font_color = get_color_str(cell.font.color)
@@ -98,7 +98,7 @@ def summarize_excel(filepath):
                 print(f"    Borders: {', '.join(borders)}")
 
         # Data row analysis (row 2)
-        print(f"\nDATA ROW FORMAT (Row 2):")
+        print("\nDATA ROW FORMAT (Row 2):")
         cell = ws.cell(row=2, column=1)
         print(f"  First column (A2): Value='{cell.value}'")
         print(f"    Font: Bold={cell.font.bold}, Size={cell.font.size}")
@@ -115,7 +115,7 @@ def summarize_excel(filepath):
                 break
 
         # Check for special formatting (colored rows, etc.)
-        print(f"\nSPECIAL FORMATTING:")
+        print("\nSPECIAL FORMATTING:")
         special_rows = []
         for row_num in range(2, min(ws.max_row + 1, 20)):
             cell = ws.cell(row=row_num, column=1)
@@ -125,15 +125,15 @@ def summarize_excel(filepath):
                     special_rows.append((row_num, fill_color))
 
         if special_rows:
-            print(f"  Colored rows detected:")
+            print("  Colored rows detected:")
             for row_num, color in special_rows[:5]:
                 cell_val = ws.cell(row=row_num, column=1).value
                 print(f"    Row {row_num} (Well {cell_val}): Fill color {color}")
         else:
-            print(f"  No special colored rows detected in first 20 rows")
+            print("  No special colored rows detected in first 20 rows")
 
         # Border patterns
-        print(f"\nBORDER PATTERNS:")
+        print("\nBORDER PATTERNS:")
         border_styles = set()
         for row_num in range(1, min(ws.max_row + 1, 10)):
             cell = ws.cell(row=row_num, column=1)
@@ -149,15 +149,13 @@ def summarize_excel(filepath):
             cell = ws.cell(row=ws.max_row, column=1)
             print(f"  A{ws.max_row}: '{cell.value}'")
             if cell.font.bold:
-                print(f"  Font: BOLD")
+                print("  Font: BOLD")
 
             # Check for sum formulas
-            has_formula = False
             for col_num in range(2, min(ws.max_column + 1, 5)):
                 cell = ws.cell(row=ws.max_row, column=col_num)
                 if isinstance(cell.value, str) and cell.value.startswith('='):
                     print(f"  {get_column_letter(col_num)}{ws.max_row}: Formula = {cell.value}")
-                    has_formula = True
                     break
 
     wb.close()

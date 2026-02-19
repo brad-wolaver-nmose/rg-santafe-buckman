@@ -11,10 +11,9 @@ This script examines all formatting details from Excel files including:
 - Conditional formatting
 """
 
+
 import openpyxl
 from openpyxl.utils import get_column_letter
-from openpyxl.styles import Font, Fill, Border, Alignment
-import sys
 
 
 def analyze_excel_file(filepath):
@@ -167,7 +166,7 @@ def analyze_excel_file(filepath):
                     print(f"\n{col_letter}{row_num}: {cell.value} (Format: {cell.number_format})")
 
         # Check last few rows
-        print(f"\n\n--- Last 3 rows ---")
+        print("\n\n--- Last 3 rows ---")
         for row_num in range(max(min_row, max_row - 2), max_row + 1):
             print(f"\nRow {row_num}:")
             for col_num in range(min_col, max_col + 1):

@@ -28,8 +28,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
 
 # =============================================================================
 # CONSTANTS
@@ -89,8 +87,8 @@ class TestResult:
     skipped: int
     duration_sec: float
     hard_fail: bool      # If True, contributes to non-zero exit
-    error_message: Optional[str] = None
-    failed_tests: List[str] = field(default_factory=list)
+    error_message: str | None = None
+    failed_tests: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -108,13 +106,13 @@ class Flag:
 class TestSuite:
     """Complete results of running all test layers."""
     year: int
-    results: List[TestResult]
-    flags: List[Flag]
-    manifest_path: Optional[Path]
+    results: list[TestResult]
+    flags: list[Flag]
+    manifest_path: Path | None
     start_time: datetime
-    end_time: Optional[datetime]
+    end_time: datetime | None
     exit_code: int
-    error_messages: List[str] = field(default_factory=list)
+    error_messages: list[str] = field(default_factory=list)
 
 
 # =============================================================================
@@ -180,12 +178,12 @@ def verify_script_exists(script_path: Path, description: str) -> None:
 # =============================================================================
 
 def run_subprocess_safely(
-    cmd: List[str],
+    cmd: list[str],
     description: str,
     timeout_sec: int = 120,
-    expected_codes: Optional[Dict[int, str]] = None,
-    cwd: Optional[Path] = None,
-) -> Tuple[int, str, str]:
+    expected_codes: dict[int, str] | None = None,
+    cwd: Path | None = None,
+) -> tuple[int, str, str]:
     """
     Run subprocess with timeout and robust error handling.
 
@@ -237,7 +235,7 @@ def run_subprocess_safely(
 
 def run_pytest_layer(
     layer_name: str,
-    pytest_args: List[str],
+    pytest_args: list[str],
     timeout_sec: int = 300,
     verbose: int = 0,
 ) -> TestResult:
@@ -314,7 +312,7 @@ def run_pytest_layer(
                 error_message=None,
                 failed_tests=failed_tests,
             )
-        except (json.JSONDecodeError, KeyError) as e:
+        except (json.JSONDecodeError, KeyError):
             # Fallback: parse exit code only
             pass
 
@@ -335,7 +333,7 @@ def run_pytest_layer(
 # LAYER 1 PREREQUISITES
 # =============================================================================
 
-def check_layer1_prerequisites(year: int) -> Tuple[bool, str]:
+def check_layer1_prerequisites(year: int) -> tuple[bool, str]:
     """
     Check if Layer 1 conservation tests can run.
 
@@ -377,7 +375,7 @@ def check_layer1_prerequisites(year: int) -> Tuple[bool, str]:
 # LAYER EXECUTION
 # =============================================================================
 
-def run_ballpark_check(year: int, verbose: int = 0) -> Tuple[int, List[str]]:
+def run_ballpark_check(year: int, verbose: int = 0) -> tuple[int, list[str]]:
     """
     Run ballpark check (fast sanity check).
 
@@ -419,7 +417,7 @@ def run_ballpark_check(year: int, verbose: int = 0) -> Tuple[int, List[str]]:
     return exit_code, messages
 
 
-def run_temporal_consistency(year: int, verbose: int = 0) -> Tuple[List[Flag], List[str]]:
+def run_temporal_consistency(year: int, verbose: int = 0) -> tuple[list[Flag], list[str]]:
     """
     Run Layer 2 temporal consistency checks.
 
@@ -468,7 +466,7 @@ def run_temporal_consistency(year: int, verbose: int = 0) -> Tuple[List[Flag], L
     return flags, messages
 
 
-def generate_manifest(year: int, test_results: List[TestResult], flags: List[Flag]) -> Optional[Path]:
+def generate_manifest(year: int, test_results: list[TestResult], flags: list[Flag]) -> Path | None:
     """
     Generate provenance manifest (Layer 6).
 
@@ -481,7 +479,7 @@ def generate_manifest(year: int, test_results: List[TestResult], flags: List[Fla
         Path to generated manifest, or None if failed.
     """
     try:
-        from src.pipeline_manifest import PipelineManifest, print_manifest_summary
+        from src.pipeline_manifest import PipelineManifest
 
         manifest_gen = PipelineManifest(
             year=year,

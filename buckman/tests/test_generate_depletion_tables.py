@@ -8,9 +8,8 @@ Tests focus on:
 - Basic functionality executes without crashes
 """
 
+
 import pytest
-import shutil
-from pathlib import Path
 
 # Apply Layer 0 marker to all tests in this file
 pytestmark = pytest.mark.layer0
@@ -18,7 +17,6 @@ pytestmark = pytest.mark.layer0
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import step4_generate_depletion_tables
 
 
 def test_copy_flux_files_exists():
@@ -42,13 +40,9 @@ def test_main_exists():
 def test_constants_defined():
     """Verify configuration constants are defined."""
     from step4_generate_depletion_tables import (
-        MODFLOW_OUTPUT_DIR,
-        DEPLETIONS_DIR,
-        OUTPUT_DIR,
-        VALIDATION_DIR,
-        YEAR,
-        RIV_FLUX_FILE,
         GHB_FLUX_FILE,
+        RIV_FLUX_FILE,
+        YEAR,
     )
     assert YEAR == 2024
     assert RIV_FLUX_FILE == "CY2024_riv.flx"
@@ -102,8 +96,8 @@ def test_run_post_processor_exists():
 def test_us002_constants_defined():
     """Verify US-002 configuration constants are defined."""
     from step4_generate_depletion_tables import (
-        POST_PROCESSOR_EXE,
         OUTPUT_FILE_PREFIX,
+        POST_PROCESSOR_EXE,
     )
     assert POST_PROCESSOR_EXE == "sfmodflx_2245.exe"
     assert OUTPUT_FILE_PREFIX == "CY2024"
@@ -180,7 +174,7 @@ def test_parse_post_processor_output_has_stream_data():
 
 def test_parse_post_processor_output_has_monthly_values():
     """Verify parsed data contains all 12 months for streams."""
-    from step4_generate_depletion_tables import parse_post_processor_output, MONTH_NAMES
+    from step4_generate_depletion_tables import MONTH_NAMES, parse_post_processor_output
     result = parse_post_processor_output()
     if result and 2024 in result:
         year_data = result[2024]
@@ -272,9 +266,9 @@ def test_extract_stream_depletions_2024_returns_dict():
 def test_extract_stream_depletions_2024_has_all_streams():
     """Verify result contains all 5 stream names."""
     from step4_generate_depletion_tables import (
+        STREAM_NAMES,
         extract_stream_depletions_2024,
         parse_post_processor_output,
-        STREAM_NAMES,
     )
     parsed_data = parse_post_processor_output()
     if parsed_data and 2024 in parsed_data:
@@ -295,7 +289,7 @@ def test_extract_stream_depletions_2024_has_12_months():
         for stream_name, monthly_values in result.items():
             assert len(monthly_values) == 12, f"{stream_name} should have 12 months"
             for value in monthly_values:
-                assert isinstance(value, float), f"Values should be float"
+                assert isinstance(value, float), "Values should be float"
 
 
 def test_extract_stream_depletions_2024_sample_values():
@@ -340,8 +334,9 @@ def test_extract_stream_depletions_2024_missing_year():
 
 def test_main_accepts_year_parameter():
     """Verify main function accepts year parameter."""
-    from step4_generate_depletion_tables import main
     import inspect
+
+    from step4_generate_depletion_tables import main
     sig = inspect.signature(main)
     assert 'year' in sig.parameters
     # Default should be None (uses global YEAR)
@@ -350,8 +345,9 @@ def test_main_accepts_year_parameter():
 
 def test_main_returns_int():
     """Verify main returns an integer exit code."""
-    from step4_generate_depletion_tables import main
     import inspect
+
+    from step4_generate_depletion_tables import main
     # Check return type annotation
     sig = inspect.signature(main)
     assert sig.return_annotation == int

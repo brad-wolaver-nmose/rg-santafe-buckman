@@ -29,7 +29,7 @@ def inspect_colors(filepath):
         print(f"  Fill start_color type: {type(cell.fill.start_color)}")
         print(f"  Fill start_color.__dict__: {cell.fill.start_color.__dict__}")
 
-    print(f"\n\nData Rows (Rows 2-6) Colors:")
+    print("\n\nData Rows (Rows 2-6) Colors:")
     for row_num in range(2, 7):
         cell = ws.cell(row=row_num, column=1)
         print(f"\nA{row_num} (Well '{cell.value}'):")

@@ -432,7 +432,7 @@ class TestFileOperations:
 
     def test_output_directory_created(self, tmp_path):
         """Missing output dir is created automatically."""
-        from step2_update_modflow import write_updated_wel_file, WelFileData
+        from step2_update_modflow import WelFileData, write_updated_wel_file
 
         # Create minimal WelFileData
         wel_data = WelFileData(
@@ -465,7 +465,7 @@ class TestFileOperations:
 
     def test_output_file_overwrite(self, tmp_path):
         """Existing output file is overwritten without error."""
-        from step2_update_modflow import write_updated_wel_file, WelFileData
+        from step2_update_modflow import WelFileData, write_updated_wel_file
 
         output_dir = tmp_path / "output"
         output_dir.mkdir()

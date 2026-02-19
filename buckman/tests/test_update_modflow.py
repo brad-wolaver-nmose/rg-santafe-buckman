@@ -6,6 +6,7 @@ These tests support the Ralph iterate-until-pass loop.
 They catch mechanical failures, not hydrological errors.
 """
 import calendar
+
 import pytest
 
 # Apply Layer 0 marker to all tests in this file
@@ -14,7 +15,6 @@ pytestmark = pytest.mark.layer0
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import step2_update_modflow
 
 
 def test_convert_function_exists():
@@ -65,7 +65,7 @@ def test_leap_year_february():
     from step2_update_modflow import convert_af_to_ft3s
 
     days_feb_2024 = calendar.monthrange(2024, 2)[1]
-    assert days_feb_2024 == 29, f"2024 is a leap year, February should have 29 days"
+    assert days_feb_2024 == 29, "2024 is a leap year, February should have 29 days"
 
     result = convert_af_to_ft3s(
         acre_feet=0.199476, days_in_month=days_feb_2024, num_layers=2
@@ -243,7 +243,7 @@ def test_parse_wel_file_function_exists():
 
 def test_parse_wel_file_returns_welfiledata():
     """Verify parse_wel_file returns WelFileData object with all sections."""
-    from step2_update_modflow import parse_wel_file, WelFileData
+    from step2_update_modflow import WelFileData, parse_wel_file
 
     result = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
 
@@ -537,10 +537,9 @@ def test_generate_well_entries_matches_validation_jan():
 
     This is a key integration test that verifies the format matches exactly.
     """
-    from step2_update_modflow import (
-        generate_well_entries, read_table2_pumping_data
-    )
     from pathlib import Path
+
+    from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
     pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
     # Use \n line ending for comparison (Python strips \r in text mode)
@@ -548,7 +547,7 @@ def test_generate_well_entries_matches_validation_jan():
 
     # Read validation file JAN 2024 section (lines 8798-8824)
     validation_path = Path("validation/modflow/2024/thruCY2165_2024.wel")
-    with open(validation_path, "r") as f:
+    with open(validation_path) as f:
         all_lines = f.readlines()
 
     # JAN 2024 is first month, so generated_lines[0:27]
@@ -610,8 +609,10 @@ def test_write_updated_wel_file_exists():
 def test_write_updated_wel_file_creates_directory(tmp_path):
     """Verify function creates output directory if it doesn't exist."""
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file
+        generate_well_entries,
+        parse_wel_file,
+        read_table2_pumping_data,
+        write_updated_wel_file,
     )
 
     # Parse and generate data
@@ -636,8 +637,10 @@ def test_write_updated_wel_file_creates_directory(tmp_path):
 def test_write_updated_wel_file_line_count(tmp_path):
     """Verify written file has exactly 54,805 lines."""
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file
+        generate_well_entries,
+        parse_wel_file,
+        read_table2_pumping_data,
+        write_updated_wel_file,
     )
 
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
@@ -652,7 +655,7 @@ def test_write_updated_wel_file_line_count(tmp_path):
     )
 
     # Count lines in written file
-    with open(output_file, "r") as f:
+    with open(output_file) as f:
         line_count = sum(1 for _ in f)
 
     assert line_count == 54805, (
@@ -663,8 +666,10 @@ def test_write_updated_wel_file_line_count(tmp_path):
 def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
     """Verify pre-2024 section is preserved exactly."""
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file
+        generate_well_entries,
+        parse_wel_file,
+        read_table2_pumping_data,
+        write_updated_wel_file,
     )
 
     input_wel_path = "input/modflow/2023/thruCY2165.wel"
@@ -680,9 +685,9 @@ def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
     )
 
     # Read original and output files
-    with open(input_wel_path, "r") as f:
+    with open(input_wel_path) as f:
         original_lines = f.readlines()
-    with open(output_file, "r") as f:
+    with open(output_file) as f:
         output_lines = f.readlines()
 
     # Compare pre-2024 section (lines 1-8797)
@@ -695,8 +700,10 @@ def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
 def test_write_updated_wel_file_preserves_post_2024(tmp_path):
     """Verify post-2024 section is preserved exactly."""
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file
+        generate_well_entries,
+        parse_wel_file,
+        read_table2_pumping_data,
+        write_updated_wel_file,
     )
 
     input_wel_path = "input/modflow/2023/thruCY2165.wel"
@@ -712,9 +719,9 @@ def test_write_updated_wel_file_preserves_post_2024(tmp_path):
     )
 
     # Read original and output files
-    with open(input_wel_path, "r") as f:
+    with open(input_wel_path) as f:
         original_lines = f.readlines()
-    with open(output_file, "r") as f:
+    with open(output_file) as f:
         output_lines = f.readlines()
 
     # Compare post-2024 section (lines 9122-54805, indices 9121-)
@@ -794,7 +801,7 @@ def test_generate_nam_file_has_header_comments(tmp_path):
         output_filename="CY2024.nam"
     )
 
-    with open(result_path, "r") as f:
+    with open(result_path) as f:
         lines = f.readlines()
 
     # First 4 lines should be comments
@@ -819,7 +826,7 @@ def test_generate_nam_file_replaces_cy2023_with_cy2024(tmp_path):
         output_filename="CY2024.nam"
     )
 
-    with open(result_path, "r") as f:
+    with open(result_path) as f:
         content = f.read()
 
     # Should have CY2024 references
@@ -849,7 +856,7 @@ def test_generate_nam_file_replaces_wel_filename(tmp_path):
         output_filename="CY2024.nam"
     )
 
-    with open(result_path, "r") as f:
+    with open(result_path) as f:
         content = f.read()
 
     assert "thruCY2165_2024.wel" in content, (
@@ -876,7 +883,7 @@ def test_generate_nam_file_uppercase_package_types(tmp_path):
         output_filename="CY2024.nam"
     )
 
-    with open(result_path, "r") as f:
+    with open(result_path) as f:
         lines = f.readlines()
 
     # Skip comment lines
@@ -907,11 +914,11 @@ def test_generate_nam_file_matches_validation_content(tmp_path):
     )
 
     # Read generated file
-    with open(result_path, "r") as f:
+    with open(result_path) as f:
         gen_lines = f.readlines()
 
     # Read validation file
-    with open(validation_nam_path, "r") as f:
+    with open(validation_nam_path) as f:
         val_lines = f.readlines()
 
     # Filter out comment lines
@@ -1014,7 +1021,7 @@ def test_validate_nam_file_fails_for_missing_generated_file(tmp_path):
 
 def test_validate_nam_file_skips_for_missing_validation_file(tmp_path):
     """Verify validate_nam_file returns None (skip) for missing validation file."""
-    from step2_update_modflow import validate_nam_file, generate_nam_file
+    from step2_update_modflow import generate_nam_file, validate_nam_file
 
     # Generate a valid nam file
     generated_path = generate_nam_file(
@@ -1043,7 +1050,7 @@ def test_validate_wel_file_exists():
 
 def test_validate_wel_file_returns_validation_result():
     """Verify validate_wel_file returns ValidationResult object."""
-    from step2_update_modflow import validate_wel_file, ValidationResult
+    from step2_update_modflow import ValidationResult, validate_wel_file
 
     # Test with non-existent file (should return result with failure)
     result = validate_wel_file(
@@ -1068,9 +1075,11 @@ def test_validate_wel_file_full_pipeline(tmp_path):
     5. Validate against validation file
     """
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file,
-        validate_wel_file
+        generate_well_entries,
+        parse_wel_file,
+        read_table2_pumping_data,
+        validate_wel_file,
+        write_updated_wel_file,
     )
 
     # Generate the .wel file
@@ -1128,9 +1137,13 @@ def test_run_validation_full_pipeline(tmp_path):
     Integration test: Full validation pipeline with generated files.
     """
     from step2_update_modflow import (
-        parse_wel_file, read_table2_pumping_data,
-        generate_well_entries, write_updated_wel_file,
-        generate_nam_file, run_validation, get_year_config
+        generate_nam_file,
+        generate_well_entries,
+        get_year_config,
+        parse_wel_file,
+        read_table2_pumping_data,
+        run_validation,
+        write_updated_wel_file,
     )
 
     # Generate both files
@@ -1203,6 +1216,7 @@ def test_main_returns_zero_on_success():
     Integration test: main() should return 0 on success.
     """
     import sys
+
     from step2_update_modflow import main
 
     # Temporarily override argv to avoid argparse reading test runner args
@@ -1222,6 +1236,7 @@ def test_script_runs_end_to_end(capsys):
     Integration test: Full script runs and prints expected progress messages.
     """
     import sys
+
     from step2_update_modflow import main
 
     original_argv = sys.argv

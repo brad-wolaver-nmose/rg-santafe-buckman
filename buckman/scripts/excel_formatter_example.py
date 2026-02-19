@@ -6,7 +6,7 @@ documented in EXCEL_FORMAT_SPECIFICATIONS.md.
 """
 
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Border, Side, Alignment, Color
+from openpyxl.styles import Alignment, Border, Color, Font, PatternFill, Side
 
 
 def apply_table2_formatting(ws):

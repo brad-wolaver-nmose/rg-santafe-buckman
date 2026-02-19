@@ -40,7 +40,6 @@ from typing import Any
 import pandas as pd
 import yaml
 
-
 # =============================================================================
 # CONFIGURATION
 # =============================================================================
@@ -127,7 +126,7 @@ def verify_input_hashes() -> bool:
 
         if not file_path.exists():
             print(f"  FAIL: {filename}")
-            print(f"        File not found")
+            print("        File not found")
             all_passed = False
             continue
 
@@ -141,7 +140,7 @@ def verify_input_hashes() -> bool:
         actual_hash = compute_sha256(file_path)
         if actual_hash != expected_hash:
             print(f"  FAIL: {filename}")
-            print(f"        Hash mismatch!")
+            print("        Hash mismatch!")
             print(f"        Expected: {expected_hash}")
             print(f"        Actual:   {actual_hash}")
             all_passed = False
@@ -420,7 +419,7 @@ def compare_tables() -> dict[str, Any]:
         elif result["status"] == "SKIP":
             print(f"  Status: SKIP - {result['failures'][0]}")
         else:
-            print(f"  Status: FAIL")
+            print("  Status: FAIL")
             for failure in result["failures"][:5]:  # Show first 5 failures
                 print(f"    - {failure}")
             if len(result["failures"]) > 5:
@@ -453,7 +452,7 @@ def compare_tables() -> dict[str, Any]:
         elif result["status"] == "SKIP":
             print(f"  Status: SKIP - {result['failures'][0]}")
         else:
-            print(f"  Status: FAIL")
+            print("  Status: FAIL")
             for failure in result["failures"][:5]:
                 print(f"    - {failure}")
             if len(result["failures"]) > 5:

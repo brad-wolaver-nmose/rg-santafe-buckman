@@ -509,7 +509,7 @@ def verify_daily_sums(
     info_count = (severity == "INFO").sum()
     error_count = (severity == "ERROR").sum()
 
-    print(f"\nDaily sum verification:")
+    print("\nDaily sum verification:")
     print(f"  ✅ {ok_count} days OK (within {info_threshold_mgd:.4f} MGD)")
 
     if info_count > 0:
@@ -530,11 +530,11 @@ def verify_daily_sums(
             # Additional diagnostic for anomalous cases (all wells = 0 but BWP != 0)
             day_wells = daily_df_copy[daily_df_copy['Date'] == row['Date']][CSV_WELL_COLUMNS]
             if (day_wells.fillna(0) == 0).all().all() and row['BWP_Total'] != 0:
-                print(f"         ⚠️  All wells=0 but BWP≠0 - check CSV formula")
+                print("         ⚠️  All wells=0 but BWP≠0 - check CSV formula")
 
     # Show INFO-level details if present
     if info_count > 0 and info_count <= 10:
-        print(f"\n  INFO-level details (rounding differences):")
+        print("\n  INFO-level details (rounding differences):")
         info_rows = verification_df[verification_df['Severity'] == 'INFO']
         for _, row in info_rows.iterrows():
             print(f"    ⚪ {row['Date'].strftime('%Y-%m-%d')}: calc={row['Calculated_Sum']:.4f}, "
@@ -1799,15 +1799,15 @@ def check_prerequisites(year: int) -> bool:
     elif fallback_path.exists():
         print(f"  ✓ Using {year - 1} output as template: {fallback_path.name}")
     else:
-        print(f"  ⚠ WARNING: No template found!")
+        print("  ⚠ WARNING: No template found!")
         print(f"    - Primary: {validation_path.name} [NOT FOUND]")
         print(f"    - Fallback: {fallback_path} [NOT FOUND]")
-        print(f"    ⚠ Table 1 generation will fail unless template is created.")
+        print("    ⚠ Table 1 generation will fail unless template is created.")
 
     print("\n📦 Outputs (after completion):")
     print(f"  - {year}_Table_1_updated.xlsx (historical AFY by well)")
     print(f"  - {year}_Table_2_output.xlsx (monthly pumping)")
-    print(f"  - 12 monthly CSV files")
+    print("  - 12 monthly CSV files")
 
     print("\n➡️  Next Step:")
     print(f"  python3 step2_update_modflow.py --year {year}")

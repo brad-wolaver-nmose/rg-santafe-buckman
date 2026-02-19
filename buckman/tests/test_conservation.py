@@ -25,6 +25,7 @@ Usage:
 import argparse
 import calendar
 import csv
+import importlib.util
 import json
 import re
 from dataclasses import dataclass, field
@@ -32,12 +33,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-# Try importing openpyxl for XLSX parsing (optional for table sum checks)
-try:
-    import openpyxl
-    HAS_OPENPYXL = True
-except ImportError:
-    HAS_OPENPYXL = False
+import pytest
+
+# Check for openpyxl availability (optional for table sum checks)
+HAS_OPENPYXL = importlib.util.find_spec("openpyxl") is not None
 
 
 # =============================================================================
@@ -275,7 +274,7 @@ def parse_table2_pumping(table2_file: Path) -> dict[int, dict[str, float]]:
     if not table2_file.exists():
         return pumping
 
-    with open(table2_file, "r") as f:
+    with open(table2_file) as f:
         reader = csv.DictReader(f)
         for row in reader:
             well_str = row.get("Well", "")
@@ -681,7 +680,7 @@ def check_table2_sums(table2_file: Path, tolerance: float) -> list[dict]:
     if not table2_file.exists():
         return [{"error": f"File not found: {table2_file}"}]
 
-    with open(table2_file, "r") as f:
+    with open(table2_file) as f:
         reader = csv.DictReader(f)
         rows = list(reader)
 
@@ -899,7 +898,6 @@ def main() -> int:
 # =============================================================================
 # PYTEST INTEGRATION
 # =============================================================================
-import pytest
 
 # Apply Layer 1 conservation marker to all tests in this section
 pytestmark = pytest.mark.conservation

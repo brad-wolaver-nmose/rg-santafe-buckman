@@ -19,7 +19,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 # =============================================================================
 # CONFIGURATION CONSTANTS
 # =============================================================================
@@ -190,7 +189,7 @@ def copy_flux_files(year: int | None = None) -> bool:
         # Check source file exists
         if not source_path.exists():
             print_error(
-                f"Source flux file not found",
+                "Source flux file not found",
                 str(source_path.resolve()),
                 "File does not exist",
                 f"{description} file from MODFLOW run",
@@ -211,11 +210,11 @@ def copy_flux_files(year: int | None = None) -> bool:
             print(f"  {filename}: {file_size:,} bytes -> {dest_dir}/")
         except OSError as e:
             print_error(
-                f"Failed to copy flux file",
+                "Failed to copy flux file",
                 str(source_path.resolve()),
                 f"OS error: {e}",
                 f"Successful copy to {dest_dir}",
-                f"Check file permissions and disk space"
+                "Check file permissions and disk space"
             )
             return False
 
@@ -416,7 +415,7 @@ def run_post_processor(year: int | None = None) -> bool:
             return False
 
         output_size = output_path.stat().st_size
-        print(f"Post-processor completed successfully.")
+        print("Post-processor completed successfully.")
         print(f"  Output file: {output_file_prefix} ({output_size:,} bytes)")
 
         return True
@@ -496,8 +495,8 @@ def parse_post_processor_output(
         >>> data[2024]["R POJOAQUE"]["jan"]
         0.083581
     """
-    from pathlib import Path
     import re
+    from pathlib import Path
 
     if year is None:
         year = DEFAULT_YEAR
@@ -712,7 +711,7 @@ def extract_stream_depletions(
                     f"Month '{month}' not found for stream '{stream_name}'",
                     "extract_stream_depletions()",
                     f"Months available: {list(stream_data.keys())}",
-                    f"All 12 months present",
+                    "All 12 months present",
                     "Parsing may have missed some months",
                 )
                 return {}
@@ -775,7 +774,7 @@ def check_prerequisites(year: int) -> bool:
 
     # Check file sizes
     import os
-    print(f"\n📋 Flux Files:")
+    print("\n📋 Flux Files:")
     riv_path = modflow_dir / riv_flux
     ghb_path = modflow_dir / ghb_flux
     if riv_path.exists() and ghb_path.exists():
@@ -784,7 +783,7 @@ def check_prerequisites(year: int) -> bool:
         print(f"  ✓ {riv_flux}: {riv_size:.1f} MB")
         print(f"  ✓ {ghb_flux}: {ghb_size:.1f} MB")
     else:
-        print(f"  ⚠ Flux files not found (will fail later)")
+        print("  ⚠ Flux files not found (will fail later)")
 
     print("\n📦 Outputs (after completion):")
     print(f"  - TABLE_3_Rio_Pojoaque_Tesuque_{year}.xlsx")
@@ -826,7 +825,7 @@ def check_prerequisites(year: int) -> bool:
             str(depletions_dir),
             "Directory does not exist",
             f"Depletions working directory for {year}",
-            f"Create directory and copy sfmodflx_2245.exe post-processor"
+            "Create directory and copy sfmodflx_2245.exe post-processor"
         )
         return False
 

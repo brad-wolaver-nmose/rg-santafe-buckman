@@ -10,8 +10,9 @@ Scientific context:
 - Values in cfs (cubic feet per second) or acre-feet (AF)
 - Typical depletion magnitudes: 0.001-1.0 cfs per cell, 50-100 AF/year per stream
 """
-import pytest
 from pathlib import Path
+
+import pytest
 
 # Apply Layer 0 marker to all tests in this file
 pytestmark = pytest.mark.layer0
@@ -19,7 +20,6 @@ pytestmark = pytest.mark.layer0
 
 def test_module_imports():
     """Verify module imports without syntax errors."""
-    import stream_depletions
 
 
 def test_cfs_to_af_exists():
@@ -96,7 +96,7 @@ def test_core_2003_pojoaque_value():
 
     # 2024 should be 0 (or very small)
     result_2024 = get_analytical_residual("pojoaque", 2024)
-    assert result_2024 == 0.0 or result_2024 < 0.01, f"2024 Pojoaque residual should be 0"
+    assert result_2024 == 0.0 or result_2024 < 0.01, "2024 Pojoaque residual should be 0"
 
 
 def test_core_2003_tesuque_value():
@@ -169,7 +169,7 @@ def test_extract_otowi_depletions_with_mock_data():
 
     Uses minimal mock data to test the aggregation logic.
     """
-    from stream_depletions import extract_otowi_depletions, ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS
+    from stream_depletions import ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS, extract_otowi_depletions
 
     # Create mock parsed data with 0.1 cfs for all cells and months
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -446,10 +446,9 @@ def test_generate_table4_data_with_mock():
     Uses mock data with constant 0.1 cfs for all cells and months.
     """
     from stream_depletions import (
-        generate_table4_data,
         ABOVE_OTOWI_CELLS,
         BELOW_OTOWI_CELLS,
-        BUCKMAN_WELLS_CELL,
+        generate_table4_data,
     )
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -515,7 +514,7 @@ def test_generate_table4_data_raises_on_missing_year():
 
 def test_generate_table4_data_raises_on_missing_stream():
     """Verify generate_table4_data raises KeyError when stream data missing."""
-    from stream_depletions import generate_table4_data, ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS
+    from stream_depletions import ABOVE_OTOWI_CELLS, BELOW_OTOWI_CELLS, generate_table4_data
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 
@@ -605,7 +604,7 @@ def test_generate_table5_data_with_mock():
 
     Uses mock data with constant 0.001 cfs for LC SPRINGS all months.
     """
-    from stream_depletions import generate_table5_data, LA_CIENEGA_CUMULATIVE
+    from stream_depletions import generate_table5_data
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 
@@ -837,9 +836,9 @@ def test_write_table4_xlsx_creates_file(tmp_path):
     Uses mock data to test file creation and basic structure.
     """
     from stream_depletions import (
-        write_table4_xlsx,
         ABOVE_OTOWI_CELLS,
         BELOW_OTOWI_CELLS,
+        write_table4_xlsx,
     )
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -896,9 +895,9 @@ def test_write_table4_xlsx_cell_data(tmp_path):
     Verify write_table4_xlsx correctly writes cell data rows.
     """
     from stream_depletions import (
-        write_table4_xlsx,
         ABOVE_OTOWI_CELLS,
         BELOW_OTOWI_CELLS,
+        write_table4_xlsx,
     )
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -947,9 +946,9 @@ def test_write_table4_xlsx_formulas(tmp_path):
     Verify write_table4_xlsx includes correct formulas for AF calculations.
     """
     from stream_depletions import (
-        write_table4_xlsx,
         ABOVE_OTOWI_CELLS,
         BELOW_OTOWI_CELLS,
+        write_table4_xlsx,
     )
 
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -1187,7 +1186,7 @@ def test_validate_table4_missing_file():
 
 def test_validate_table5_returns_dict():
     """Verify validate_table5 returns expected structure."""
-    from stream_depletions import validate_table5, LA_CIENEGA_CUMULATIVE
+    from stream_depletions import validate_table5
 
     # Use perfect matching data to test structure
     generated_data = {
@@ -1245,9 +1244,9 @@ def test_validate_all_tables_returns_dict():
 def test_validate_table3_with_real_file():
     """Integration test: validate Table 3 against actual validation file."""
     from stream_depletions import (
-        validate_table3,
         generate_table3_data,
         parse_postprocessor_output,
+        validate_table3,
     )
 
     # Paths
@@ -1277,9 +1276,9 @@ def test_validate_table3_with_real_file():
 def test_validate_table4_with_real_file():
     """Integration test: validate Table 4 against actual validation file."""
     from stream_depletions import (
-        validate_table4,
         generate_table4_data,
         parse_postprocessor_output,
+        validate_table4,
     )
 
     # Paths

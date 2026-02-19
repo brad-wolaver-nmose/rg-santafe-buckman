@@ -11,10 +11,8 @@ import calendar
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict
 
 import pandas as pd
-
 
 # =============================================================================
 # YEAR CONFIGURATION
@@ -80,7 +78,7 @@ def get_year_config(target_year: int) -> YearConfig:
     )
 
 
-def get_days_in_month(year: int) -> Dict[str, int]:
+def get_days_in_month(year: int) -> dict[str, int]:
     """
     Return days per month for a given year.
 
@@ -117,7 +115,7 @@ NUM_LAYERS: int = 2  # pumping split equally between Layer 1 and Layer 2
 # =============================================================================
 # WELL NAME MAPPING (Table 2 well number → MODFLOW well name)
 # =============================================================================
-WELL_NAME_MAP: Dict[int, str] = {
+WELL_NAME_MAP: dict[int, str] = {
     1: "BUCKMAN 1",
     2: "BUCKMAN 2",
     3: "BUCKMAN 3A",  # Well 3 maps to BUCKMAN 3A
@@ -136,7 +134,7 @@ WELL_NAME_MAP: Dict[int, str] = {
 # =============================================================================
 # WELL GRID MAPPING (MODFLOW well name → (row, col))
 # =============================================================================
-WELL_GRID_MAP: Dict[str, tuple[int, int]] = {
+WELL_GRID_MAP: dict[str, tuple[int, int]] = {
     "BUCKMAN 1": (13, 11),
     "BUCKMAN 2": (14, 11),
     "BUCKMAN 3A": (14, 11),
@@ -356,7 +354,7 @@ def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
     if not path.exists():
         raise FileNotFoundError(f".wel file not found: {wel_path}")
 
-    with open(wel_path, "r") as f:
+    with open(wel_path) as f:
         all_lines = f.readlines()
 
     total_lines = len(all_lines)
@@ -415,7 +413,7 @@ def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
     )
 
 
-def read_table2_pumping_data(csv_path: str) -> Dict[int, Dict[str, float]]:
+def read_table2_pumping_data(csv_path: str) -> dict[int, dict[str, float]]:
     """
     Read yearly monthly pumping data from Table 2 CSV.
 
@@ -465,10 +463,10 @@ def read_table2_pumping_data(csv_path: str) -> Dict[int, Dict[str, float]]:
         )
 
     # Build result dict
-    result: Dict[int, Dict[str, float]] = {}
+    result: dict[int, dict[str, float]] = {}
     for _, row in df_wells.iterrows():
         well_num = int(row["Well"])
-        monthly_data: Dict[str, float] = {}
+        monthly_data: dict[str, float] = {}
         for month in MONTH_ABBREVS:
             value = float(row[month])
             if value < 0:
@@ -552,7 +550,7 @@ def generate_month_header(line_ending: str = "\r\n") -> str:
 
 
 def generate_well_entries(
-    pumping_data: Dict[int, Dict[str, float]],
+    pumping_data: dict[int, dict[str, float]],
     target_year: int,
     line_ending: str = "\r\n",
 ) -> list[str]:
@@ -824,7 +822,7 @@ def verify_nam_file_references(nam_path: str, output_dir: str) -> bool:
     referenced_files = []
     missing_files = []
 
-    with open(nam_file, 'r') as f:
+    with open(nam_file) as f:
         for line in f:
             line = line.strip()
             # Skip comments and blank lines
@@ -971,9 +969,9 @@ def validate_nam_file(
     if not val_path.exists():
         return None, [f"Validation file not found (skipping): {validation_path}"]
 
-    with open(gen_path, "r") as f:
+    with open(gen_path) as f:
         gen_lines = f.readlines()
-    with open(val_path, "r") as f:
+    with open(val_path) as f:
         val_lines = f.readlines()
 
     # Filter out comment lines
@@ -1047,9 +1045,9 @@ def validate_wel_file(
         })
         return result
 
-    with open(gen_path, "r") as f:
+    with open(gen_path) as f:
         gen_lines = f.readlines()
-    with open(val_path, "r") as f:
+    with open(val_path) as f:
         val_lines = f.readlines()
 
     # Check total line count
@@ -1204,7 +1202,7 @@ def print_validation_report(
     print("\n--- .wel File Validation ---")
 
     if wel_result.skipped:
-        print(f"⚠ .wel validation SKIPPED (no validation file)")
+        print("⚠ .wel validation SKIPPED (no validation file)")
         for failure in wel_result.failures:
             if failure.get("type") == "validation_skipped":
                 print(f"  {failure['message']}")
@@ -1298,7 +1296,7 @@ def run_validation(
 # PUMPING SUMMARY OUTPUT
 # =============================================================================
 def print_pumping_summary(
-    pumping_data: Dict[int, Dict[str, float]],
+    pumping_data: dict[int, dict[str, float]],
     target_year: int,
 ) -> None:
     """
@@ -1423,10 +1421,10 @@ def main() -> int:
     print("\n" + "="*70)
     print(f"STEP 2: UPDATE MODFLOW - YEAR {target_year}")
     print("="*70)
-    print(f"📋 Input Sources:")
+    print("📋 Input Sources:")
     print(f"  - Source year: {config.source_year}")
     if target_year == BASELINE_YEAR:
-        print(f"  - Mode: BASELINE (using 2023 input files)")
+        print("  - Mode: BASELINE (using 2023 input files)")
         print(f"  - WEL file: {config.input_wel_path}")
     else:
         print(f"  - Mode: CHAINED (using {config.source_year} outputs)")
@@ -1436,7 +1434,7 @@ def main() -> int:
     print("\n📦 Outputs (after completion):")
     print(f"  - thruCY2165_{target_year}.wel (extended well file)")
     print(f"  - CY{target_year}.nam (MODFLOW name file)")
-    print(f"  - 10 baseline files copied from 2023")
+    print("  - 10 baseline files copied from 2023")
 
     print("\n➡️  Next Step:")
     print(f"  ./step3_run_modflow.sh --year {target_year}")
@@ -1448,7 +1446,7 @@ def main() -> int:
         if target_year > BASELINE_YEAR:
             print(f"  Hint: Run 'python3 step2_update_modflow.py --year {config.source_year}' first.")
         else:
-            print(f"  Hint: Ensure baseline 2023 input files exist in input/modflow/2023/")
+            print("  Hint: Ensure baseline 2023 input files exist in input/modflow/2023/")
         return 1
 
     if not Path(config.table2_csv_path).exists():

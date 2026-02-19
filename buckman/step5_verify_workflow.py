@@ -23,7 +23,6 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 
 def print_section(title: str) -> None:
@@ -57,7 +56,7 @@ def check_file_exists(filepath: str, description: str) -> bool:
     return exists
 
 
-def find_depletion_file(modflow_dir: str, year: int) -> Tuple[str, bool]:
+def find_depletion_file(modflow_dir: str, year: int) -> tuple[str, bool]:
     """
     Find depletion file using flexible naming conventions.
 
@@ -87,7 +86,7 @@ def find_depletion_file(modflow_dir: str, year: int) -> Tuple[str, bool]:
     return primary_path, False
 
 
-def verify_step1(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
+def verify_step1(year: int, verbose: bool = False) -> tuple[bool, int, int]:
     """
     Verify Step 1 outputs (Tables 1-2).
 
@@ -145,7 +144,7 @@ def verify_step1(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
     return success, checks_passed, total_checks
 
 
-def verify_step2(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
+def verify_step2(year: int, verbose: bool = False) -> tuple[bool, int, int]:
     """
     Verify Step 2 outputs (MODFLOW input files).
 
@@ -210,7 +209,7 @@ def verify_step2(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
     return success, checks_passed, total_checks
 
 
-def verify_step3(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
+def verify_step3(year: int, verbose: bool = False) -> tuple[bool, int, int]:
     """
     Verify Step 3 outputs (Tables 3-5 and MODFLOW outputs).
 
@@ -293,7 +292,7 @@ def verify_step3(year: int, verbose: bool = False) -> Tuple[bool, int, int]:
     # Run custom verification scripts if they exist
     verify_modflow_script = Path(modflow_dir) / "verify_modflow_run.py"
     if verify_modflow_script.exists():
-        print(f"\n🔍 Running Custom Verification:")
+        print("\n🔍 Running Custom Verification:")
         # Use just the script name since cwd is already set to modflow_dir
         result = subprocess.run(
             ["python3", "verify_modflow_run.py"],
