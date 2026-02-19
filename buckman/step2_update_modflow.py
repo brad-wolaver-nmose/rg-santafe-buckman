@@ -839,8 +839,8 @@ def verify_nam_file_references(nam_path: str, output_dir: str) -> bool:
 
     if missing_files:
         print(f"\n✗ NAM file references {len(missing_files)} missing file(s):")
-        for f in missing_files:
-            print(f"    - {f}")
+        for missing in missing_files:
+            print(f"    - {missing}")
         print(f"  Total referenced: {len(referenced_files)}")
         return False
 
