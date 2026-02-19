@@ -1087,7 +1087,7 @@ def write_table2_xlsx(table_rows: list[dict], year: int, xlsx_path: Path) -> Non
     wb.save(xlsx_path)
 
 
-def generate_table1_output(year_afy_data: dict[int, float], year: int, output_dir: str) -> None:
+def generate_table1_output(year_afy_data: dict[int, float], year: int, output_dir: str) -> int | None:
     """
     Generate Table 1 output by inserting 2024 row into historical data.
 

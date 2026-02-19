@@ -246,7 +246,8 @@ def run_pipeline_2024() -> bool:
 def load_tolerances() -> dict[str, Any]:
     """Load tolerance definitions from YAML file."""
     with open(TOLERANCES_FILE) as f:
-        return yaml.safe_load(f)
+        result: dict[str, Any] = yaml.safe_load(f)
+        return result
 
 
 def values_match(actual: float, expected: float, tol_config: dict) -> tuple[bool, str]:
@@ -301,7 +302,7 @@ def compare_excel_files(
     Returns:
         Comparison results dict with status, failures, etc.
     """
-    result = {
+    result: dict[str, Any] = {
         "table": table_name,
         "status": "PASS",
         "failures": [],

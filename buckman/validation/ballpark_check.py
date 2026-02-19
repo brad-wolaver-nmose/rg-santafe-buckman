@@ -63,7 +63,8 @@ def load_bounds(bounds_path: Path) -> dict:
         raise FileNotFoundError(f"Bounds file not found: {bounds_path}")
 
     with open(bounds_path) as f:
-        return yaml.safe_load(f)
+        result: dict = yaml.safe_load(f)
+        return result
 
 
 def load_table(outputs_dir: Path, table_num: int, description: str) -> pd.DataFrame:
