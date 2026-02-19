@@ -1291,6 +1291,8 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
         year_rank = rank_map.get(year, 'N/A')
         print(f"  {year} rank: {year_rank} of {len(year_rows)} years (1=lowest pumping)")
 
+    return None
+
 
 def write_table1_xlsx(
     table1_df: pd.DataFrame,

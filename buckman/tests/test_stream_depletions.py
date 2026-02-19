@@ -941,9 +941,12 @@ def test_write_table4_xlsx_cell_data(tmp_path):
     wb.close()
 
 
-def test_write_table4_xlsx_formulas(tmp_path):
+def test_write_table4_xlsx_af_values(tmp_path):
     """
-    Verify write_table4_xlsx includes correct formulas for AF calculations.
+    Verify write_table4_xlsx writes pre-calculated AF values for pandas compatibility.
+
+    The implementation writes numeric values (not Excel formulas) to ensure
+    consistent parsing by pandas and other data tools.
     """
     from stream_depletions import (
         ABOVE_OTOWI_CELLS,
@@ -969,7 +972,7 @@ def test_write_table4_xlsx_formulas(tmp_path):
     mock_data[2024]["R TESUQUE"] = {m: 0.05 for m in months}
     mock_data[2024]["RIV TOTAL"] = {m: 0.58 for m in months}
 
-    output_path = tmp_path / "test_table4_formulas.xlsx"
+    output_path = tmp_path / "test_table4_values.xlsx"
     write_table4_xlsx(mock_data, output_path, year=2024)
 
     import openpyxl
@@ -985,15 +988,15 @@ def test_write_table4_xlsx_formulas(tmp_path):
 
     assert above_af_row is not None, "Could not find 'Above Otowi' AF row"
 
-    # Check that the cell contains a formula (starts with =)
+    # Check that the cell contains a numeric value (pre-calculated AF)
     jan_af_cell = ws.cell(row=above_af_row, column=6).value
-    assert jan_af_cell is not None
-    assert str(jan_af_cell).startswith("="), f"Expected formula, got {jan_af_cell}"
+    assert jan_af_cell is not None, "January AF cell should not be None"
+    assert isinstance(jan_af_cell, (int, float)), f"Expected numeric value, got {type(jan_af_cell)}"
 
-    # Check Total column has SUM formula
+    # Check Total column has a numeric value (annual total)
     total_cell = ws.cell(row=above_af_row, column=18).value
-    assert total_cell is not None
-    assert "SUM" in str(total_cell).upper(), f"Expected SUM formula, got {total_cell}"
+    assert total_cell is not None, "Total cell should not be None"
+    assert isinstance(total_cell, (int, float)), f"Expected numeric total, got {type(total_cell)}"
 
     wb.close()
 

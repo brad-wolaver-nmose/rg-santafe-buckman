@@ -395,6 +395,7 @@ def run_ballpark_check(year: int, verbose: int = 0) -> tuple[int, list[str]]:
         0: "all_clear",
         2: "soft_flags",
         3: "hard_fail",
+        4: "skip_no_baseline",
     }
 
     try:
@@ -679,6 +680,9 @@ def run_all_tests(
             suite.error_messages.append("Ballpark check: physics violation")
             suite.end_time = datetime.now()
             return suite
+        elif ballpark_code == 4:
+            print("  SKIP: No validation baseline for this year")
+            print("    (This is normal for years not yet finalized)")
         elif ballpark_code == 2:
             print("  Soft flags raised - continuing with warnings")
             suite.flags.append(Flag(

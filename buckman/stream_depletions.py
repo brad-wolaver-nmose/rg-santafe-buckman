@@ -1382,7 +1382,7 @@ def write_table4_xlsx(
     Assumptions:
     1. Parsed data contains all required cells and stream summaries for the year
     2. Output follows validation file format with cells, summaries, and AF calcs
-    3. Uses formulas for sums and conversions where appropriate
+    3. Writes pre-calculated AF values for pandas compatibility (not Excel formulas)
     4. Days per month uses validation values (non-leap year: Feb=28)
 
     Args:

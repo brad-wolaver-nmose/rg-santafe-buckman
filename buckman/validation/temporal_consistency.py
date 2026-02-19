@@ -142,7 +142,8 @@ def load_bounds(bounds_path: Path) -> dict:
         raise FileNotFoundError(f"Bounds file not found: {bounds_path}")
 
     with open(bounds_path) as f:
-        return yaml.safe_load(f)
+        result: dict = yaml.safe_load(f)
+        return result
 
 
 def load_current_year_pumping(year: int, project_root: Path) -> dict:
@@ -215,7 +216,7 @@ def load_current_year_depletions(year: int, project_root: Path) -> dict:
 
     # Extract cumulative totals from the Annual Total row
     # Structure varies - need to find the right row/column
-    result = {
+    result: dict[str, float | None] = {
         'rio_pojoaque_nambe': None,
         'rio_tesuque': None,
     }
@@ -266,10 +267,10 @@ def compute_envelope(values: list[float]) -> tuple[float, float, float]:
     std_val = np.std(values, ddof=0)  # Population std for n=3
     cv = std_val / mean_val if mean_val != 0 else 0
 
-    buffer = max(ENVELOPE_MIN_BUFFER, ENVELOPE_CV_MULTIPLIER * cv)
+    buffer = float(max(ENVELOPE_MIN_BUFFER, ENVELOPE_CV_MULTIPLIER * cv))
 
-    lower = min(values) * (1 - buffer)
-    upper = max(values) * (1 + buffer)
+    lower = float(min(values) * (1 - buffer))
+    upper = float(max(values) * (1 + buffer))
 
     return lower, upper, buffer
 
@@ -294,7 +295,7 @@ def check_year_over_year_pumping(
     Returns:
         List of CheckResult flags (empty if no anomalies).
     """
-    results = []
+    results: list[CheckResult] = []
 
     # Get historical pumping
     years = bounds['time_series']['years']
@@ -374,7 +375,7 @@ def check_year_over_year_ratio(
     Returns:
         List of CheckResult flags.
     """
-    results = []
+    results: list[CheckResult] = []
 
     # Compute current ratio
     current_ratio = current_depletion_af / current_pumping_af if current_pumping_af > 0 else 0

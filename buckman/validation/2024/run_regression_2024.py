@@ -390,7 +390,7 @@ def compare_tables() -> dict[str, Any]:
     print_header("STEP 3: COMPARE TABLES")
 
     tolerances = load_tolerances()
-    results = {
+    results: dict[str, Any] = {
         "overall_status": "PASS",
         "tables": {},
     }

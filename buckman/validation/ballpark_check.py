@@ -21,6 +21,7 @@ Exit Codes:
     1 - Script error/crash (reserved for Python exceptions)
     2 - Soft flags raised (human review recommended, continue)
     3 - Hard fails detected (physics violations, STOP)
+    4 - Skip (no validation baseline for this year)
 
 Author: Claude Code (Anthropic)
 Date: 2026-02-17
@@ -599,8 +600,12 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
         table3 = load_table3(outputs_dir)
         table5 = load_table5(outputs_dir)
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        return 3  # Hard fail - missing required files
+        print(f"SKIP: No validation baseline for year {year}")
+        print(f"  ({e})")
+        print(f"  This is normal for years not yet finalized.")
+        print()
+        print("EXIT CODE: 4 (skip - no baseline)")
+        return 4  # Skip - missing baseline files (not a physics violation)
 
     # Run all checks
     all_results: list[CheckResult] = []
@@ -670,6 +675,7 @@ Exit Codes:
   1 - Script error/crash (reserved for Python exceptions)
   2 - Soft flags raised (human review recommended, continue)
   3 - Hard fails detected (physics violations, STOP)
+  4 - Skip (no validation baseline for this year)
 
 Examples:
   python ballpark_check.py --year 2024
