@@ -350,7 +350,7 @@ def test_main_returns_int():
     from step4_generate_depletion_tables import main
     # Check return type annotation
     sig = inspect.signature(main)
-    assert sig.return_annotation == int
+    assert sig.return_annotation is int
 
 
 def test_main_docstring_mentions_workflow_steps():
