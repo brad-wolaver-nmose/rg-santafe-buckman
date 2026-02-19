@@ -210,8 +210,8 @@ def test_print_residual_verification_runs(capsys):
     assert "0.000" in captured.out   # Pojoaque 2024 value (exhausted)
 
 
-def test_cfs_to_af_exists():
-    """Verify cfs_to_af function exists and is callable."""
+def test_cfs_to_af_wrapper_exists():
+    """Verify cfs_to_af wrapper function exists and is callable."""
     from stream_depletions import cfs_to_af
     assert callable(cfs_to_af)
 
