@@ -118,9 +118,11 @@ python3 step1_ingest_buckman_data.py --year YYYY
 python3 step2_update_modflow.py --year YYYY
 ```
 
-**Input:** Prior year's WEL file
+**Input:** Prior year's WEL file (critical chaining dependency)
 - **2024 (baseline):** `input/modflow/2023/thruCY2165.wel` (no year suffix)
 - **2025+:** `output/modflow/{year-1}/thruCY2165_{year-1}.wel`
+
+**⚠️ Year Chaining:** WEL files are cumulative (1988-YYYY). Each year extends the prior year. You MUST process years sequentially—skipping a year breaks the chain.
 
 **Outputs:**
 - `output/modflow/YYYY/thruCY2165_YYYY.wel` - Updated well pumping file
@@ -191,11 +193,19 @@ python3 verify_depletion.py --year YYYY
 
 ### Core Libraries
 
-**`stream_depletions.py`** - Core depletion calculation library (~2,200 lines)
+**`stream_depletions.py`** - Core depletion calculation library (~2,700 lines)
 - Parses `sfmodflx_2245.exe` post-processor output (`CY{YYYY}` file)
 - Converts cfs → acre-feet with proper unit handling
 - Applies Core (2003) analytical residuals for pre-1988 pumping
 - Called by `step4_generate_depletion_tables.py`
+
+### Supporting Modules (`src/`)
+
+| Module | Purpose |
+|--------|---------|
+| `pipeline_manifest.py` | Generate SHA-256 manifest of all pipeline input/output files |
+| `workflow_logger.py` | Generate regulatory compliance logs (MD + DOCX) |
+| `generate_workflow_log.py` | CLI wrapper for standalone log generation |
 
 ---
 
@@ -291,6 +301,12 @@ python3 step5_verify_workflow.py --year 2024
 - `PASS`: All checks passed, outputs look valid
 - `FAIL`: Something is wrong—read the error message for which check failed
 
+**Advanced options:**
+```bash
+python3 step5_verify_workflow.py --year 2024 --step 3    # Run specific step only
+python3 step5_verify_workflow.py --year 2024 --verbose   # Detailed output
+```
+
 **If it fails:**
 | Error | Likely Cause | Fix |
 |-------|--------------|-----|
@@ -312,7 +328,7 @@ python3 run_all_tests.py --year 2024
 
 | Layer | Name | What It Catches | Failure Action |
 |-------|------|-----------------|----------------|
-| 0 | Smoke | Import errors, basic function failures | Fix code bugs |
+| 0 | Smoke | Import errors, basic function failures, MODFLOW geometry validation | Fix code bugs |
 | 1 | Conservation | Mass not conserved (pumping ≠ sum of parts) | Check unit conversions |
 | 2 | Temporal | Unreasonable YoY changes (>65%) | Verify input data |
 | 3 | Ballpark | Values outside physical bounds | Check model inputs |
@@ -349,7 +365,7 @@ pytest tests/test_stream_depletions.py -v  # Depletion calculations
 
 | Command | What It Tests |
 |---------|---------------|
-| `pytest tests/ -v` | Runs all 224 tests across all modules. Use this for a complete code health check. |
+| `pytest tests/ -v` | Runs all 240 tests across all modules. Use this for a complete code health check. |
 | `pytest tests/test_conservation.py -v` | Verifies that water mass is conserved (pumping in = depletion out). Catches unit conversion errors. |
 | `pytest tests/test_stream_depletions.py -v` | Tests the core depletion calculation functions (cfs→AF conversion, table generation, XLSX formatting). |
 
@@ -526,6 +542,18 @@ Use when you need to regenerate a log after the fact, or document a run without 
 ├── run_all_tests.py                    # Full test suite orchestrator
 └── stream_depletions.py                # Depletion library
 ```
+
+---
+
+## Known Limitations
+
+1. **Step 4 default year:** If `--year` is omitted, step4 defaults to 2024. Always specify `--year` explicitly.
+
+2. **Validation files:** Only 2024 has expected output files in `validation/2024/expected_outputs/`. Processing 2025+ runs in "degraded" mode (skips table comparisons, relies on physics checks).
+
+3. **FORTRAN cell ranges:** La Cienega Springs extraction is hardcoded in `sfmodflx_2245.exe` (rows 28-35, cols 10-20). Changing model geometry requires recompiling FORTRAN. See `docs/MODFLOW_CELL_MAPPING.md`.
+
+4. **Wine dependency:** MODFLOW96 and sfmodflx_2245.exe are Windows executables. Linux requires Wine.
 
 ---
 
