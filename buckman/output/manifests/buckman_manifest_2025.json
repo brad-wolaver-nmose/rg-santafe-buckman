@@ -1,13 +1,13 @@
 {
   "manifest_version": "1.0",
-  "year": 2024,
+  "year": 2025,
   "input_manifest": [
     {
-      "name": "Buckman_Well_Prod_2024.csv",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/csv/Buckman_Well_Prod_2024.csv",
-      "sha256": "dd987f16e44e440696f40c3632745b710812383c5c3c4248b01c3aa06e76d52c",
-      "size_bytes": 17937,
-      "row_count": 370,
+      "name": "Buckman_Well_Prod_2025.csv",
+      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/csv/Buckman_Well_Prod_2025.csv",
+      "sha256": "abca197c956010ae3a40fa07a9f94242fb4707bf7fc227a9acb8449bbc67c0c2",
+      "size_bytes": 17719,
+      "row_count": 369,
       "date_range": null
     },
     {
@@ -187,51 +187,23 @@
       "passed": 224,
       "failed": 0,
       "status": "PASS",
-      "timestamp": "2026-02-19T11:55:41.725196"
+      "timestamp": "2026-02-19T11:58:25.980539"
     },
     "layer_1_conservation": {
-      "total": 4,
-      "passed": 4,
+      "total": 0,
+      "passed": 0,
       "failed": 0,
-      "status": "PASS",
-      "tests": [
-        {
-          "test_name": "budget_closure",
-          "status": "PASS",
-          "value_tested": 0.01,
-          "threshold": 0.1,
-          "timestamp": "2026-02-17T13:55:55.778578"
-        },
-        {
-          "test_name": "pumping_conservation",
-          "status": "PASS",
-          "value_tested": 1372.9215867768594,
-          "threshold": 0.1,
-          "timestamp": "2026-02-17T13:55:55.824780"
-        },
-        {
-          "test_name": "depletion_constraint",
-          "status": "PASS",
-          "value_tested": 0.7487811337480802,
-          "threshold": 0.001,
-          "timestamp": "2026-02-17T13:55:55.826764"
-        },
-        {
-          "test_name": "table_sum_integrity",
-          "status": "PASS",
-          "value_tested": null,
-          "threshold": 0.01,
-          "timestamp": "2026-02-17T13:55:55.826874"
-        }
-      ],
-      "timestamp": "2026-02-17T13:55:55.826887"
+      "status": "SKIPPED",
+      "reason": "P3_conservation_results_2025.json not found",
+      "tests": [],
+      "timestamp": "2026-02-19T11:58:25.980629"
     },
     "ballpark_check": {
-      "status": "PASS",
-      "exit_code": 0,
+      "status": "HARD_FAIL",
+      "exit_code": 4,
       "hard_fails": 0,
       "soft_flags": 0,
-      "timestamp": "2026-02-19T11:55:42.134412"
+      "timestamp": "2026-02-19T11:58:26.271958"
     }
   },
   "flag_register": {
@@ -247,9 +219,9 @@
     }
   },
   "run_metadata": {
-    "pipeline_start": "2026-02-19T11:55:35.577423",
-    "pipeline_end": "2026-02-19T11:55:35.577429",
-    "total_runtime_seconds": 6e-06,
+    "pipeline_start": "2026-02-19T11:58:21.959043",
+    "pipeline_end": "2026-02-19T11:58:21.959048",
+    "total_runtime_seconds": 5e-06,
     "machine_name": "OSE-HYDRO-D0P3",
     "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
     "os_version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
@@ -262,7 +234,7 @@
         "passed": 190,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 3.899099826812744,
+        "duration_sec": 3.3563907146453857,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -271,7 +243,7 @@
         "passed": 30,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.32483863830566406,
+        "duration_sec": 0.32155895233154297,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -280,11 +252,21 @@
         "passed": 4,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.3615376949310303,
+        "duration_sec": 0.3269500732421875,
         "hard_fail": false,
         "failed_tests": []
       }
     ],
-    "flags": []
+    "flags": [
+      {
+        "layer": "Layer 2",
+        "test_name": "temporal_consistency",
+        "message": "         SOFT FLAG: Monthly profile correlation r=0.546 < 0.75 threshold. Possible stress period misalignment (check month ordering). Current peak: AUG (37.4%). Historical peak: AUG (19.1%).",
+        "requires_review": true,
+        "disposition": "",
+        "reviewed_by": "",
+        "review_date": ""
+      }
+    ]
   }
 }

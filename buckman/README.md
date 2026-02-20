@@ -219,7 +219,7 @@ pip install pandas openpyxl
 
 ## Verification & Testing
 
-Verification ensures that workflow outputs are correct and physically plausible. This is critical for year N+1 when you have no prior results to compare against.
+Verification ensures that workflow outputs are correct and physically plausible. This is critical for year N+1 (i.e., year 2025 and later) when you have no prior results to compare against.
 
 ### Quick Verification (step5)
 
@@ -287,11 +287,19 @@ ALL LAYERS PASSED
 
 ### Unit Tests (pytest)
 
+Unit tests are automated checks that verify each function in the code works correctly. Think of them like a checklist that the computer runs through to confirm nothing is broken. If all tests pass, the code is working as expected.
+
 ```bash
 pytest tests/ -v                           # All unit tests
 pytest tests/test_conservation.py -v       # Conservation/mass-balance only
 pytest tests/test_stream_depletions.py -v  # Depletion calculations
 ```
+
+| Command | What It Tests |
+|---------|---------------|
+| `pytest tests/ -v` | Runs all 224 tests across all modules. Use this for a complete code health check. |
+| `pytest tests/test_conservation.py -v` | Verifies that water mass is conserved (pumping in = depletion out). Catches unit conversion errors. |
+| `pytest tests/test_stream_depletions.py -v` | Tests the core depletion calculation functions (cfs→AF conversion, table generation, XLSX formatting). |
 
 **Purpose:** Verify individual functions work correctly (useful after code changes).
 

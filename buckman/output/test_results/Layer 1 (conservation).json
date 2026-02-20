@@ -1,14 +1,14 @@
 {
-  "created": 1771428053.3187668,
-  "duration": 0.39192652702331543,
+  "created": 1771527501.1464202,
+  "duration": 0.3269500732421875,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
   "summary": {
     "passed": 4,
     "total": 4,
-    "collected": 223,
-    "deselected": 219
+    "collected": 224,
+    "deselected": 220
   },
   "collectors": [
     {
@@ -28,22 +28,22 @@
         {
           "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
           "type": "Function",
-          "lineno": 913
+          "lineno": 911
         },
         {
           "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
           "type": "Function",
-          "lineno": 923
+          "lineno": 921
         },
         {
           "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
           "type": "Function",
-          "lineno": 937
+          "lineno": 935
         },
         {
           "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
           "type": "Function",
-          "lineno": 951
+          "lineno": 949
         }
       ]
     },
@@ -300,193 +300,193 @@
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_module_imports",
           "type": "Function",
-          "lineno": 18,
+          "lineno": 17,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_exists",
           "type": "Function",
-          "lineno": 23,
+          "lineno": 21,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_exists",
           "type": "Function",
-          "lineno": 29,
+          "lineno": 27,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_exists",
           "type": "Function",
-          "lineno": 35,
+          "lineno": 33,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_constants_defined",
           "type": "Function",
-          "lineno": 41,
+          "lineno": 39,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_runs_without_crash",
           "type": "Function",
-          "lineno": 57,
+          "lineno": 51,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_returns_bool",
           "type": "Function",
-          "lineno": 74,
+          "lineno": 68,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_exists",
           "type": "Function",
-          "lineno": 89,
+          "lineno": 83,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_exists",
           "type": "Function",
-          "lineno": 95,
+          "lineno": 89,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us002_constants_defined",
           "type": "Function",
-          "lineno": 101,
+          "lineno": 95,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_returns_bool",
           "type": "Function",
-          "lineno": 111,
+          "lineno": 105,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_returns_bool",
           "type": "Function",
-          "lineno": 118,
+          "lineno": 112,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_exists",
           "type": "Function",
-          "lineno": 132,
+          "lineno": 126,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us003_constants_defined",
           "type": "Function",
-          "lineno": 138,
+          "lineno": 132,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_returns_dict",
           "type": "Function",
-          "lineno": 146,
+          "lineno": 140,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_years",
           "type": "Function",
-          "lineno": 153,
+          "lineno": 147,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_stream_data",
           "type": "Function",
-          "lineno": 166,
+          "lineno": 160,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_monthly_values",
           "type": "Function",
-          "lineno": 180,
+          "lineno": 174,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_sample_values",
           "type": "Function",
-          "lineno": 194,
+          "lineno": 188,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_cell_data",
           "type": "Function",
-          "lineno": 215,
+          "lineno": 209,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_cell_sample_value",
           "type": "Function",
-          "lineno": 227,
+          "lineno": 221,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_exists",
           "type": "Function",
-          "lineno": 243,
+          "lineno": 237,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us004_constants_defined",
           "type": "Function",
-          "lineno": 249,
+          "lineno": 243,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_returns_dict",
           "type": "Function",
-          "lineno": 260,
+          "lineno": 254,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_all_streams",
           "type": "Function",
-          "lineno": 271,
+          "lineno": 265,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_12_months",
           "type": "Function",
-          "lineno": 285,
+          "lineno": 279,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_sample_values",
           "type": "Function",
-          "lineno": 300,
+          "lineno": 294,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_empty_parsed_data",
           "type": "Function",
-          "lineno": 319,
+          "lineno": 313,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_missing_year",
           "type": "Function",
-          "lineno": 326,
+          "lineno": 320,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_accepts_year_parameter",
           "type": "Function",
-          "lineno": 340,
+          "lineno": 334,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_returns_int",
           "type": "Function",
-          "lineno": 350,
+          "lineno": 345,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_docstring_mentions_workflow_steps",
           "type": "Function",
-          "lineno": 359,
+          "lineno": 355,
           "deselected": true
         }
       ]
@@ -624,13 +624,13 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_module_imports",
           "type": "Function",
-          "lineno": 19,
+          "lineno": 20,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_exists",
           "type": "Function",
-          "lineno": 212,
+          "lineno": 24,
           "deselected": true
         },
         {
@@ -715,6 +715,12 @@
           "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_runs",
           "type": "Function",
           "lineno": 198,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_wrapper_exists",
+          "type": "Function",
+          "lineno": 212,
           "deselected": true
         },
         {
@@ -822,223 +828,223 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_year",
           "type": "Function",
-          "lineno": 505,
+          "lineno": 504,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_stream",
           "type": "Function",
-          "lineno": 515,
+          "lineno": 514,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_exists",
           "type": "Function",
-          "lineno": 532,
+          "lineno": 531,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_runs",
           "type": "Function",
-          "lineno": 538,
+          "lineno": 537,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_la_cienega_cumulative_constant",
           "type": "Function",
-          "lineno": 578,
+          "lineno": 577,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_exists",
           "type": "Function",
-          "lineno": 595,
+          "lineno": 594,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_with_mock",
           "type": "Function",
-          "lineno": 601,
+          "lineno": 600,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_year",
           "type": "Function",
-          "lineno": 644,
+          "lineno": 643,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_lc_springs",
           "type": "Function",
-          "lineno": 654,
+          "lineno": 653,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_exists",
           "type": "Function",
-          "lineno": 668,
+          "lineno": 667,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_runs",
           "type": "Function",
-          "lineno": 674,
+          "lineno": 673,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_exists",
           "type": "Function",
-          "lineno": 699,
+          "lineno": 698,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_creates_file",
           "type": "Function",
-          "lineno": 705,
+          "lineno": 704,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_formatting",
           "type": "Function",
-          "lineno": 751,
+          "lineno": 750,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_2024_values",
           "type": "Function",
-          "lineno": 786,
+          "lineno": 785,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_exists",
           "type": "Function",
-          "lineno": 826,
+          "lineno": 825,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_creates_file",
           "type": "Function",
-          "lineno": 832,
+          "lineno": 831,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_cell_data",
           "type": "Function",
-          "lineno": 893,
+          "lineno": 892,
           "deselected": true
         },
         {
-          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_formulas",
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_af_values",
           "type": "Function",
-          "lineno": 944,
+          "lineno": 943,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_exists",
           "type": "Function",
-          "lineno": 1001,
+          "lineno": 1003,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_creates_file",
           "type": "Function",
-          "lineno": 1007,
+          "lineno": 1009,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
           "type": "Function",
-          "lineno": 1040,
+          "lineno": 1042,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
           "type": "Function",
-          "lineno": 1063,
+          "lineno": 1065,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
           "type": "Function",
-          "lineno": 1085,
+          "lineno": 1087,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
           "type": "Function",
-          "lineno": 1119,
+          "lineno": 1121,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
           "type": "Function",
-          "lineno": 1127,
+          "lineno": 1129,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
           "type": "Function",
-          "lineno": 1133,
+          "lineno": 1135,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
           "type": "Function",
-          "lineno": 1139,
+          "lineno": 1141,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
           "type": "Function",
-          "lineno": 1145,
+          "lineno": 1147,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
           "type": "Function",
-          "lineno": 1151,
+          "lineno": 1153,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
           "type": "Function",
-          "lineno": 1157,
+          "lineno": 1159,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
           "type": "Function",
-          "lineno": 1172,
+          "lineno": 1174,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
           "type": "Function",
-          "lineno": 1187,
+          "lineno": 1189,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
           "type": "Function",
-          "lineno": 1206,
+          "lineno": 1208,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
           "type": "Function",
-          "lineno": 1222,
+          "lineno": 1224,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
           "type": "Function",
-          "lineno": 1244,
+          "lineno": 1246,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
           "type": "Function",
-          "lineno": 1276,
+          "lineno": 1278,
           "deselected": true
         }
       ]
@@ -1050,7 +1056,7 @@
         {
           "nodeid": "tests/test_update_modflow.py::test_module_imports",
           "type": "Function",
-          "lineno": 14,
+          "lineno": 15,
           "deselected": true
         },
         {
@@ -1260,193 +1266,193 @@
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_exists",
           "type": "Function",
-          "lineno": 602,
+          "lineno": 601,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_creates_directory",
           "type": "Function",
-          "lineno": 609,
+          "lineno": 608,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_line_count",
           "type": "Function",
-          "lineno": 635,
+          "lineno": 636,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_pre_2024",
           "type": "Function",
-          "lineno": 662,
+          "lineno": 665,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_post_2024",
           "type": "Function",
-          "lineno": 694,
+          "lineno": 699,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_invalid_2024_count_raises",
           "type": "Function",
-          "lineno": 727,
+          "lineno": 734,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_exists",
           "type": "Function",
-          "lineno": 749,
+          "lineno": 756,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_file",
           "type": "Function",
-          "lineno": 756,
+          "lineno": 763,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_directory",
           "type": "Function",
-          "lineno": 770,
+          "lineno": 777,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_has_header_comments",
           "type": "Function",
-          "lineno": 786,
+          "lineno": 793,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_cy2023_with_cy2024",
           "type": "Function",
-          "lineno": 811,
+          "lineno": 818,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_wel_filename",
           "type": "Function",
-          "lineno": 841,
+          "lineno": 848,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_uppercase_package_types",
           "type": "Function",
-          "lineno": 868,
+          "lineno": 875,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_matches_validation_content",
           "type": "Function",
-          "lineno": 891,
+          "lineno": 898,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validation_result_class_exists",
           "type": "Function",
-          "lineno": 942,
+          "lineno": 949,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_exists",
           "type": "Function",
-          "lineno": 955,
+          "lineno": 962,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_passes_for_matching_files",
           "type": "Function",
-          "lineno": 962,
+          "lineno": 969,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_against_validation",
           "type": "Function",
-          "lineno": 980,
+          "lineno": 987,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_fails_for_missing_generated_file",
           "type": "Function",
-          "lineno": 1000,
+          "lineno": 1007,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_skips_for_missing_validation_file",
           "type": "Function",
-          "lineno": 1014,
+          "lineno": 1021,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_exists",
           "type": "Function",
-          "lineno": 1036,
+          "lineno": 1043,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_returns_validation_result",
           "type": "Function",
-          "lineno": 1043,
+          "lineno": 1050,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_full_pipeline",
           "type": "Function",
-          "lineno": 1058,
+          "lineno": 1065,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_validation_report_exists",
           "type": "Function",
-          "lineno": 1111,
+          "lineno": 1120,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_run_validation_exists",
           "type": "Function",
-          "lineno": 1118,
+          "lineno": 1127,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_run_validation_full_pipeline",
           "type": "Function",
-          "lineno": 1125,
+          "lineno": 1134,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_parse_args_exists",
           "type": "Function",
-          "lineno": 1164,
+          "lineno": 1177,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_main_exists",
           "type": "Function",
-          "lineno": 1171,
+          "lineno": 1184,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_exists",
           "type": "Function",
-          "lineno": 1178,
+          "lineno": 1191,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_runs_without_error",
           "type": "Function",
-          "lineno": 1185,
+          "lineno": 1198,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_main_returns_zero_on_success",
           "type": "Function",
-          "lineno": 1200,
+          "lineno": 1213,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_script_runs_end_to_end",
           "type": "Function",
-          "lineno": 1219,
+          "lineno": 1233,
           "deselected": true
         }
       ]
@@ -1485,7 +1491,7 @@
   "tests": [
     {
       "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
-      "lineno": 913,
+      "lineno": 911,
       "outcome": "passed",
       "keywords": [
         "test_budget_closure_2024",
@@ -1496,22 +1502,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.0003818080003838986,
+        "duration": 0.00040335900121135637,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.023811234001186676,
+        "duration": 0.015912955001113005,
         "outcome": "passed",
         "stdout": "Check 1: Volumetric Budget Closure\n  Parsing: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/modflow/CY2024.lst\n"
       },
       "teardown": {
-        "duration": 0.0001499619975220412,
+        "duration": 0.00015298600010282826,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
-      "lineno": 923,
+      "lineno": 921,
       "outcome": "passed",
       "keywords": [
         "test_pumping_conservation_2024",
@@ -1522,22 +1528,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.00017296100850217044,
+        "duration": 0.00018768699919746723,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.06473842600826174,
+        "duration": 0.06499495899879548,
         "outcome": "passed",
         "stdout": "Check 2: Pumping Conservation (Input = Applied)\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  WEL file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/thruCY2165_2024.wel\n"
       },
       "teardown": {
-        "duration": 0.0001657610118854791,
+        "duration": 0.00015861700012465008,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
-      "lineno": 937,
+      "lineno": 935,
       "outcome": "passed",
       "keywords": [
         "test_depletion_constraint_2024",
@@ -1548,22 +1554,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.00021202299103606492,
+        "duration": 0.00023529399913968518,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002018501007114537,
+        "duration": 0.0024691449998499593,
         "outcome": "passed",
         "stdout": "Check 3: Depletion <= Pumping (Physics Constraint)\n  Depletion file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/depletions/CY2024\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n"
       },
       "teardown": {
-        "duration": 0.00014247799117583781,
+        "duration": 0.0001421409997419687,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
-      "lineno": 951,
+      "lineno": 949,
       "outcome": "passed",
       "keywords": [
         "test_table_sum_integrity_2024",
@@ -1574,16 +1580,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00019297099788673222,
+        "duration": 0.000217148000956513,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0002925260050687939,
+        "duration": 0.00025912700039043557,
         "outcome": "passed",
         "stdout": "Check 4: Table Sum Integrity\n  Checking Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  Checking Table 3: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx\n  Checking Table 4: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx\n  Checking Table 5: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx\n"
       },
       "teardown": {
-        "duration": 0.0001420139888068661,
+        "duration": 0.00011903000086022075,
         "outcome": "passed"
       }
     }

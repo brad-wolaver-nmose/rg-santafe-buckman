@@ -1,14 +1,14 @@
 {
-  "created": 1771428052.5529552,
-  "duration": 0.4258270263671875,
+  "created": 1771527500.5808086,
+  "duration": 0.32155895233154297,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
   "summary": {
     "passed": 30,
     "total": 30,
-    "collected": 223,
-    "deselected": 193
+    "collected": 224,
+    "deselected": 194
   },
   "collectors": [
     {
@@ -28,25 +28,25 @@
         {
           "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
           "type": "Function",
-          "lineno": 913,
+          "lineno": 911,
           "deselected": true
         },
         {
           "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
           "type": "Function",
-          "lineno": 923,
+          "lineno": 921,
           "deselected": true
         },
         {
           "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
           "type": "Function",
-          "lineno": 937,
+          "lineno": 935,
           "deselected": true
         },
         {
           "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
           "type": "Function",
-          "lineno": 951,
+          "lineno": 949,
           "deselected": true
         }
       ]
@@ -274,193 +274,193 @@
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_module_imports",
           "type": "Function",
-          "lineno": 18,
+          "lineno": 17,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_exists",
           "type": "Function",
-          "lineno": 23,
+          "lineno": 21,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_exists",
           "type": "Function",
-          "lineno": 29,
+          "lineno": 27,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_exists",
           "type": "Function",
-          "lineno": 35,
+          "lineno": 33,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_constants_defined",
           "type": "Function",
-          "lineno": 41,
+          "lineno": 39,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_print_error_runs_without_crash",
           "type": "Function",
-          "lineno": 57,
+          "lineno": 51,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_copy_flux_files_returns_bool",
           "type": "Function",
-          "lineno": 74,
+          "lineno": 68,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_exists",
           "type": "Function",
-          "lineno": 89,
+          "lineno": 83,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_exists",
           "type": "Function",
-          "lineno": 95,
+          "lineno": 89,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us002_constants_defined",
           "type": "Function",
-          "lineno": 101,
+          "lineno": 95,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_check_wine_installed_returns_bool",
           "type": "Function",
-          "lineno": 111,
+          "lineno": 105,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_run_post_processor_returns_bool",
           "type": "Function",
-          "lineno": 118,
+          "lineno": 112,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_exists",
           "type": "Function",
-          "lineno": 132,
+          "lineno": 126,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us003_constants_defined",
           "type": "Function",
-          "lineno": 138,
+          "lineno": 132,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_returns_dict",
           "type": "Function",
-          "lineno": 146,
+          "lineno": 140,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_years",
           "type": "Function",
-          "lineno": 153,
+          "lineno": 147,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_stream_data",
           "type": "Function",
-          "lineno": 166,
+          "lineno": 160,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_monthly_values",
           "type": "Function",
-          "lineno": 180,
+          "lineno": 174,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_sample_values",
           "type": "Function",
-          "lineno": 194,
+          "lineno": 188,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_has_cell_data",
           "type": "Function",
-          "lineno": 215,
+          "lineno": 209,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_parse_post_processor_output_cell_sample_value",
           "type": "Function",
-          "lineno": 227,
+          "lineno": 221,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_exists",
           "type": "Function",
-          "lineno": 243,
+          "lineno": 237,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_us004_constants_defined",
           "type": "Function",
-          "lineno": 249,
+          "lineno": 243,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_returns_dict",
           "type": "Function",
-          "lineno": 260,
+          "lineno": 254,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_all_streams",
           "type": "Function",
-          "lineno": 271,
+          "lineno": 265,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_has_12_months",
           "type": "Function",
-          "lineno": 285,
+          "lineno": 279,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_sample_values",
           "type": "Function",
-          "lineno": 300,
+          "lineno": 294,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_empty_parsed_data",
           "type": "Function",
-          "lineno": 319,
+          "lineno": 313,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_extract_stream_depletions_2024_missing_year",
           "type": "Function",
-          "lineno": 326,
+          "lineno": 320,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_accepts_year_parameter",
           "type": "Function",
-          "lineno": 340,
+          "lineno": 334,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_returns_int",
           "type": "Function",
-          "lineno": 350,
+          "lineno": 345,
           "deselected": true
         },
         {
           "nodeid": "tests/test_generate_depletion_tables.py::test_main_docstring_mentions_workflow_steps",
           "type": "Function",
-          "lineno": 359,
+          "lineno": 355,
           "deselected": true
         }
       ]
@@ -598,13 +598,13 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_module_imports",
           "type": "Function",
-          "lineno": 19,
+          "lineno": 20,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_exists",
           "type": "Function",
-          "lineno": 212,
+          "lineno": 24,
           "deselected": true
         },
         {
@@ -689,6 +689,12 @@
           "nodeid": "tests/test_stream_depletions.py::test_print_residual_verification_runs",
           "type": "Function",
           "lineno": 198,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_stream_depletions.py::test_cfs_to_af_wrapper_exists",
+          "type": "Function",
+          "lineno": 212,
           "deselected": true
         },
         {
@@ -796,223 +802,223 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_year",
           "type": "Function",
-          "lineno": 505,
+          "lineno": 504,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table4_data_raises_on_missing_stream",
           "type": "Function",
-          "lineno": 515,
+          "lineno": 514,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_exists",
           "type": "Function",
-          "lineno": 532,
+          "lineno": 531,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table4_verification_runs",
           "type": "Function",
-          "lineno": 538,
+          "lineno": 537,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_la_cienega_cumulative_constant",
           "type": "Function",
-          "lineno": 578,
+          "lineno": 577,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_exists",
           "type": "Function",
-          "lineno": 595,
+          "lineno": 594,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_with_mock",
           "type": "Function",
-          "lineno": 601,
+          "lineno": 600,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_year",
           "type": "Function",
-          "lineno": 644,
+          "lineno": 643,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_generate_table5_data_raises_on_missing_lc_springs",
           "type": "Function",
-          "lineno": 654,
+          "lineno": 653,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_exists",
           "type": "Function",
-          "lineno": 668,
+          "lineno": 667,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_table5_verification_runs",
           "type": "Function",
-          "lineno": 674,
+          "lineno": 673,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_exists",
           "type": "Function",
-          "lineno": 699,
+          "lineno": 698,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_creates_file",
           "type": "Function",
-          "lineno": 705,
+          "lineno": 704,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_formatting",
           "type": "Function",
-          "lineno": 751,
+          "lineno": 750,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table3_xlsx_2024_values",
           "type": "Function",
-          "lineno": 786,
+          "lineno": 785,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_exists",
           "type": "Function",
-          "lineno": 826,
+          "lineno": 825,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_creates_file",
           "type": "Function",
-          "lineno": 832,
+          "lineno": 831,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_cell_data",
           "type": "Function",
-          "lineno": 893,
+          "lineno": 892,
           "deselected": true
         },
         {
-          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_formulas",
+          "nodeid": "tests/test_stream_depletions.py::test_write_table4_xlsx_af_values",
           "type": "Function",
-          "lineno": 944,
+          "lineno": 943,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_exists",
           "type": "Function",
-          "lineno": 1001,
+          "lineno": 1003,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_creates_file",
           "type": "Function",
-          "lineno": 1007,
+          "lineno": 1009,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
           "type": "Function",
-          "lineno": 1040,
+          "lineno": 1042,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
           "type": "Function",
-          "lineno": 1063,
+          "lineno": 1065,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
           "type": "Function",
-          "lineno": 1085,
+          "lineno": 1087,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
           "type": "Function",
-          "lineno": 1119,
+          "lineno": 1121,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
           "type": "Function",
-          "lineno": 1127,
+          "lineno": 1129,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
           "type": "Function",
-          "lineno": 1133,
+          "lineno": 1135,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
           "type": "Function",
-          "lineno": 1139,
+          "lineno": 1141,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
           "type": "Function",
-          "lineno": 1145,
+          "lineno": 1147,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
           "type": "Function",
-          "lineno": 1151,
+          "lineno": 1153,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
           "type": "Function",
-          "lineno": 1157,
+          "lineno": 1159,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
           "type": "Function",
-          "lineno": 1172,
+          "lineno": 1174,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
           "type": "Function",
-          "lineno": 1187,
+          "lineno": 1189,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
           "type": "Function",
-          "lineno": 1206,
+          "lineno": 1208,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
           "type": "Function",
-          "lineno": 1222,
+          "lineno": 1224,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
           "type": "Function",
-          "lineno": 1244,
+          "lineno": 1246,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
           "type": "Function",
-          "lineno": 1276,
+          "lineno": 1278,
           "deselected": true
         }
       ]
@@ -1024,7 +1030,7 @@
         {
           "nodeid": "tests/test_update_modflow.py::test_module_imports",
           "type": "Function",
-          "lineno": 14,
+          "lineno": 15,
           "deselected": true
         },
         {
@@ -1234,193 +1240,193 @@
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_exists",
           "type": "Function",
-          "lineno": 602,
+          "lineno": 601,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_creates_directory",
           "type": "Function",
-          "lineno": 609,
+          "lineno": 608,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_line_count",
           "type": "Function",
-          "lineno": 635,
+          "lineno": 636,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_pre_2024",
           "type": "Function",
-          "lineno": 662,
+          "lineno": 665,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_preserves_post_2024",
           "type": "Function",
-          "lineno": 694,
+          "lineno": 699,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_write_updated_wel_file_invalid_2024_count_raises",
           "type": "Function",
-          "lineno": 727,
+          "lineno": 734,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_exists",
           "type": "Function",
-          "lineno": 749,
+          "lineno": 756,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_file",
           "type": "Function",
-          "lineno": 756,
+          "lineno": 763,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_creates_directory",
           "type": "Function",
-          "lineno": 770,
+          "lineno": 777,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_has_header_comments",
           "type": "Function",
-          "lineno": 786,
+          "lineno": 793,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_cy2023_with_cy2024",
           "type": "Function",
-          "lineno": 811,
+          "lineno": 818,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_replaces_wel_filename",
           "type": "Function",
-          "lineno": 841,
+          "lineno": 848,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_uppercase_package_types",
           "type": "Function",
-          "lineno": 868,
+          "lineno": 875,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_generate_nam_file_matches_validation_content",
           "type": "Function",
-          "lineno": 891,
+          "lineno": 898,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validation_result_class_exists",
           "type": "Function",
-          "lineno": 942,
+          "lineno": 949,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_exists",
           "type": "Function",
-          "lineno": 955,
+          "lineno": 962,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_passes_for_matching_files",
           "type": "Function",
-          "lineno": 962,
+          "lineno": 969,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_against_validation",
           "type": "Function",
-          "lineno": 980,
+          "lineno": 987,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_fails_for_missing_generated_file",
           "type": "Function",
-          "lineno": 1000,
+          "lineno": 1007,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_nam_file_skips_for_missing_validation_file",
           "type": "Function",
-          "lineno": 1014,
+          "lineno": 1021,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_exists",
           "type": "Function",
-          "lineno": 1036,
+          "lineno": 1043,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_returns_validation_result",
           "type": "Function",
-          "lineno": 1043,
+          "lineno": 1050,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_validate_wel_file_full_pipeline",
           "type": "Function",
-          "lineno": 1058,
+          "lineno": 1065,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_validation_report_exists",
           "type": "Function",
-          "lineno": 1111,
+          "lineno": 1120,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_run_validation_exists",
           "type": "Function",
-          "lineno": 1118,
+          "lineno": 1127,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_run_validation_full_pipeline",
           "type": "Function",
-          "lineno": 1125,
+          "lineno": 1134,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_parse_args_exists",
           "type": "Function",
-          "lineno": 1164,
+          "lineno": 1177,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_main_exists",
           "type": "Function",
-          "lineno": 1171,
+          "lineno": 1184,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_exists",
           "type": "Function",
-          "lineno": 1178,
+          "lineno": 1191,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_print_pumping_summary_runs_without_error",
           "type": "Function",
-          "lineno": 1185,
+          "lineno": 1198,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_main_returns_zero_on_success",
           "type": "Function",
-          "lineno": 1200,
+          "lineno": 1213,
           "deselected": true
         },
         {
           "nodeid": "tests/test_update_modflow.py::test_script_runs_end_to_end",
           "type": "Function",
-          "lineno": 1219,
+          "lineno": 1233,
           "deselected": true
         }
       ]
@@ -1471,15 +1477,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0003029490035260096,
+        "duration": 0.00023081400104274508,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0010050470009446144,
+        "duration": 0.0007732379999652039,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014164300228003412,
+        "duration": 0.00010271099927194882,
         "outcome": "passed"
       }
     },
@@ -1497,15 +1503,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0013782559981336817,
+        "duration": 0.003032774999155663,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.022310609012492932,
+        "duration": 0.003321034000691725,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001944719988387078,
+        "duration": 0.00011749700024665799,
         "outcome": "passed"
       }
     },
@@ -1523,15 +1529,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0007505709945689887,
+        "duration": 0.0013846349993400509,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0030358450021594763,
+        "duration": 0.0012111129999539116,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0003058010042877868,
+        "duration": 0.0001391200003126869,
         "outcome": "passed"
       }
     },
@@ -1549,16 +1555,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0006654429889749736,
+        "duration": 0.001051582999934908,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002257575004477985,
+        "duration": 0.0021619879989884794,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.000115479007945396,
+        "duration": 0.00010868199933611322,
         "outcome": "passed"
       }
     },
@@ -1576,15 +1582,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0004840580077143386,
+        "duration": 0.00038097400101833045,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001423639914719388,
+        "duration": 0.00012936500024807174,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.481901361141354e-05,
+        "duration": 8.770200111030135e-05,
         "outcome": "passed"
       }
     },
@@ -1602,15 +1608,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0005202370084589347,
+        "duration": 0.0004569199991237838,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0011616040137596428,
+        "duration": 0.0011180889996467158,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010912999277934432,
+        "duration": 0.0001229760000569513,
         "outcome": "passed"
       }
     },
@@ -1628,15 +1634,15 @@
         ""
       ],
       "setup": {
-        "duration": 9.211800352204591e-05,
+        "duration": 8.795199937594589e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00023104599677026272,
+        "duration": 9.550199865770992e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.466999522875994e-05,
+        "duration": 6.957900041015819e-05,
         "outcome": "passed"
       }
     },
@@ -1654,15 +1660,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.385600136127323e-05,
+        "duration": 6.287799988058396e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.102500916924328e-05,
+        "duration": 0.00011053600064769853,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.849999772384763e-05,
+        "duration": 6.730899985996075e-05,
         "outcome": "passed"
       }
     },
@@ -1680,15 +1686,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00047526399430353194,
+        "duration": 0.00043415400068624876,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0013476219901349396,
+        "duration": 0.0010072889999719337,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010602799011394382,
+        "duration": 0.00010977500096487347,
         "outcome": "passed"
       }
     },
@@ -1706,16 +1712,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0004394669958855957,
+        "duration": 0.00038803700044809375,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002475832006894052,
+        "duration": 0.001485941998907947,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 10110.00 AF\n  BUCKMAN 2: 120.00 AF\n  BUCKMAN 3A: 120.00 AF\n  BUCKMAN 4: 120.00 AF\n  BUCKMAN 5: 120.00 AF\n  BUCKMAN 6: 120.00 AF\n  BUCKMAN 7: 120.00 AF\n  BUCKMAN 8: 120.00 AF\n  BUCKMAN 9: 120.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 120.00 AF\n  BUCKMAN 12: 120.00 AF\n  BUCKMAN 13: 120.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00010873199789784849,
+        "duration": 9.694900109025184e-05,
         "outcome": "passed"
       }
     },
@@ -1733,16 +1739,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0005589409993262962,
+        "duration": 0.000469627999336808,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.001699381013168022,
+        "duration": 0.001715063999654376,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 0.00 AF\n  BUCKMAN 2: 0.00 AF\n  BUCKMAN 3A: 0.00 AF\n  BUCKMAN 4: 0.00 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 0.00 AF\n  BUCKMAN 7: 0.00 AF\n  BUCKMAN 8: 0.00 AF\n  BUCKMAN 9: 0.00 AF\n  BUCKMAN 10: 0.00 AF\n  BUCKMAN 11: 0.00 AF\n  BUCKMAN 12: 0.00 AF\n  BUCKMAN 13: 0.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00011236399586778134,
+        "duration": 0.00010788700092234649,
         "outcome": "passed"
       }
     },
@@ -1760,16 +1766,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0006107289955252782,
+        "duration": 0.0005284559993015137,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.001972176003619097,
+        "duration": 0.0015543119989160914,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00013115900219418108,
+        "duration": 0.00010385099994891789,
         "outcome": "passed"
       }
     },
@@ -1787,15 +1793,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.586799620185047e-05,
+        "duration": 8.909800089895725e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.323699876200408e-05,
+        "duration": 0.00011658599942165893,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.180699321907014e-05,
+        "duration": 8.724699910089839e-05,
         "outcome": "passed"
       }
     },
@@ -1813,15 +1819,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.282400863710791e-05,
+        "duration": 7.30400006432319e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.198800449259579e-05,
+        "duration": 7.610499960719608e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.718700751662254e-05,
+        "duration": 7.57569996494567e-05,
         "outcome": "passed"
       }
     },
@@ -1839,15 +1845,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.0596998082473874e-05,
+        "duration": 7.642799937457312e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.785600948613137e-05,
+        "duration": 8.365299981960561e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.495200017932802e-05,
+        "duration": 6.955800017749425e-05,
         "outcome": "passed"
       }
     },
@@ -1865,15 +1871,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.393100193236023e-05,
+        "duration": 7.25919999240432e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.399100286420435e-05,
+        "duration": 9.489700096310116e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.75109913572669e-05,
+        "duration": 6.351000047288835e-05,
         "outcome": "passed"
       }
     },
@@ -1891,15 +1897,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.067599264904857e-05,
+        "duration": 5.832099850522354e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.517999620176852e-05,
+        "duration": 7.10219992470229e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.664799002464861e-05,
+        "duration": 6.50609999865992e-05,
         "outcome": "passed"
       }
     },
@@ -1917,16 +1923,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00045579099969472736,
+        "duration": 0.0006630839998251759,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00039802199171390384,
+        "duration": 0.000595683000938152,
         "outcome": "passed",
-        "stdout": "Wrote 326 lines to /tmp/pytest-of-bradwolaver/pytest-69/test_output_directory_created0/nonexistent/nested/path/test.wel (pre: 1, 2024: 324, post: 1)\n"
+        "stdout": "Wrote 326 lines to /tmp/pytest-of-bradwolaver/pytest-86/test_output_directory_created0/nonexistent/nested/path/test.wel (pre: 1, 2024: 324, post: 1)\n"
       },
       "teardown": {
-        "duration": 9.2349000624381e-05,
+        "duration": 9.247699927072972e-05,
         "outcome": "passed"
       }
     },
@@ -1944,16 +1950,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0004649299953598529,
+        "duration": 0.0008360699994227616,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00036115800321567804,
+        "duration": 0.0003504630003590137,
         "outcome": "passed",
-        "stdout": "Wrote 324 lines to /tmp/pytest-of-bradwolaver/pytest-69/test_output_file_overwrite0/output/test.wel (pre: 0, 2024: 324, post: 0)\n"
+        "stdout": "Wrote 324 lines to /tmp/pytest-of-bradwolaver/pytest-86/test_output_file_overwrite0/output/test.wel (pre: 0, 2024: 324, post: 0)\n"
       },
       "teardown": {
-        "duration": 8.724200597498566e-05,
+        "duration": 8.82399999682093e-05,
         "outcome": "passed"
       }
     },
@@ -1973,15 +1979,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0007991129969013855,
+        "duration": 0.0010003789993788814,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00022893999994266778,
+        "duration": 0.00021481099975062534,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001006480015348643,
+        "duration": 9.57650008786004e-05,
         "outcome": "passed"
       }
     },
@@ -1999,16 +2005,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0004903309891233221,
+        "duration": 0.0010219659998256247,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00288738300150726,
+        "duration": 0.0020981259986001533,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.0006545890064444393,
+        "duration": 0.00013368699910643045,
         "outcome": "passed"
       }
     },
@@ -2026,16 +2032,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0013270110066514462,
+        "duration": 0.0011614819995884318,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0042382749961689115,
+        "duration": 0.002025435000177822,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00017587500042282045,
+        "duration": 0.00010435799958941061,
         "outcome": "passed"
       }
     },
@@ -2053,15 +2059,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008084949949989095,
+        "duration": 0.0011047839998354902,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00013849700917489827,
+        "duration": 9.141599912254605e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001315970002906397,
+        "duration": 9.273899922845885e-05,
         "outcome": "passed"
       }
     },
@@ -2079,15 +2085,15 @@
         ""
       ],
       "setup": {
-        "duration": 9.161799971479923e-05,
+        "duration": 6.518899863294791e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010301699512638152,
+        "duration": 7.120400005078409e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.396499081049114e-05,
+        "duration": 6.627899892919231e-05,
         "outcome": "passed"
       }
     },
@@ -2105,16 +2111,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0006334969948511571,
+        "duration": 0.000965713999903528,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002523010000004433,
+        "duration": 0.0033029169990186347,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00011050600733142346,
+        "duration": 0.00023501599935116246,
         "outcome": "passed"
       }
     },
@@ -2132,16 +2138,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0005012109904782847,
+        "duration": 0.0016995160003716592,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0024739449872868136,
+        "duration": 0.0019360369988135062,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00011141299910377711,
+        "duration": 0.00010606400064716581,
         "outcome": "passed"
       }
     },
@@ -2159,15 +2165,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.215799996629357e-05,
+        "duration": 7.52220003050752e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010027900862041861,
+        "duration": 7.92399987403769e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.682401337660849e-05,
+        "duration": 6.845099960628431e-05,
         "outcome": "passed"
       }
     },
@@ -2185,15 +2191,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.579500040970743e-05,
+        "duration": 6.114099960541353e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.443300273735076e-05,
+        "duration": 7.224399996630382e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.738299271091819e-05,
+        "duration": 6.455899892898742e-05,
         "outcome": "passed"
       }
     },
@@ -2211,16 +2217,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0006740819953847677,
+        "duration": 0.0005280400000629015,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002207186000305228,
+        "duration": 0.0018580479991214816,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00013200099056120962,
+        "duration": 0.0001018210004986031,
         "outcome": "passed"
       }
     },
@@ -2238,16 +2244,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0006846889882581308,
+        "duration": 0.0011796559992944822,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0017799310007831082,
+        "duration": 0.0017894360007630894,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 12.00 AF\n  BUCKMAN 2: 24.00 AF\n  BUCKMAN 3A: 36.00 AF\n  BUCKMAN 4: 48.00 AF\n  BUCKMAN 5: 60.00 AF\n  BUCKMAN 6: 72.00 AF\n  BUCKMAN 7: 84.00 AF\n  BUCKMAN 8: 96.00 AF\n  BUCKMAN 9: 108.00 AF\n  BUCKMAN 10: 120.00 AF\n  BUCKMAN 11: 132.00 AF\n  BUCKMAN 12: 144.00 AF\n  BUCKMAN 13: 156.00 AF\n"
       },
       "teardown": {
-        "duration": 0.00022591899323742837,
+        "duration": 0.00018926200027635787,
         "outcome": "passed"
       }
     }
