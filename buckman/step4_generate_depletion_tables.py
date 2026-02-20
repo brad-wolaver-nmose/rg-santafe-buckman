@@ -903,7 +903,7 @@ def main(year: int | None = None) -> int:
     # GEOMETRY VALIDATION: Verify GHB cells within FORTRAN extraction range
     # This prevents silent depletion underestimation if model geometry changes
     print("=== Validating MODFLOW Geometry ===\n")
-    ghb_file = PROJECT_ROOT / "input" / "modflow" / "2023" / "thruCY2165.ghb"
+    ghb_file = Path("input") / "modflow" / "2023" / "thruCY2165.ghb"
     try:
         sd.validate_ghb_cells_in_fortran_range(ghb_file)
     except (ValueError, FileNotFoundError) as e:
@@ -1052,7 +1052,7 @@ def main(year: int | None = None) -> int:
     # US-013: Write Table 5 XLSX
     table5_path = output_dir / f"TABLE_5_La_Cienega_Springs_{year}.xlsx"
     try:
-        sd.write_table5_xlsx(table5_path)
+        sd.write_table5_xlsx(table5_path, parsed_data=parsed_data, processing_year=year)
         print(f"Table 5 written to: {table5_path}")
     except Exception as e:
         print_error(

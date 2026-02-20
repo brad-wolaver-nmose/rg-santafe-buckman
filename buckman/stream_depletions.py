@@ -1839,9 +1839,66 @@ def write_table4_xlsx(
 # TABLE 5 XLSX WRITING (US-013)
 # =============================================================================
 
+
+def load_historical_table5(
+    baseline_path: Path | str | None = None,
+) -> dict[int, float]:
+    """Load historical Table 5 cumulative values from a prior-year xlsx.
+
+    Scientific basis:
+    Historical La Cienega Springs depletion values should be preserved exactly
+    as calculated in previous years' MODFLOW runs. Only the current processing
+    year and future projections should be recalculated from the current
+    post-processor output.
+
+    Assumptions:
+    1. Baseline file follows Table 5 format: row 1 headers, row 2+ data
+    2. Column A = Year (int), Column B = Cumulative AF (float)
+    3. If baseline_path is None or file doesn't exist, falls back to
+       LA_CIENEGA_CUMULATIVE hardcoded dict
+
+    Args:
+        baseline_path: Path to a prior-year Table 5 xlsx file.
+            If None, returns copy of LA_CIENEGA_CUMULATIVE dict.
+
+    Returns:
+        Dict mapping year (int) to cumulative acre-feet (float).
+
+    Example:
+        >>> hist = load_historical_table5("output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx")
+        >>> hist[2024]
+        3.74
+    """
+    if baseline_path is None:
+        return dict(LA_CIENEGA_CUMULATIVE)
+
+    baseline_path = Path(baseline_path)
+    if not baseline_path.exists():
+        print(f"WARNING: Table 5 baseline not found: {baseline_path}")
+        return dict(LA_CIENEGA_CUMULATIVE)
+
+    from openpyxl import load_workbook
+
+    wb = load_workbook(baseline_path, read_only=True, data_only=True)
+    ws = wb.active
+
+    historical_data: dict[int, float] = {}
+    for row in ws.iter_rows(min_row=2, max_col=2, values_only=True):
+        year_val, cumulative_val = row
+        if year_val is None or cumulative_val is None:
+            continue
+        historical_data[int(year_val)] = float(cumulative_val)
+
+    wb.close()
+    return historical_data
+
+
 def write_table5_xlsx(
     output_path: str | Path,
-    years: list[int] | None = None
+    parsed_data: dict[int, dict[str, dict[str, float]]] | None = None,
+    processing_year: int | None = None,
+    years: list[int] | None = None,
+    historical_baseline: Path | str | None = None,
 ) -> Path:
     """
     Write Table 5 as a formatted Excel file matching validation format.
@@ -1851,20 +1908,39 @@ def write_table5_xlsx(
     well field pumping. Values are cumulative acre-feet totals showing how
     pumping effects accumulate over time.
 
+    When processing_year is specified, chains from the prior year's Table 5:
+    - Years before processing_year: preserved from prior year's output
+    - Years >= processing_year: recomputed from current MODFLOW output
+    This ensures historical values are locked in by their respective year's
+    MODFLOW run, while current + future projections reflect the latest model.
+
     Assumptions:
-    1. Cumulative values are from LA_CIENEGA_CUMULATIVE constant
-    2. Output follows validation file format: Year, Total columns
-    3. Number format is 0.00 (2 decimal places for acre-feet)
+    1. When processing_year is None: values from LA_CIENEGA_CUMULATIVE constant
+    2. When processing_year is set: historical from prior xlsx, current+ from
+       parsed_data via cfs_monthly_to_af_annual()
+    3. Output follows validation file format: Year, Total columns
+    4. Number format is 0.00 (2 decimal places for acre-feet)
 
     Args:
-        output_path: Path to save the XLSX file
+        output_path: Path to save the XLSX file.
+        parsed_data: Output from parse_post_processor_output(). Required when
+            processing_year is set, to recompute current + future years.
+        processing_year: Year being processed (e.g., 2025). Years < this use
+            historical values from prior year's Table 5; years >= this are
+            recomputed from parsed_data.
         years: List of years to include. Default: 2004-2030.
+        historical_baseline: Explicit path to a prior-year Table 5 xlsx. If
+            None and processing_year is set, auto-resolves to
+            output/depletion/TABLE_5_La_Cienega_Springs_{N-1}.xlsx.
 
     Returns:
         Path to the created XLSX file.
 
     Example:
+        >>> # Backward-compatible (no chaining):
         >>> path = write_table5_xlsx("output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx")
+        >>> # With chaining from prior year:
+        >>> path = write_table5_xlsx(path, parsed_data=pd, processing_year=2025)
 
     Validation:
         Compare generated file to validation/Table 5 - La Cienega Spring.jpg
@@ -1915,6 +1991,28 @@ def write_table5_xlsx(
         cell.font = Font(name='Aptos', size=9, italic=True, bold=True, color="808080")
         cell.alignment = align_center
 
+    # Load historical baseline for chaining (when processing_year is specified)
+    historical_values: dict[int, float] = {}
+    if processing_year is not None:
+        if historical_baseline is not None:
+            historical_values = load_historical_table5(historical_baseline)
+        else:
+            # Auto-resolve: try prior year's Table 5 output
+            prior_year_path = Path(
+                f"output/depletion/TABLE_5_La_Cienega_Springs_{processing_year - 1}.xlsx"
+            )
+            if prior_year_path.exists():
+                print(f"  Chaining Table 5 from prior year: {prior_year_path}")
+                historical_values = load_historical_table5(prior_year_path)
+            else:
+                print(f"  Prior year Table 5 not found: {prior_year_path}")
+                print("  Falling back to LA_CIENEGA_CUMULATIVE dict")
+                historical_values = dict(LA_CIENEGA_CUMULATIVE)
+
+    # Month names for extracting cfs from parsed_data
+    _months = ["jan", "feb", "mar", "apr", "may", "jun",
+               "jul", "aug", "sep", "oct", "nov", "dec"]
+
     # Data rows (starting from row 2)
     for row_idx, year in enumerate(years, start=2):
         # Column A: Year
@@ -1924,7 +2022,24 @@ def write_table5_xlsx(
         cell_year.border = hair_border
 
         # Column B: Total (cumulative AF)
-        cumulative_value = LA_CIENEGA_CUMULATIVE.get(year, 0.0)
+        # Determine value source based on chaining state
+        if processing_year is not None and year < processing_year and year in historical_values:
+            # Historical year: use chained value from prior year's output
+            cumulative_value = historical_values[year]
+        elif processing_year is not None and year >= processing_year and parsed_data is not None:
+            # Current + future years: recompute from MODFLOW output
+            if year in parsed_data and "LC SPRINGS" in parsed_data[year]:
+                lc_cfs = [parsed_data[year]["LC SPRINGS"][m] for m in _months]
+                is_leap = calendar.isleap(year)
+                cumulative_value = cfs_monthly_to_af_annual(
+                    lc_cfs, year=year, use_leap_year=is_leap
+                )
+            else:
+                # Year not in parsed data — fall back to dict
+                cumulative_value = LA_CIENEGA_CUMULATIVE.get(year, 0.0)
+        else:
+            # No chaining (backward-compatible path for tests)
+            cumulative_value = LA_CIENEGA_CUMULATIVE.get(year, 0.0)
         cell_total = ws.cell(row=row_idx, column=2, value=cumulative_value)
         cell_total.font = font_normal
         cell_total.alignment = align_center
