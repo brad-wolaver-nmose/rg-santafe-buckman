@@ -22,8 +22,8 @@ tables:
   Table_3:
     description: "Rio Pojoaque-Nambe & Rio Tesuque depletions"
     tolerance_type: hybrid
-    absolute_tolerance: 0.1   # FLAG: May need adjustment after first run
-    relative_tolerance: 0.01  # 1%
+    absolute_tolerance: 0.001   # 3-decimal place precision (acre-feet)
+    relative_tolerance: 0.001   # 0.1%
 
   Table_4:
     description: "Rio Grande above/below Otowi depletions"

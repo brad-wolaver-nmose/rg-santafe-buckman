@@ -1045,7 +1045,7 @@ def main(year: int | None = None) -> int:
     print("\n=== US-013 Complete ===\n")
 
     # US-014: Validate generated tables against validation files
-    table3_validation = Path(VALIDATION_DIR) / "TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx"
+    table3_validation = Path("validation/2024/expected_outputs/Table_3_expected.xlsx")
     table4_validation = Path(VALIDATION_DIR) / "TABLE 4 - Rio Grande, above below Otowi.xlsx"
 
     print("=== Validating Generated Tables ===\n")

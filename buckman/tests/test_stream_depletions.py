@@ -1253,7 +1253,7 @@ def test_validate_table3_with_real_file():
     )
 
     # Paths
-    validation_path = Path('validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx')
+    validation_path = Path('validation/2024/expected_outputs/Table_3_expected.xlsx')
     postprocessor_output = Path('output/modflow/2024/depletions/CY2024')
 
     if not validation_path.exists():

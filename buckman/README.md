@@ -78,6 +78,7 @@ python3 step4_generate_depletion_tables.py --year 2025
 
 # 3. Verify results
 python3 step5_verify_workflow.py --year 2025       # Quick check
+python3 verify_depletion.py --year 2025            # Cross-model depletion check
 python3 run_all_tests.py --year 2025               # Full test suite (recommended)
 
 # 4. Commit results
@@ -165,6 +166,28 @@ python3 step4_generate_depletion_tables.py --year YYYY
 - Runs `sfmodflx_2245.exe` post-processor to extract stream depletions
 - Parses depletion data by reach (Pojoaque, Tesuque, Rio Grande, La Cienega)
 - Generates Tables 3, 4, 5 with cumulative depletions
+
+### Step 4b: Verify Depletion Tables (Cross-Model)
+
+```bash
+python3 verify_depletion.py --year YYYY
+```
+
+**Input:** Post-processor output from current and prior year (`CY{YYYY}` and `CY{YYYY-1}`)
+
+**Output:** `output/depletion/Table_3_verify_depletion_{YYYY-1}_{YYYY}.xlsx`
+
+**What it does:**
+- Parses both CY files and computes R POJOAQUE and R TESUQUE superposition AF for the full 1988-2030 series directly from each post-processor output
+- Compares values side-by-side with diff columns
+- Yellow-highlights any historical year where |diff| > 0.001 AF
+
+**How to interpret:**
+- **Years 1988 to YYYY-1** should show zero diff (same model, same pumping data)
+- **Year YYYY and beyond** will differ (new pumping data incorporated)
+- Any non-zero diff in historical years indicates a problem with the MODFLOW run or post-processor
+
+**Table 3 chaining:** Step 4 automatically chains Table 3 from the prior year's output. Years before YYYY are copied exactly from `TABLE_3_Rio_Pojoaque_Tesuque_{YYYY-1}.xlsx`; only years YYYY-2030 are recomputed from fresh MODFLOW output.
 
 ### Core Libraries
 
@@ -374,6 +397,12 @@ When processing a new year (e.g., 2025), you have no prior results to compare ag
 - Annual reports typically show gradual trends
 - Sudden jumps require explanation in the report narrative
 
+**5. Cross-model depletion verification:**
+```bash
+python3 verify_depletion.py --year 2025
+```
+Confirms that `sfmodflx_2245` post-processor produces consistent results across model runs. Years 1988-2024 should show zero difference between CY2024 and CY2025. If historical years differ, the MODFLOW run or post-processor may have a problem.
+
 ---
 
 ### 2024 Regression Baseline
@@ -463,6 +492,7 @@ Use when you need to regenerate a log after the fact, or document a run without 
 ├── step2_update_modflow.py             # MODFLOW WEL/NAM
 ├── step3_run_modflow.sh                # Run MODFLOW96
 ├── step4_generate_depletion_tables.py  # Tables 3, 4, 5
+├── verify_depletion.py                # Cross-model depletion check
 ├── step5_verify_workflow.py            # Comprehensive verify
 ├── run_all_tests.py                    # Full test suite orchestrator
 └── stream_depletions.py                # Depletion library

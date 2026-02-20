@@ -651,7 +651,7 @@ def generate_table3_data(
     Table 3 reports stream depletion impacts to Rio Pojoaque-Nambe and Rio Tesuque.
     For each stream, the total impact is the sum of:
     - Residual Impact (Analytical): Pre-1988 pumping effects from Core (2003)
-    - Impact of 1988-2024 Pumping (Superposition): MODFLOW model results
+    - Impact of 1988-{year} Pumping (Superposition): MODFLOW model results
 
     Assumptions:
     1. Parsed data contains "R POJOAQUE" and "R TESUQUE" stream summaries
@@ -687,7 +687,7 @@ def generate_table3_data(
         60.797  # approximately
 
     Validation:
-        Compare to validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx
+        Compare to validation/2024/expected_outputs/Table_3_expected.xlsx
     """
     months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 
@@ -706,9 +706,10 @@ def generate_table3_data(
     tesuque_cfs = [year_data["R TESUQUE"][m] for m in months]
 
     # Convert monthly cfs to annual acre-feet
-    # Table 3 validation uses leap year days (29 for Feb)
-    pojoaque_superposition_af = cfs_monthly_to_af_annual(pojoaque_cfs, use_leap_year=True)
-    tesuque_superposition_af = cfs_monthly_to_af_annual(tesuque_cfs, use_leap_year=True)
+    # Use actual calendar days for the year: leap years get 29 for Feb, non-leap get 28
+    is_leap = calendar.isleap(year)
+    pojoaque_superposition_af = cfs_monthly_to_af_annual(pojoaque_cfs, year=year, use_leap_year=is_leap)
+    tesuque_superposition_af = cfs_monthly_to_af_annual(tesuque_cfs, year=year, use_leap_year=is_leap)
 
     # Get analytical residuals from Core (2003)
     pojoaque_residual_af = get_analytical_residual("pojoaque", year)
@@ -1085,10 +1086,11 @@ def generate_table5_data(
     # Extract monthly cfs values
     lc_springs_cfs = [year_data["LC SPRINGS"][m] for m in months]
 
-    # Convert to annual acre-feet
+    # Convert to annual acre-feet using actual calendar days for the year
     # NOTE: MODFLOW superposition output is already CUMULATIVE depletion
     # The LC SPRINGS values represent total depletion from all pumping 1988-year
-    cumulative_af = cfs_monthly_to_af_annual(lc_springs_cfs)
+    is_leap = calendar.isleap(year)
+    cumulative_af = cfs_monthly_to_af_annual(lc_springs_cfs, year=year, use_leap_year=is_leap)
 
     # Get previous year's cumulative total
     previous_year = year - 1
@@ -1172,11 +1174,12 @@ def write_table3_xlsx(
     Columns show residual impacts (pre-1988 pumping), superposition impacts
     (1988-present pumping), and total impacts.
 
-    Historical Preservation:
-    Years BEFORE processing_year use values from the historical baseline file
-    (Table_3_expected.xlsx) to ensure consistency with previously published
-    reports. Only years >= processing_year are recalculated from the current
-    post-processor output.
+    Historical Preservation (chained baseline):
+    Years BEFORE processing_year use values from the prior year's output
+    Table 3 (e.g., TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx for --year 2025).
+    Only years >= processing_year are recalculated from the current
+    post-processor output. If the prior year's output doesn't exist,
+    falls back to the 2024 validation baseline (Table_3_expected.xlsx).
 
     Assumptions:
     1. Parsed data contains R POJOAQUE and R TESUQUE data for processing_year+
@@ -1206,7 +1209,7 @@ def write_table3_xlsx(
         # Years 1988-2023 from historical baseline, 2024-2030 from parsed_data
 
     Validation:
-        Compare generated file to validation/TABLE 3 - Rio Pojoaque-Nambe & Rio Tesuque.xlsx
+        Compare generated file to validation/2024/expected_outputs/Table_3_expected.xlsx
     """
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Border, Font, Side
@@ -1217,9 +1220,25 @@ def write_table3_xlsx(
         years = list(range(1988, 2031))  # 1988-2030 inclusive
 
     # Load historical data if processing_year is specified
+    # Chain from prior year's output Table 3 if no explicit baseline given
     historical_data: dict[int, dict[str, dict[str, float]]] = {}
     if processing_year is not None:
-        historical_data = load_historical_table3(historical_baseline)
+        if historical_baseline is not None:
+            # Explicit baseline provided — use it directly
+            historical_data = load_historical_table3(historical_baseline)
+        else:
+            # Auto-resolve: try prior year's output first, then fall back to
+            # the 2024 validation baseline (Table_3_expected.xlsx)
+            prior_year_path = Path(
+                f"output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_{processing_year - 1}.xlsx"
+            )
+            if prior_year_path.exists():
+                print(f"  Chaining from prior year: {prior_year_path}")
+                historical_data = load_historical_table3(prior_year_path)
+            else:
+                print(f"  Prior year Table 3 not found: {prior_year_path}")
+                print(f"  Falling back to: {HISTORICAL_TABLE3_PATH}")
+                historical_data = load_historical_table3(HISTORICAL_TABLE3_PATH)
 
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1270,13 +1289,15 @@ def write_table3_xlsx(
         ws.cell(row=1, column=col).border = medium_border
 
     # Row 2: Column headers
+    # End year in header reflects the processing year (e.g., "1988-2024" for 2024 run)
+    end_year = processing_year if processing_year is not None else max(years)
     headers = [
         "Year",
         "Residual Impact of 1972–1987 Pumping\n(Analytical)",
-        "Impact of\n1988–2024 Pumping\n(Superposition)",
+        f"Impact of\n1988–{end_year} Pumping\n(Superposition)",
         "Total\nImpact",
         "Residual Impact of 1972–1987 Pumping\n(Analytical)",
-        "Impact of\n1988–2024 Pumping\n(Superposition)",
+        f"Impact of\n1988–{end_year} Pumping\n(Superposition)",
         "Total\nImpact"
     ]
 
@@ -1723,9 +1744,10 @@ def write_table5_xlsx(
 # =============================================================================
 
 # Validation tolerances
-VALIDATION_TOLERANCE_AF: float = 0.01       # Acre-feet comparison tolerance (strict, for verified years)
+VALIDATION_TOLERANCE_AF: float = 0.01       # Acre-feet: general tolerance for Tables 4, 5
+VALIDATION_TOLERANCE_TABLE3_AF: float = 0.001  # Table 3: 3-decimal place precision (strict)
 VALIDATION_TOLERANCE_CFS: float = 0.000001  # CFS comparison tolerance
-VALIDATION_TOLERANCE_PROJECTED_AF: float = 0.5  # Looser tolerance for projected years (2025+)
+VALIDATION_TOLERANCE_PROJECTED_AF: float = 0.001  # Table 3 projected years: same 3-decimal precision
 
 # Last year with verified (not projected) validation data
 LAST_VERIFIED_YEAR: int = 2024
@@ -1778,8 +1800,9 @@ def validate_table3(
     errors: list[str] = []
 
     # Determine if this is a projected year (no verified ground truth)
+    # Table 3 uses strict 0.001 AF tolerance for 3-decimal place precision
     is_projected = year > LAST_VERIFIED_YEAR
-    tolerance = VALIDATION_TOLERANCE_PROJECTED_AF if is_projected else VALIDATION_TOLERANCE_AF
+    tolerance = VALIDATION_TOLERANCE_PROJECTED_AF if is_projected else VALIDATION_TOLERANCE_TABLE3_AF
 
     # Load validation workbook (data_only=True to get calculated values)
     wb = openpyxl.load_workbook(validation_path, data_only=True)
