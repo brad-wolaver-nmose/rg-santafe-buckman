@@ -1024,9 +1024,10 @@ def test_write_table5_xlsx_creates_file(tmp_path):
     wb = openpyxl.load_workbook(result_path)
     ws = wb.active
 
-    # Check sheet has expected dimensions (1 header row + 3 data rows, 2 columns)
+    # Check sheet has expected dimensions (1 header row + 3 data rows, 5 columns)
+    # Columns: A=Year, B=Total, C=Annual Δ, D=Cumul check, E=Δ (B−D)
     assert ws.max_row == 4, f"Expected 4 rows, got {ws.max_row}"
-    assert ws.max_column == 2, f"Expected 2 columns, got {ws.max_column}"
+    assert ws.max_column == 5, f"Expected 5 columns, got {ws.max_column}"
 
     # Check header values
     assert ws.cell(row=1, column=1).value == "Year"

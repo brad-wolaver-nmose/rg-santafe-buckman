@@ -240,6 +240,35 @@ pip install pandas openpyxl
 
 ---
 
+## Understanding Stream Cell Assignments
+
+**How does the pipeline know which MODFLOW cells correspond to each stream reach?**
+
+The pipeline uses a **three-layer hardcoding system** to identify which model cells contribute to stream depletions:
+
+1. **MODFLOW Input Files** (`input/modflow/2023/thruCY2165.riv`, `thruCY2165.ghb`)
+   - Define physical cell locations (layer, row, column) with no stream labels
+   - Example: La Cienega Springs = 6 GHB cells at rows 30-32, columns 12-15
+
+2. **FORTRAN Post-Processor** (`sfmodflx_2245.exe`)
+   - Hardcoded cell rectangles extract and aggregate fluxes
+   - Example: La Cienega extraction range = rows 28-35, columns 10-20 (hardcoded in FORTRAN source)
+   - Assigns stream labels: "LC SPRINGS", "R POJOAQUE", "R TESUQUE", "RIO GRANDE"
+
+3. **Python Parser** (`stream_depletions.py`)
+   - Matches exact stream label strings from FORTRAN output
+   - Extracts monthly cfs values for each stream
+
+**⚠️ Critical Assumption:** FORTRAN cell ranges MUST match actual cell locations in MODFLOW input files, or depletion values will be wrong.
+
+**For full details:** See [`docs/MODFLOW_CELL_MAPPING.md`](docs/MODFLOW_CELL_MAPPING.md)
+- Complete documentation of cell identification mechanism
+- ASCII diagrams showing cell locations on model grid
+- Instructions for updating if model geometry changes
+- Validation procedures to detect mismatches
+
+---
+
 ## Verification & Testing
 
 Verification ensures that workflow outputs are correct and physically plausible. This is critical for year N+1 (i.e., year 2025 and later) when you have no prior results to compare against.

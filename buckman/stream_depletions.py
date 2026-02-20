@@ -9,8 +9,17 @@ Scientific Basis:
 
 Year-agnostic: Handles any year including leap year detection.
 
+Stream Cell Identification:
+This module parses post-processor output that assigns model cells to streams.
+The cell-to-stream mapping is hardcoded in FORTRAN (sfmodflx_2245.for) and
+CANNOT be changed from Python. See docs/MODFLOW_CELL_MAPPING.md for:
+- Which MODFLOW cells correspond to each stream (La Cienega, Pojoaque, etc.)
+- FORTRAN hardcoded cell ranges (rows 28-35, cols 10-20 for La Cienega)
+- How to update if model geometry changes
+
 References:
 - Core, A.A. (2003). Santa Fe River Water Budget Model Technical Report.
+- docs/MODFLOW_CELL_MAPPING.md - Complete cell identification documentation
 """
 
 import calendar
@@ -419,6 +428,9 @@ def parse_postprocessor_output(file_path: str | Path) -> dict[int, dict[str, dic
                 continue
 
             # Parse stream summary: "0  R POJOAQUE    0.083581 ..."
+            # CRITICAL: Stream labels (LC SPRINGS, R POJOAQUE, etc.) are hardcoded
+            # in FORTRAN post-processor (sfmodflx_2245.for) and MUST match exactly.
+            # See docs/MODFLOW_CELL_MAPPING.md for which MODFLOW cells map to each stream.
             stream_match = re.match(r"0\s+(R POJOAQUE|R TESUQUE|RIO GRANDE|RIV\s+TOTAL|LC SPRINGS)\s+([\d.]+(?:\s+[\d.]+){11})", line)
             if stream_match:
                 stream_name = stream_match.group(1).strip()
@@ -1041,11 +1053,21 @@ def generate_table5_data(
     Buckman well field pumping. The cumulative total increases each year
     as additional pumping effects propagate through the aquifer to the springs.
 
+    MODFLOW Cell Identification:
+    La Cienega Springs is represented by 6 GHB (General Head Boundary) cells
+    in the MODFLOW model at:
+    - Layer 1, Rows 30-32, Columns 12-15
+    - FORTRAN post-processor (sfmodflx_2245.for) extracts these cells using
+      hardcoded rectangle: rows 28-35, columns 10-20
+    - Aggregated monthly flux labeled as "LC SPRINGS" in CY{year} output file
+    - See docs/MODFLOW_CELL_MAPPING.md for complete cell mapping documentation
+
     Assumptions:
-    1. Parsed data contains "LC SPRINGS" stream summary
+    1. Parsed data contains "LC SPRINGS" stream summary from FORTRAN post-processor
     2. Values are in cfs (monthly averages)
-    3. Previous years' cumulative totals are from LA_CIENEGA_CUMULATIVE dict
-    4. 2024 annual = cumulative_2024 - cumulative_2023 from validation
+    3. All GHB package cells represent La Cienega Springs (no other GHB features)
+    4. GHB cells fall within FORTRAN extraction rectangle (validated separately)
+    5. Previous years' cumulative totals are from LA_CIENEGA_CUMULATIVE dict
 
     Args:
         parsed_data: Output from parse_postprocessor_output()
@@ -1623,6 +1645,180 @@ def write_table4_xlsx(
     cell = ws.cell(row=buckman_row, column=18, value=table4_data["buckman_annual_af"])
     cell.number_format = num_fmt_3
 
+    # --- Cross-check formula rows (reviewer can verify math in-spreadsheet) ---
+    font_check = Font(name="Calibri", size=9, italic=True, color="808080")
+    num_fmt_check = "0.000000"
+
+    # Compute xlsx row ranges for above/below Otowi cells (for explicit SUM formulas)
+    above_cell_start: int | None = None
+    above_cell_end: int | None = None
+    below_cell_start: int | None = None
+    below_cell_end: int | None = None
+    for idx, cell_info in enumerate(cell_data):
+        xlsx_row = idx + 2  # cell_data[0] -> row 2
+        if cell_info["otowi"] == "above":
+            if above_cell_start is None:
+                above_cell_start = xlsx_row
+            above_cell_end = xlsx_row
+        elif cell_info["otowi"] == "below":
+            if below_cell_start is None:
+                below_cell_start = xlsx_row
+            below_cell_end = xlsx_row
+
+    # Otowi label column (R = column 18)
+    otowi_col_letter = get_column_letter(18)
+    # Cell data range for SUMIF: rows 2 to cell_data_end_row
+    cell_range_end = cell_data_end_row
+
+    # Blank separator row
+    check_header_row = buckman_row + 2
+    ws.cell(row=check_header_row, column=3, value="CROSS-CHECK (formulas)").font = Font(
+        name="Calibri", size=9, bold=True, color="808080"
+    )
+
+    # Row: CFS SUMIF above — sum cells where Otowi col = "above", compare to row 53
+    cfs_sumif_above_row = check_header_row + 1
+    ws.cell(
+        row=cfs_sumif_above_row, column=3,
+        value="CFS SUMIF: above Otowi"
+    ).font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        formula = (
+            f"=SUMIF(${otowi_col_letter}$2:${otowi_col_letter}${cell_range_end}"
+            f',\"above\"'
+            f",{col_letter}$2:{col_letter}${cell_range_end})"
+            f"-{col_letter}{above_cfs_row}"
+        )
+        cell = ws.cell(row=cfs_sumif_above_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+
+    # Row: CFS SUMIF below
+    cfs_sumif_below_row = cfs_sumif_above_row + 1
+    ws.cell(
+        row=cfs_sumif_below_row, column=3,
+        value="CFS SUMIF: below Otowi"
+    ).font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        formula = (
+            f"=SUMIF(${otowi_col_letter}$2:${otowi_col_letter}${cell_range_end}"
+            f',\"below\"'
+            f",{col_letter}$2:{col_letter}${cell_range_end})"
+            f"-{col_letter}{below_cfs_row}"
+        )
+        cell = ws.cell(row=cfs_sumif_below_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+
+    # Row: CFS explicit SUM above — sum the known above-Otowi row range
+    cfs_sum_above_row = cfs_sumif_below_row + 1
+    if above_cell_start is not None and above_cell_end is not None:
+        ws.cell(
+            row=cfs_sum_above_row, column=3,
+            value=f"CFS SUM: above (rows {above_cell_start}-{above_cell_end})"
+        ).font = font_check
+        for month_idx in range(12):
+            col_letter = get_column_letter(6 + month_idx)
+            formula = (
+                f"=SUM({col_letter}{above_cell_start}:{col_letter}{above_cell_end})"
+                f"-{col_letter}{above_cfs_row}"
+            )
+            cell = ws.cell(row=cfs_sum_above_row, column=6 + month_idx, value=formula)
+            cell.font = font_check
+            cell.number_format = num_fmt_check
+
+    # Row: CFS explicit SUM below
+    cfs_sum_below_row = cfs_sum_above_row + 1
+    if below_cell_start is not None and below_cell_end is not None:
+        ws.cell(
+            row=cfs_sum_below_row, column=3,
+            value=f"CFS SUM: below (rows {below_cell_start}-{below_cell_end})"
+        ).font = font_check
+        for month_idx in range(12):
+            col_letter = get_column_letter(6 + month_idx)
+            formula = (
+                f"=SUM({col_letter}{below_cell_start}:{col_letter}{below_cell_end})"
+                f"-{col_letter}{below_cfs_row}"
+            )
+            cell = ws.cell(row=cfs_sum_below_row, column=6 + month_idx, value=formula)
+            cell.font = font_check
+            cell.number_format = num_fmt_check
+
+    # Row: AF check above Otowi — cfs × days × 86400/43560 should equal Python AF
+    check_above_row = cfs_sum_below_row + 1
+    ws.cell(row=check_above_row, column=3, value="AF check: above Otowi").font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        # Formula: cfs_cell * days_cell * 86400/43560 - af_cell
+        formula = (
+            f"={col_letter}{above_cfs_row}"
+            f"*{col_letter}{days_row}"
+            f"*86400/43560"
+            f"-{col_letter}{above_af_row}"
+        )
+        cell = ws.cell(row=check_above_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+    # Annual sum of check values
+    first_col = get_column_letter(6)
+    last_col = get_column_letter(17)
+    cell = ws.cell(
+        row=check_above_row, column=18,
+        value=f"=SUM({first_col}{check_above_row}:{last_col}{check_above_row})"
+    )
+    cell.font = font_check
+    cell.number_format = num_fmt_check
+
+    # Row: AF check below Otowi
+    check_below_row = check_above_row + 1
+    ws.cell(row=check_below_row, column=3, value="AF check: below Otowi").font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        formula = (
+            f"={col_letter}{below_cfs_row}"
+            f"*{col_letter}{days_row}"
+            f"*86400/43560"
+            f"-{col_letter}{below_af_row}"
+        )
+        cell = ws.cell(row=check_below_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+    cell = ws.cell(
+        row=check_below_row, column=18,
+        value=f"=SUM({first_col}{check_below_row}:{last_col}{check_below_row})"
+    )
+    cell.font = font_check
+    cell.number_format = num_fmt_check
+
+    # Row: Total RG check — above + below should equal computed total
+    check_total_row = check_below_row + 1
+    ws.cell(row=check_total_row, column=3, value="Total check: above+below\u2212sum").font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        formula = (
+            f"={col_letter}{above_af_row}"
+            f"+{col_letter}{below_af_row}"
+            f"-{col_letter}{total_sum_row}"
+        )
+        cell = ws.cell(row=check_total_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+
+    # Row: RG reported check — computed sum should equal sfmodflx stream total
+    check_reported_row = check_total_row + 1
+    ws.cell(
+        row=check_reported_row, column=3,
+        value="RG reported check: sum\u2212sfmodflx"
+    ).font = font_check
+    for month_idx in range(12):
+        col_letter = get_column_letter(6 + month_idx)
+        formula = f"={col_letter}{total_sum_row}-{col_letter}{total_reported_row}"
+        cell = ws.cell(row=check_reported_row, column=6 + month_idx, value=formula)
+        cell.font = font_check
+        cell.number_format = num_fmt_check
+
     # Set column widths
     ws.column_dimensions['A'].width = 8
     ws.column_dimensions['B'].width = 8
@@ -1710,6 +1906,15 @@ def write_table5_xlsx(
         cell.alignment = align_center
         cell.border = medium_border
 
+    # Cross-check column headers (row 1)
+    font_check = Font(name='Aptos', size=9, italic=True, color="808080")
+    num_fmt_check = '0.000'
+    check_headers = [("Annual \u0394 (AF)", 3), ("Cumul check", 4), ("\u0394 (B\u2212D)", 5)]
+    for header_text, col_idx in check_headers:
+        cell = ws.cell(row=1, column=col_idx, value=header_text)
+        cell.font = Font(name='Aptos', size=9, italic=True, bold=True, color="808080")
+        cell.alignment = align_center
+
     # Data rows (starting from row 2)
     for row_idx, year in enumerate(years, start=2):
         # Column A: Year
@@ -1726,9 +1931,40 @@ def write_table5_xlsx(
         cell_total.number_format = num_fmt_2
         cell_total.border = hair_border
 
+        # Column C: Annual delta (year-over-year increment)
+        if row_idx == 2:
+            # First year: annual = cumulative (no prior year to subtract)
+            formula_c = "=B2"
+        else:
+            formula_c = f"=B{row_idx}-B{row_idx - 1}"
+        cell = ws.cell(row=row_idx, column=3, value=formula_c)
+        cell.font = font_check
+        cell.alignment = align_center
+        cell.number_format = num_fmt_check
+
+        # Column D: Cumulative check (running sum of annual deltas)
+        if row_idx == 2:
+            formula_d = "=C2"
+        else:
+            formula_d = f"=D{row_idx - 1}+C{row_idx}"
+        cell = ws.cell(row=row_idx, column=4, value=formula_d)
+        cell.font = font_check
+        cell.alignment = align_center
+        cell.number_format = num_fmt_check
+
+        # Column E: Delta (B - D, should be 0.00)
+        formula_e = f"=B{row_idx}-D{row_idx}"
+        cell = ws.cell(row=row_idx, column=5, value=formula_e)
+        cell.font = font_check
+        cell.alignment = align_center
+        cell.number_format = num_fmt_check
+
     # Set column widths to match validation image proportions
     ws.column_dimensions['A'].width = 10
     ws.column_dimensions['B'].width = 12
+    ws.column_dimensions['C'].width = 14
+    ws.column_dimensions['D'].width = 14
+    ws.column_dimensions['E'].width = 10
 
     # Set row height for header row
     ws.row_dimensions[1].height = 18
@@ -2222,3 +2458,160 @@ def print_validation_results(validation_results: dict[str, Any]) -> None:
     print("\n" + "=" * 60)
     print(f"OVERALL STATUS: {validation_results['overall_status']}")
     print("=" * 60)
+
+
+# =============================================================================
+# MODFLOW GEOMETRY VALIDATION
+# =============================================================================
+
+def parse_ghb_file(ghb_file: Path) -> list[tuple[int, int, int]]:
+    """
+    Parse MODFLOW GHB package file to extract cell coordinates.
+
+    GHB (General Head Boundary) file format:
+    Line 1: MXACTC IGHBCB (number of cells, output unit)
+    Lines 2+: LAYER ROW COL HEAD CONDUCTANCE
+
+    Args:
+        ghb_file: Path to GHB package file (e.g., input/modflow/2023/thruCY2165.ghb)
+
+    Returns:
+        List of (layer, row, col) tuples for all GHB cells.
+
+    Example:
+        >>> parse_ghb_file(Path("input/modflow/2023/thruCY2165.ghb"))
+        [(1, 30, 14), (1, 31, 12), (1, 31, 14), (1, 31, 15), (1, 32, 13), (1, 32, 12)]
+
+    Raises:
+        FileNotFoundError: If GHB file doesn't exist.
+        ValueError: If file format is invalid.
+    """
+    if not ghb_file.exists():
+        raise FileNotFoundError(f"GHB file not found: {ghb_file}")
+
+    cells: list[tuple[int, int, int]] = []
+
+    with open(ghb_file) as f:
+        for i, line in enumerate(f, start=1):
+            line = line.strip()
+
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+
+            # Line 1: header (MXACTC IGHBCB)
+            if i == 1:
+                parts = line.split()
+                if len(parts) < 2:
+                    raise ValueError(f"Invalid GHB header: expected 'MXACTC IGHBCB', got '{line}'")
+                continue
+
+            # Cell data lines: LAYER ROW COL HEAD CONDUCTANCE
+            parts = line.split()
+            if len(parts) < 5:
+                # Allow shorter lines (may be alternate format or comment)
+                continue
+
+            try:
+                layer = int(parts[0])
+                row = int(parts[1])
+                col = int(parts[2])
+                cells.append((layer, row, col))
+            except (ValueError, IndexError) as e:
+                # Skip lines that don't parse as cell data
+                continue
+
+    return cells
+
+
+def validate_ghb_cells_in_fortran_range(
+    ghb_file: Path,
+    fortran_row_range: tuple[int, int] = (28, 35),
+    fortran_col_range: tuple[int, int] = (10, 20),
+) -> bool:
+    """
+    Verify all GHB package cells fall within FORTRAN extraction rectangle.
+
+    CRITICAL VALIDATION:
+    sfmodflx_2245.for (FORTRAN post-processor) uses hardcoded cell ranges to
+    extract La Cienega Springs flux from GHB package output:
+    - Rows: IS=28 to IX=35 (hardcoded at lines 223-228)
+    - Columns: JS=10 to JX=20
+
+    If any GHB cells exist OUTSIDE this rectangle, they will NOT be included
+    in "LC SPRINGS" stream totals, causing silent underestimation of depletion.
+
+    This validation catches geometry mismatches before they corrupt outputs.
+
+    Args:
+        ghb_file: Path to GHB package file.
+        fortran_row_range: (min_row, max_row) extracted by FORTRAN. Default: (28, 35).
+        fortran_col_range: (min_col, max_col) extracted by FORTRAN. Default: (10, 20).
+
+    Returns:
+        True if all GHB cells fall within FORTRAN rectangle.
+
+    Raises:
+        ValueError: If any GHB cell is outside FORTRAN extraction range.
+        FileNotFoundError: If GHB file doesn't exist.
+
+    Example:
+        >>> validate_ghb_cells_in_fortran_range(
+        ...     Path("input/modflow/2023/thruCY2165.ghb")
+        ... )
+        ✓ All 6 GHB cells within FORTRAN rectangle (rows 28-35, cols 10-20)
+        True
+
+    See Also:
+        docs/MODFLOW_CELL_MAPPING.md - Complete cell mapping documentation
+    """
+    cells = parse_ghb_file(ghb_file)
+
+    if not cells:
+        raise ValueError(f"No GHB cells found in {ghb_file}")
+
+    min_row, max_row = fortran_row_range
+    min_col, max_col = fortran_col_range
+
+    # Check each cell
+    outside_cells: list[tuple[int, int, int]] = []
+    for layer, row, col in cells:
+        if not (min_row <= row <= max_row):
+            outside_cells.append((layer, row, col))
+        elif not (min_col <= col <= max_col):
+            outside_cells.append((layer, row, col))
+
+    if outside_cells:
+        error_lines = [
+            f"ERROR: {len(outside_cells)} GHB cell(s) outside FORTRAN extraction rectangle:",
+            f"  FORTRAN range: rows {min_row}-{max_row}, columns {min_col}-{max_col}",
+            f"  (Hardcoded in sfmodflx_2245.for lines 223-228)",
+            "",
+            "Cells outside range:"
+        ]
+        for layer, row, col in outside_cells:
+            reason = []
+            if not (min_row <= row <= max_row):
+                reason.append(f"row {row} not in [{min_row}, {max_row}]")
+            if not (min_col <= col <= max_col):
+                reason.append(f"col {col} not in [{min_col}, {max_col}]")
+            error_lines.append(f"  (Layer {layer}, Row {row}, Col {col}) — {', '.join(reason)}")
+
+        error_lines.extend([
+            "",
+            "CONSEQUENCE: These cells will be IGNORED by FORTRAN post-processor.",
+            "             La Cienega depletion values will be UNDERESTIMATED.",
+            "",
+            "SOLUTION:",
+            "  Option 1: Move GHB cells into FORTRAN rectangle (edit thruCY2165.ghb)",
+            "  Option 2: Expand FORTRAN rectangle to include cells (edit sfmodflx_2245.for,",
+            "            recompile, validate against historical outputs)",
+            "",
+            "See docs/MODFLOW_CELL_MAPPING.md Section 7 for detailed update procedure."
+        ])
+
+        raise ValueError("\n".join(error_lines))
+
+    # All cells valid
+    print(f"✓ All {len(cells)} GHB cells within FORTRAN rectangle (rows {min_row}-{max_row}, cols {min_col}-{max_col})")
+    return True

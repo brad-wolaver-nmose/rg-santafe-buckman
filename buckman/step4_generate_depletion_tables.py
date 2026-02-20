@@ -900,6 +900,24 @@ def main(year: int | None = None) -> int:
 
     print("\n=== US-001 Complete ===\n")
 
+    # GEOMETRY VALIDATION: Verify GHB cells within FORTRAN extraction range
+    # This prevents silent depletion underestimation if model geometry changes
+    print("=== Validating MODFLOW Geometry ===\n")
+    ghb_file = PROJECT_ROOT / "input" / "modflow" / "2023" / "thruCY2165.ghb"
+    try:
+        sd.validate_ghb_cells_in_fortran_range(ghb_file)
+    except (ValueError, FileNotFoundError) as e:
+        print_error(
+            "GHB cell geometry validation failed",
+            str(ghb_file),
+            str(e),
+            "All GHB cells within FORTRAN extraction rectangle (rows 28-35, cols 10-20)",
+            "See docs/MODFLOW_CELL_MAPPING.md for cell mapping documentation and update procedures"
+        )
+        return 1
+
+    print("\n=== Geometry Validation Complete ===\n")
+
     # US-002: Run post-processor via Wine
     if not run_post_processor(year):
         print("\nFailed at US-002: Run post-processor")
@@ -977,6 +995,10 @@ def main(year: int | None = None) -> int:
     print("\n=== US-009 Complete ===\n")
 
     # US-010: Generate Table 5 data
+    # NOTE: La Cienega Springs identification relies on FORTRAN post-processor
+    # (sfmodflx_2245.exe) which hardcodes cell extraction rectangle (rows 28-35,
+    # cols 10-20) and assigns label "LC SPRINGS". See docs/MODFLOW_CELL_MAPPING.md
+    # for complete documentation of which MODFLOW cells correspond to La Cienega.
     try:
         table5_data = sd.generate_table5_data(parsed_data, year)
         sd.print_table5_verification(table5_data, year)
