@@ -1,6 +1,6 @@
 {
-  "created": 1771527501.1464202,
-  "duration": 0.3269500732421875,
+  "created": 1771535121.8300807,
+  "duration": 0.36808061599731445,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
@@ -1502,16 +1502,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00040335900121135637,
+        "duration": 0.0018572869994386565,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.015912955001113005,
+        "duration": 0.030398417002288625,
         "outcome": "passed",
         "stdout": "Check 1: Volumetric Budget Closure\n  Parsing: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/modflow/CY2024.lst\n"
       },
       "teardown": {
-        "duration": 0.00015298600010282826,
+        "duration": 0.00014673300029244274,
         "outcome": "passed"
       }
     },
@@ -1528,16 +1528,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00018768699919746723,
+        "duration": 0.00017945999934454449,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.06499495899879548,
+        "duration": 0.06562339499942027,
         "outcome": "passed",
         "stdout": "Check 2: Pumping Conservation (Input = Applied)\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  WEL file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/thruCY2165_2024.wel\n"
       },
       "teardown": {
-        "duration": 0.00015861700012465008,
+        "duration": 0.00016428899834863842,
         "outcome": "passed"
       }
     },
@@ -1554,16 +1554,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00023529399913968518,
+        "duration": 0.00021345200002542697,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0024691449998499593,
+        "duration": 0.002035167002759408,
         "outcome": "passed",
         "stdout": "Check 3: Depletion <= Pumping (Physics Constraint)\n  Depletion file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/depletions/CY2024\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n"
       },
       "teardown": {
-        "duration": 0.0001421409997419687,
+        "duration": 0.00010919499982264824,
         "outcome": "passed"
       }
     },
@@ -1580,16 +1580,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.000217148000956513,
+        "duration": 0.00016017400048440322,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00025912700039043557,
+        "duration": 0.00023446700288332067,
         "outcome": "passed",
         "stdout": "Check 4: Table Sum Integrity\n  Checking Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  Checking Table 3: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx\n  Checking Table 4: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx\n  Checking Table 5: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx\n"
       },
       "teardown": {
-        "duration": 0.00011903000086022075,
+        "duration": 8.970199996838346e-05,
         "outcome": "passed"
       }
     }

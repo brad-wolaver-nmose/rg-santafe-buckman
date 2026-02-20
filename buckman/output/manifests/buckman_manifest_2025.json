@@ -139,7 +139,7 @@
     "override_flag_used": false
   },
   "pipeline_manifest": {
-    "git_commit": "a5bf7f9819c4329e1b5e114bc9c77d5af192f8a6",
+    "git_commit": "11267c06e2b2752eb5884f6fedeb5faa05fd22ea",
     "git_status": "dirty",
     "python_version": "3.10.12",
     "scripts": [
@@ -187,7 +187,7 @@
       "passed": 224,
       "failed": 0,
       "status": "PASS",
-      "timestamp": "2026-02-19T11:58:25.980539"
+      "timestamp": "2026-02-19T14:05:27.466901"
     },
     "layer_1_conservation": {
       "total": 0,
@@ -196,14 +196,14 @@
       "status": "SKIPPED",
       "reason": "P3_conservation_results_2025.json not found",
       "tests": [],
-      "timestamp": "2026-02-19T11:58:25.980629"
+      "timestamp": "2026-02-19T14:05:27.467064"
     },
     "ballpark_check": {
       "status": "HARD_FAIL",
       "exit_code": 4,
       "hard_fails": 0,
       "soft_flags": 0,
-      "timestamp": "2026-02-19T11:58:26.271958"
+      "timestamp": "2026-02-19T14:05:27.788223"
     }
   },
   "flag_register": {
@@ -219,9 +219,9 @@
     }
   },
   "run_metadata": {
-    "pipeline_start": "2026-02-19T11:58:21.959043",
-    "pipeline_end": "2026-02-19T11:58:21.959048",
-    "total_runtime_seconds": 5e-06,
+    "pipeline_start": "2026-02-19T14:05:23.134917",
+    "pipeline_end": "2026-02-19T14:05:23.134923",
+    "total_runtime_seconds": 6e-06,
     "machine_name": "OSE-HYDRO-D0P3",
     "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
     "os_version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
@@ -234,7 +234,7 @@
         "passed": 190,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 3.3563907146453857,
+        "duration_sec": 4.09934401512146,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -243,7 +243,7 @@
         "passed": 30,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.32155895233154297,
+        "duration_sec": 0.30962681770324707,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -252,7 +252,7 @@
         "passed": 4,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.3269500732421875,
+        "duration_sec": 0.36808061599731445,
         "hard_fail": false,
         "failed_tests": []
       }
