@@ -602,7 +602,7 @@ def run_ballpark_check(year: int, outputs_dir: Path, bounds_path: Path) -> int:
     except FileNotFoundError as e:
         print(f"SKIP: No validation baseline for year {year}")
         print(f"  ({e})")
-        print(f"  This is normal for years not yet finalized.")
+        print("  This is normal for years not yet finalized.")
         print()
         print("EXIT CODE: 4 (skip - no baseline)")
         return 4  # Skip - missing baseline files (not a physics violation)

@@ -14,3 +14,7 @@ select = [
 ignore = [
     "E501",  # line too long (handled by formatter)
 ]
+
+[lint.per-file-ignores]
+# test_modflow_geometry needs sys.path manipulation before importing stream_depletions
+"tests/test_modflow_geometry.py" = ["I001", "E402"]

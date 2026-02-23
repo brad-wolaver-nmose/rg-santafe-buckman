@@ -70,7 +70,7 @@ AF to ft3/s:  rate = -(AF / num_layers) * 43560 / (days_in_month * 86400)
 
 | Req | Description | Acceptance Criterion |
 |-----|-------------|---------------------|
-| R1 | Create directory structure with all required directories | `ls` confirms all directories exist: `input/csv/`, `input/modflow/2023/`, `output/ingested_data/`, `output/modflow/`, `output/depletion/`, `validation/`, `tests/`, `src/`, `docs/` |
+| R1 | Create directory structure with all required directories | `ls` confirms all directories exist: `input/csv/`, `input/modflow/2023/`, `output/ingested_data/`, `output/modflow/`, `output/depletion/`, `validation/`, `tests/`, `src/`, `docs/`, `archive/` (superseded development artifacts) |
 | R2 | Create `requirements.txt` with pinned minimum versions | File contains: `pandas>=1.5.0`, `pint>=0.20.0`, `openpyxl>=3.0.0`, `pytest>=7.0.0`, `ruff>=0.1.0`, `mypy>=1.0.0`. Note: `PyYAML` and `pytest-json-report` are not currently in requirements.txt. |
 | R3 | Create `ruff.toml` and `mypy.ini` with linting/type-checking config | `ruff check src/` and `mypy src/` run without configuration errors. Note: the project uses `ruff.toml` and `mypy.ini`, not `pyproject.toml`. |
 | R4 | Create `src/__init__.py` (empty) | Python can import from `src` package |

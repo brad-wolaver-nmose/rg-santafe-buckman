@@ -16,15 +16,16 @@ Author: Claude Code (Anthropic)
 Date: 2026-02-19
 """
 
-import pytest
-from pathlib import Path
 import sys
+from pathlib import Path
+
+import pytest
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import stream_depletions as sd
+import stream_depletions as sd  # noqa: E402
 
 
 # =============================================================================

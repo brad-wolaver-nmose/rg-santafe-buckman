@@ -433,7 +433,7 @@ def compare_tables() -> dict[str, Any]:
         ("2024_Table_2_output.xlsx", "Table_2_expected.xlsx", "Table_2"),
     ]
 
-    pumping_output_dir = PROJECT_ROOT / "output" / "ingested_data"
+    pumping_output_dir = PROJECT_ROOT / "output" / "ingested_data" / "2024"
 
     for generated_name, expected_name, table_key in pumping_tables:
         actual_path = pumping_output_dir / generated_name
