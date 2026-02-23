@@ -14,11 +14,24 @@ from pathlib import Path
 
 import pandas as pd
 
+from src.constants import (
+    ACRE_FT_TO_FT3,
+    BASELINE_DIR,
+    BASELINE_FILES_TO_COPY,
+    BASELINE_YEAR,
+    LINES_PER_MONTH,
+    MONTHS_ABBREV,
+    NUM_LAYERS,
+    RATE_TOLERANCE,
+    SECONDS_PER_DAY,
+    WELL_GRID_MAP,
+    WELL_NAME_MAP,
+    WELLS_PER_MONTH,
+)
+
 # =============================================================================
 # YEAR CONFIGURATION
 # =============================================================================
-# Baseline year: the first year that uses original 2023 input files
-BASELINE_YEAR: int = 2024
 
 
 @dataclass
@@ -68,7 +81,7 @@ def get_year_config(target_year: int) -> YearConfig:
         source_year=source_year,
         input_wel_path=input_wel_path,
         input_nam_path=input_nam_path,
-        table2_csv_path=f"output/ingested_data/{target_year}_Table_2_output.csv",
+        table2_csv_path=f"output/ingested_data/{target_year}/{target_year}_Table_2_output.csv",
         output_dir=f"output/modflow/{target_year}",
         output_wel_filename=f"thruCY2165_{target_year}.wel",
         output_nam_filename=f"CY{target_year}.nam",
@@ -106,78 +119,20 @@ def get_days_in_month(year: int) -> dict[str, int]:
     }
 
 # =============================================================================
-# CONVERSION CONSTANTS
+# CONVERSION CONSTANTS (imported from src.constants)
 # =============================================================================
-ACRE_FT_TO_FT3: int = 43560  # 1 acre-foot = 43,560 ft³
-SECONDS_PER_DAY: int = 86400
-NUM_LAYERS: int = 2  # pumping split equally between Layer 1 and Layer 2
 
 # =============================================================================
-# WELL NAME MAPPING (Table 2 well number → MODFLOW well name)
+# WELL MAPPINGS (imported from src.constants)
 # =============================================================================
-WELL_NAME_MAP: dict[int, str] = {
-    1: "BUCKMAN 1",
-    2: "BUCKMAN 2",
-    3: "BUCKMAN 3A",  # Well 3 maps to BUCKMAN 3A
-    4: "BUCKMAN 4",
-    5: "BUCKMAN 5",
-    6: "BUCKMAN 6",
-    7: "BUCKMAN 7",
-    8: "BUCKMAN 8",
-    9: "BUCKMAN 9",
-    10: "BUCKMAN 10",
-    11: "BUCKMAN 11",
-    12: "BUCKMAN 12",
-    13: "BUCKMAN 13",
-}
 
 # =============================================================================
-# WELL GRID MAPPING (MODFLOW well name → (row, col))
+# BASELINE FILES CONFIGURATION (imported from src.constants)
 # =============================================================================
-WELL_GRID_MAP: dict[str, tuple[int, int]] = {
-    "BUCKMAN 1": (13, 11),
-    "BUCKMAN 2": (14, 11),
-    "BUCKMAN 3A": (14, 11),
-    "BUCKMAN 4": (14, 11),
-    "BUCKMAN 5": (15, 12),
-    "BUCKMAN 6": (14, 12),
-    "BUCKMAN 7": (13, 11),
-    "BUCKMAN 8": (13, 11),
-    "BUCKMAN 9": (14, 12),
-    "BUCKMAN 10": (17, 13),
-    "BUCKMAN 11": (19, 14),
-    "BUCKMAN 12": (19, 15),
-    "BUCKMAN 13": (20, 16),
-}
 
 # =============================================================================
-# BASELINE FILES CONFIGURATION
+# TEMPORAL CONSTANTS (imported from src.constants)
 # =============================================================================
-# Directory containing original 2023 MODFLOW files (static, unchanged)
-BASELINE_DIR: str = "input/modflow/2023"
-
-# Files to copy from baseline to output directory
-# These are required by MODFLOW96 but don't change between years
-BASELINE_FILES_TO_COPY: list[str] = [
-    "modflow96.exe",  # MODFLOW96 executable
-    "sflcs.bcf",  # Block-Centered Flow package
-    "sflcs.sip",  # Strongly Implicit Procedure solver
-    "thruCY2165.bas",  # Basic package
-    "thruCY2165.ghb",  # General Head Boundary package
-    "thruCY2165.oc",  # Output Control
-    "thruCY2165.riv",  # River package
-    "sfmodflx_2245.exe",  # Stream flux post-processor for depletion tables
-    "verify_modflow_run.py",  # MODFLOW output verification script
-    "verify_depletion.py",  # Depletion output verification script
-]
-
-# =============================================================================
-# TEMPORAL CONSTANTS
-# =============================================================================
-MONTH_ABBREVS: list[str] = [
-    "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
-]
 
 
 def convert_af_to_ft3s(
@@ -230,8 +185,6 @@ def convert_af_to_ft3s(
 # =============================================================================
 # WEL FILE PARSING
 # =============================================================================
-LINES_PER_MONTH: int = 27       # 1 header + 26 well entries (13 wells × 2 layers)
-WELLS_PER_MONTH: int = 26       # 13 wells × 2 layers
 
 
 def find_year_boundaries(
@@ -375,7 +328,7 @@ def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
 
         # Header should be "26" (number of well entries)
         if header_line != "26":
-            month_name = MONTH_ABBREVS[month_idx]
+            month_name = MONTHS_ABBREV[month_idx]
             raise ValueError(
                 f"{month_name} {target_year} header should be '26', "
                 f"found '{header_line}' at section line {month_start + 1}"
@@ -384,7 +337,7 @@ def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
         # First entry should be BUCKMAN 1
         first_entry = target_year_lines[month_start + 1]
         if "BUCKMAN 1" not in first_entry:
-            month_name = MONTH_ABBREVS[month_idx]
+            month_name = MONTHS_ABBREV[month_idx]
             raise ValueError(
                 f"{month_name} {target_year} first entry should be BUCKMAN 1, "
                 f"found: {first_entry.strip()}"
@@ -393,7 +346,7 @@ def parse_wel_file(wel_path: str, target_year: int) -> WelFileData:
         # Last entry should be BUCKMAN 13
         last_entry = target_year_lines[month_start + WELLS_PER_MONTH]
         if "BUCKMAN 13" not in last_entry:
-            month_name = MONTH_ABBREVS[month_idx]
+            month_name = MONTHS_ABBREV[month_idx]
             raise ValueError(
                 f"{month_name} {target_year} last entry should be BUCKMAN 13, "
                 f"found: {last_entry.strip()}"
@@ -467,7 +420,7 @@ def read_table2_pumping_data(csv_path: str) -> dict[int, dict[str, float]]:
     for _, row in df_wells.iterrows():
         well_num = int(row["Well"])
         monthly_data: dict[str, float] = {}
-        for month in MONTH_ABBREVS:
+        for month in MONTHS_ABBREV:
             value = float(row[month])
             if value < 0:
                 raise ValueError(
@@ -594,7 +547,7 @@ def generate_well_entries(
 
     lines: list[str] = []
 
-    for month in MONTH_ABBREVS:
+    for month in MONTHS_ABBREV:
         days = days_in_month[month]
 
         # Add header line
@@ -903,11 +856,6 @@ def copy_baseline_files(output_dir: str) -> list[Path]:
 # =============================================================================
 # VALIDATION FUNCTIONS
 # =============================================================================
-# Tolerance for rate comparison
-# PRD states ±0.00002 but actual differences reach 0.00008 due to rounding
-# differences between source CSV precision and validation file creation.
-# Using 0.0001 (1e-4) to accommodate observed variance while still catching errors.
-RATE_TOLERANCE: float = 0.0001
 
 
 class ValidationResult:
@@ -1108,7 +1056,7 @@ def validate_wel_file(
     # Validate target year section - compare rates with tolerance
     rate_failures: list[dict[str, object]] = []
 
-    for month_idx, month in enumerate(MONTH_ABBREVS):
+    for month_idx, month in enumerate(MONTHS_ABBREV):
         month_start = start_idx + (month_idx * LINES_PER_MONTH)
 
         for entry_idx in range(WELLS_PER_MONTH):  # 26 entries per month
@@ -1124,7 +1072,7 @@ def validate_wel_file(
             # Extract well name from parts (parts[4] and optionally [5] for "3A")
             if len(gen_parts) >= 7:
                 well_name = gen_parts[4]
-                if len(gen_parts) >= 8 and gen_parts[5] not in MONTH_ABBREVS:
+                if len(gen_parts) >= 8 and gen_parts[5] not in MONTHS_ABBREV:
                     well_name += " " + gen_parts[5]
 
                 gen_rate = float(gen_parts[3])
@@ -1329,7 +1277,7 @@ def print_pumping_summary(
 
     for well_num in WELL_ORDER:
         well_name = WELL_NAME_MAP[well_num]
-        for month in MONTH_ABBREVS:
+        for month in MONTHS_ABBREV:
             acre_feet = pumping_data[well_num][month]
             days = days_in_month[month]
             rate = convert_af_to_ft3s(acre_feet, days)

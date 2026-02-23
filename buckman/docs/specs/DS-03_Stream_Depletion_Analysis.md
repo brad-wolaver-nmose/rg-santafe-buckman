@@ -5,7 +5,7 @@
 **Status:** Draft
 **Author:** Claude Code (Anthropic) + Brad Wolaver (NMOSE)
 **Created:** 2026-02-20
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-02-23
 
 ---
 
@@ -60,13 +60,12 @@ Annual_Increment_AF = Cumulative_AF(year) - Cumulative_AF(year - 1)
 Where cumulative values come from MODFLOW GHB flux output.
 ```
 
-**Rio Tesuque residual formula (beyond 2030):**
+**Rio Tesuque residual (1988-2050):**
 
 ```
-Residual_AF = max(0, -0.4908 * year + 1006.2)
-
-Linear extrapolation from Core (2003) PROJECTION.XLS data.
-Valid until the formula yields zero (approximately year 2050).
+CORE_2003_TESUQUE dict contains explicit values for all 63 years (1988-2050).
+No extrapolation formula is needed.
+Residual reaches 0.117 AF in 2050 and is 0.0 for years beyond 2050.
 ```
 
 ### 2.3 Worked Example -- Table 3 (Rio Pojoaque, 2024)
@@ -113,7 +112,7 @@ Verification: 1 cfs = 1 ft^3/s
 | 1 | Superposition is valid (aquifer response is linear) | Buckman pumping causes small head changes relative to total saturated thickness; aquifer behavior approximately linear | Non-linear effects would cause depletion estimates to be inaccurate | Model has been calibrated and validated against observed streamflow data since 2003 |
 | 2 | Core (2003) analytical residuals are correct | Published technical report with peer review; values manually transcribed from PROJECTION.XLS | Transcription errors would affect Table 3 totals | Values are hardcoded constants verified against source document |
 | 3 | Pojoaque residual is zero after 2015 | Core (2003) table ends at 2015: 0.316; physical basis is that pre-1988 pumping effects have fully propagated | If residual still exists, Table 3 slightly underestimates Pojoaque depletion | Conservative for compliance (reports lower depletion than actual) |
-| 4 | Tesuque residual follows linear formula after 2030 | `y = -0.4908 * year + 1006.2`; linear decline matches late-time analytical solution behavior | Actual decline may deviate from linear; formula yields negative values eventually (clamped to 0) | Formula is derived from fitted trend in Core (2003) data; values are small (<10 AF/yr by 2030) |
+| 4 | Tesuque residual values are explicit through 2050 | `CORE_2003_TESUQUE` dict contains 63 entries (1988-2050) derived from Core (2003) PROJECTION.XLS; residual reaches 0.117 AF in 2050 and is 0.0 after | No extrapolation needed; values beyond 2050 return 0.0 | Dict values verified against source document; linear decline pattern is consistent with late-time analytical solution behavior |
 | 5 | FORTRAN post-processor cell ranges match actual MODFLOW cells | Hardcoded rectangles in sfmodflx_2245.for must encompass all RIV and GHB cells | Cells outside rectangles are silently excluded from depletion totals | See docs/MODFLOW_CELL_MAPPING.md for validation procedure |
 | 6 | All GHB cells represent La Cienega Springs | No other GHB features in the model | Adding other GHB features would corrupt La Cienega totals | Model geometry has been stable since 2003 |
 | 7 | La Cienega MODFLOW output is cumulative from 2004 | Annual increment = cum(N) - cum(N-1) | Wrong reference point would produce incorrect annual values | Historical cumulative values validated against published Table 5 |
@@ -287,15 +286,22 @@ Longer-lasting residual effect on Rio Tesuque. Initial values increase (peaking 
 | 2008 | 20.683 | | 2030 | 9.933 |
 | 2009 | 20.157 | | | |
 
-**After 2030:** Linear extrapolation formula:
+**2031-2050:** Explicit values continue in `CORE_2003_TESUQUE` dict (63 entries total, 1988-2050):
 
-```
-Residual_AF = max(0, -0.4908 * year + 1006.2)
+| Year | Residual (AF) | | Year | Residual (AF) |
+|------|--------------|---|------|--------------|
+| 2031 | 9.442 | | 2041 | 4.534 |
+| 2032 | 8.951 | | 2042 | 4.043 |
+| 2033 | 8.460 | | 2043 | 3.552 |
+| 2034 | 7.970 | | 2044 | 3.062 |
+| 2035 | 7.479 | | 2045 | 2.571 |
+| 2036 | 6.988 | | 2046 | 2.080 |
+| 2037 | 6.497 | | 2047 | 1.589 |
+| 2038 | 6.006 | | 2048 | 1.098 |
+| 2039 | 5.516 | | 2049 | 0.608 |
+| 2040 | 5.025 | | 2050 | 0.117 |
 
-Example for 2035: max(0, -0.4908 * 2035 + 1006.2) = max(0, 7.422) = 7.422 AF
-Example for 2050: max(0, -0.4908 * 2050 + 1006.2) = max(0, 0.060) = 0.060 AF
-Zero crossing: ~2050 (formula yields 0 around year 2050)
-```
+**After 2050:** Residual = 0.0 AF (effect fully exhausted). The Tesuque residual reaches 0.117 AF in 2050, and `get_analytical_residual()` returns 0.0 for all years beyond 2050 via `.get(year, 0.0)`.
 
 ---
 

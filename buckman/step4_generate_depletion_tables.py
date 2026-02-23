@@ -19,18 +19,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+from src.constants import (
+    DEFAULT_YEAR,
+    DEPLETION_OUTPUT_DIR,
+    VALIDATION_DIR,
+)
+
 # =============================================================================
-# CONFIGURATION CONSTANTS
+# CONFIGURATION CONSTANTS (imported from src.constants)
 # =============================================================================
-
-# Output directory for generated XLSX tables
-OUTPUT_DIR: str = "./output/depletion/"
-
-# Validation directory
-VALIDATION_DIR: str = "./validation/"
-
-# Default processing year
-DEFAULT_YEAR: int = 2024
 
 
 # =============================================================================
@@ -888,7 +885,7 @@ def main(year: int | None = None) -> int:
         return 1
 
     # Create output directory if not exists
-    output_dir = Path(OUTPUT_DIR)
+    output_dir = Path(DEPLETION_OUTPUT_DIR)
     output_dir.mkdir(parents=True, exist_ok=True)
     print(f"Output directory: {output_dir.resolve()}")
     print()

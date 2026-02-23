@@ -29,6 +29,22 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from pint import UnitRegistry
 
+from src.constants import (
+    ANNUAL_SUM_TOLERANCE_MG,
+    CSV_TOTAL_COLUMN,
+    CSV_WELL_COLUMNS,
+    DAILY_SUM_TOLERANCE_ERROR_MGD,
+    DAILY_SUM_TOLERANCE_INFO_MGD,
+    INGESTED_DATA_DIR,
+    INPUT_CSV_PATH,
+    MG_TO_AF_FACTOR,  # noqa: F401 — re-exported for test compatibility
+    MONTHS_ABBREV,  # noqa: F401 — re-exported for test compatibility
+    MONTHS_ORDERED,
+    NOISE_THRESHOLD_MGD,
+    VALIDATION_DIR,
+    WELL_OSE_MAP,
+)
+
 # Initialize unit registry for dimensional analysis
 ureg = UnitRegistry()
 
@@ -39,90 +55,8 @@ ureg.define('million_gallon = 1e6 * gallon = MG')
 ureg.define('million_gallon_per_day = million_gallon / day = MGD')
 
 # =============================================================================
-# CONFIGURATION CONSTANTS
+# CONFIGURATION CONSTANTS (imported from src.constants)
 # =============================================================================
-
-# Path pattern for source CSV file — replace {year} with actual year at runtime
-# CSV contains daily MGD (million gallons per day) values for 13 Buckman wells
-INPUT_CSV_PATH: str = "./input/csv/Buckman_Well_Prod_{year}.csv"
-
-# Output directory for all generated files
-OUTPUT_DIR: str = "./output/ingested_data"
-
-# Validation data directory (contains reference Excel files for verification)
-VALIDATION_DIR: str = "./validation"
-
-# USGS conversion factor: 1 million gallons = 3.06889 acre-feet
-# Scientific basis: 1 acre-foot = 325,851 gallons (USGS definition)
-# Calculation: 1,000,000 gallons / 325,851 gallons/AF = 3.06889 AF/MG
-MG_TO_AF_FACTOR: float = 3.06889
-
-# Three-tier tolerance thresholds for daily BWP verification (MGD)
-# Each day's per-well sum is compared to the BWP formula column
-# Tier 1: Absolute noise floor - below instrument precision (database artifacts)
-# Set to 0.0015 MGD to catch 100-gallon rounding artifacts (900-1,500 gal range)
-NOISE_THRESHOLD_MGD: float = 0.0015  # 1,500 gal/day - database precision artifacts
-
-# Tier 2: Informational threshold - expected Excel rounding differences
-DAILY_SUM_TOLERANCE_INFO_MGD: float = 0.001  # 1,000 gal/day tolerance
-
-# Tier 3: Error threshold - significant mismatches requiring CSV review
-DAILY_SUM_TOLERANCE_ERROR_MGD: float = 0.005  # 5,000 gal/day threshold
-
-# Physical interpretation:
-# - 0.0015 MGD = 1,500 gal/day (catches 100-gal database rounding: 900-1,500 gal range)
-# - 0.001 MGD = 1,000 gal/day (typical Excel formula rounding tolerance)
-# - 0.005 MGD = 5,000 gal/day (~0.2% of average daily production)
-
-# Tolerance for annual Sum row verification (MG)
-# Our 12-month totals are compared to the CSV's Sum row per well
-# Physical interpretation: 0.01 MG = 10,000 gallons difference threshold
-ANNUAL_SUM_TOLERANCE_MG: float = 0.01
-
-# Month abbreviations in calendar order (used for output filenames and tables)
-MONTHS_ABBREV: tuple[str, ...] = (
-    "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
-)
-
-# Month tuples for iteration: (numeric string, abbreviation)
-MONTHS_ORDERED: tuple[tuple[str, str], ...] = (
-    ("01", "JAN"), ("02", "FEB"), ("03", "MAR"), ("04", "APR"),
-    ("05", "MAY"), ("06", "JUN"), ("07", "JUL"), ("08", "AUG"),
-    ("09", "SEP"), ("10", "OCT"), ("11", "NOV"), ("12", "DEC"),
-)
-
-# Well-to-OSE number mapping: well number (1-13) → OSE permit number
-# These are the New Mexico State Engineer office permit numbers for each Buckman well
-# Well 3 is labeled "3/3A" in historical reports (combined wells 3 and 3A)
-WELL_OSE_MAP: dict[int, str] = {
-    1: "RG-20516-S-5",
-    2: "RG-20516-S-6",
-    3: "RG-20516-S",      # Labeled as "3/3A" in reports
-    4: "RG-20516-S-2",
-    5: "RG-20516-S-3",
-    6: "RG-20516-S-4",
-    7: "RG-20516-S-7",
-    8: "RG-20516-S-8",
-    9: "RG-20516-S-9",
-    10: "RG-20516-S-10",
-    11: "RG-20516-S-11",
-    12: "RG-20516-S-12",
-    13: "RG-20516-S-13",
-}
-
-# CSV column headers for wells 1-13 (as they appear in the source CSV)
-# Format: "BWell N|Flow Mgd" where N is well number
-CSV_WELL_COLUMNS: list[str] = [
-    "BWell 1|Flow Mgd", "BWell 2|Flow Mgd", "BWell 3|Flow Mgd", "BWell 4|Flow Mgd", "BWell 5|Flow Mgd",
-    "BWell 6|Flow Mgd", "BWell 7|Flow Mgd", "BWell 8|Flow Mgd", "BWell 9|Flow Mgd", "BWell 10|Flow Mgd",
-    "BWell 11|Flow Mgd", "BWell 12|Flow Mgd", "BWell 13|Flow Mgd",
-]
-
-# Header name for the total/formula column in the source CSV
-# This column contains the daily total production across all wells (MGD)
-CSV_TOTAL_COLUMN: str = "BWP|Flow Mgd|MGD|Formula"
-
 
 # =============================================================================
 # HELPER FUNCTIONS
@@ -888,12 +822,14 @@ def generate_table2_output(monthly_data: dict[str, pd.DataFrame], year: int, out
     summary_rows = pd.DataFrame([blank_row, wells_10_13_row, wells_1_7_8_row])
     table2_df = pd.concat([table2_df, summary_rows], ignore_index=True)
 
-    # 8. Write CSV
-    output_path = Path(output_dir) / f"{year}_Table_2_output.csv"
+    # 8. Write CSV (into year subdirectory)
+    year_dir = Path(output_dir) / f"{year}"
+    year_dir.mkdir(parents=True, exist_ok=True)
+    output_path = year_dir / f"{year}_Table_2_output.csv"
     table2_df.to_csv(output_path, index=False)
 
     # 9. Write Excel (.xlsx) with validation-matching formatting
-    xlsx_path = Path(output_dir) / f"{year}_Table_2_output.xlsx"
+    xlsx_path = year_dir / f"{year}_Table_2_output.xlsx"
     write_table2_xlsx(table_rows, year, xlsx_path)
 
     # 10. Print confirmation
@@ -1139,7 +1075,7 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
 
     # Fallback to previous year's output if validation file doesn't exist
     if not validation_path.exists():
-        fallback_path = Path(OUTPUT_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
+        fallback_path = Path(INGESTED_DATA_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
         if fallback_path.exists():
             validation_path = fallback_path
             print(f"  Using {year - 1} output as template (no validation file for {year})")
@@ -1276,11 +1212,12 @@ def generate_table1_output(year_afy_data: dict[int, float], year: int, output_di
         table1_df = pd.concat([table1_df, stats_df], ignore_index=True)
 
     # 5. Write CSV
-    output_path = Path(output_dir) / f"{year}_Table_1_updated.csv"
+    (Path(output_dir) / f"{year}").mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir) / f"{year}" / f"{year}_Table_1_updated.csv"
     table1_df.to_csv(output_path, index=False)
 
     # 6. Write Excel (.xlsx) with validation-matching formatting
-    xlsx_path = Path(output_dir) / f"{year}_Table_1_updated.xlsx"
+    xlsx_path = Path(output_dir) / f"{year}" / f"{year}_Table_1_updated.xlsx"
     write_table1_xlsx(table1_df, year_rows, year, xlsx_path)
 
     # 7. Print confirmation
@@ -1793,7 +1730,7 @@ def check_prerequisites(year: int) -> bool:
 
     # Check Table 1 template availability
     validation_path = Path(VALIDATION_DIR) / f"Table_1_data_afy_{year}.xlsx"
-    fallback_path = Path(OUTPUT_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
+    fallback_path = Path(INGESTED_DATA_DIR) / f"{year - 1}" / f"{year - 1}_Table_1_updated.xlsx"
 
     print("\n📋 Table 1 Template Source:")
     if validation_path.exists():
@@ -1897,7 +1834,7 @@ def main() -> int:
         csv_path = INPUT_CSV_PATH.format(year=year)
 
         # 3. Create output directory if needed
-        Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+        Path(INGESTED_DATA_DIR).mkdir(parents=True, exist_ok=True)
 
         # 4. Call read_source_csv()
         daily_df, sum_row = read_source_csv(csv_path)
@@ -1921,13 +1858,13 @@ def main() -> int:
         for month_num, month_abbrev in MONTHS_ORDERED:
             month_df = monthly_data[month_num]
             flagged_wells = generate_monthly_csv(
-                month_num, month_abbrev, month_df, year, OUTPUT_DIR
+                month_num, month_abbrev, month_df, year, INGESTED_DATA_DIR
             )
             all_flags.extend(flagged_wells)
 
         # 9. Call generate_table2_output()
         print("\nGenerating report tables...")
-        generate_table2_output(monthly_data, year, OUTPUT_DIR)
+        generate_table2_output(monthly_data, year, INGESTED_DATA_DIR)
 
         # 10. Call generate_table1_output()
         # Build year_afy_data dict from monthly_data
@@ -1944,11 +1881,11 @@ def main() -> int:
             annual_af = (annual_mg * ureg.million_gallon).to(ureg.acre_foot).magnitude
             year_afy_data[well_num] = annual_af
 
-        generate_table1_output(year_afy_data, year, OUTPUT_DIR)
+        generate_table1_output(year_afy_data, year, INGESTED_DATA_DIR)
 
         # 11. Call generate_qa_summary()
         print("\nGenerating QA summary...")
-        generate_qa_summary(all_flags, daily_verification, year, OUTPUT_DIR)
+        generate_qa_summary(all_flags, daily_verification, year, INGESTED_DATA_DIR)
 
         # 12. Call verify_annual_sums()
         print("\nVerifying annual totals...")
@@ -1979,7 +1916,7 @@ def main() -> int:
         print(f"Buckman #1 July: {buckman1_july_mg:.3f} MG = {buckman1_july_af:.2f} AF ✓")
 
         print("=" * 60)
-        print(f"SUCCESS: All outputs generated in {OUTPUT_DIR}/")
+        print(f"SUCCESS: All outputs generated in {INGESTED_DATA_DIR}/")
         print("=" * 60)
 
         # 14. Return exit code (0=success, 1=error)

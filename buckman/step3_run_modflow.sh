@@ -114,7 +114,7 @@ echo "--------------------------------------------------------------"
 # Run MODFLOW with logging
 START_TIME=$(date +%s)
 echo "$NAM_FILE" | wine ./modflow96.exe 2>&1 | tee "${YEAR}_modflow_run.log"
-EXIT_CODE=${PIPESTATUS[0]}
+EXIT_CODE=${PIPESTATUS[1]}
 END_TIME=$(date +%s)
 RUNTIME=$((END_TIME - START_TIME))
 

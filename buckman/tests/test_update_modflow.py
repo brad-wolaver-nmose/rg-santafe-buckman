@@ -103,7 +103,7 @@ def test_read_table2_pumping_data():
     """
     from step2_update_modflow import read_table2_pumping_data
 
-    result = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    result = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
 
     # Check structure: 13 wells
     assert isinstance(result, dict)
@@ -131,7 +131,7 @@ def test_read_table2_no_negative_values():
     """Verify all pumping values are non-negative."""
     from step2_update_modflow import read_table2_pumping_data
 
-    result = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    result = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
 
     for well_num, monthly_data in result.items():
         for month, value in monthly_data.items():
@@ -420,7 +420,7 @@ def test_generate_well_entries_count():
     """
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
     assert len(lines) == 324, f"Expected 324 lines, got {len(lines)}"
@@ -432,7 +432,7 @@ def test_generate_well_entries_structure():
     """
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
     # Check each month block
@@ -464,7 +464,7 @@ def test_generate_well_entries_well_order():
     """
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
     # Check JAN 2024 entries (first month)
@@ -494,7 +494,7 @@ def test_generate_well_entries_layer_order():
     """Verify Layer 1 comes before Layer 2 for each well."""
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
     # Check first well (BUCKMAN 1) in JAN
@@ -513,7 +513,7 @@ def test_generate_well_entries_rates_are_negative():
     """Verify all pumping rates are negative (MODFLOW convention)."""
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
     for i, line in enumerate(lines):
@@ -541,7 +541,7 @@ def test_generate_well_entries_matches_validation_jan():
 
     from step2_update_modflow import generate_well_entries, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     # Use \n line ending for comparison (Python strips \r in text mode)
     generated_lines = generate_well_entries(pumping_data, 2024, line_ending="\n")
 
@@ -617,7 +617,7 @@ def test_write_updated_wel_file_creates_directory(tmp_path):
 
     # Parse and generate data
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
 
     # Use temp directory that doesn't exist
@@ -644,7 +644,7 @@ def test_write_updated_wel_file_line_count(tmp_path):
     )
 
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
 
     output_file = tmp_path / "thruCY2165_2024.wel"
@@ -674,7 +674,7 @@ def test_write_updated_wel_file_preserves_pre_2024(tmp_path):
 
     input_wel_path = "input/modflow/2023/thruCY2165.wel"
     wel_data = parse_wel_file(input_wel_path, 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
 
     output_file = tmp_path / "thruCY2165_2024.wel"
@@ -708,7 +708,7 @@ def test_write_updated_wel_file_preserves_post_2024(tmp_path):
 
     input_wel_path = "input/modflow/2023/thruCY2165.wel"
     wel_data = parse_wel_file(input_wel_path, 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
 
     output_file = tmp_path / "thruCY2165_2024.wel"
@@ -1084,7 +1084,7 @@ def test_validate_wel_file_full_pipeline(tmp_path):
 
     # Generate the .wel file
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
     output_file = write_updated_wel_file(
         wel_data, new_2024_lines,
@@ -1148,7 +1148,7 @@ def test_run_validation_full_pipeline(tmp_path):
 
     # Generate both files
     wel_data = parse_wel_file("input/modflow/2023/thruCY2165.wel", 2024)
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     new_2024_lines = generate_well_entries(pumping_data, 2024, line_ending="\r\n")
     write_updated_wel_file(
         wel_data, new_2024_lines,
@@ -1200,7 +1200,7 @@ def test_print_pumping_summary_runs_without_error(capsys):
     """Verify print_pumping_summary runs with valid pumping data."""
     from step2_update_modflow import print_pumping_summary, read_table2_pumping_data
 
-    pumping_data = read_table2_pumping_data("output/ingested_data/2024_Table_2_output.csv")
+    pumping_data = read_table2_pumping_data("output/ingested_data/2024/2024_Table_2_output.csv")
     print_pumping_summary(pumping_data, 2024)
 
     captured = capsys.readouterr()

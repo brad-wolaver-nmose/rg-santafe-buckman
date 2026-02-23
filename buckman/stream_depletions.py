@@ -26,124 +26,31 @@ import calendar
 from pathlib import Path
 from typing import Any
 
+from src.constants import (
+    ABOVE_OTOWI_CELLS,
+    BELOW_OTOWI_CELLS,
+    BUCKMAN_WELLS_CELL,
+    CORE_2003_POJOAQUE,
+    CORE_2003_TESUQUE,
+    DAYS_2024,
+    DAYS_VALIDATION,
+    HISTORICAL_TABLE3_PATH,
+    LA_CIENEGA_CUMULATIVE,
+)
+
 # =============================================================================
 # CONFIGURATION CONSTANTS
 # =============================================================================
-
-def get_days_in_year(year: int) -> list[int]:
-    """
-    Return days per month for given year, handling leap years.
-
-    Scientific basis:
-    - Leap years have 29 days in February, non-leap years have 28
-    - Leap year rule: divisible by 4, except centuries unless divisible by 400
-    - Uses Python calendar module for correctness
-
-    Args:
-        year: Calendar year (e.g., 2024, 2025)
-
-    Returns:
-        List of 12 integers, days in each month [Jan..Dec]
-
-    Example:
-        >>> get_days_in_year(2024)  # Leap year
-        [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        >>> get_days_in_year(2025)  # Non-leap year
-        [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    """
-    return [
-        31,
-        29 if calendar.isleap(year) else 28,
-        31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-    ]
-
-
-# Days per month for 2024 (leap year) - kept for backward compatibility
-DAYS_2024: list[int] = get_days_in_year(2024)
-
-# Days per month from validation files (non-leap year pattern)
-# Note: Validation files use 28 for February regardless of year
-DAYS_VALIDATION: list[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
-# Otowi Gage cell definitions (layer, row, col)
-ABOVE_OTOWI_CELLS: list[tuple[int, int, int]] = [
-    (1, 1, 16), (1, 2, 16), (1, 3, 16), (1, 4, 16), (1, 5, 15),
-    (1, 6, 14), (1, 7, 14), (1, 8, 13), (1, 9, 13), (1, 10, 12)
-]
-
-BELOW_OTOWI_CELLS: list[tuple[int, int, int]] = [
-    (1, 11, 11), (1, 12, 11), (1, 13, 11), (1, 14, 10), (1, 15, 9),
-    (1, 15, 10), (1, 16, 9), (1, 17, 8), (1, 18, 6), (1, 18, 7),
-    (1, 19, 6), (1, 20, 5), (1, 21, 4), (1, 21, 5), (1, 22, 4), (1, 23, 3)
-]
 
 
 # =============================================================================
 # LA CIENEGA SPRINGS HISTORICAL CUMULATIVE DATA
 # =============================================================================
 
-# Cumulative depletion totals from Table 5 validation image
-# Values are cumulative acre-feet starting from 2004
-LA_CIENEGA_CUMULATIVE: dict[int, float] = {
-    2004: 0.45,
-    2005: 0.66,
-    2006: 0.83,
-    2007: 0.99,
-    2008: 1.16,
-    2009: 1.32,
-    2010: 1.49,
-    2011: 1.65,
-    2012: 1.82,
-    2013: 1.97,
-    2014: 2.13,
-    2015: 2.29,
-    2016: 2.45,
-    2017: 2.60,
-    2018: 2.75,
-    2019: 2.90,
-    2020: 3.06,
-    2021: 3.21,
-    2022: 3.37,
-    2023: 3.54,
-    2024: 3.74,  # Validation target
-    2025: 3.92,
-    2026: 4.10,
-    2027: 4.27,
-    2028: 4.46,
-    2029: 4.62,
-    2030: 4.80,
-}
-
 
 # =============================================================================
 # CORE (2003) ANALYTICAL MODEL RESIDUALS
 # =============================================================================
-
-# Rio Pojoaque-Nambe: decreasing residuals from 1972-1987 pumping
-# Values from Core (2003) PROJECTION.XLS, ends ~2015
-CORE_2003_POJOAQUE: dict[int, float] = {
-    1988: 40.432, 1989: 39.244, 1990: 37.971, 1991: 36.557, 1992: 34.928,
-    1993: 33.112, 1994: 31.185, 1995: 29.226, 1996: 27.296, 1997: 25.439,
-    1998: 23.678, 1999: 22.028, 2000: 20.491, 2001: 19.068, 2002: 17.753,
-    2003: 16.543, 2004: 15.429, 2005: 14.404, 2006: 13.462, 2007: 12.595,
-    2008: 11.797, 2009: 11.061, 2010: 10.383, 2011: 6.151, 2012: 4.693,
-    2013: 3.234, 2014: 1.775, 2015: 0.316,
-    # 2016+: 0 (residual effect exhausted)
-}
-
-# Rio Tesuque: longer-lasting residuals
-# Values from Core (2003) PROJECTION.XLS, continues through 2050+
-CORE_2003_TESUQUE: dict[int, float] = {
-    1988: 21.015, 1989: 22.333, 1990: 23.391, 1991: 24.227, 1992: 24.868,
-    1993: 25.327, 1994: 25.615, 1995: 25.747, 1996: 25.737, 1997: 25.608,
-    1998: 25.378, 1999: 25.067, 2000: 24.691, 2001: 24.265, 2002: 23.800,
-    2003: 23.308, 2004: 22.797, 2005: 22.273, 2006: 21.743, 2007: 21.212,
-    2008: 20.683, 2009: 20.157, 2010: 19.639, 2011: 19.258, 2012: 18.767,
-    2013: 18.276, 2014: 17.785, 2015: 17.295, 2016: 16.804, 2017: 16.313,
-    2018: 15.822, 2019: 15.331, 2020: 14.841, 2021: 14.350, 2022: 13.859,
-    2023: 13.368, 2024: 12.877, 2025: 12.387, 2026: 11.896, 2027: 11.405,
-    2028: 10.914, 2029: 10.424, 2030: 9.933,
-}
 
 
 # =============================================================================
@@ -307,6 +214,10 @@ def get_analytical_residual(stream: str, year: int) -> float:
     still propagating through the aquifer system. These residuals decrease
     over time and eventually reach zero.
 
+    - Pojoaque: Values from Core (2003) lookup table, exhausted after 2015.
+    - Tesuque: Values from Core (1996) lookup table through 2050.
+      Returns 0.0 for years after 2050 (residual exhausted).
+
     Args:
         stream: Stream name, one of "pojoaque" or "tesuque" (case-insensitive).
         year: Calendar year. Valid range: 1988-2050.
@@ -329,15 +240,8 @@ def get_analytical_residual(stream: str, year: int) -> float:
     if stream_lower == "pojoaque":
         return CORE_2003_POJOAQUE.get(year, 0.0)
     elif stream_lower == "tesuque":
-        # For years beyond the table, use linear formula
-        if year in CORE_2003_TESUQUE:
-            return CORE_2003_TESUQUE[year]
-        elif year > 2030:
-            # Formula: y = -0.4908 * year + 1006.2
-            value = -0.4908 * year + 1006.2
-            return max(0.0, value)  # Don't return negative
-        else:
-            return 0.0
+        # Direct lookup; returns 0.0 for years beyond the table
+        return CORE_2003_TESUQUE.get(year, 0.0)
     else:
         raise ValueError(f"Unknown stream: {stream}. Expected 'pojoaque' or 'tesuque'.")
 
@@ -356,7 +260,7 @@ def print_residual_verification(year: int = 2024) -> None:
     print(f"Rio Pojoaque-Nambe: {pojoaque_residual:.3f} AF")
     print(f"Rio Tesuque:        {tesuque_residual:.3f} AF")
     print("Note: Pojoaque residual exhausted after 2015 (now 0)")
-    print("      Tesuque residual continues through 2050+")
+    print("      Tesuque residual continues through 2050 (exhausted after 2050)")
 
 
 # =============================================================================
@@ -539,9 +443,6 @@ def print_otowi_verification(above_cfs: list[float], below_cfs: list[float]) -> 
 # =============================================================================
 # HISTORICAL DATA PRESERVATION
 # =============================================================================
-
-# Default path to historical baseline file for Table 3
-HISTORICAL_TABLE3_PATH = Path("validation/2024/expected_outputs/Table_3_expected.xlsx")
 
 
 def load_historical_table3(
@@ -772,9 +673,6 @@ def print_table3_verification(table3_data: dict[str, dict[str, float]], year: in
 # =============================================================================
 # ERROR HANDLING
 # =============================================================================
-
-# Buckman Wells cell - Row 13, Column 11
-BUCKMAN_WELLS_CELL: tuple[int, int, int] = (1, 13, 11)
 
 
 def print_error(
@@ -2632,7 +2530,7 @@ def parse_ghb_file(ghb_file: Path) -> list[tuple[int, int, int]]:
                 row = int(parts[1])
                 col = int(parts[2])
                 cells.append((layer, row, col))
-            except (ValueError, IndexError) as e:
+            except (ValueError, IndexError):
                 # Skip lines that don't parse as cell data
                 continue
 
@@ -2700,7 +2598,7 @@ def validate_ghb_cells_in_fortran_range(
         error_lines = [
             f"ERROR: {len(outside_cells)} GHB cell(s) outside FORTRAN extraction rectangle:",
             f"  FORTRAN range: rows {min_row}-{max_row}, columns {min_col}-{max_col}",
-            f"  (Hardcoded in sfmodflx_2245.for lines 223-228)",
+            "  (Hardcoded in sfmodflx_2245.for lines 223-228)",
             "",
             "Cells outside range:"
         ]

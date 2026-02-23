@@ -26,7 +26,7 @@ def test_constants_defined():
     """Verify all required constants are defined."""
     import step1_ingest_buckman_data as m
 
-    assert hasattr(m, "OUTPUT_DIR")
+    assert hasattr(m, "INGESTED_DATA_DIR")
     assert hasattr(m, "MG_TO_AF_FACTOR")
     # Two-tier tolerance system for QA: INFO (review) and ERROR (action required)
     assert hasattr(m, "DAILY_SUM_TOLERANCE_INFO_MGD")

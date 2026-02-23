@@ -5,7 +5,7 @@
 **Status:** Final
 **Author:** Claude Code (Anthropic)
 **Created:** 2026-02-20
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-02-23
 
 ---
 
@@ -62,15 +62,14 @@ Annual total from monthly values:
   Annual_AF = SUM(cfs[i] * days[i] * 86400/43560) for i=0..11
 ```
 
-### Tesuque Extrapolation Formula
+### Tesuque Residual Coverage
 
-For years beyond 2030 (beyond the Core (2003) lookup table):
+`CORE_2003_TESUQUE` contains explicit values for all years 1988-2050 (63 entries). No extrapolation formula is needed. For years beyond 2050, `get_analytical_residual()` uses `.get(year, 0.0)` to return 0.0, representing exhaustion of the pre-1988 pumping effect.
+
 ```
-Tesuque residual = -0.4908 * year + 1006.2
-  Capped at 0.0 (no negative residuals)
-
-  Example: year 2035 → -0.4908 * 2035 + 1006.2 = 7.422 AF
-  Example: year 2060 → -0.4908 * 2060 + 1006.2 = -4.648 → capped to 0.0 AF
+Example: year 2035 → CORE_2003_TESUQUE[2035] = 7.479 AF (dict lookup)
+Example: year 2050 → CORE_2003_TESUQUE[2050] = 0.117 AF (dict lookup)
+Example: year 2060 → CORE_2003_TESUQUE.get(2060, 0.0) = 0.0 AF (beyond table)
 ```
 
 ### Key Constants (Inline)
@@ -94,14 +93,14 @@ Tesuque residual = -0.4908 * year + 1006.2
 | R1 | `cfs_to_acre_feet(cfs, days)` — Convert cfs flow rate to acre-feet for a period of `days` | `cfs_to_acre_feet(1.0, 30)` = 59.504132... AF; raises `ValueError` for negative cfs or days < 1 |
 | R2 | `cfs_to_af(cfs_value, month_index, year, use_leap_year)` — Month-specific conversion using appropriate days | `cfs_to_af(0.1, 0)` = 6.148760... AF (0.1 cfs * 31 Jan days); `cfs_to_af(0.1, 1, use_leap_year=True)` uses 29 days |
 | R3 | `cfs_monthly_to_af_annual(cfs_list, year, use_leap_year)` — Sum 12 monthly cfs values to annual AF total | `cfs_monthly_to_af_annual([0.1]*12)` = 72.397... AF (non-leap); `cfs_monthly_to_af_annual([0.1]*12, use_leap_year=True)` = 72.596... AF (leap) |
-| R4 | `get_analytical_residual(stream, year)` — Lookup Core (2003) residual for Pojoaque or Tesuque | `get_analytical_residual("pojoaque", 2024)` = 0.0; `get_analytical_residual("tesuque", 2024)` = 12.877; `get_analytical_residual("tesuque", 2035)` uses formula |
+| R4 | `get_analytical_residual(stream, year)` — Lookup Core (2003) residual for Pojoaque or Tesuque | `get_analytical_residual("pojoaque", 2024)` = 0.0; `get_analytical_residual("tesuque", 2024)` = 12.877; `get_analytical_residual("tesuque", 2035)` = 7.479 (dict lookup); `get_analytical_residual("tesuque", 2060)` = 0.0 (beyond table) |
 | R5 | `parse_postprocessor_output(file_path)` — Parse CY{year} output file into nested dict `{year: {identifier: {month: cfs}}}` | Correctly parses year headers, cell data rows, and stream summary rows; normalizes "RIV  TOTAL" to "RIV TOTAL" |
 | R6 | `extract_otowi_depletions(parsed_data, year)` — Sum model cells above and below Otowi Gage | Returns `(above_cfs, below_cfs)` each as list of 12 monthly values; raises `KeyError` for missing cells |
 | R7 | `ABOVE_OTOWI_CELLS` and `BELOW_OTOWI_CELLS` — Coordinate lists for Otowi classification | 10 cells above Otowi, 16 cells below Otowi; coordinates match MODFLOW model grid |
 | R8 | `LA_CIENEGA_CUMULATIVE` — Historical cumulative depletion dict (2004-2030) | `LA_CIENEGA_CUMULATIVE[2024]` = 3.74; `LA_CIENEGA_CUMULATIVE[2004]` = 0.45 |
 | R9 | `DAYS_VALIDATION` — Non-leap year days list; `DAYS_2024` — Leap year days list | `DAYS_VALIDATION[1]` = 28 (Feb non-leap); `DAYS_2024[1]` = 29 (Feb leap) |
 | R10 | `CORE_2003_POJOAQUE` — Analytical residual lookup dict for Pojoaque (1988-2015) | Returns 0 after 2015 (residual exhausted); 40.432 for 1988 |
-| R11 | `CORE_2003_TESUQUE` — Analytical residual lookup dict for Tesuque (1988-2030) with linear extrapolation beyond 2030 | 21.015 for 1988; 9.933 for 2030; extrapolation formula for 2031+ |
+| R11 | `CORE_2003_TESUQUE` — Analytical residual lookup dict for Tesuque (1988-2050, 63 entries) | 21.015 for 1988; 9.933 for 2030; 0.117 for 2050; `.get(year, 0.0)` returns 0.0 for years beyond 2050 |
 
 ---
 
@@ -158,13 +157,14 @@ Input: stream="tesuque", year=2024
 Input: stream="pojoaque", year=2024
   CORE_2003_POJOAQUE.get(2024, 0.0) → 0.0 (not in dict, exhausted after 2015)
 
-Input: stream="tesuque", year=2035 (beyond lookup table)
-  value = -0.4908 * 2035 + 1006.2 = -998.778 + 1006.2 = 7.422 AF
-  max(0.0, 7.422) = 7.422 AF
+Input: stream="tesuque", year=2035 (in lookup table)
+  CORE_2003_TESUQUE[2035] = 7.479 AF (direct dict lookup)
 
-Input: stream="tesuque", year=2060 (extrapolation goes negative)
-  value = -0.4908 * 2060 + 1006.2 = -1010.848 + 1006.2 = -4.648 AF
-  max(0.0, -4.648) = 0.0 AF (capped)
+Input: stream="tesuque", year=2050 (last entry in lookup table)
+  CORE_2003_TESUQUE[2050] = 0.117 AF (direct dict lookup)
+
+Input: stream="tesuque", year=2060 (beyond lookup table)
+  CORE_2003_TESUQUE.get(2060, 0.0) = 0.0 AF (not in dict, residual exhausted)
 ```
 
 ### Example 4: Post-Processor Output Parsing
@@ -254,7 +254,7 @@ assert abs(cfs_monthly_to_af_annual([0.1]*12, use_leap_year=True) - 72.596...) <
 assert get_analytical_residual("pojoaque", 1988) == 40.432
 assert get_analytical_residual("pojoaque", 2024) == 0.0  # exhausted
 assert get_analytical_residual("tesuque", 2024) == 12.877
-assert get_analytical_residual("tesuque", 2035) > 0  # extrapolation
+assert get_analytical_residual("tesuque", 2035) == 7.479  # dict lookup
 
 # R8: LA_CIENEGA_CUMULATIVE
 assert LA_CIENEGA_CUMULATIVE[2024] == 3.74
@@ -270,7 +270,7 @@ assert LA_CIENEGA_CUMULATIVE[2030] == 4.80
 - [ ] **Cell key format** — Parsed cell identifiers use space-separated coordinates: `"1 9 14"` (layer, row, col). This matches the post-processor output format. When constructing keys for Otowi extraction, use f-strings: `f"{lay} {row} {col}"`.
 - [ ] **Stream name normalization** — The FORTRAN post-processor writes "RIV  TOTAL" with two spaces. The parser normalizes this to "RIV TOTAL" with a single space using `re.sub(r"\s+", " ", stream_name)`. All downstream code uses the normalized form.
 - [ ] **Pojoaque residual exhaustion** — `CORE_2003_POJOAQUE` has no entry for years after 2015. The `get_analytical_residual()` function uses `.get(year, 0.0)` to return 0 for these years, representing the exhaustion of the pre-1988 pumping effect.
-- [ ] **Tesuque extrapolation cap** — The linear extrapolation formula for Tesuque residuals beyond 2030 can produce negative values for far-future years. The function caps at 0.0 with `max(0.0, value)` since negative residuals are physically meaningless.
+- [ ] **Tesuque residual exhaustion** — `CORE_2003_TESUQUE` has explicit values through 2050 (63 entries, 1988-2050). The residual reaches 0.117 AF in 2050 and is 0.0 for years beyond 2050 via `.get(year, 0.0)`. No extrapolation formula is used.
 - [ ] **Post-processor output has no file extension** — The file is named `CY2024`, not `CY2024.txt`. Python reads it as a text file with `path.read_text()` or `open(file_path)`.
 - [ ] **Year header regex** — The regex `r"YEAR:\s+(\d{4})\s+jan"` requires "jan" after the year number to distinguish year headers from other lines that might contain "YEAR:". This is intentional.
 - [ ] **Stream regex is explicitly enumerated** — The stream match regex uses `(R POJOAQUE|R TESUQUE|RIO GRANDE|RIV\s+TOTAL|LC SPRINGS)` rather than a generic pattern. This prevents false matches on unexpected lines and makes the expected stream names explicit in the code.
@@ -282,7 +282,7 @@ assert LA_CIENEGA_CUMULATIVE[2030] == 4.80
 | Data Element | Source for Year N | Source for Year N+1 |
 |-------------|-------------------|---------------------|
 | `CORE_2003_POJOAQUE` | Static lookup dict | Same dict (returns 0 after 2015) |
-| `CORE_2003_TESUQUE` | Static lookup dict | Same dict (or extrapolation after 2030) |
+| `CORE_2003_TESUQUE` | Static lookup dict (1988-2050) | Same dict (returns 0.0 after 2050) |
 | `LA_CIENEGA_CUMULATIVE` | Static lookup dict | Same dict (extends to 2030) |
 | `DAYS_VALIDATION` / `DAYS_2024` | Static constants | Use `calendar.isleap(year)` for dynamic selection |
 | Post-processor output | Parsed fresh each year | Parsed fresh each year |

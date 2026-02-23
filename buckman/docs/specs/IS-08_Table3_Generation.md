@@ -5,7 +5,7 @@
 **Status:** Draft
 **Author:** Claude Code (Anthropic)
 **Created:** 2026-02-20
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-02-23
 
 ---
 
@@ -49,7 +49,7 @@ Where:
   Superposition_AF = MODFLOW-calculated depletion from 1988-{year} pumping
 ```
 
-- **Residual Impact (Analytical):** Pre-1988 pumping effects still propagating through the aquifer. Values decrease over time. Rio Pojoaque residuals reached zero by 2016; Rio Tesuque residuals continue through 2030+.
+- **Residual Impact (Analytical):** Pre-1988 pumping effects still propagating through the aquifer. Values decrease over time. Rio Pojoaque residuals reached zero by 2016; Rio Tesuque residuals continue through 2050 (0.117 AF), then 0.0.
 - **Superposition Impact:** MODFLOW model calculates depletions from all pumping since 1988. Monthly cfs values are converted to annual AF.
 
 ### Historical Preservation (Year Chaining)
@@ -85,7 +85,7 @@ Annual_AF = SUM(cfs_month[i] × days[i] × 1.9835)  for i = Jan..Dec
 | Constant | Value | Units |
 |----------|-------|-------|
 | CFS_TO_AF factor | 86400/43560 = 1.9835 | AF/(cfs·day) |
-| Year range | 1988–2030 | inclusive |
+| Year range | 1988–2050 | inclusive (Tesuque residuals extend through 2050) |
 | Number format | `0.000` | 3 decimal places for AF |
 
 ### Core (2003) Analytical Residuals
@@ -103,7 +103,7 @@ CORE_2003_POJOAQUE = {
 }
 ```
 
-**Rio Tesuque** (longer-lasting, continues through 2030+):
+**Rio Tesuque** (longer-lasting, continues through 2050; 63 entries):
 ```python
 CORE_2003_TESUQUE = {
     1988: 21.015, 1989: 22.333, 1990: 23.391, 1991: 24.227, 1992: 24.868,
@@ -114,9 +114,13 @@ CORE_2003_TESUQUE = {
     2013: 18.276, 2014: 17.785, 2015: 17.295, 2016: 16.804, 2017: 16.313,
     2018: 15.822, 2019: 15.331, 2020: 14.841, 2021: 14.350, 2022: 13.859,
     2023: 13.368, 2024: 12.877, 2025: 12.387, 2026: 11.896, 2027: 11.405,
-    2028: 10.914, 2029: 10.424, 2030: 9.933,
+    2028: 10.914, 2029: 10.424, 2030: 9.933, 2031: 9.442, 2032: 8.951,
+    2033: 8.460, 2034: 7.970, 2035: 7.479, 2036: 6.988, 2037: 6.497,
+    2038: 6.006, 2039: 5.516, 2040: 5.025, 2041: 4.534, 2042: 4.043,
+    2043: 3.552, 2044: 3.062, 2045: 2.571, 2046: 2.080, 2047: 1.589,
+    2048: 1.098, 2049: 0.608, 2050: 0.117,
+    # 2051+: 0.0 (residual effect exhausted)
 }
-# Beyond 2030: y = -0.4908 * year + 1006.2 (linear extrapolation)
 ```
 
 ---
@@ -127,7 +131,7 @@ CORE_2003_TESUQUE = {
 |-----|-------------|---------------------|
 | R1 | `generate_table3_data()` shall accept parsed post-processor output and a year, and return a dict with `pojoaque` and `tesuque` sub-dicts each containing `residual_af`, `superposition_af`, and `total_impact_af` | Return structure matches documented schema |
 | R2 | Superposition values shall be computed by extracting monthly cfs from `R POJOAQUE` and `R TESUQUE` stream labels, then converting to annual AF via `cfs_monthly_to_af_annual()` | Annual AF matches hand calculation within 0.001 AF |
-| R3 | Residual values shall be looked up from `CORE_2003_POJOAQUE` and `CORE_2003_TESUQUE` via `get_analytical_residual()` | Pojoaque returns 0.0 for years > 2015; Tesuque returns dict value or linear extrapolation |
+| R3 | Residual values shall be looked up from `CORE_2003_POJOAQUE` and `CORE_2003_TESUQUE` via `get_analytical_residual()` | Pojoaque returns 0.0 for years > 2015; Tesuque returns dict value through 2050, then 0.0 |
 | R4 | Total impact shall equal `residual_af + superposition_af` exactly (no rounding) | `total_impact_af == residual_af + superposition_af` |
 | R5 | `load_historical_table3()` shall parse a prior year's Table 3 XLSX and return a nested dict keyed by year | Returns correct values for years 1988–2023 from baseline |
 | R6 | Historical values (years < processing_year) shall be preserved verbatim from prior year's Table 3 | Byte-level comparison of historical rows |
@@ -232,7 +236,7 @@ Expected output:
 - [ ] **Annotated cell values:** Historical Table 3 files may contain annotated strings like `"57.182** (57.185)"` with asterisk markers. The parser must extract the first numeric value via regex.
 - [ ] **NaN residuals:** In the baseline XLSX, residual cells for years after 2015 (Pojoaque) may be NaN or empty. Treat as 0.0 when loading, and render as empty cells when writing.
 - [ ] **Leap year awareness:** `generate_table3_data()` uses `calendar.isleap(year)` to select the correct days-per-month list. The `cfs_monthly_to_af_annual()` function's `use_leap_year` parameter must match.
-- [ ] **Year range 1988–2030:** Table 3 always includes projections through 2030, even when processing year is earlier. Future years use MODFLOW projections from the same run.
+- [ ] **Year range 1988–2050:** Table 3 includes projections through 2050 (matching the extent of `CORE_2003_TESUQUE`), even when processing year is earlier. Future years use MODFLOW projections from the same run. Tesuque residuals reach 0.117 AF in 2050 and are 0.0 beyond.
 - [ ] **Chaining fallback order:** Try prior year's output first (`TABLE_3_..._2024.xlsx`), then fall back to validation baseline (`Table_3_expected.xlsx`). This two-tier fallback is critical for first-time runs.
 - [ ] **Zero vs empty:** Pojoaque residual = 0 renders as an empty cell (no value), not as "0.000". This matches the validation file's visual pattern.
 - [ ] **Dynamic column headers:** The "Impact of 1988–{year} Pumping" header must reflect the processing year, not a hardcoded value.
