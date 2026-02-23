@@ -179,7 +179,7 @@ Table 3 reports cumulative stream depletions for Rio Pojoaque-Nambe and Rio Tesu
 |----------|-----------------|----------|
 | First resolution | `output/depletion/TABLE_3_*_{year-1}.xlsx` | Prior year's Table 3 output |
 | Fallback | `validation/2024/expected_outputs/Table_3_expected.xlsx` | Frozen 2024 baseline |
-| Neither exists | Hardcoded constants | Uses LA_CIENEGA_CUMULATIVE dict |
+| Neither exists | Error | Pipeline halts with diagnostic message |
 
 **Chaining rule:** For years before processing_year, values are copied verbatim from the prior year's Table 3. For years >= processing_year, values are recalculated from the current MODFLOW post-processor output. This ensures that 1988-2023 values remain locked to their respective MODFLOW runs while 2024+ values reflect the latest model.
 
@@ -229,7 +229,7 @@ Leap years affect the AF-to-ft^3/s conversion for February and any annual aggreg
 
 - **Volumetric conservation:** Total pumping in WEL file must equal total pumping in Table 2 (within floating-point tolerance)
 - **Monotonic accumulation:** WEL file line count must increase by exactly 324 per year
-- **Historical preservation:** Pre-processing_year rows in Tables 3 and 5 must be byte-identical to prior year's output
+- **Historical preservation:** Pre-processing_year rows in Tables 3 and 5 must be value-identical within floating-point precision to prior year's output (the pipeline reads Excel values as floats and writes them to new Excel files, so byte-level identity is not guaranteed)
 
 ### Regulatory Limits
 

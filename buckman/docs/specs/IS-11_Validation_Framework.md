@@ -86,7 +86,7 @@ Pearson correlation:  r = cov(current_profile, historical_mean) / (std_c * std_h
 | R2 | `validation/temporal_consistency.py` -- year-over-year checks | Checks: YoY pumping change rate (65% threshold), YoY depletion/pumping ratio change (45%), seasonal correlation (r >= 0.75), envelope bounds (CV-adjusted). All soft flags. Exit codes: 0=pass, 1=flags. |
 | R3 | `validation/2024/run_regression_2024.py` -- frozen 2024 regression | Step 1: verify input SHA-256 hashes. Step 2: run pipeline on frozen inputs. Step 3: compare all 5 tables cell-by-cell with hybrid tolerance. Reports pass/fail with cell-level detail. Exit codes: 0=pass, 1=fail. |
 | R4 | `validation/2024/tolerances.yaml` format | Per-table entries with `tolerance_type: hybrid`, `absolute_tolerance`, `relative_tolerance`. Global: `nan_handling: fail`, `empty_cell_handling: match`. |
-| R5 | `validation/historical/bounds.yaml` format | Sections: `table1_annual_pumping` (total + per-well bounds), `table3_stream_depletions` (per-stream bounds), `time_series` (raw values for regression), `monthly_profile` (12-month normalized distribution), `thresholds` (sigma multipliers, monotonic tolerance). |
+| R5 | `validation/historical/bounds.yaml` format | Sections: `table1_annual_pumping` (total + per-well bounds), `table3_stream_depletions` (per-stream bounds), `table4_rio_grande_depletions` (above/below Otowi bounds), `table5_la_cienega` (cumulative depletion bounds), `derived_ratios` (depletion/pumping ratios), `time_series` (raw values for regression), `monthly_profile` (12-month normalized distribution), `thresholds` (sigma multipliers, monotonic tolerance). |
 | R6 | `run_all_tests.py` orchestration | Dataclasses: `TestResult`, `Flag`, `TestSuite`. Runs: ballpark check -> Layer 0 pytest -> Layer 0.5 pytest -> Layer 1 pytest -> temporal consistency -> manifest generation. JSON report parsing. Summary output. Exit codes: 0=pass, 1=hard fail, 3=physics violation. |
 
 ---
@@ -311,6 +311,16 @@ table3_stream_depletions:
   rio_pojoaque_nambe: {min: 59.844, max: 60.797, mean: 60.321, std: 0.477}
   rio_tesuque: {min: 33.490, max: 33.583, mean: 33.521, std: 0.053}
 
+table4_rio_grande_depletions:
+  above_otowi: {min: 101.21, max: 101.43}
+  below_otowi: {min: 842.0, max: 843.0}
+
+table5_la_cienega:
+  cumulative: {min: 3.37, max: 3.74}
+
+derived_ratios:
+  depletion_to_pumping: {min: 0.05, max: 0.15}
+
 time_series:
   years: [2022, 2023, 2024]
   annual_pumping_af: {values: [975.47, 866.48, 1372.90]}
@@ -339,9 +349,17 @@ tables:
     absolute_tolerance: 0.01
     relative_tolerance: 0.001
 
+  Table_2:
+    absolute_tolerance: 0.01
+    relative_tolerance: 0.001
+
   Table_3:
     absolute_tolerance: 0.001   # Strict: 3-decimal AF
     relative_tolerance: 0.001
+
+  Table_4:
+    absolute_tolerance: 0.1
+    relative_tolerance: 0.01
 
   Table_5:
     absolute_tolerance: 0.01

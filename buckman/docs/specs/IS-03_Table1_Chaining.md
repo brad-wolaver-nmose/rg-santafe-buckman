@@ -25,7 +25,7 @@ Implement Table 1 generation -- load a prior-year XLSX template containing the h
 | File | Path | Description |
 |------|------|-------------|
 | Table 1 template (primary) | `validation/Table_1_data_afy_{year}.xlsx` | Historical AFY data Excel file (1988-{year-1}) for first-time processing |
-| Table 1 template (fallback) | `output/ingested_data/{year-1}_Table_1_updated.xlsx` | Prior year's Table 1 output (used for year-chaining when no validation file exists) |
+| Table 1 template (fallback) | `output/ingested_data/{year-1}_Table_1_updated.xlsx` | Prior year's Table 1 output (used for year-chaining when no validation file exists). **Known issue:** The write path is flat (`output/ingested_data/{year}_Table_1_updated.xlsx`), but the fallback lookup path in code uses a subdirectory (`output/ingested_data/{year-1}/{year-1}_Table_1_updated.xlsx`). This path discrepancy is a known code bug. |
 | Table 2 output | `output/ingested_data/{year}_Table_2_output.csv` | Current year's monthly AFY grid -- the `Total` column provides annual well totals consumed here |
 
 ### Domain Knowledge
@@ -188,13 +188,13 @@ Wells 10-13 %,,,,,,,,,,28.2%,,,,
 ### XLSX Average Row Formulas
 
 ```
-Row 38 (Average, 1988-2024):
-  Cell B38 = =AVERAGE(B2:B38)      -- averages well 1 across all 37 years
-  Cell O38 = =AVERAGE(O2:O38)      -- averages Total column
+Row 39 (Average, 1988-2024):
+  Cell B39 = =AVERAGE(B2:B38)      -- averages well 1 across all 37 years
+  Cell O39 = =AVERAGE(O2:O38)      -- averages Total column
 
-Row 39 (Average, 2022-2024):
-  Cell B39 = =AVERAGE(B36:B38)     -- averages well 1 across last 3 years
-  Cell O39 = =AVERAGE(O36:O38)     -- averages Total column
+Row 40 (Average, 2022-2024):
+  Cell B40 = =AVERAGE(B36:B38)     -- averages well 1 across last 3 years
+  Cell O40 = =AVERAGE(O36:O38)     -- averages Total column
 ```
 
 ---
@@ -204,7 +204,7 @@ Row 39 (Average, 2022-2024):
 | Action | Path | Description |
 |--------|------|-------------|
 | Modify | `step1_ingest_buckman_data.py` | Contains `generate_table1_output()` and `write_table1_xlsx()` functions |
-| Create | `tests/test_table1.py` | Unit tests for Table 1 chaining, row preservation, statistics, and duplicate handling |
+| Create | `tests/test_ingest_buckman_data.py` | Unit tests for Table 1 chaining, row preservation, statistics, and duplicate handling. Note: Table 1 tests are in `tests/test_ingest_buckman_data.py`, not a separate `tests/test_table1.py`. |
 
 ### Output files generated at runtime
 | File | Path | Description |
@@ -218,7 +218,7 @@ Row 39 (Average, 2022-2024):
 
 ```bash
 # These commands must all pass:
-pytest tests/test_table1.py -v --tb=short
+pytest tests/test_ingest_buckman_data.py -v --tb=short
 ruff check step1_ingest_buckman_data.py
 mypy step1_ingest_buckman_data.py
 

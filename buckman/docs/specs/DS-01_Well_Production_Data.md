@@ -90,18 +90,19 @@ Sum all 12 monthly AF values for the well's annual production.
 | Source | Description | Access Method | Update Frequency | QC Procedure |
 |--------|-------------|---------------|------------------|--------------|
 | City of Santa Fe SCADA | Daily well production CSV files | Email delivery to NMOSE | Annually (January-February for prior year) | Three-tier daily sum verification |
-| CSV file | `Buckman_Well_Prod_{year}.csv` with 366 daily rows + 4 summary rows (Sum, Avg, Max, Min) | Local filesystem: `./input/csv/` | One file per calendar year | Column presence check, date range validation, annual sum comparison |
+| CSV file | `Buckman_Well_Prod_{year}.csv` with 365-366 daily rows (365 for non-leap years, 366 for leap years) + 4 summary rows (Sum, Avg, Max, Min) | Local filesystem: `./input/csv/` | One file per calendar year | Column presence check, date range validation, annual sum comparison |
 | USGS unit definitions | Gallon-to-AF conversion factor | Published standard (USGS NAWQA glossary) | Static | Hardcoded constant verified against source |
 
 ### CSV File Structure
 
 ```
 Header row:   "1/1/2024-12/31/2024", "BWell 1|Flow Mgd", ..., "BWell 13|Flow Mgd", "BWP|Flow Mgd|MGD|Formula"
-Row 1-366:    Date, Well_1_MGD, Well_2_MGD, ..., Well_13_MGD, BWP_Total_MGD
-Row 367:      "Sum", annual_MG_1, annual_MG_2, ..., annual_MG_13, annual_MG_total
-Row 368:      "Avg", avg_MGD_1, ..., avg_MGD_total
-Row 369:      "Max", max_MGD_1, ..., max_MGD_total
-Row 370:      "Min", min_MGD_1, ..., min_MGD_total
+Row 1-N:      Date, Well_1_MGD, Well_2_MGD, ..., Well_13_MGD, BWP_Total_MGD
+              (N = 365 for non-leap years, 366 for leap years)
+Row N+1:      "Sum", annual_MG_1, annual_MG_2, ..., annual_MG_13, annual_MG_total
+Row N+2:      "Avg", avg_MGD_1, ..., avg_MGD_total
+Row N+3:      "Max", max_MGD_1, ..., max_MGD_total
+Row N+4:      "Min", min_MGD_1, ..., min_MGD_total
 ```
 
 **Column naming convention:**
@@ -271,14 +272,14 @@ If any day in a month has a flag, the entire month is marked `Has_Flagged_Data=T
 - **Content**: Annual pumping by well in acre-feet per year (AF/yr)
 - **Format**: Wells 1-13 as columns, years as rows (one row added per year)
 - **Well 3 label**: "3/3A" in the column header (combined wells)
-- **File**: `{year}_Table_1_output.xlsx`
+- **Files**: `{year}_Table_1_updated.csv` and `{year}_Table_1_updated.xlsx`
 - **Purpose**: Historical trend analysis for OSE annual report
 
 ### 9.2 Table 2: Monthly Pumping for Current Year
 
 - **Content**: Monthly pumping by well in acre-feet per month (AF/month)
 - **Format**: Wells 1-13 as rows, months JAN-DEC as columns, with Total column
-- **File**: `{year}_Table_2_output.csv`
+- **Files**: `{year}_Table_2_output.csv` and `{year}_Table_2_output.xlsx`
 - **Purpose**: Input to MODFLOW well package update (Step 2); OSE annual report
 - **Downstream dependency**: `step2_update_modflow.py` reads this file directly
 
@@ -292,7 +293,7 @@ If any day in a month has a flag, the entire month is marked `Has_Flagged_Data=T
 ### 9.4 Input Summary
 
 - **Content**: Data quality summary across all wells and months
-- **File**: `{year}_input_summary.csv`
+- **File**: `input_summary.csv`
 - **Purpose**: Audit trail for flagged data
 
 ---

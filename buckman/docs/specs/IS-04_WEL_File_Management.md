@@ -52,8 +52,8 @@ AF to ft3/s (per layer):
 Example: Well 1, JAN 2024 (16.887963 AF, 31 days):
   rate = -(16.887963 / 2) * 43560 / (31 * 86400)
   rate = -8.443982 * 43560 / 2678400
-  rate = -367,657.33 / 2678400
-  rate = -0.13730 ft3/s
+  rate = -367,819.86 / 2678400
+  rate = -0.13733 ft3/s
 ```
 
 ### Key Constants (Inline)
@@ -80,7 +80,7 @@ Example: Well 1, JAN 2024 (16.887963 AF, 31 days):
 | R4 | `find_year_boundaries()` searches for "JAN {year}" and "DEC {year}" patterns | Start index points to header line before first JAN entry; end index is exclusive |
 | R5 | WEL file validation: each month has header "26", first entry is BUCKMAN 1, last is BUCKMAN 13 | `ValueError` raised if structure doesn't match |
 | R6 | `read_table2_pumping_data(csv_path) -> dict[int, dict[str, float]]` reads Table 2 | Returns `{1: {"JAN": 16.887963, "FEB": 38.805796, ...}, ...}` for all 13 wells |
-| R7 | `convert_af_to_ft3s(acre_feet, days_in_month, num_layers=2) -> float` returns negative rate | `convert_af_to_ft3s(16.887963, 31, 2)` returns `-0.13730` (within 0.00001) |
+| R7 | `convert_af_to_ft3s(acre_feet, days_in_month, num_layers=2) -> float` returns negative rate | `convert_af_to_ft3s(16.887963, 31, 2)` returns `-0.13733` (within 0.00001) |
 | R8 | `generate_well_entries(pumping_data, target_year) -> list[str]` produces 324 lines | Well order: BUCKMAN 1 through 13; Layer 1 before Layer 2 for each well |
 | R9 | Well entry line format: `"{layer:10d}{row:10d}{col:10d}  {rate:8.5f}  {well_name} {month} {year}\r\n"` | Exact format match with CRLF line endings |
 | R10 | `write_updated_wel_file()` assembles pre-target + new target + post-target | Total line count = original line count; pre and post sections byte-identical |
@@ -113,23 +113,23 @@ Step 2: Get days in month
 
 Step 3: Convert AF to ft3/s per layer
   rate = -(16.887963 / 2) * 43560 / (31 * 86400)
-  rate = -(8.443982) * 43560 / (2678400)
-  rate = -367,738.9 / 2678400
-  rate = -0.13730 ft3/s
+  rate = -(8.4439815) * 43560 / (2678400)
+  rate = -367,819.83 / 2678400
+  rate = -0.13733 ft3/s
 
 Step 4: Generate well entry lines (Layer 1 and Layer 2)
   BUCKMAN 1 is at grid position (row=13, col=11)
 
-  Layer 1: "         1        13        11  -0.13730  BUCKMAN 1 JAN 2024\r\n"
-  Layer 2: "         2        13        11  -0.13730  BUCKMAN 1 JAN 2024\r\n"
+  Layer 1: "         1        13        11  -0.13733  BUCKMAN 1 JAN 2024\r\n"
+  Layer 2: "         2        13        11  -0.13733  BUCKMAN 1 JAN 2024\r\n"
 
 Step 5: Generate month header
   "        26\r\n"
 
 Step 6: Assemble January block (27 lines)
   Line 1: "        26\r\n"                                          (header)
-  Line 2: "         1        13        11  -0.13730  BUCKMAN 1 JAN 2024\r\n"  (Well 1, Layer 1)
-  Line 3: "         2        13        11  -0.13730  BUCKMAN 1 JAN 2024\r\n"  (Well 1, Layer 2)
+  Line 2: "         1        13        11  -0.13733  BUCKMAN 1 JAN 2024\r\n"  (Well 1, Layer 1)
+  Line 3: "         2        13        11  -0.13733  BUCKMAN 1 JAN 2024\r\n"  (Well 1, Layer 2)
   Line 4: "         1        14        11  -0.00000  BUCKMAN 2 JAN 2024\r\n"  (Well 2, Layer 1)
   Line 5: "         2        14        11  -0.00000  BUCKMAN 2 JAN 2024\r\n"  (Well 2, Layer 2)
   ...
@@ -143,19 +143,21 @@ Step 6: Assemble January block (27 lines)
 Well 1, FEB 2024 (38.805796 AF, 29 days -- leap year):
   rate = -(38.805796 / 2) * 43560 / (29 * 86400)
   rate = -(19.402898) * 43560 / (2505600)
-  rate = -845,198.25 / 2505600
-  rate = -0.33730 ft3/s
+  rate = -845,190.24 / 2505600
+  rate = -0.33732 ft3/s
 
 Well 13, JUL 2024 (55.001150 AF, 31 days):
   rate = -(55.001150 / 2) * 43560 / (31 * 86400)
   rate = -(27.500575) * 43560 / (2678400)
-  rate = -1,197,625.05 / 2678400
-  rate = -0.44714 ft3/s
+  rate = -1,197,925.05 / 2678400
+  rate = -0.44725 ft3/s
 
 Well 2, JAN 2024 (0.000000 AF, 31 days):
   rate = -(0.0 / 2) * 43560 / (31 * 86400)
   rate = -0.00000 ft3/s  (formatted as negative zero)
 ```
+
+> **Note:** Values shown use rounded inputs; actual pipeline results may differ slightly.
 
 ### NAM File Content
 
@@ -183,7 +185,7 @@ DATA(BINARY)    34    CY2024_ghb.flx
 | Action | Path | Description |
 |--------|------|-------------|
 | Create | `step2_update_modflow.py` | Main MODFLOW update script with all functions |
-| Create | `tests/test_step2.py` | Unit tests for conversion, parsing, entry generation |
+| Create | `tests/test_update_modflow.py` | Unit tests for conversion, parsing, entry generation |
 
 ### Output files generated at runtime
 | File | Path | Description |
@@ -198,7 +200,7 @@ DATA(BINARY)    34    CY2024_ghb.flx
 
 ```bash
 # These commands must all pass:
-pytest tests/test_step2.py -v --tb=short
+pytest tests/test_update_modflow.py -v --tb=short
 ruff check step2_update_modflow.py
 mypy step2_update_modflow.py
 
@@ -266,7 +268,7 @@ lines = wel.read_text().splitlines()
 jan_lines = [l for l in lines if 'BUCKMAN 1 JAN 2024' in l]
 assert len(jan_lines) == 2, f'Expected 2 BUCKMAN 1 JAN lines (L1+L2), got {len(jan_lines)}'
 rate = float(jan_lines[0].split()[3])
-assert abs(rate - (-0.13730)) < 0.001, f'Rate mismatch: {rate}'
+assert abs(rate - (-0.13733)) < 0.001, f'Rate mismatch: {rate}'
 print(f'WEL: {len(lines)} lines, BUCKMAN 1 JAN rate: {rate:.5f} ft3/s')
 baseline_count = sum(1 for f in Path('output/modflow/2024').iterdir() if f.is_file())
 print(f'Files in output dir: {baseline_count}')
@@ -274,7 +276,7 @@ print('PASS')
 "
 ```
 
-Expected result: `WEL: XXXXX lines, BUCKMAN 1 JAN rate: -0.13730 ft3/s`, `Files in output dir: 12`, `PASS`
+Expected result: `WEL: XXXXX lines, BUCKMAN 1 JAN rate: -0.13733 ft3/s`, `Files in output dir: 12`, `PASS`
 
 ---
 

@@ -73,7 +73,7 @@ Three-tier daily verification:
 |-----|-------------|---------------------|
 | R1 | `read_source_csv(csv_path) -> (daily_df, sum_series)` parses CSV, separates daily rows from summary rows | Returns DataFrame with 365/366 daily rows and Series with 13 annual MG totals |
 | R2 | CSV first column (date range header) renamed to `Date`; daily rows have valid datetime; BWP total column renamed to `BWP_Total` | `daily_df['Date'].dtype == datetime64`, `'BWP_Total' in daily_df.columns` |
-| R3 | `validate_daily_data(daily_df) -> flags_df` flags BLANK, NEGATIVE, NON_NUMERIC | flags_df has same shape as well columns; zero values are valid (not flagged) |
+| R3 | `validate_daily_data(daily_df) -> flags_df` flags BLANK and NEGATIVE | flags_df has same shape as well columns; zero values are valid (not flagged). Note: NON_NUMERIC is not a separate flag -- non-numeric values are converted to NaN via `pd.to_numeric(errors='coerce')` before validation, so they appear as BLANK. |
 | R4 | `verify_daily_sums(daily_df) -> verification_df` applies three-tier severity | verification_df has columns: Date, Calculated_Sum, BWP_Total, Difference, Severity |
 | R5 | `aggregate_monthly(daily_df, flags_df) -> dict[str, DataFrame]` groups by month | Returns dict with keys "01"-"12", each DataFrame has Well_Number, MG_Month (pint Quantity), Has_Flagged_Data |
 | R6 | Monthly MG uses pint dimensional analysis: `sum(MGD * ureg.day)` | `monthly_data["01"].iloc[0]['MG_Month'].units == ureg.million_gallon` |
@@ -145,7 +145,7 @@ Tier 3 (Rounding): 2024-03-10 calc=4.523, BWP=4.524, diff=0.001 -> OK (within 0.
 | Action | Path | Description |
 |--------|------|-------------|
 | Create | `step1_ingest_buckman_data.py` | Main ingestion script with all functions |
-| Create | `tests/test_step1.py` | Unit tests for CSV parsing, validation, aggregation |
+| Create | `tests/test_ingest_buckman_data.py` | Unit tests for CSV parsing, validation, aggregation |
 
 ### Output files generated at runtime
 | File | Path | Description |
@@ -161,7 +161,7 @@ Tier 3 (Rounding): 2024-03-10 calc=4.523, BWP=4.524, diff=0.001 -> OK (within 0.
 
 ```bash
 # These commands must all pass:
-pytest tests/test_step1.py -v --tb=short
+pytest tests/test_ingest_buckman_data.py -v --tb=short
 ruff check step1_ingest_buckman_data.py
 mypy step1_ingest_buckman_data.py
 

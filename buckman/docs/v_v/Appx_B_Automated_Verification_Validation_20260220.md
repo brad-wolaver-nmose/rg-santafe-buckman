@@ -18,7 +18,7 @@ This appendix documents the automated verification and validation (V&V) procedur
 
 This appendix covers only the automated checks. Manual verification procedures (visual inspection of output tables, comparison to historical reports, expert review of physical reasonableness) are documented separately.
 
-All tolerance values, thresholds, and acceptance criteria referenced in this appendix are defined in configuration files within the pipeline codebase and are reproduced in the summary table at the end of this document (Section 15).
+All tolerance values, thresholds, and acceptance criteria referenced in this appendix are defined in configuration files within the pipeline codebase and are reproduced in the summary table at the end of this document (Section 16).
 
 ---
 
@@ -52,7 +52,21 @@ OUT: Tables 1,2       OUT: .wel, .nam      OUT: .flx files      OUT: CY{YYYY}   
 
 Verification confirms that the pipeline computes correctly — that formulas are implemented accurately, that units are converted properly, and that the numerical model converged to a stable solution.
 
-## 3. Unit Conversion Accuracy
+## 3. Input Data Quality Validation
+
+Before any computation begins, the pipeline validates the raw daily pumping data received from the City of Santa Fe. These checks run during Step 1 (data ingestion) and prevent bad data from propagating into MODFLOW input files and downstream depletion tables.
+
+**Daily record screening.** Every daily pumping value for all 13 Buckman wells is checked for three categories of invalid data: negative values (physically impossible — a well cannot produce negative flow), blank or NaN entries (missing data), and non-numeric entries (data entry errors). Zero values are treated as valid, since wells are routinely shut down for maintenance. Any flagged value is recorded in a quality flag register that propagates through the monthly aggregation, ensuring that months containing suspect data are marked in the output tables.
+
+**Three-tier daily sum verification.** For each day, the pipeline independently sums the 13 individual well values and compares the result to the Buckman Well Field (BWP) total column provided in the source CSV. Discrepancies are classified into three severity tiers:
+
+- *Tier 1 (noise):* BWP total is nonzero but below 0.0015 MGD. These values fall below the database precision threshold (100-gallon rounding in the City's SCADA system) and are flagged as informational only.
+- *Tier 2 (formula error):* All 13 well values are zero but the BWP total exceeds 0.0015 MGD. This indicates a formula error in the source CSV — the total is computing a nonzero value from zero inputs.
+- *Tier 3 (rounding):* The absolute difference between the computed sum and the BWP total is compared against two thresholds: differences below 0.001 MGD pass silently, differences between 0.001 and 0.005 MGD are flagged as informational (expected Excel rounding), and differences exceeding 0.005 MGD are flagged as errors requiring CSV review.
+
+**Annual sum verification.** After monthly aggregation, the pipeline sums all 12 monthly totals for each well and compares the result to the annual sum row in the source CSV. The tolerance is 0.01 MG (10,000 gallons). A mismatch indicates either a missing month in the aggregation or a discrepancy in the source data.
+
+## 4. Unit Conversion Accuracy
 
 The pipeline converts between three unit systems: cubic feet per second (cfs, the native unit of the MODFLOW post-processor), acre-feet (AF, the reporting unit for the State Engineer), and cubic feet per second used in MODFLOW well input files. A conversion error at any stage would propagate through all downstream tables.
 
@@ -68,14 +82,14 @@ This formula is implemented in `stream_depletions.py` and is calendar-aware: Feb
 
 ```
 1.0 cfs x 30 days x 86,400 s/day = 2,592,000 ft³
-2,592,000 ft³ / 43,560 ft³/AF = 59.505 AF
+2,592,000 ft³ / 43,560 ft³/AF = 59.504 AF
 ```
 
 The automated test suite includes this exact calculation (and dozens of variants) to confirm the conversion function returns the expected value. A total of 240 automated tests verify that every calculation function in the pipeline executes without error and returns values of the correct type and magnitude.
 
 **Leap year sensitivity.** The difference between using 28 and 29 days for February in a leap year is approximately 2% of February's contribution. For a representative monthly depletion of 0.5 cfs, this amounts to approximately 1.0 AF. The pipeline's leap year handling was verified by running both the 2024 (leap) and 2025 (non-leap) analyses and confirming that February day counts are correct in each case.
 
-## 4. MODFLOW Numerical Integrity
+## 5. MODFLOW Numerical Integrity
 
 MODFLOW96 solves the groundwater flow equation iteratively using the Strongly Implicit Procedure (SIP). At the end of each stress period, the model computes a volumetric water budget and reports the percent discrepancy between water entering and leaving the model domain.
 
@@ -83,7 +97,7 @@ The pipeline automatically extracts every percent discrepancy value from the MOD
 
 This check is a hard stop: if it fails, the pipeline halts and reports the stress period where convergence was inadequate. For the 2024 baseline run, all stress periods converged with discrepancies well below 0.1%.
 
-## 5. Internal Consistency Checks
+## 6. Internal Consistency Checks
 
 Four automated consistency checks verify that data flows correctly through the pipeline without loss, corruption, or arithmetic error.
 
@@ -95,7 +109,7 @@ Four automated consistency checks verify that data flows correctly through the p
 
 **Missing data detection.** If any cell in the input data or output tables contains NaN (not a number) or is unexpectedly empty, the pipeline fails immediately rather than propagating a silent error. This catches problems such as a corrupted input file, a parsing failure in the post-processor output, or a division by zero in the conversion logic.
 
-## 6. Spreadsheet Cross-Check Formulas
+## 7. Spreadsheet Cross-Check Formulas
 
 The output Excel files contain embedded formulas that allow an independent reviewer to verify the pipeline's arithmetic without running any Python code. These formulas are computed by Excel (or LibreOffice Calc) when the file is opened, providing a second independent calculation path.
 
@@ -111,7 +125,7 @@ Column C ("Annual Change") computes the year-over-year change in cumulative depl
 
 These embedded formulas serve as an audit mechanism: any reviewer with Excel can verify the pipeline's arithmetic by simply opening the file and inspecting the cross-check rows and columns.
 
-## 7. Historical Chaining Verification
+## 8. Historical Chaining Verification
 
 When the pipeline processes year N, it produces depletion values for all years from the model start (1988 for Tables 3-4, 2004 for Table 5) through the projection horizon (2030). Values for years before N are not recomputed from the current MODFLOW run; instead, they are copied from the prior year's output file. This chaining mechanism ensures that historical values, once established, remain fixed regardless of code changes or reprocessing.
 
@@ -123,7 +137,7 @@ The chaining verification has two components:
 
 The output of this verification is an Excel file with side-by-side values and a difference column. Cells exceeding the 0.001 AF threshold are highlighted in yellow. For the 2024-2025 comparison, all historical years agreed within the threshold, confirming that the two MODFLOW runs are consistent for the overlapping period.
 
-## 8. Geometry Validation
+## 9. Geometry Validation
 
 The FORTRAN post-processor (`sfmodflx_2245.exe`) uses hardcoded cell rectangles to determine which MODFLOW cells contribute to each stream reach. For La Cienega Springs, the extraction rectangle covers model rows 28-35 and columns 10-20. Only cells within this rectangle are included in the "LC SPRINGS" depletion total.
 
@@ -139,7 +153,7 @@ The current six GHB cells are located at rows 30-32, columns 12-15 — comfortab
 
 Validation confirms that pipeline outputs are physically reasonable and consistent with independently verified reference data.
 
-## 9. 2024 Regression Baseline
+## 10. 2024 Regression Baseline
 
 The 2024 analysis was the first year fully processed with the automated pipeline. All outputs were manually verified against legacy Excel spreadsheets produced by the prior manual workflow. These verified outputs serve as the regression baseline: any code modification must reproduce the 2024 results within defined tolerances.
 
@@ -159,7 +173,7 @@ Before running the regression, the pipeline verifies the integrity of frozen inp
 
 The regression test also enforces strict handling of missing data: any NaN value in the output or any cell that is empty when the reference has a value (or vice versa) causes an immediate failure.
 
-## 10. Cross-Model Depletion Comparison
+## 11. Cross-Model Depletion Comparison
 
 When processing a new year, the pipeline generates a verification spreadsheet that compares the current MODFLOW run against the prior year's run. This comparison is performed at the raw post-processor output level — before any table formatting, chaining, or rounding — to detect discrepancies at their source.
 
@@ -171,7 +185,7 @@ Years 2025-2030 are expected to differ between the two runs because the CY2025 r
 
 The output is an Excel workbook with year-by-year comparisons, difference columns, and yellow highlighting for any flagged values.
 
-## 11. Historical Bounds and Ballpark Checks
+## 12. Historical Bounds and Ballpark Checks
 
 Before running the full test suite (which can take several minutes), the pipeline executes a rapid ballpark check that tests for gross physics violations. This check executes in less than five seconds and uses historical bounds derived from the 2022-2024 analysis period.
 
@@ -189,7 +203,7 @@ Before running the full test suite (which can take several minutes), the pipelin
 
 The ballpark check is designed to catch catastrophic errors early — such as loading the wrong year's input file, a unit conversion that is off by an order of magnitude, or a post-processor that failed silently — before investing time in the full regression test.
 
-## 12. Temporal Consistency
+## 13. Temporal Consistency
 
 The temporal consistency checks compare the current year's results against year-over-year patterns observed in the 2022-2024 historical period. All temporal checks produce soft flags that require human review; none are hard stops. This reflects the fact that year-over-year changes may be legitimate (a drought year followed by a wet year) and should be reviewed by a hydrogeologist rather than rejected by an algorithm.
 
@@ -205,7 +219,7 @@ The temporal consistency checks compare the current year's results against year-
 
 # Part III: Quality Assurance Infrastructure
 
-## 13. Test Orchestration and Failure Handling
+## 14. Test Orchestration and Failure Handling
 
 The pipeline's test suite is orchestrated by `run_all_tests.py`, which executes checks in a defined priority order. If a higher-priority check fails, lower-priority checks are skipped to avoid wasting time on results that cannot be trusted.
 
@@ -215,19 +229,19 @@ The execution order is:
 
 2. **Smoke tests** (approximately 5 seconds). 190 automated tests verify that all Python functions execute without errors, return the correct types, and produce values of the expected magnitude. A failure indicates a code bug.
 
-3. **Edge case tests** (approximately 2 seconds). 30 tests verify that the pipeline handles malformed inputs, boundary conditions, and missing data gracefully. These include negative pumping values, empty CSV files, missing well columns, and leap year edge cases.
+3. **Edge case and geometry tests** (approximately 2 seconds). 46 tests: 30 verify that the pipeline handles malformed inputs, boundary conditions, and missing data gracefully (negative pumping values, empty CSV files, missing well columns, leap year edge cases); 16 verify MODFLOW grid geometry, including the GHB cell validation described in Section 9.
 
-4. **Conservation tests** (approximately 2 seconds). 4 tests verify the physics-based constraints described in Section 5: budget closure, pumping conservation, depletion constraint, and table sum integrity. These require MODFLOW output files to be present; if files are missing, the tests are skipped rather than failed.
+4. **Conservation tests** (approximately 2 seconds). 4 tests verify the physics-based constraints described in Section 6 (Internal Consistency Checks): budget closure, pumping conservation, depletion constraint, and table sum integrity. These require MODFLOW output files to be present; if files are missing, the tests are skipped rather than failed.
 
-5. **Temporal consistency** (approximately 1 second). The year-over-year pattern checks described in Section 12. These produce soft flags only.
+5. **Temporal consistency** (approximately 1 second). The year-over-year pattern checks described in Section 13. These produce soft flags only.
 
-6. **Provenance manifest** (approximately 1 second). Generates the audit trail described in Section 14.
+6. **Provenance manifest** (approximately 1 second). Generates the audit trail described in Section 15.
 
-The test suite uses three exit codes: 0 (all hard-stop checks passed; soft flags may exist), 1 (one or more hard-stop checks failed), and 3 (physics violation detected in the ballpark check). A total of 240 automated tests are distributed across 8 test files.
+The test suite uses three exit codes: 0 (all hard-stop checks passed; soft flags may exist), 1 (one or more hard-stop checks failed), and 3 (physics violation detected in the ballpark check). A total of 240 automated tests are distributed across 7 test files containing 5,177 lines of test code.
 
 Error messages follow a forensic format designed for debugging: each message reports what failed, where it failed (file path and function), the actual value observed, the expected value or threshold, and a physical interpretation of the discrepancy. This format allows an analyst to diagnose the root cause without re-running the pipeline in a debugger.
 
-## 14. Provenance and Audit Trail
+## 15. Provenance and Audit Trail
 
 Every pipeline run produces a provenance manifest and a workflow log that together document the complete chain of custody for the analysis.
 
@@ -239,13 +253,18 @@ The provenance manifest answers the question: *Can you prove exactly how these d
 
 ---
 
-## 15. Summary Table: All Automated Tolerances and Thresholds
+## 16. Summary Table: All Automated Tolerances and Thresholds
 
 The following table consolidates every numerical tolerance and threshold used by the automated V&V framework. "Hard" checks halt the pipeline on failure. "Soft" checks produce flags requiring human review.
 
 | Check | Tolerance | Units | Hard/Soft | Source File |
 |-------|-----------|-------|-----------|-------------|
-| **Verification** | | | | |
+| **Verification — Input Data** | | | | |
+| Daily data: negative values | 0 | MGD | Hard | step1_ingest_buckman_data.py |
+| Daily sum: noise threshold | 0.0015 | MGD | Informational | step1_ingest_buckman_data.py |
+| Daily sum: error threshold | 0.005 | MGD | Hard | step1_ingest_buckman_data.py |
+| Annual sum per well | 0.01 | MG | Hard | step1_ingest_buckman_data.py |
+| **Verification — Computation** | | | | |
 | MODFLOW budget closure | 0.1 | % discrepancy | Hard | test_conservation.py |
 | Pumping conservation (input = applied) | 0.1 | % relative | Hard | test_conservation.py |
 | Depletion cannot exceed pumping | 0.001 | ratio overshoot | Hard | test_conservation.py |
@@ -275,7 +294,7 @@ The following table consolidates every numerical tolerance and threshold used by
 
 ---
 
-## 16. References
+## 17. References
 
 Anderson, M.P. and Woessner, W.W., 2015, Applied Groundwater Modeling: Simulation of Flow and Advective Transport, 2nd ed.: Academic Press, 630 p.
 

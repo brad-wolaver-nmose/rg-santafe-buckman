@@ -299,6 +299,8 @@ Assert that output changes are proportional and physically reasonable. If zeroin
 
 **Extension plan:** When independent validation for 2025 or later years becomes available, add them to the regression suite. The harness grows harder to pass and more trustworthy over time.
 
+> **Integration note:** Layer 5 is NOT currently integrated into the `run_all_tests.py` master test runner. It is run separately via `validation/2024/run_regression_2024.py`. The master runner orchestrates Layers 0, 0.5, 1, 2, and 6 only.
+
 ### 6.8 Layer 6: Provenance Logging
 
 **Purpose:** Produce an audit trail that can withstand legal challenge.
@@ -389,17 +391,19 @@ run_all_tests.py --year YYYY [--skip-ballpark] [--verbose] [--dry-run]
   +-- [5/6] Layer 2: Temporal consistency (timeout 60s)
   |     Produces flags (not hard fails)
   |
-  +-- [5.5/6] Layer 3: Cross-comparison (SKIPPED -- scientifically rejected)
+  +-- [5.5/6] Layer 3: Cross-comparison (omitted from orchestration sequence; not explicitly skipped at runtime)
   |
   +-- [6/6] Layer 6: Provenance manifest (src/pipeline_manifest.py)
   |
   +-- Summary + workflow log generation (src/workflow_logger.py)
 ```
 
-**Exit code semantics:**
+**Exit code semantics (master runner `run_all_tests.py`):**
 - Exit 0: All hard-stop tests passed (flags may exist requiring review)
 - Exit 1: Hard-stop test failure or script error
 - Exit 3: Ballpark check critical physics violation
+
+> **Note:** Exit code 2 (soft flag) is used *internally* by the `ballpark_check.py` subprocess, not by the master runner itself. When `ballpark_check.py` returns exit code 2, the master runner records the soft flags but continues execution and returns exit code 0 if no hard failures occurred. The master runner returns only 0, 1, or 3.
 
 **Subprocess timeouts:**
 - Ballpark check: 30 seconds

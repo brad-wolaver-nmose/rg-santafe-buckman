@@ -76,7 +76,7 @@ Runtime reporting:
 | R6 | Execute MODFLOW96: `echo "CY{year}.nam" \| wine ./modflow96.exe` piping NAM filename to stdin | MODFLOW96 receives filename and begins solving |
 | R7 | Capture all output to `{year}_modflow_run.log` using `tee` (stdout visible in real-time AND logged) | Log file created with MODFLOW output; user sees convergence info in terminal |
 | R8 | Track runtime using epoch seconds (`date +%s` before and after), report minutes/seconds | Summary shows runtime in `Xm Ys` format |
-| R9 | Check exit code via `${PIPESTATUS[0]}` (pipe exit code, not tee's exit code) | Non-zero exit code from MODFLOW reported as failure; script exits with that code |
+| R9 | Check exit code via `${PIPESTATUS[1]}` (Wine/MODFLOW exit code from 3-command pipe). **Known Bug:** Both this spec and `step3_run_modflow.sh` (line 117) incorrectly use `PIPESTATUS[0]`, which captures `echo`'s exit code (always 0) instead of `wine`'s exit code. See Section 8 warning for details. | Non-zero exit code from MODFLOW reported as failure; script exits with that code |
 | R10 | Auto-run `verify_modflow_run.py` if present; skip with warning if absent | Verification runs after successful MODFLOW completion; missing script produces warning, not error |
 | R11 | Report next step: `python3 step4_generate_depletion_tables.py --year {YEAR}` | Success message includes exact command for next pipeline step |
 | R12 | Use `set -euo pipefail` for strict error handling | Script fails fast on undefined variables, command errors, or pipe failures |
@@ -113,7 +113,7 @@ Step 3: Print banner
 Step 4: Run MODFLOW96
   START_TIME=$(date +%s) → 1740069000
   echo "CY2025.nam" | wine ./modflow96.exe 2>&1 | tee "2025_modflow_run.log"
-  EXIT_CODE=${PIPESTATUS[0]} → 0 (assuming success)
+  EXIT_CODE=${PIPESTATUS[0]} → 0 (BUG: captures echo's exit code, not wine's; see Section 8)
   END_TIME=$(date +%s) → 1740071400
   RUNTIME = 1740071400 - 1740069000 = 2400 seconds
 
@@ -221,8 +221,9 @@ Note: Full execution testing requires Wine + MODFLOW96 + prepared model files, w
 
 ## 8. Known Gotchas
 
-- [ ] **PIPESTATUS must be read immediately** — `${PIPESTATUS[0]}` captures the exit code of the first command in the pipe (`echo ... | wine ... | tee`). Any intervening command between the pipe and the PIPESTATUS read will overwrite it. The code captures it on the very next line after the pipe.
-- [ ] **`set -euo pipefail` and pipes** — With `pipefail`, the pipe returns the exit code of the last non-zero command. But we want specifically the Wine process exit code (element 0 of PIPESTATUS), not tee's exit code. PIPESTATUS gives us element-by-element access.
+- [ ] **WARNING -- PIPESTATUS[0] bug (spec and code):** The command pipe is `echo "$NAM_FILE" | wine ./modflow96.exe 2>&1 | tee ...`. In this 3-command pipe, `PIPESTATUS[0]` captures `echo`'s exit code (always 0), `PIPESTATUS[1]` captures `wine`'s exit code (the desired one), and `PIPESTATUS[2]` captures `tee`'s exit code. Both this spec and the code (`step3_run_modflow.sh` line 117) incorrectly use `PIPESTATUS[0]`, meaning MODFLOW failures would never be detected via the PIPESTATUS check. The correct index is `PIPESTATUS[1]`. However, with `set -e` and `pipefail`, the script would still exit on wine failure before reaching the PIPESTATUS line.
+- [ ] **PIPESTATUS must be read immediately** — `${PIPESTATUS[...]}` must be captured on the very next line after the pipe. Any intervening command between the pipe and the PIPESTATUS read will overwrite it.
+- [ ] **`set -euo pipefail` and pipes** — With `pipefail`, the pipe returns the exit code of the last non-zero command. PIPESTATUS gives element-by-element access: `[0]` = echo, `[1]` = wine, `[2]` = tee. The correct element for Wine's exit code is `PIPESTATUS[1]`.
 - [ ] **Wine stderr** — Wine may produce its own diagnostic messages on stderr (e.g., "fixme: ..." warnings). These are piped via `2>&1` and will appear in the log file. This is intentional for debugging.
 - [ ] **Working directory** — The script `cd`s into `output/modflow/{year}/` and stays there. The verify script runs from that directory. The "next step" instructions tell the user to `cd ../../..` back to the project root.
 - [ ] **30-45 minute runtime** — This is a long-running process. The `tee` ensures the user can watch convergence in real-time. Ctrl+C will abort. There is no timeout; the modeler is expected to monitor convergence.

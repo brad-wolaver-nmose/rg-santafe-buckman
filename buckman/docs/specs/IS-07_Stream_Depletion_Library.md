@@ -69,8 +69,8 @@ For years beyond 2030 (beyond the Core (2003) lookup table):
 Tesuque residual = -0.4908 * year + 1006.2
   Capped at 0.0 (no negative residuals)
 
-  Example: year 2035 → -0.4908 * 2035 + 1006.2 = 7.482 AF
-  Example: year 2060 → -0.4908 * 2060 + 1006.2 = -5.248 → capped to 0.0 AF
+  Example: year 2035 → -0.4908 * 2035 + 1006.2 = 7.422 AF
+  Example: year 2060 → -0.4908 * 2060 + 1006.2 = -4.648 → capped to 0.0 AF
 ```
 
 ### Key Constants (Inline)
@@ -163,8 +163,8 @@ Input: stream="tesuque", year=2035 (beyond lookup table)
   max(0.0, 7.422) = 7.422 AF
 
 Input: stream="tesuque", year=2060 (extrapolation goes negative)
-  value = -0.4908 * 2060 + 1006.2 = -1011.048 + 1006.2 = -4.848 AF
-  max(0.0, -4.848) = 0.0 AF (capped)
+  value = -0.4908 * 2060 + 1006.2 = -1010.848 + 1006.2 = -4.648 AF
+  max(0.0, -4.648) = 0.0 AF (capped)
 ```
 
 ### Example 4: Post-Processor Output Parsing
@@ -287,7 +287,7 @@ assert LA_CIENEGA_CUMULATIVE[2030] == 4.80
 | `DAYS_VALIDATION` / `DAYS_2024` | Static constants | Use `calendar.isleap(year)` for dynamic selection |
 | Post-processor output | Parsed fresh each year | Parsed fresh each year |
 
-No chaining at this level. All functions are stateless and operate on the data passed to them. Year-chaining for historical preservation happens at the Table writing layer (IS-08 for Table 3, IS-06 for Table 5).
+No chaining at this level. All functions are stateless and operate on the data passed to them. Year-chaining for historical preservation happens at the Table writing layer (IS-08 for Table 3, IS-09 for Table 5).
 
 ---
 

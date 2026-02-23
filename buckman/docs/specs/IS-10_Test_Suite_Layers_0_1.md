@@ -11,7 +11,7 @@
 
 ## 1. Session Goal
 
-Implement the pytest test suite covering Layer 0 (smoke tests), Layer 0.5 (edge cases), and Layer 1 (conservation/mass-balance checks) across 7 test files with approximately 241 tests total.
+Implement the pytest test suite covering Layer 0 (smoke tests), Layer 0.5 (edge cases), and Layer 1 (conservation/mass-balance checks) across 7 test files with approximately 240 tests total.
 
 ---
 
@@ -76,13 +76,13 @@ CFS per day:    1 cfs = 86400 ft3/day = 1.9835 AF/day
 
 | Req | Description | Acceptance Criterion |
 |-----|-------------|---------------------|
-| R1 | `tests/conftest.py` with shared fixtures | Provides `sample_valid_daily_csv`, `sample_valid_table2_csv`, parametrized month/days fixtures. All 7 test files can import fixtures. |
-| R2 | `tests/test_ingest_buckman_data.py` -- CSV ingestion tests | Tests: module imports, constants defined, 13-well map, MG-to-AF factor, monthly ordering, CSV read/validate/aggregate/convert. ~40 tests. All marked layer0. |
-| R3 | `tests/test_update_modflow.py` -- MODFLOW WEL operations | Tests: module imports, `convert_af_to_ft3s()` hand-calculated, zero pumping, leap year February, WEL file parsing, well entry generation. ~30 tests. All marked layer0. |
-| R4 | `tests/test_stream_depletions.py` -- depletion calculations | Tests: module imports, `cfs_to_acre_feet()` and `cfs_to_af()`, Core 2003 residuals exist, `parse_postprocessor_output()`, `generate_table3_data()`, `generate_table4_data()`, `generate_table5_data()`. ~50 tests. All marked layer0. |
-| R5 | `tests/test_conservation.py` -- mass balance checks | Tests: MODFLOW budget closure, pumping-in equals pumping-used, depletion <= pumping, table row/column sum integrity. ~20 tests. Marked conservation. |
-| R6 | `tests/test_edge_cases.py` -- boundary conditions | Tests: missing file handling, empty CSV, zero pumping wells, leap year, single-day month, malformed columns, NaN handling, WEL file CRLF line endings. ~50 tests. Marked edge_cases. |
-| R7 | `tests/test_modflow_geometry.py` -- cell coordinate validation | Tests: GHB file parsing, La Cienega cells within FORTRAN rectangle, Otowi cell classification, above/below cell count, BUCKMAN_WELLS_CELL in BELOW_OTOWI. ~20 tests. Marked layer0. |
+| R1 | `tests/conftest.py` with shared fixtures | Provides `sample_valid_daily_csv`, `sample_valid_table2_csv`, parametrized month/days fixtures. All 7 test files can import fixtures. **Note:** `tests/conftest.py` does not currently exist; fixtures like `sample_valid_daily_csv` and `sample_valid_table2_csv` are defined directly in `test_edge_cases.py`. |
+| R2 | `tests/test_ingest_buckman_data.py` -- CSV ingestion tests | Tests: module imports, constants defined, 13-well map, MG-to-AF factor, monthly ordering, CSV read/validate/aggregate/convert. ~20 tests. All marked layer0. |
+| R3 | `tests/test_update_modflow.py` -- MODFLOW WEL operations | Tests: module imports, `convert_af_to_ft3s()` hand-calculated, zero pumping, leap year February, WEL file parsing, well entry generation. ~67 tests. All marked layer0. |
+| R4 | `tests/test_stream_depletions.py` -- depletion calculations | Tests: module imports, `cfs_to_acre_feet()` and `cfs_to_af()`, Core 2003 residuals exist, `parse_postprocessor_output()`, `generate_table3_data()`, `generate_table4_data()`, `generate_table5_data()`. ~71 tests. All marked layer0. |
+| R5 | `tests/test_conservation.py` -- mass balance checks | Tests: MODFLOW budget closure, pumping-in equals pumping-used, depletion <= pumping, table row/column sum integrity. ~4 test functions (file contains many helper functions). Marked conservation. |
+| R6 | `tests/test_edge_cases.py` -- boundary conditions | Tests: missing file handling, empty CSV, zero pumping wells, leap year, single-day month, malformed columns, NaN handling, WEL file CRLF line endings. ~30 tests. Marked edge_cases. |
+| R7 | `tests/test_modflow_geometry.py` -- cell coordinate validation | Tests: GHB file parsing, La Cienega cells within FORTRAN rectangle, Otowi cell classification, above/below cell count, BUCKMAN_WELLS_CELL in BELOW_OTOWI. ~16 tests. **Note:** `test_modflow_geometry.py` does NOT have a `pytestmark = pytest.mark.layer0` assignment; running `pytest -m layer0` will not pick up these tests unless the marker is added. |
 | R8 | pytest markers registered and functional | `pytest -m layer0`, `pytest -m edge_cases`, `pytest -m conservation` each select the correct subset |
 
 ---
@@ -216,7 +216,7 @@ ruff check tests/
 mypy tests/ --ignore-missing-imports
 ```
 
-Expected output: All Layer 0 and edge case tests pass without MODFLOW dependency. Conservation tests pass if pipeline has been run for the target year. Total: ~241 tests.
+Expected output: All Layer 0 and edge case tests pass without MODFLOW dependency. Conservation tests pass if pipeline has been run for the target year. Total: ~240 tests.
 
 ---
 
@@ -274,14 +274,14 @@ Expected result: `~170 passed` with no failures. Conservation tests are separate
 
 | File | Layer | Est. Tests | Key Focus Areas |
 |------|-------|-----------|-----------------|
-| `test_ingest_buckman_data.py` | 0 | ~40 | Constants, CSV parsing, validation flags, MG-to-AF |
-| `test_update_modflow.py` | 0 | ~30 | AF-to-ft3/s, WEL parsing, well entries, leap year |
-| `test_stream_depletions.py` | 0 | ~50 | CFS conversion, Core 2003, parsing, Tables 3-5 data |
-| `test_generate_depletion_tables.py` | 0 | ~15 | Step 4 orchestrator, constants, print_error |
-| `test_conservation.py` | 1 | ~20 | Budget closure, pumping conservation, depletion bounds |
-| `test_edge_cases.py` | 0.5 | ~50 | Missing files, zero pumping, leap year, NaN, CRLF |
-| `test_modflow_geometry.py` | 0 | ~20 | GHB parsing, Otowi cells, FORTRAN rectangle |
-| **Total** | | **~225** | |
+| `test_ingest_buckman_data.py` | 0 | ~20 | Constants, CSV parsing, validation flags, MG-to-AF |
+| `test_update_modflow.py` | 0 | ~67 | AF-to-ft3/s, WEL parsing, well entries, leap year |
+| `test_stream_depletions.py` | 0 | ~71 | CFS conversion, Core 2003, parsing, Tables 3-5 data |
+| `test_generate_depletion_tables.py` | 0 | ~32 | Step 4 orchestrator, constants, print_error |
+| `test_conservation.py` | 1 | ~4 | Budget closure, pumping conservation, depletion bounds (many helpers) |
+| `test_edge_cases.py` | 0.5 | ~30 | Missing files, zero pumping, leap year, NaN, CRLF |
+| `test_modflow_geometry.py` | 0 | ~16 | GHB parsing, Otowi cells, FORTRAN rectangle |
+| **Total** | | **~240** | |
 
 ### Marker Configuration (pytest.ini)
 

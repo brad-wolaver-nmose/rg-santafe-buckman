@@ -292,8 +292,8 @@ Longer-lasting residual effect on Rio Tesuque. Initial values increase (peaking 
 ```
 Residual_AF = max(0, -0.4908 * year + 1006.2)
 
-Example for 2035: max(0, -0.4908 * 2035 + 1006.2) = max(0, 7.492) = 7.492 AF
-Example for 2050: max(0, -0.4908 * 2050 + 1006.2) = max(0, 0.140) = 0.140 AF
+Example for 2035: max(0, -0.4908 * 2035 + 1006.2) = max(0, 7.422) = 7.422 AF
+Example for 2050: max(0, -0.4908 * 2050 + 1006.2) = max(0, 0.060) = 0.060 AF
 Zero crossing: ~2050 (formula yields 0 around year 2050)
 ```
 
@@ -427,7 +427,7 @@ for use in the following year.
 - **Structure per stream**: Residual (Analytical) + Superposition (MODFLOW) = Total Impact
 - **Time series**: 1988 through current year (rows extended annually)
 - **Historical preservation**: Years 1988 through (year-1) use values from baseline file to ensure exact reproduction
-- **File**: `TABLE_3_Stream_Depletions_{year}.xlsx`
+- **File**: `TABLE_3_Rio_Pojoaque_Tesuque_{year}.xlsx`
 
 ### 10.2 Table 4: Rio Grande Depletions Above and Below Otowi
 

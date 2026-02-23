@@ -240,6 +240,7 @@ Dependencies imported at runtime:
 
 ```bash
 # These commands must all pass:
+pytest tests/test_generate_depletion_tables.py -v --tb=short
 ruff check step4_generate_depletion_tables.py
 mypy step4_generate_depletion_tables.py
 
@@ -271,6 +272,7 @@ Expected output: Ruff/mypy clean; path function tests pass; end-to-end generates
 - [ ] **Wine timeout** — The post-processor timeout is 300 seconds (5 minutes). This is generous for the small flux files; sfmodflx_2245 typically completes in seconds. If it hangs, it is likely a Wine configuration issue.
 - [ ] **GHB geometry validation** — The geometry check (`validate_ghb_cells_in_fortran_range()`) runs BEFORE the post-processor to catch cell mismatches early. If the FORTRAN code's hardcoded rectangle doesn't contain all GHB cells, depletion values would be silently wrong.
 - [ ] **Output file has no extension** — The post-processor output file is named `CY{year}` with NO file extension. This is the FORTRAN convention. Python reads it as a text file.
+- [ ] **Two different parsing functions exist** — `parse_post_processor_output()` (with underscores: `post_processor`) in `step4_generate_depletion_tables.py` is used by the step4 pipeline. `parse_postprocessor_output()` (no underscore: `postprocessor`) in `stream_depletions.py` is used by the stream depletion library. These are separate implementations with slightly different regex patterns but produce equivalent results. Be careful not to confuse them when importing or testing.
 
 ---
 

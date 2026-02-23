@@ -169,12 +169,21 @@ Apply negative sign: -0.13730 ft^3/s (MODFLOW extraction convention)
 ### 6.1 Grid Dimensions
 
 ```
-Rows:    23
+Rows:    35
 Columns: 25
 Layers:  2
 
-Total cells: 23 * 25 * 2 = 1,150
+Total cells: 35 * 25 * 2 = 1,750
 ```
+
+> **Note:** The Buckman Wellfield wells occupy rows 13-20, columns 11-16 within the
+> active wellfield area. However, the full model domain extends to at least row 35
+> to accommodate GHB (General Head Boundary) cells representing La Cienega Springs
+> at rows 30-32, and the FORTRAN post-processor GHB extraction rectangle spans
+> rows 28-35, columns 10-20. The RIV (River) package cells span rows 9-17,
+> columns 14-25. Rio Grande cells extend from row 1 (Above Otowi) through row 23
+> (Below Otowi). Not all cells in the 35x25 grid are necessarily active; inactive
+> cells are defined in the BAS (Basic) package boundary array.
 
 ### 6.2 Well Locations (WELL_GRID_MAP)
 
@@ -196,7 +205,7 @@ Each well occupies two cells (Layer 1 and Layer 2) at the same row/column:
 | BUCKMAN 12 | 12 | 19 | 15 | |
 | BUCKMAN 13 | 13 | 20 | 16 | |
 
-**Note on co-located wells:** Multiple wells in the same grid cell is a consequence of model resolution. The 23x25 grid represents the regional aquifer at a scale where some closely-spaced Buckman wells fall within the same cell. Pumping rates are additive within each cell.
+**Note on co-located wells:** Multiple wells in the same grid cell is a consequence of model resolution. The 35x25 grid represents the regional aquifer at a scale where some closely-spaced Buckman wells fall within the same cell. Pumping rates are additive within each cell.
 
 ### 6.3 Boundary Condition Cells
 

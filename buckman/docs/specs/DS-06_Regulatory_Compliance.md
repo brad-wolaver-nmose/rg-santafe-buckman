@@ -168,7 +168,7 @@ Each table serves a specific regulatory purpose. Together they document the comp
 
 **Structure:** Rows = years (1988--present), Columns = Residual Impact, Superposition Impact, Total Impact for each stream.
 
-**Regulatory significance:** Tributary depletions reduce flow available to downstream users and may affect junior water rights. Values are cumulative (monotonically increasing).
+**Regulatory significance:** Tributary depletions reduce flow available to downstream users and may affect junior water rights. Values are cumulative and generally increasing, though strict monotonicity is not guaranteed by physics -- it depends on whether new superposition gains exceed residual losses. For example, the Residual Impact column for Pojoaque decreases from 40.432 AF in 1988 to 0 AF after 2015 as the Core (2003) analytical projection exhausts.
 
 #### Table 4: Rio Grande Above/Below Otowi (AF)
 
@@ -234,7 +234,7 @@ For any test that raised a soft flag (not a hard fail):
 
 ### 6.3 Workflow Log (Audit Trail)
 
-The pipeline generates a comprehensive workflow log in both Markdown and DOCX formats. The log is structured as a formal audit document with the following sections:
+The pipeline generates a comprehensive workflow log in both Markdown and DOCX formats. DOCX generation requires `pandoc` to be installed; if pandoc is unavailable, the workflow logger degrades gracefully to Markdown-only output. The log is structured as a formal audit document with the following sections:
 
 | Section | Content | Regulatory Purpose |
 |---------|---------|-------------------|
@@ -284,7 +284,7 @@ This workflow ensures that unusual values receive explicit human judgment before
 | Annual reporting deadline | OSE administrative requirement | Pipeline designed for single-command execution per year |
 | Table format must match OSE template | OSE report format | Excel generation uses openpyxl with format-matching styles |
 | Below-Otowi depletions charged to NM | Rio Grande Compact Art. IV | Table 4 explicitly separates Above/Below Otowi |
-| Cumulative depletions must be monotonic | Physics (irreversible process) | Hard fail in ballpark_check.py |
+| Cumulative total depletions generally increasing | Physics (net depletion grows under continued pumping, though individual residual components can decline) | Flagged in ballpark_check.py; strict monotonicity not guaranteed for all columns |
 | All pumping must be non-negative | Physics (cannot inject water through production wells) | Hard fail for negative values |
 | Historical values preserved across years | Regulatory consistency | Year chaining locks historical rows (DS-04) |
 

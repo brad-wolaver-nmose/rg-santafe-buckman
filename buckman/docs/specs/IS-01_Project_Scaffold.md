@@ -5,7 +5,9 @@
 **Status:** Final
 **Author:** Claude Code
 **Created:** 2026-02-20
-**Last Updated:** 2026-02-20
+**Last Updated:** 2026-02-23
+
+> **Implementation Note:** The current codebase does NOT use a centralized `src/constants.py` module. Constants are defined locally in each pipeline script: `step1_ingest_buckman_data.py` (MG_TO_AF_FACTOR, tolerances, WELL_OSE_MAP), `step2_update_modflow.py` (ACRE_FT_TO_FT3, WELL_GRID_MAP, WELL_NAME_MAP), `step4_generate_depletion_tables.py` (OUTPUT_DIR, VALIDATION_DIR), and `stream_depletions.py` (CORE_2003_\*, cell mappings, LA_CIENEGA_CUMULATIVE). This spec describes the aspirational centralized architecture; for the as-built state, refer to the individual IS-02 through IS-09 specs.
 
 ---
 
@@ -69,8 +71,8 @@ AF to ft3/s:  rate = -(AF / num_layers) * 43560 / (days_in_month * 86400)
 | Req | Description | Acceptance Criterion |
 |-----|-------------|---------------------|
 | R1 | Create directory structure with all required directories | `ls` confirms all directories exist: `input/csv/`, `input/modflow/2023/`, `output/ingested_data/`, `output/modflow/`, `output/depletion/`, `validation/`, `tests/`, `src/`, `docs/` |
-| R2 | Create `requirements.txt` with pinned minimum versions | File contains: `pandas>=1.5.0`, `pint>=0.20.0`, `openpyxl`, `PyYAML`, `pytest`, `pytest-json-report`, `ruff`, `mypy` |
-| R3 | Create `pyproject.toml` with ruff and mypy config | `ruff check src/` and `mypy src/` run without configuration errors |
+| R2 | Create `requirements.txt` with pinned minimum versions | File contains: `pandas>=1.5.0`, `pint>=0.20.0`, `openpyxl>=3.0.0`, `pytest>=7.0.0`, `ruff>=0.1.0`, `mypy>=1.0.0`. Note: `PyYAML` and `pytest-json-report` are not currently in requirements.txt. |
+| R3 | Create `ruff.toml` and `mypy.ini` with linting/type-checking config | `ruff check src/` and `mypy src/` run without configuration errors. Note: the project uses `ruff.toml` and `mypy.ini`, not `pyproject.toml`. |
 | R4 | Create `src/__init__.py` (empty) | Python can import from `src` package |
 | R5 | Create `src/constants.py` with all shared constants | All constants importable: `from src.constants import MG_TO_AF_FACTOR` |
 | R6 | Define WELL_OSE_MAP: well number (1-13) to OSE permit string | `WELL_OSE_MAP[1] == "RG-20516-S-5"` and `WELL_OSE_MAP[3] == "RG-20516-S"` |
@@ -183,9 +185,9 @@ BASELINE_FILES_TO_COPY = [
 | Create | `src/__init__.py` | Empty init file for Python package |
 | Create | `src/constants.py` | All shared constants, mappings, and `print_error()` |
 | Create | `requirements.txt` | Python dependencies with minimum versions |
-| Create | `pyproject.toml` | Ruff and mypy configuration |
+| Create | `ruff.toml` and `mypy.ini` | Ruff and mypy configuration (not `pyproject.toml`) |
 | Create | `tests/__init__.py` | Empty init file for test package |
-| Create | `tests/test_constants.py` | Unit tests for constants module |
+| Create | `tests/test_constants.py` | Unit tests for constants module. Note: no dedicated `tests/test_constants.py` exists in the current codebase; constants are tested as part of individual module tests (e.g., `tests/test_ingest_buckman_data.py`, `tests/test_update_modflow.py`). |
 
 ---
 
@@ -193,10 +195,12 @@ BASELINE_FILES_TO_COPY = [
 
 ```bash
 # These commands must all pass:
-pytest tests/test_constants.py -v --tb=short
+pytest tests/test_constants.py -v --tb=short    # See note below
 ruff check src/constants.py
 mypy src/constants.py
 ```
+
+> **Note:** No dedicated `tests/test_constants.py` exists in the current codebase. Constants are tested as part of individual module tests (e.g., `tests/test_ingest_buckman_data.py`, `tests/test_update_modflow.py`).
 
 Expected output:
 - All tests pass (verifying constant values, mapping completeness, print_error output)

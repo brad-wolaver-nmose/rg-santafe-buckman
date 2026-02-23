@@ -112,7 +112,7 @@ Step 6: Sum above-Otowi cells per month -> above_cfs[12]
 
 Step 7: Convert to AF:
         above_af[0] = above_cfs[0] * 31 * 86400 / 43560  (January)
-        2024 example: above_otowi_annual_af ~ 277.5 AF
+        2024 example: above_otowi_annual_af ~ 101.43 AF
                       below_otowi_annual_af ~ 842.94 AF
 ```
 
@@ -126,10 +126,10 @@ Step 7: Convert to AF:
     "below_otowi_cfs": [12 floats],
     "above_otowi_af": [12 floats],
     "below_otowi_af": [12 floats],
-    "above_otowi_annual_af": 277.5,   # approximate
+    "above_otowi_annual_af": 101.43,   # approximate
     "below_otowi_annual_af": 842.94,  # approximate
     "total_rg_af": [12 floats],
-    "total_rg_annual_af": 1120.44,    # approximate
+    "total_rg_annual_af": 944.37,     # approximate
     "buckman_cfs": [12 floats],
     "buckman_af": [12 floats],
     "buckman_annual_af": float,
@@ -230,7 +230,7 @@ wb = openpyxl.load_workbook('output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx
 ws = wb.active
 for row in ws.iter_rows(min_row=56, max_row=58, min_col=18, max_col=18, values_only=True):
     print(f'{row[0]:.3f}')
-") <(echo -e "277.500\n842.940\n1120.440")
+") <(echo -e "101.430\n842.940\n944.370")
 ```
 
 Expected result: Above/below/total Otowi AF values within 0.01 AF of validation reference.
