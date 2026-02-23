@@ -575,6 +575,17 @@ Use when you need to regenerate a log after the fact, or document a run without 
 - [Tables 1 & 2 Methodology](output/ingested_data/METHODOLOGY_Tables_1_2.md)
 - [Tables 3, 4, 5 Methodology](output/depletion/METHODOLOGY_Tables_3_4_5.md)
 
+### Verification & Validation
+
+- [Appendix B: Automated V&V](docs/v_v/Appx_B_Automated_Verification_Validation_20260220.md) — Comprehensive documentation of all automated checks, tolerances, and thresholds
+- [MODFLOW Cell Mapping](docs/MODFLOW_CELL_MAPPING.md) — La Cienega Springs cell identification and FORTRAN post-processor geometry
+
+### Specifications (After-the-Fact)
+
+- [Specification Index](docs/specs/SPEC_INDEX.md) — Complete specification suite for reproducibility and maintainer documentation
+- Domain Specifications (DS-01 through DS-06): Scientific basis, assumptions, domain knowledge
+- Implementation Specifications (IS-01 through IS-12): Claude Code session-sized prompts
+
 ### Reference
 
 - [File Dependencies Diagram](docs/FILE_DEPENDENCIES.md)
