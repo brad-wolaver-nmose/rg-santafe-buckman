@@ -73,7 +73,7 @@ Show unit conversion chains with cancellation steps.
 
 - [List applicable conservation principles]
 
-### Regulatory Limits
+### Regulatory Constraints
 
 - [List applicable regulatory constraints]
 
@@ -84,7 +84,7 @@ Show unit conversion chains with cancellation steps.
 ### Publications
 - [Author, Year. Title. Publication.]
 
-### Standards
+### Guidelines / Policies
 - [Standard number and title]
 
 ### Data Sources

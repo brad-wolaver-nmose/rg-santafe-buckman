@@ -4,10 +4,6 @@
 > Serves as reproducibility proof, future maintainer documentation, and reusable template
 > for OSE/USGS to spec similar computational hydrology pipelines for AI-assisted development.
 
-**Created:** 2026-02-20
-**Fidelity Level:** Functional + Architectural (USGS SIR standard)
-**Self-Containedness:** Hybrid with appendices
-
 ---
 
 ## Two-Tier Architecture
