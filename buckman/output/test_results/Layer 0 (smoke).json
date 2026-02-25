@@ -1,14 +1,15 @@
 {
-  "created": 1771535120.4054506,
-  "duration": 4.09934401512146,
+  "created": 1772046528.0971746,
+  "duration": 3.4925312995910645,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
   "summary": {
-    "passed": 190,
+    "passed": 187,
+    "skipped": 3,
     "total": 190,
-    "collected": 224,
-    "deselected": 34
+    "collected": 240,
+    "deselected": 50
   },
   "collectors": [
     {
@@ -570,6 +571,108 @@
       ]
     },
     {
+      "nodeid": "tests/test_modflow_geometry.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_exists",
+          "type": "Function",
+          "lineno": 56,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_returns_list",
+          "type": "Function",
+          "lineno": 62,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_expected_count",
+          "type": "Function",
+          "lineno": 71,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_cell_coordinates",
+          "type": "Function",
+          "lineno": 80,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_missing_file",
+          "type": "Function",
+          "lineno": 103,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_in_fortran_range_exists",
+          "type": "Function",
+          "lineno": 114,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_in_fortran_range_passes",
+          "type": "Function",
+          "lineno": 120,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_all_in_layer_1",
+          "type": "Function",
+          "lineno": 131,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_spatial_extent",
+          "type": "Function",
+          "lineno": 141,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_within_fortran_buffer",
+          "type": "Function",
+          "lineno": 157,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_outside_range_raises_error",
+          "type": "Function",
+          "lineno": 180,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_error_message_includes_solution",
+          "type": "Function",
+          "lineno": 200,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_integration_ghb_validation_with_step4",
+          "type": "Function",
+          "lineno": 225,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_fortran_rectangle_oversizing",
+          "type": "Function",
+          "lineno": 246,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_modflow_cell_mapping_doc_exists",
+          "type": "Function",
+          "lineno": 281,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_modflow_cell_mapping_doc_mentions_fortran_range",
+          "type": "Function",
+          "lineno": 290,
+          "deselected": true
+        }
+      ]
+    },
+    {
       "nodeid": "tests/test_stream_depletions.py",
       "outcome": "passed",
       "result": [
@@ -851,82 +954,82 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
           "type": "Function",
-          "lineno": 1042
+          "lineno": 1043
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
           "type": "Function",
-          "lineno": 1065
+          "lineno": 1066
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
           "type": "Function",
-          "lineno": 1087
+          "lineno": 1088
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
           "type": "Function",
-          "lineno": 1121
+          "lineno": 1122
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
           "type": "Function",
-          "lineno": 1129
+          "lineno": 1130
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
           "type": "Function",
-          "lineno": 1135
+          "lineno": 1136
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
           "type": "Function",
-          "lineno": 1141
+          "lineno": 1142
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
           "type": "Function",
-          "lineno": 1147
+          "lineno": 1148
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
           "type": "Function",
-          "lineno": 1153
+          "lineno": 1154
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
           "type": "Function",
-          "lineno": 1159
+          "lineno": 1160
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
           "type": "Function",
-          "lineno": 1174
+          "lineno": 1175
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
           "type": "Function",
-          "lineno": 1189
+          "lineno": 1190
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
           "type": "Function",
-          "lineno": 1208
+          "lineno": 1209
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
           "type": "Function",
-          "lineno": 1224
+          "lineno": 1225
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
           "type": "Function",
-          "lineno": 1246
+          "lineno": 1247
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
           "type": "Function",
-          "lineno": 1278
+          "lineno": 1279
         }
       ]
     },
@@ -1292,6 +1395,10 @@
           "type": "Module"
         },
         {
+          "nodeid": "tests/test_modflow_geometry.py",
+          "type": "Module"
+        },
+        {
           "nodeid": "tests/test_stream_depletions.py",
           "type": "Module"
         },
@@ -1316,15 +1423,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0002231149992439896,
+        "duration": 0.00027454699988993525,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00022925400116946548,
+        "duration": 0.00012694799988821615,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.953999688150361e-05,
+        "duration": 9.29350001115381e-05,
         "outcome": "passed"
       }
     },
@@ -1341,15 +1448,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.109400030458346e-05,
+        "duration": 7.534699989264482e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0007218639984785113,
+        "duration": 0.0005015140000068641,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.70010010455735e-05,
+        "duration": 7.646100016245327e-05,
         "outcome": "passed"
       }
     },
@@ -1366,15 +1473,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.375799785018899e-05,
+        "duration": 6.76570000450738e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.950899842195213e-05,
+        "duration": 7.562799987681501e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.871599907753989e-05,
+        "duration": 7.301499999812222e-05,
         "outcome": "passed"
       }
     },
@@ -1391,15 +1498,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.101200051489286e-05,
+        "duration": 0.000275232999911168,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.586000017705373e-05,
+        "duration": 0.00022697600002175022,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.038300100248307e-05,
+        "duration": 0.00021804899984090298,
         "outcome": "passed"
       }
     },
@@ -1416,15 +1523,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.987699842080474e-05,
+        "duration": 0.0001919129999805591,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.652299998677336e-05,
+        "duration": 0.00018010599978879327,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.317600127658807e-05,
+        "duration": 0.00015902199993433896,
         "outcome": "passed"
       }
     },
@@ -1441,15 +1548,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00022312600049190223,
+        "duration": 0.0004879980001533113,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.87960011116229e-05,
+        "duration": 0.00023457100019186328,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.994300125981681e-05,
+        "duration": 0.00021645200013153953,
         "outcome": "passed"
       }
     },
@@ -1466,16 +1573,16 @@
         ""
       ],
       "setup": {
-        "duration": 5.9692996728699654e-05,
+        "duration": 0.00018068099984702712,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.1294242789990676,
+        "duration": 0.03438355200000842,
         "outcome": "passed",
         "stdout": "Copying flux files to post-processor directory for year 2024...\n  CY2024_riv.flx: 31,484,640 bytes -> output/modflow/2024/depletions/\n  CY2024_ghb.flx: 31,484,640 bytes -> output/modflow/2024/depletions/\nFlux files copied successfully.\n"
       },
       "teardown": {
-        "duration": 0.00013071099965600297,
+        "duration": 0.00012833699997827352,
         "outcome": "passed"
       }
     },
@@ -1492,15 +1599,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.587999764131382e-05,
+        "duration": 8.60259999626578e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001315219997195527,
+        "duration": 0.00011930200003007485,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.309600186999887e-05,
+        "duration": 7.110599995030498e-05,
         "outcome": "passed"
       }
     },
@@ -1517,15 +1624,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.916299702832475e-05,
+        "duration": 6.595800005015917e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.503999899607152e-05,
+        "duration": 7.626299998264585e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.724600098095834e-05,
+        "duration": 6.707500006086775e-05,
         "outcome": "passed"
       }
     },
@@ -1542,15 +1649,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00018156000078306533,
+        "duration": 0.00010906800002885575,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010311600271961652,
+        "duration": 9.753900008035998e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.008700024220161e-05,
+        "duration": 6.617300005018478e-05,
         "outcome": "passed"
       }
     },
@@ -1567,16 +1674,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.296799958567135e-05,
+        "duration": 6.563499982803478e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.021049537001090357,
+        "duration": 0.0015280679999705171,
         "outcome": "passed",
         "stdout": "  Wine version: wine-6.0.3 (Ubuntu 6.0.3~repack-1)\n"
       },
       "teardown": {
-        "duration": 0.00011982000069110654,
+        "duration": 0.00020345899997664674,
         "outcome": "passed"
       }
     },
@@ -1593,16 +1700,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.181000157492235e-05,
+        "duration": 0.00016257900006166892,
         "outcome": "passed"
       },
       "call": {
-        "duration": 1.8324643230007496,
+        "duration": 1.6848516249999648,
         "outcome": "passed",
         "stdout": "Running post-processor via Wine for year 2024...\n  Checking Wine installation...\n  Wine version: wine-6.0.3 (Ubuntu 6.0.3~repack-1)\n  Command: wine sfmodflx_2245.exe\n  Working directory: output/modflow/2024/depletions/\n  Inputs: CY2024_riv.flx, CY2024_ghb.flx, CY2024\nPost-processor completed successfully.\n  Output file: CY2024 (1,481,893 bytes)\n"
       },
       "teardown": {
-        "duration": 0.00017491700054961257,
+        "duration": 0.0002202450000368117,
         "outcome": "passed"
       }
     },
@@ -1619,15 +1726,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00014203899991116486,
+        "duration": 0.00018916599992735428,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001390290017297957,
+        "duration": 0.00023833700015529757,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00012666100155911408,
+        "duration": 0.00015016200018180825,
         "outcome": "passed"
       }
     },
@@ -1644,15 +1751,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00021153700072318316,
+        "duration": 0.0001501489998645411,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001455489982618019,
+        "duration": 0.00015486699999200937,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001029070008371491,
+        "duration": 0.00014043399983165727,
         "outcome": "passed"
       }
     },
@@ -1669,16 +1776,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.834499774617143e-05,
+        "duration": 0.0001635280000300554,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.05856504700204823,
+        "duration": 0.04170647799992366,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.0001743890024954453,
+        "duration": 0.00011710199987646774,
         "outcome": "passed"
       }
     },
@@ -1695,16 +1802,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011563000225578435,
+        "duration": 7.62330000725342e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.043558150999160716,
+        "duration": 0.04228173599994989,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00012846799654653296,
+        "duration": 0.0001958320001449465,
         "outcome": "passed"
       }
     },
@@ -1721,16 +1828,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.916200022213161e-05,
+        "duration": 0.00014393400010703772,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.048086897000757745,
+        "duration": 0.08640014299999166,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00012742199760396034,
+        "duration": 0.00013873400007469172,
         "outcome": "passed"
       }
     },
@@ -1747,16 +1854,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.101500134216622e-05,
+        "duration": 0.00013557700003730133,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.04256725500090397,
+        "duration": 0.038957540000183144,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00013007899906369857,
+        "duration": 0.0001394089999848802,
         "outcome": "passed"
       }
     },
@@ -1773,16 +1880,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00010409999958937988,
+        "duration": 8.826399994177336e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.04079901799923391,
+        "duration": 0.0393366870000591,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00011202200039406307,
+        "duration": 0.00012238800013619766,
         "outcome": "passed"
       }
     },
@@ -1799,16 +1906,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.977700079209171e-05,
+        "duration": 7.824200019967975e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03801219500019215,
+        "duration": 0.03798994299995684,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00012650000280700624,
+        "duration": 0.0001523119999546907,
         "outcome": "passed"
       }
     },
@@ -1825,16 +1932,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.489199899486266e-05,
+        "duration": 8.574499997848761e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.036917231998813804,
+        "duration": 0.037092905000008614,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\n"
       },
       "teardown": {
-        "duration": 0.00011416299821576104,
+        "duration": 0.00014393400010703772,
         "outcome": "passed"
       }
     },
@@ -1851,15 +1958,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.708499833825044e-05,
+        "duration": 8.333300002050237e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.996800170280039e-05,
+        "duration": 9.379600010106515e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.213899880298413e-05,
+        "duration": 7.346200004576531e-05,
         "outcome": "passed"
       }
     },
@@ -1876,15 +1983,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.278499808511697e-05,
+        "duration": 8.110400017358188e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.003300172276795e-05,
+        "duration": 8.443499996246828e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.568200114998035e-05,
+        "duration": 6.763200008208514e-05,
         "outcome": "passed"
       }
     },
@@ -1901,16 +2008,16 @@
         ""
       ],
       "setup": {
-        "duration": 6.158800169941969e-05,
+        "duration": 6.205999989106203e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03341976899901056,
+        "duration": 0.03469005600004493,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
       },
       "teardown": {
-        "duration": 0.00010906800162047148,
+        "duration": 0.0001207090001571487,
         "outcome": "passed"
       }
     },
@@ -1927,16 +2034,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.326100239879452e-05,
+        "duration": 7.762300015201617e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0409359349978331,
+        "duration": 0.03905224499999349,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
       },
       "teardown": {
-        "duration": 0.00010798200310091488,
+        "duration": 0.0006820099999913509,
         "outcome": "passed"
       }
     },
@@ -1953,16 +2060,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.54530010453891e-05,
+        "duration": 0.0001451759999326896,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03447284599678824,
+        "duration": 0.04073027899994486,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
       },
       "teardown": {
-        "duration": 0.00014108500181464478,
+        "duration": 0.00012012199999844597,
         "outcome": "passed"
       }
     },
@@ -1979,16 +2086,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.694799907971174e-05,
+        "duration": 7.803399989825266e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.035211104001064086,
+        "duration": 0.03573422600015874,
         "outcome": "passed",
         "stdout": "Parsing post-processor output...\n  File: output/modflow/2024/depletions/CY2024\n  Years parsed: 178 (1988-2165)\n  Sample 2024 R POJOAQUE jan: 0.083581 cfs\n  Sample 2024 RIO GRANDE jan: 1.047860 cfs\nExtracting 2024 stream depletions...\n  R POJOAQUE: jan=0.083581, dec=0.084062, annual_mean=0.083747 cfs\n  R TESUQUE: jan=0.028195, dec=0.028846, annual_mean=0.028521 cfs\n  RIO GRANDE: jan=1.047860, dec=1.334627, annual_mean=1.302767 cfs\n  RIV TOTAL: jan=1.159637, dec=1.447535, annual_mean=1.415036 cfs\n  LC SPRINGS: jan=0.005030, dec=0.005273, annual_mean=0.005154 cfs\n  Extracted 5 streams successfully.\n"
       },
       "teardown": {
-        "duration": 0.00014523400022881106,
+        "duration": 0.0001209399999879679,
         "outcome": "passed"
       }
     },
@@ -2005,16 +2112,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.020099994610064e-05,
+        "duration": 0.00010564300009718863,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001350880011159461,
+        "duration": 0.00013013200009481807,
         "outcome": "passed",
         "stdout": "Extracting 2024 stream depletions...\nERROR: Year 2024 not found in parsed data\n  Location: extract_stream_depletions()\n  Actual: Years available: []...\n  Expected: 2024 present in parsed data\n  Physical context: Post-processor output may not include 2024 or parsing failed\n"
       },
       "teardown": {
-        "duration": 7.075799658196047e-05,
+        "duration": 7.368000001406472e-05,
         "outcome": "passed"
       }
     },
@@ -2031,16 +2138,16 @@
         ""
       ],
       "setup": {
-        "duration": 6.193000081111677e-05,
+        "duration": 7.418999985020491e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010326499977963977,
+        "duration": 0.00010824099990713876,
         "outcome": "passed",
         "stdout": "Extracting 2024 stream depletions...\nERROR: Year 2024 not found in parsed data\n  Location: extract_stream_depletions()\n  Actual: Years available: [2023]...\n  Expected: 2024 present in parsed data\n  Physical context: Post-processor output may not include 2024 or parsing failed\n"
       },
       "teardown": {
-        "duration": 7.08010011294391e-05,
+        "duration": 6.907499982844456e-05,
         "outcome": "passed"
       }
     },
@@ -2057,15 +2164,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.079699960537255e-05,
+        "duration": 6.800599999223778e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011994200031040236,
+        "duration": 0.00012157400010437414,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.649799979641102e-05,
+        "duration": 6.907700003466744e-05,
         "outcome": "passed"
       }
     },
@@ -2082,15 +2189,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.8654997701523826e-05,
+        "duration": 6.950900001356786e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.361499905935489e-05,
+        "duration": 0.00010348699993301125,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.803400148986839e-05,
+        "duration": 6.53250001505512e-05,
         "outcome": "passed"
       }
     },
@@ -2107,15 +2214,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.8379999245516956e-05,
+        "duration": 5.9935000081168255e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.855299943708815e-05,
+        "duration": 7.190999986050883e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.485300036729313e-05,
+        "duration": 6.430700000237266e-05,
         "outcome": "passed"
       }
     },
@@ -2132,15 +2239,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.022799789207056e-05,
+        "duration": 6.86709997808066e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.4310174290003488,
+        "duration": 0.2656768709998687,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00017771200145944022,
+        "duration": 0.00016018399992390187,
         "outcome": "passed"
       }
     },
@@ -2157,15 +2264,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00025212199761881493,
+        "duration": 0.0001265200000943878,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00018792800256051123,
+        "duration": 9.633499985284288e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00019310900097480044,
+        "duration": 7.521099996665725e-05,
         "outcome": "passed"
       }
     },
@@ -2182,15 +2289,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011660599921015091,
+        "duration": 6.922300008227467e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.450500147067942e-05,
+        "duration": 8.396299995183654e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.45980032661464e-05,
+        "duration": 6.751099999746657e-05,
         "outcome": "passed"
       }
     },
@@ -2207,15 +2314,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.583200229215436e-05,
+        "duration": 6.442200015044364e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.15060014044866e-05,
+        "duration": 7.306999987122254e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.810500053688884e-05,
+        "duration": 6.498600009763322e-05,
         "outcome": "passed"
       }
     },
@@ -2232,15 +2339,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.434100214391947e-05,
+        "duration": 6.20719999915309e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.436600208166055e-05,
+        "duration": 0.0002683060001800186,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.557099914061837e-05,
+        "duration": 0.0003650859998742817,
         "outcome": "passed"
       }
     },
@@ -2257,15 +2364,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.9021000197390094e-05,
+        "duration": 0.00021749600000475766,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0017570739983057138,
+        "duration": 0.0009961050000129035,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00017910099995788187,
+        "duration": 0.0002027610000823188,
         "outcome": "passed"
       }
     },
@@ -2282,15 +2389,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00014915399879100733,
+        "duration": 0.00022194400003172632,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00023022000095807016,
+        "duration": 0.00018729999987954216,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014152599760564044,
+        "duration": 0.000162747000103991,
         "outcome": "passed"
       }
     },
@@ -2307,22 +2414,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.00012880200301879086,
+        "duration": 0.00016013800018299662,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00014797599942539819,
+        "duration": 0.00016277800000352727,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014058399756322615,
+        "duration": 0.00015138999992814206,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_ingest_buckman_data.py::test_read_source_csv_runs",
       "lineno": 107,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_read_source_csv_runs",
         "test_ingest_buckman_data.py",
@@ -2332,16 +2439,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00012719100050162524,
+        "duration": 0.00017916600017997553,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.019600616000388982,
-        "outcome": "passed",
-        "stdout": "Reading CSV: ./input/csv/Buckman_Well_Prod_2024.csv\nRead 366 daily records from CSV\nDate range: 2024-01-01 to 2024-12-31\n"
+        "duration": 0.00021417899984044197,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 114, 'Skipped: Source CSV not found')"
       },
       "teardown": {
-        "duration": 0.000253373000305146,
+        "duration": 0.00017397299984622805,
         "outcome": "passed"
       }
     },
@@ -2358,15 +2465,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00022387599892681465,
+        "duration": 0.0001443910000489268,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.000252911002462497,
+        "duration": 0.0001658109999880253,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00022692099810228683,
+        "duration": 0.00014279300012276508,
         "outcome": "passed"
       }
     },
@@ -2383,15 +2490,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001916860019264277,
+        "duration": 0.00014137200014374685,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00020604000019375235,
+        "duration": 0.00014673999999104126,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00017212600141647272,
+        "duration": 0.00013746500007982831,
         "outcome": "passed"
       }
     },
@@ -2408,15 +2515,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00015510399680351838,
+        "duration": 0.00012799699993593094,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001724499998090323,
+        "duration": 0.0001309470001160662,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0012703030006377958,
+        "duration": 0.00015248599993356038,
         "outcome": "passed"
       }
     },
@@ -2433,15 +2540,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00028156599728390574,
+        "duration": 0.00014869400001771282,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00014136199752101675,
+        "duration": 0.00013059799994152854,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0007368389997282065,
+        "duration": 0.00011681900014082203,
         "outcome": "passed"
       }
     },
@@ -2458,15 +2565,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00012664200039580464,
+        "duration": 0.00010981500008711009,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.480399967287667e-05,
+        "duration": 0.00011187099994458549,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.803699918440543e-05,
+        "duration": 0.00010728400002335547,
         "outcome": "passed"
       }
     },
@@ -2483,15 +2590,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.913600009283982e-05,
+        "duration": 0.0001253630000519479,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.92620012362022e-05,
+        "duration": 0.0001241469999513356,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.555000047432259e-05,
+        "duration": 0.00013865200003237987,
         "outcome": "passed"
       }
     },
@@ -2508,15 +2615,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.183599882409908e-05,
+        "duration": 0.00010253000004922797,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.039000022108667e-05,
+        "duration": 0.0001058889999967505,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.111299782991409e-05,
+        "duration": 9.568600012244133e-05,
         "outcome": "passed"
       }
     },
@@ -2533,15 +2640,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.572799950139597e-05,
+        "duration": 8.795600001576531e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0006494660010503139,
+        "duration": 0.0005289499999889813,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010116200064658187,
+        "duration": 0.00011189900010322162,
         "outcome": "passed"
       }
     },
@@ -2558,22 +2665,22 @@
         ""
       ],
       "setup": {
-        "duration": 9.691800005384721e-05,
+        "duration": 0.00010839399988071818,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0003057200010516681,
+        "duration": 0.0002076230000511714,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010971099982270971,
+        "duration": 9.314599992649164e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_ingest_buckman_data.py::test_end_to_end_smoke",
       "lineno": 228,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_end_to_end_smoke",
         "test_ingest_buckman_data.py",
@@ -2583,23 +2690,23 @@
         ""
       ],
       "setup": {
-        "duration": 9.993799903895706e-05,
+        "duration": 0.00010394699984317413,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.10646540199741139,
-        "outcome": "passed",
-        "stdout": "Reading CSV: ./input/csv/Buckman_Well_Prod_2024.csv\nRead 366 daily records from CSV\nDate range: 2024-01-01 to 2024-12-31\nValidating 366 daily records...\nFlagged 0 invalid values across 0 wells\nVerifying daily sums (INFO threshold: 0.0010 MGD, ERROR threshold: 0.0050 MGD)...\n  (BWP column is from CSV formula, not external validation data)\n\nDaily sum verification:\n  \u2705 360 days OK (within 0.0010 MGD)\n  \u2139\ufe0f  6 days INFO (rounding differences or database noise)\n      Causes: (1) Excel formula rounding, (2) Database precision artifacts (< 0.0015 MGD)\n      Impact: None - monthly totals use individual well values, not BWP\n\n  INFO-level details (rounding differences):\n    \u26aa 2024-02-08: calc=0.0010, BWP=0.0006, diff=0.0004 MGD\n    \u26aa 2024-05-26: calc=1.8100, BWP=1.8115, diff=0.0015 MGD\n    \u26aa 2024-06-11: calc=0.0010, BWP=0.0010, diff=0.0000 MGD\n    \u26aa 2024-06-21: calc=5.5360, BWP=5.5371, diff=0.0011 MGD\n    \u26aa 2024-08-09: calc=5.2380, BWP=5.2390, diff=0.0010 MGD\n    \u26aa 2024-09-07: calc=3.6870, BWP=3.6858, diff=0.0012 MGD\nAggregating daily data into monthly totals...\nAggregated 12 months with pumping data (12 months total)\n"
+        "duration": 0.0001769240000157879,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 245, 'Skipped: Source CSV not found')"
       },
       "teardown": {
-        "duration": 0.00013751899678027257,
+        "duration": 0.0002632989999256097,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_ingest_buckman_data.py::test_annual_mg_sanity",
       "lineno": 263,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_annual_mg_sanity",
         "test_ingest_buckman_data.py",
@@ -2609,16 +2716,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.031000106711872e-05,
+        "duration": 9.042200008479995e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00638519100175472,
-        "outcome": "passed",
-        "stdout": "Reading CSV: ./input/csv/Buckman_Well_Prod_2024.csv\nRead 366 daily records from CSV\nDate range: 2024-01-01 to 2024-12-31\n"
+        "duration": 0.00010791399995468964,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_ingest_buckman_data.py', 275, 'Skipped: Source CSV not found')"
       },
       "teardown": {
-        "duration": 0.0001169279967143666,
+        "duration": 0.0001868279998689104,
         "outcome": "passed"
       }
     },
@@ -2635,15 +2742,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.922200165921822e-05,
+        "duration": 8.201600007851084e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.626300041214563e-05,
+        "duration": 7.284699995580013e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.220599945867434e-05,
+        "duration": 6.969000014578342e-05,
         "outcome": "passed"
       }
     },
@@ -2660,15 +2767,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.6763001086656e-05,
+        "duration": 6.239499998628162e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0010979459984810092,
+        "duration": 7.019500003480061e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.503599772462621e-05,
+        "duration": 6.847999998171872e-05,
         "outcome": "passed"
       }
     },
@@ -2685,15 +2792,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.509299782919697e-05,
+        "duration": 6.0508999922603834e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.77790010033641e-05,
+        "duration": 7.218199993985763e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.690100053674541e-05,
+        "duration": 6.736399996043474e-05,
         "outcome": "passed"
       }
     },
@@ -2710,15 +2817,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.104899875936098e-05,
+        "duration": 6.164799992802728e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.162700057961047e-05,
+        "duration": 6.936599993423442e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.494099943665788e-05,
+        "duration": 6.322500007627241e-05,
         "outcome": "passed"
       }
     },
@@ -2735,15 +2842,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.967100150883198e-05,
+        "duration": 6.546000008711417e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.929200026206672e-05,
+        "duration": 7.135700002436351e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.540100002894178e-05,
+        "duration": 6.267000003390422e-05,
         "outcome": "passed"
       }
     },
@@ -2760,15 +2867,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.904499994358048e-05,
+        "duration": 5.8009999975183746e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.056499816826545e-05,
+        "duration": 6.783399999221729e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.290600140346214e-05,
+        "duration": 6.0692999795719516e-05,
         "outcome": "passed"
       }
     },
@@ -2785,15 +2892,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.8807996538234875e-05,
+        "duration": 5.8000999842988676e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.649799979641102e-05,
+        "duration": 8.715600006325985e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.351599949994124e-05,
+        "duration": 6.31240000075195e-05,
         "outcome": "passed"
       }
     },
@@ -2810,15 +2917,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.8829999034060165e-05,
+        "duration": 5.7553000033294666e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.016000017756596e-05,
+        "duration": 7.001199992373586e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.24959975539241e-05,
+        "duration": 6.54440000289469e-05,
         "outcome": "passed"
       }
     },
@@ -2835,15 +2942,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7059998653130606e-05,
+        "duration": 5.767400011791324e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.744399797753431e-05,
+        "duration": 6.651000012425357e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.180200216476806e-05,
+        "duration": 6.259099995986617e-05,
         "outcome": "passed"
       }
     },
@@ -2860,15 +2967,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.6944001698866487e-05,
+        "duration": 5.872099995940516e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.186000195564702e-05,
+        "duration": 6.578000011359109e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.942799857119098e-05,
+        "duration": 7.613600018885336e-05,
         "outcome": "passed"
       }
     },
@@ -2885,15 +2992,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.951099956291728e-05,
+        "duration": 7.334399992942053e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.783999924664386e-05,
+        "duration": 6.902599989189184e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.262999886530451e-05,
+        "duration": 6.309900004453084e-05,
         "outcome": "passed"
       }
     },
@@ -2910,15 +3017,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.669599704560824e-05,
+        "duration": 5.814099995404831e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.093400199664757e-05,
+        "duration": 6.567700006598898e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.031600059941411e-05,
+        "duration": 6.293199999163335e-05,
         "outcome": "passed"
       }
     },
@@ -2935,15 +3042,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.71389973629266e-05,
+        "duration": 5.8886000033453456e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.612600191147067e-05,
+        "duration": 8.326900001520698e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.225799734238535e-05,
+        "duration": 6.293800015555462e-05,
         "outcome": "passed"
       }
     },
@@ -2960,15 +3067,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7304001529701054e-05,
+        "duration": 5.709399988518271e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011626999912550673,
+        "duration": 0.00014663000001746695,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.447000123444013e-05,
+        "duration": 6.737600006090361e-05,
         "outcome": "passed"
       }
     },
@@ -2985,15 +3092,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.9334000980015844e-05,
+        "duration": 6.015500002831686e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.284099774551578e-05,
+        "duration": 6.666700005553139e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.135399962658994e-05,
+        "duration": 6.480000001829467e-05,
         "outcome": "passed"
       }
     },
@@ -3010,15 +3117,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00023969999892869964,
+        "duration": 0.00027481200004331185,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011040399840567261,
+        "duration": 0.00011400199991840054,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.906099876388907e-05,
+        "duration": 0.00010043199995379837,
         "outcome": "passed"
       }
     },
@@ -3035,15 +3142,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.246200064197183e-05,
+        "duration": 6.200600000738632e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.945300265215337e-05,
+        "duration": 7.51820000459702e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.418199700419791e-05,
+        "duration": 7.328399988182355e-05,
         "outcome": "passed"
       }
     },
@@ -3060,15 +3167,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.937199966865592e-05,
+        "duration": 6.014200016579707e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.042899960651994e-05,
+        "duration": 7.220200018309697e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.329399911919609e-05,
+        "duration": 6.99770000665012e-05,
         "outcome": "passed"
       }
     },
@@ -3085,15 +3192,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7691999245435e-05,
+        "duration": 5.8793000107471016e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.067599967238493e-05,
+        "duration": 7.129200002964353e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.385099914041348e-05,
+        "duration": 6.511199990200112e-05,
         "outcome": "passed"
       }
     },
@@ -3110,15 +3217,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.819400030304678e-05,
+        "duration": 5.883400012862694e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0002709869986574631,
+        "duration": 0.0001903080001284252,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.968299931031652e-05,
+        "duration": 8.041199998842785e-05,
         "outcome": "passed"
       }
     },
@@ -3135,15 +3242,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.949899787083268e-05,
+        "duration": 5.894700007047504e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001523829996585846,
+        "duration": 0.0001848449999215518,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.928399670869112e-05,
+        "duration": 7.079700003487233e-05,
         "outcome": "passed"
       }
     },
@@ -3160,15 +3267,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.914999928791076e-05,
+        "duration": 6.355000004987232e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.715299969073385e-05,
+        "duration": 9.539500001665147e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.372099960572086e-05,
+        "duration": 6.860899998173409e-05,
         "outcome": "passed"
       }
     },
@@ -3185,15 +3292,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.890999768278562e-05,
+        "duration": 6.146499981696252e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.584099825588055e-05,
+        "duration": 0.00011077799990744097,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.196799949975684e-05,
+        "duration": 8.527700015292794e-05,
         "outcome": "passed"
       }
     },
@@ -3210,15 +3317,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7768997066887096e-05,
+        "duration": 6.110599997555255e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0005288540014589671,
+        "duration": 0.00023817500004952308,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.393499956582673e-05,
+        "duration": 0.0001011859999380249,
         "outcome": "passed"
       }
     },
@@ -3235,15 +3342,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.631799988099374e-05,
+        "duration": 7.035599992377684e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001574849993630778,
+        "duration": 0.00015416400015055842,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.735900024068542e-05,
+        "duration": 0.00010094399999616144,
         "outcome": "passed"
       }
     },
@@ -3260,15 +3367,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.0589001805055887e-05,
+        "duration": 9.129899990512058e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.889900032547303e-05,
+        "duration": 7.416099992951786e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.691800081171095e-05,
+        "duration": 6.811399998696288e-05,
         "outcome": "passed"
       }
     },
@@ -3285,15 +3392,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.9054997109342366e-05,
+        "duration": 0.00024064399985945784,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.978199912235141e-05,
+        "duration": 0.00021560000004683388,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.121199789457023e-05,
+        "duration": 7.449400004588824e-05,
         "outcome": "passed"
       }
     },
@@ -3310,15 +3417,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.852799949934706e-05,
+        "duration": 6.180400009725417e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00013984399993205443,
+        "duration": 0.00014509200013890222,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.609900083276443e-05,
+        "duration": 6.756399989171769e-05,
         "outcome": "passed"
       }
     },
@@ -3335,15 +3442,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.84740009799134e-05,
+        "duration": 6.42359998437314e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00012873299783677794,
+        "duration": 0.00016764600013630115,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.557899905601516e-05,
+        "duration": 6.751599994458957e-05,
         "outcome": "passed"
       }
     },
@@ -3360,15 +3467,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7843000831780955e-05,
+        "duration": 5.9718000102293445e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.116800043149851e-05,
+        "duration": 6.829599988122936e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010438299796078354,
+        "duration": 6.586400013475213e-05,
         "outcome": "passed"
       }
     },
@@ -3385,15 +3492,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00022483200154965743,
+        "duration": 0.00022198099986781017,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00012360700202407315,
+        "duration": 0.00013230600006863824,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011959499897784553,
+        "duration": 0.0005813560001115547,
         "outcome": "passed"
       }
     },
@@ -3410,15 +3517,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.546599979628809e-05,
+        "duration": 7.123799991859414e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.988699897192419e-05,
+        "duration": 6.968099978621467e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.534400017699227e-05,
+        "duration": 6.885500010866963e-05,
         "outcome": "passed"
       }
     },
@@ -3435,15 +3542,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.75420017412398e-05,
+        "duration": 7.923600014692056e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.716300049447455e-05,
+        "duration": 7.562899986623961e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.369299808284268e-05,
+        "duration": 7.193499982349749e-05,
         "outcome": "passed"
       }
     },
@@ -3460,15 +3567,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.6523000239394605e-05,
+        "duration": 5.827900008625875e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00021691900110454299,
+        "duration": 0.00025790699987737753,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.9243000325514e-05,
+        "duration": 6.678299996565329e-05,
         "outcome": "passed"
       }
     },
@@ -3485,15 +3592,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7874000049196184e-05,
+        "duration": 6.46759999654023e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.109600068768486e-05,
+        "duration": 0.00010439899983794021,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.940100113046356e-05,
+        "duration": 6.431599990719405e-05,
         "outcome": "passed"
       }
     },
@@ -3510,15 +3617,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.96209974901285e-05,
+        "duration": 5.8309999985795e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00022043699937057681,
+        "duration": 0.00021622299982482218,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.208899842225946e-05,
+        "duration": 6.957400000828784e-05,
         "outcome": "passed"
       }
     },
@@ -3535,15 +3642,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.858900087536313e-05,
+        "duration": 6.589500003428839e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.131900201784447e-05,
+        "duration": 7.055399987621058e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.341700282064267e-05,
+        "duration": 6.744500001332199e-05,
         "outcome": "passed"
       }
     },
@@ -3560,15 +3667,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00017118200048571452,
+        "duration": 0.00019716599990715622,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011433499821578152,
+        "duration": 0.00012102799996682734,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.615300223231316e-05,
+        "duration": 0.00010055200004899234,
         "outcome": "passed"
       }
     },
@@ -3585,15 +3692,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.921899719396606e-05,
+        "duration": 6.120700004430546e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.074300032807514e-05,
+        "duration": 7.015100004537089e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.458200004999526e-05,
+        "duration": 6.320000011328375e-05,
         "outcome": "passed"
       }
     },
@@ -3610,15 +3717,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.92339965805877e-05,
+        "duration": 5.726300014430308e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.587699681404047e-05,
+        "duration": 6.437000001824345e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.336400110740215e-05,
+        "duration": 6.201599990163231e-05,
         "outcome": "passed"
       }
     },
@@ -3635,15 +3742,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.7686000218382105e-05,
+        "duration": 6.507900002361566e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.757200000924058e-05,
+        "duration": 8.360100014215277e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.338499952107668e-05,
+        "duration": 6.232399982764036e-05,
         "outcome": "passed"
       }
     },
@@ -3660,15 +3767,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.395499778795056e-05,
+        "duration": 7.186700008787739e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.990700007416308e-05,
+        "duration": 0.00010953399987556622,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.448500062106177e-05,
+        "duration": 6.561899999724119e-05,
         "outcome": "passed"
       }
     },
@@ -3685,15 +3792,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.836600030306727e-05,
+        "duration": 5.673800001204654e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00016436800069641322,
+        "duration": 0.00015033499994387967,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.711399691994302e-05,
+        "duration": 6.656400000792928e-05,
         "outcome": "passed"
       }
     },
@@ -3710,15 +3817,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.13390002399683e-05,
+        "duration": 5.8577000118020806e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.780200055800378e-05,
+        "duration": 7.511300009355182e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.380400009220466e-05,
+        "duration": 6.060600003365835e-05,
         "outcome": "passed"
       }
     },
@@ -3735,15 +3842,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001591990003362298,
+        "duration": 0.0001678360001733381,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001265440005226992,
+        "duration": 0.00012643900004150055,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.017800039146096e-05,
+        "duration": 9.21189998734917e-05,
         "outcome": "passed"
       }
     },
@@ -3760,15 +3867,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.823199899168685e-05,
+        "duration": 5.935499984843773e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.632700024056248e-05,
+        "duration": 7.535200006714149e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.056400161469355e-05,
+        "duration": 6.049599983271037e-05,
         "outcome": "passed"
       }
     },
@@ -3785,15 +3892,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.004424549002578715,
+        "duration": 0.002087331999973685,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.017067890999896917,
+        "duration": 0.015974661999962336,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00015592300042044371,
+        "duration": 0.00015316300004997174,
         "outcome": "passed"
       }
     },
@@ -3810,15 +3917,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0016196169999602716,
+        "duration": 0.0016812809999464662,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.008731898000405636,
+        "duration": 0.011302572999966287,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00012313499973970465,
+        "duration": 0.00014192700018611504,
         "outcome": "passed"
       }
     },
@@ -3835,15 +3942,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.001337180998234544,
+        "duration": 0.0005749760000526294,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.014967724000598537,
+        "duration": 0.010702624999794352,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001475669996580109,
+        "duration": 0.00016511800004082033,
         "outcome": "passed"
       }
     },
@@ -3860,15 +3967,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.404600157518871e-05,
+        "duration": 0.00010595399999147048,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.418999979970977e-05,
+        "duration": 0.00011681099999805156,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.531900337198749e-05,
+        "duration": 9.458199997425254e-05,
         "outcome": "passed"
       }
     },
@@ -3885,15 +3992,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0005354990025807638,
+        "duration": 0.0006403649999811023,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0279239450028399,
+        "duration": 0.02333746599992992,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014273800115915947,
+        "duration": 0.0001372579999951995,
         "outcome": "passed"
       }
     },
@@ -3910,15 +4017,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0009642869990784675,
+        "duration": 0.0005782780001482024,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.020494162999966647,
+        "duration": 0.0204390510000394,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001432470016879961,
+        "duration": 0.00012903299989375228,
         "outcome": "passed"
       }
     },
@@ -3935,15 +4042,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0010309300014341716,
+        "duration": 0.000539483000011387,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.01756747599938535,
+        "duration": 0.024745008000081725,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011547900066943839,
+        "duration": 0.0004688259998602007,
         "outcome": "passed"
       }
     },
@@ -3960,15 +4067,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.340400043176487e-05,
+        "duration": 0.00011227799996049725,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.756700117373839e-05,
+        "duration": 0.00042018900012408267,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.020999692031182e-05,
+        "duration": 8.258200000454963e-05,
         "outcome": "passed"
       }
     },
@@ -3985,21 +4092,21 @@
         ""
       ],
       "setup": {
-        "duration": 0.001066374003130477,
+        "duration": 0.0010950010000669863,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.010090541996760294,
+        "duration": 0.006860446000018783,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00018357499720877968,
+        "duration": 0.00011694499994518992,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
-      "lineno": 1042,
+      "lineno": 1043,
       "outcome": "passed",
       "keywords": [
         "test_write_table5_xlsx_formatting",
@@ -4010,21 +4117,21 @@
         ""
       ],
       "setup": {
-        "duration": 0.0009984999996959232,
+        "duration": 0.0004434369998307375,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.006678251000266755,
+        "duration": 0.007886378999955923,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011769800039473921,
+        "duration": 0.00012803499998881307,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
-      "lineno": 1065,
+      "lineno": 1066,
       "outcome": "passed",
       "keywords": [
         "test_write_table5_xlsx_2024_value",
@@ -4035,21 +4142,21 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008546250028302893,
+        "duration": 0.0005678279999301594,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.007936572001199238,
+        "duration": 0.006128347000185386,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001130700002249796,
+        "duration": 0.00010692300020309631,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
-      "lineno": 1087,
+      "lineno": 1088,
       "outcome": "passed",
       "keywords": [
         "test_write_table5_xlsx_default_years",
@@ -4060,21 +4167,21 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008488390012644231,
+        "duration": 0.00045831800002815726,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00975450300029479,
+        "duration": 0.008430180999994263,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00013719900016440079,
+        "duration": 0.00011173799998687173,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
-      "lineno": 1121,
+      "lineno": 1122,
       "outcome": "passed",
       "keywords": [
         "test_validation_constants_exist",
@@ -4085,21 +4192,21 @@
         ""
       ],
       "setup": {
-        "duration": 0.00010807699800352566,
+        "duration": 7.290300004569872e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.336900257039815e-05,
+        "duration": 8.338500015270256e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.94820004759822e-05,
+        "duration": 6.924900003468792e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
-      "lineno": 1129,
+      "lineno": 1130,
       "outcome": "passed",
       "keywords": [
         "test_validate_table3_exists",
@@ -4110,21 +4217,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.867499905638397e-05,
+        "duration": 6.429900008697587e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.678100155317225e-05,
+        "duration": 0.0001904140001443011,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.779100294806994e-05,
+        "duration": 8.270099988294533e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
-      "lineno": 1135,
+      "lineno": 1136,
       "outcome": "passed",
       "keywords": [
         "test_validate_table4_exists",
@@ -4135,21 +4242,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.12619987805374e-05,
+        "duration": 0.0002291029998104932,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.213699791464023e-05,
+        "duration": 9.963000002244371e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.667100024060346e-05,
+        "duration": 6.849900000815978e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
-      "lineno": 1141,
+      "lineno": 1142,
       "outcome": "passed",
       "keywords": [
         "test_validate_table5_exists",
@@ -4160,21 +4267,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.106399814598262e-05,
+        "duration": 0.00018176000003222725,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.927900176378898e-05,
+        "duration": 0.00012968400005775038,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.511600076919422e-05,
+        "duration": 0.00025040400009856967,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
-      "lineno": 1147,
+      "lineno": 1148,
       "outcome": "passed",
       "keywords": [
         "test_validate_all_tables_exists",
@@ -4185,21 +4292,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.001799920341e-05,
+        "duration": 0.00019827700020869088,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010186500003328547,
+        "duration": 0.0001802419999421545,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.997899906011298e-05,
+        "duration": 0.00014004099989506358,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
-      "lineno": 1153,
+      "lineno": 1154,
       "outcome": "passed",
       "keywords": [
         "test_print_validation_results_exists",
@@ -4210,21 +4317,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.972399933147244e-05,
+        "duration": 0.00013053600014245603,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.472899935441092e-05,
+        "duration": 0.00013596600001619663,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.269100024132058e-05,
+        "duration": 0.00012198099989291222,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
-      "lineno": 1159,
+      "lineno": 1160,
       "outcome": "passed",
       "keywords": [
         "test_validate_table3_missing_file",
@@ -4235,21 +4342,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.33589988865424e-05,
+        "duration": 0.00012617799984582234,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010819299859576859,
+        "duration": 0.0001876649998848734,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.439699766109698e-05,
+        "duration": 0.00011788200004048122,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
-      "lineno": 1174,
+      "lineno": 1175,
       "outcome": "passed",
       "keywords": [
         "test_validate_table4_missing_file",
@@ -4260,21 +4367,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.066499918233603e-05,
+        "duration": 0.00010503499993319565,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.133699859376065e-05,
+        "duration": 0.000161203000061505,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.925799971213564e-05,
+        "duration": 0.00010120999991158897,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
-      "lineno": 1189,
+      "lineno": 1190,
       "outcome": "passed",
       "keywords": [
         "test_validate_table5_returns_dict",
@@ -4285,21 +4392,21 @@
         ""
       ],
       "setup": {
-        "duration": 5.981800131849013e-05,
+        "duration": 9.306900005867647e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.485799869755283e-05,
+        "duration": 0.0001256419998298952,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.930699964868836e-05,
+        "duration": 9.821899993767147e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
-      "lineno": 1208,
+      "lineno": 1209,
       "outcome": "passed",
       "keywords": [
         "test_validate_table5_passing",
@@ -4310,21 +4417,21 @@
         ""
       ],
       "setup": {
-        "duration": 5.998699998599477e-05,
+        "duration": 8.655100009491434e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.342800017795525e-05,
+        "duration": 0.000107047000028615,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.424100138247013e-05,
+        "duration": 0.0001121370000873867,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
-      "lineno": 1224,
+      "lineno": 1225,
       "outcome": "passed",
       "keywords": [
         "test_validate_all_tables_returns_dict",
@@ -4335,21 +4442,21 @@
         ""
       ],
       "setup": {
-        "duration": 5.774899909738451e-05,
+        "duration": 9.43239999742218e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011483200069051236,
+        "duration": 0.00018507799995859386,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.813000072725117e-05,
+        "duration": 9.387000000060652e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
-      "lineno": 1246,
+      "lineno": 1247,
       "outcome": "passed",
       "keywords": [
         "test_validate_table3_with_real_file",
@@ -4360,21 +4467,21 @@
         ""
       ],
       "setup": {
-        "duration": 6.404099985957146e-05,
+        "duration": 0.00011038900015591935,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.06842306899852701,
+        "duration": 0.04897462500002803,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011524699948495254,
+        "duration": 0.00013070499994682905,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
-      "lineno": 1278,
+      "lineno": 1279,
       "outcome": "passed",
       "keywords": [
         "test_validate_table4_with_real_file",
@@ -4385,15 +4492,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.452399950125255e-05,
+        "duration": 8.383299996239657e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.05915681500118808,
+        "duration": 0.06296808000001874,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00022362500021699816,
+        "duration": 0.00012503700008892338,
         "outcome": "passed"
       }
     },
@@ -4410,15 +4517,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001604290009709075,
+        "duration": 9.385399994243926e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00018336300126975402,
+        "duration": 0.00016477100007250556,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001443149994884152,
+        "duration": 8.178299981409509e-05,
         "outcome": "passed"
       }
     },
@@ -4435,15 +4542,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00013000000035390258,
+        "duration": 7.041100002425082e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00201020399981644,
+        "duration": 0.000981513999931849,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00018272899978910573,
+        "duration": 8.159599997270561e-05,
         "outcome": "passed"
       }
     },
@@ -4460,15 +4567,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00018157200247514993,
+        "duration": 7.127599997147627e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00014258000010158867,
+        "duration": 8.474400010527461e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001269149979634676,
+        "duration": 6.92169999183534e-05,
         "outcome": "passed"
       }
     },
@@ -4485,15 +4592,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011595699834288098,
+        "duration": 6.364599994412856e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0005986899996059947,
+        "duration": 8.440700003120583e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014105999798630364,
+        "duration": 6.547400016643223e-05,
         "outcome": "passed"
       }
     },
@@ -4510,15 +4617,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011465299758128822,
+        "duration": 7.519299992964079e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00012560100003611296,
+        "duration": 8.546100002604362e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.84679973043967e-05,
+        "duration": 6.662100008725247e-05,
         "outcome": "passed"
       }
     },
@@ -4535,15 +4642,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.611399971414357e-05,
+        "duration": 6.114999996498227e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010169899906031787,
+        "duration": 7.217600000331004e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.148599929176271e-05,
+        "duration": 6.433199996536132e-05,
         "outcome": "passed"
       }
     },
@@ -4560,15 +4667,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.059799802140333e-05,
+        "duration": 5.9273000033499557e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.407199831912294e-05,
+        "duration": 6.963300006646023e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.558800254832022e-05,
+        "duration": 6.503400004476134e-05,
         "outcome": "passed"
       }
     },
@@ -4585,16 +4692,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.733100185054354e-05,
+        "duration": 6.148800002847565e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0031412630014528986,
+        "duration": 0.0033026049998170492,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 9.834700176725164e-05,
+        "duration": 8.623500002613582e-05,
         "outcome": "passed"
       }
     },
@@ -4611,16 +4718,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.345299647771753e-05,
+        "duration": 6.944699998712167e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0019003410016011912,
+        "duration": 0.0018987389998983417,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 8.53829988045618e-05,
+        "duration": 8.211099998334248e-05,
         "outcome": "passed"
       }
     },
@@ -4637,15 +4744,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.706299973302521e-05,
+        "duration": 6.956900006116484e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.594300041091628e-05,
+        "duration": 7.939300007819838e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.76990021020174e-05,
+        "duration": 8.468999999422522e-05,
         "outcome": "passed"
       }
     },
@@ -4662,15 +4769,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.096300057834014e-05,
+        "duration": 6.365000012920063e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.40569989325013e-05,
+        "duration": 7.143000016185397e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.595999730052426e-05,
+        "duration": 6.669499998679385e-05,
         "outcome": "passed"
       }
     },
@@ -4687,15 +4794,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.9277997934259474e-05,
+        "duration": 6.109299988565908e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.871999721624888e-05,
+        "duration": 7.0528000151171e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.544500138261355e-05,
+        "duration": 6.503200006591214e-05,
         "outcome": "passed"
       }
     },
@@ -4712,15 +4819,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.9300000430084765e-05,
+        "duration": 5.954799985374848e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.047100007184781e-05,
+        "duration": 7.072100015648175e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.429899804061279e-05,
+        "duration": 6.281800006036065e-05,
         "outcome": "passed"
       }
     },
@@ -4737,15 +4844,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.917999806115404e-05,
+        "duration": 5.845700002282683e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00019991700173704885,
+        "duration": 0.00020536600004561478,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.05639977240935e-05,
+        "duration": 6.812400010858255e-05,
         "outcome": "passed"
       }
     },
@@ -4762,15 +4869,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.811000301036984e-05,
+        "duration": 8.106499990390148e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00014278400340117514,
+        "duration": 0.00016056300000855117,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.778300303267315e-05,
+        "duration": 6.729200003974256e-05,
         "outcome": "passed"
       }
     },
@@ -4787,15 +4894,15 @@
         ""
       ],
       "setup": {
-        "duration": 5.76899983570911e-05,
+        "duration": 0.000172938000105205,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.658900019829161e-05,
+        "duration": 7.353700016210496e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.424999810406007e-05,
+        "duration": 6.477400006588141e-05,
         "outcome": "passed"
       }
     },
@@ -4812,16 +4919,16 @@
         ""
       ],
       "setup": {
-        "duration": 5.7385997934034094e-05,
+        "duration": 5.9981000049447175e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.014749026999197667,
+        "duration": 0.00983954100001938,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00010672200005501509,
+        "duration": 0.00010578599994914839,
         "outcome": "passed"
       }
     },
@@ -4838,16 +4945,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.232499774545431e-05,
+        "duration": 7.617200003551261e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.007986001997778658,
+        "duration": 0.008576036000022214,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.0001170959985756781,
+        "duration": 0.00010931900010291429,
         "outcome": "passed"
       }
     },
@@ -4864,16 +4971,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.210400144685991e-05,
+        "duration": 7.918300002529577e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.007557231998362113,
+        "duration": 0.009532939000109764,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 9.024700193549506e-05,
+        "duration": 0.00011705399992933962,
         "outcome": "passed"
       }
     },
@@ -4890,16 +4997,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.723299859208055e-05,
+        "duration": 7.655599983991124e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.009092101998248836,
+        "duration": 0.008169532000010804,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00010625999857438728,
+        "duration": 0.00011639099989224633,
         "outcome": "passed"
       }
     },
@@ -4916,16 +5023,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.62290001148358e-05,
+        "duration": 8.033600011003728e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.009930252999765798,
+        "duration": 0.010818969999945693,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00015507100033573806,
+        "duration": 0.000129071999936059,
         "outcome": "passed"
       }
     },
@@ -4942,16 +5049,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.854200132191181e-05,
+        "duration": 8.438100007879257e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.016757844998210203,
+        "duration": 0.00806829199996173,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00019840599998133257,
+        "duration": 0.00018197800000052666,
         "outcome": "passed"
       }
     },
@@ -4968,16 +5075,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00014170999929774553,
+        "duration": 0.0001091019998966658,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.01219744899935904,
+        "duration": 0.008827547999999297,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00012812899876735173,
+        "duration": 0.00010905299996011308,
         "outcome": "passed"
       }
     },
@@ -4994,16 +5101,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.23600021249149e-05,
+        "duration": 7.724300007794227e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.009207409999362426,
+        "duration": 0.01019248200009315,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.0001865580015874002,
+        "duration": 0.00011986000004071684,
         "outcome": "passed"
       }
     },
@@ -5020,15 +5127,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008327789983013645,
+        "duration": 8.339100008925016e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00019239599714637734,
+        "duration": 0.00011305899988656165,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011792399891419336,
+        "duration": 7.43549999242532e-05,
         "outcome": "passed"
       }
     },
@@ -5045,15 +5152,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00010213399946223944,
+        "duration": 6.697499998153944e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00012876500113634393,
+        "duration": 0.00017458299998907023,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.935100024449639e-05,
+        "duration": 7.228899994515814e-05,
         "outcome": "passed"
       }
     },
@@ -5070,15 +5177,15 @@
         ""
       ],
       "setup": {
-        "duration": 9.228700218955055e-05,
+        "duration": 6.553799994435394e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00010656300219125114,
+        "duration": 8.482199996251438e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0006002989975968376,
+        "duration": 6.689400015602587e-05,
         "outcome": "passed"
       }
     },
@@ -5095,15 +5202,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011538100079633296,
+        "duration": 6.759300003977842e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011916400035261177,
+        "duration": 7.471399999303685e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.607999891159125e-05,
+        "duration": 6.427599987546273e-05,
         "outcome": "passed"
       }
     },
@@ -5120,15 +5227,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001231479982379824,
+        "duration": 6.0882000070705544e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00011264800195931457,
+        "duration": 6.933000008757517e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00011332500071148388,
+        "duration": 7.007199997133284e-05,
         "outcome": "passed"
       }
     },
@@ -5145,16 +5252,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.478200106765144e-05,
+        "duration": 6.18470000972593e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0033265149977523834,
+        "duration": 0.003330156999936662,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 0.00010308300261385739,
+        "duration": 8.482199996251438e-05,
         "outcome": "passed"
       }
     },
@@ -5171,16 +5278,16 @@
         ""
       ],
       "setup": {
-        "duration": 7.00250020599924e-05,
+        "duration": 6.666200010840839e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0022825529995316174,
+        "duration": 0.0021634089998769923,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 8.32799996715039e-05,
+        "duration": 8.570399995733169e-05,
         "outcome": "passed"
       }
     },
@@ -5197,16 +5304,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00012669300122070126,
+        "duration": 6.897299999764073e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0020056860012118705,
+        "duration": 0.0021284669999204198,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 7.987099888850935e-05,
+        "duration": 8.899800013750792e-05,
         "outcome": "passed"
       }
     },
@@ -5223,16 +5330,16 @@
         ""
       ],
       "setup": {
-        "duration": 6.437299816752784e-05,
+        "duration": 7.464999998774147e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0021045590001449455,
+        "duration": 0.002242605999981606,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 8.988999979919754e-05,
+        "duration": 8.203599986700283e-05,
         "outcome": "passed"
       }
     },
@@ -5249,16 +5356,16 @@
         ""
       ],
       "setup": {
-        "duration": 6.801899871788919e-05,
+        "duration": 0.00015972899996086198,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0022339669994835276,
+        "duration": 0.0033898849999332015,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 8.270499893114902e-05,
+        "duration": 8.509999997841078e-05,
         "outcome": "passed"
       }
     },
@@ -5275,16 +5382,16 @@
         ""
       ],
       "setup": {
-        "duration": 8.32069999887608e-05,
+        "duration": 6.767600007151486e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.01067683199653402,
+        "duration": 0.006406966999975339,
         "outcome": "passed",
         "stdout": "Annual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n"
       },
       "teardown": {
-        "duration": 0.00014340400230139494,
+        "duration": 0.00012362200004645274,
         "outcome": "passed"
       }
     },
@@ -5301,15 +5408,15 @@
         ""
       ],
       "setup": {
-        "duration": 9.984499774873257e-05,
+        "duration": 7.384799982901313e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001132239995058626,
+        "duration": 8.234500000980916e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00010318800195818767,
+        "duration": 6.797800006097532e-05,
         "outcome": "passed"
       }
     },
@@ -5326,16 +5433,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0024026579994824715,
+        "duration": 0.0005562180001561501,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.017782548999093706,
+        "duration": 0.017504581000139297,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_write_updated_wel_file_cr0/new_output/modflow/2024/test.wel (pre: 8797, 2024: 324, post: 45684)\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_write_updated_wel_file_cr0/new_output/modflow/2024/test.wel (pre: 8797, 2024: 324, post: 45684)\n"
       },
       "teardown": {
-        "duration": 0.00015837499813642353,
+        "duration": 0.00015329199982261343,
         "outcome": "passed"
       }
     },
@@ -5352,16 +5459,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0015401119999296498,
+        "duration": 0.0012167029999545775,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.02482549399792333,
+        "duration": 0.01857279999990169,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_write_updated_wel_file_li0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_write_updated_wel_file_li0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
       },
       "teardown": {
-        "duration": 0.00016234199938480742,
+        "duration": 0.00015129899998100882,
         "outcome": "passed"
       }
     },
@@ -5378,16 +5485,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0010230920015601441,
+        "duration": 0.0005578850000347302,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.030233692999900086,
+        "duration": 0.028097469000158526,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_write_updated_wel_file_pr0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_write_updated_wel_file_pr0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
       },
       "teardown": {
-        "duration": 0.00032433999876957387,
+        "duration": 0.00016479299983984674,
         "outcome": "passed"
       }
     },
@@ -5404,16 +5511,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0010770580011012498,
+        "duration": 0.0006521089999296237,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03423504999955185,
+        "duration": 0.02725002800002585,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_write_updated_wel_file_pr1/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_write_updated_wel_file_pr1/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
       },
       "teardown": {
-        "duration": 0.0002795859982143156,
+        "duration": 0.0001436779998584825,
         "outcome": "passed"
       }
     },
@@ -5430,16 +5537,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0024277410011563916,
+        "duration": 0.0006230980000054842,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.011266182002145797,
+        "duration": 0.008254376999957458,
         "outcome": "passed",
         "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n"
       },
       "teardown": {
-        "duration": 0.00017101800040109083,
+        "duration": 0.00012262099994586606,
         "outcome": "passed"
       }
     },
@@ -5456,15 +5563,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001101870002457872,
+        "duration": 7.370999992417637e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00015758500012452714,
+        "duration": 8.509999997841078e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 9.689500075182877e-05,
+        "duration": 6.938800015632296e-05,
         "outcome": "passed"
       }
     },
@@ -5481,16 +5588,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.001059629001247231,
+        "duration": 0.0005015130000174395,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0002798469977278728,
+        "duration": 0.00020425200000318,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_creates0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_creates0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 0.00011343900041538291,
+        "duration": 8.748299978833529e-05,
         "outcome": "passed"
       }
     },
@@ -5507,16 +5614,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0005351029976736754,
+        "duration": 0.0005003379999379831,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0016386239985877182,
+        "duration": 0.0003620840000166936,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_creates1/nested/output/dir/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_creates1/nested/output/dir/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 0.00012145700020482764,
+        "duration": 8.628699993096234e-05,
         "outcome": "passed"
       }
     },
@@ -5533,16 +5640,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0009159840010397602,
+        "duration": 0.0003702959998008737,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0002546899995650165,
+        "duration": 0.00017895599989969924,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_has_hea0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_has_hea0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 0.00010314099927200004,
+        "duration": 0.00010319300008632126,
         "outcome": "passed"
       }
     },
@@ -5559,16 +5666,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0009477149978920352,
+        "duration": 0.00037424599986479734,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00020855600087088533,
+        "duration": 0.00017926300006365636,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_replace0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_replace0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 9.461800073040649e-05,
+        "duration": 0.00010366600008637761,
         "outcome": "passed"
       }
     },
@@ -5585,16 +5692,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008556070024496876,
+        "duration": 0.00043437199997242715,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001940850015671458,
+        "duration": 0.00017364699988320353,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_replace1/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_replace1/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 8.725400039111264e-05,
+        "duration": 8.574699995733681e-05,
         "outcome": "passed"
       }
     },
@@ -5611,16 +5718,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.001192133997392375,
+        "duration": 0.0004947420000007696,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0002153509994968772,
+        "duration": 0.0004852839999784919,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_upperca0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_upperca0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 8.965700180851854e-05,
+        "duration": 0.00019732900000235531,
         "outcome": "passed"
       }
     },
@@ -5637,16 +5744,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008288349999929778,
+        "duration": 0.0009028100000705308,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00047666200043749996,
+        "duration": 0.0004559210001389147,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_generate_nam_file_matches0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_generate_nam_file_matches0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 0.00011585099855437875,
+        "duration": 0.00019424600009187998,
         "outcome": "passed"
       }
     },
@@ -5663,15 +5770,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.974300049478188e-05,
+        "duration": 0.00021724299995184992,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.858699973439798e-05,
+        "duration": 0.0001791949998732889,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.664399916189723e-05,
+        "duration": 0.000140239000074871,
         "outcome": "passed"
       }
     },
@@ -5688,15 +5795,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.039599975338206e-05,
+        "duration": 0.00015304699991247617,
         "outcome": "passed"
       },
       "call": {
-        "duration": 6.810299964854494e-05,
+        "duration": 0.00015757000005578448,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.424399907700717e-05,
+        "duration": 0.0001401429999532411,
         "outcome": "passed"
       }
     },
@@ -5713,16 +5820,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008513780012435745,
+        "duration": 0.0009163669999452395,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00021716599803767167,
+        "duration": 0.000448175999963496,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_validate_nam_file_passes_0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_validate_nam_file_passes_0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 8.608699863543734e-05,
+        "duration": 0.00020758599998771388,
         "outcome": "passed"
       }
     },
@@ -5739,16 +5846,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008374249991902616,
+        "duration": 0.000824180000108754,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00021623399879899807,
+        "duration": 0.0004336740000780992,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_validate_nam_file_against0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_validate_nam_file_against0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 8.6706000729464e-05,
+        "duration": 0.00017544499996802188,
         "outcome": "passed"
       }
     },
@@ -5765,15 +5872,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0008509450017299969,
+        "duration": 0.0008494839999002579,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00013464799849316478,
+        "duration": 0.00020925600006194145,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 8.46799994178582e-05,
+        "duration": 0.0001723870000205352,
         "outcome": "passed"
       }
     },
@@ -5790,16 +5897,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00039744199966662563,
+        "duration": 0.0008321610000621149,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00017666300118435174,
+        "duration": 0.00035957799991592765,
         "outcome": "passed",
-        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_validate_nam_file_skips_f0/CY2024.nam\n"
+        "stdout": "Wrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_validate_nam_file_skips_f0/CY2024.nam\n"
       },
       "teardown": {
-        "duration": 8.392699965042993e-05,
+        "duration": 0.00016125399997690693,
         "outcome": "passed"
       }
     },
@@ -5816,15 +5923,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.275899795582518e-05,
+        "duration": 0.00011268599996583362,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.177099905675277e-05,
+        "duration": 7.864599979257036e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.668299829470925e-05,
+        "duration": 7.040700006655243e-05,
         "outcome": "passed"
       }
     },
@@ -5841,15 +5948,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.184900121297687e-05,
+        "duration": 6.248999989111326e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.56779986154288e-05,
+        "duration": 9.99169999431615e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.786999801988713e-05,
+        "duration": 6.957699997656164e-05,
         "outcome": "passed"
       }
     },
@@ -5866,16 +5973,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.0010796250026032794,
+        "duration": 0.00039641700004722225,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03992546799781849,
+        "duration": 0.03490979999992305,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_validate_wel_file_full_pi0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_validate_wel_file_full_pi0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n"
       },
       "teardown": {
-        "duration": 0.00022248000095714815,
+        "duration": 0.0003781240000080288,
         "outcome": "passed"
       }
     },
@@ -5892,15 +5999,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001480149985582102,
+        "duration": 0.00025645599998824764,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00013958699855720624,
+        "duration": 0.00021422800000436837,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00014002500029164366,
+        "duration": 0.0003339780000715109,
         "outcome": "passed"
       }
     },
@@ -5917,15 +6024,15 @@
         ""
       ],
       "setup": {
-        "duration": 8.237899965024553e-05,
+        "duration": 9.473000000070897e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.007599874166772e-05,
+        "duration": 0.00023150099991653406,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.279800047399476e-05,
+        "duration": 0.0001880970000911475,
         "outcome": "passed"
       }
     },
@@ -5942,16 +6049,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.001346449997072341,
+        "duration": 0.0016489300001012452,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.03946268200161285,
+        "duration": 0.03814438700010214,
         "outcome": "passed",
-        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-92/test_run_validation_full_pipel0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\nWrote .nam file to /tmp/pytest-of-bradwolaver/pytest-92/test_run_validation_full_pipel0/CY2024.nam\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n"
+        "stdout": "Read 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\nWrote 54805 lines to /tmp/pytest-of-bradwolaver/pytest-123/test_run_validation_full_pipel0/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\nWrote .nam file to /tmp/pytest-of-bradwolaver/pytest-123/test_run_validation_full_pipel0/CY2024.nam\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n"
       },
       "teardown": {
-        "duration": 0.00017075499999918975,
+        "duration": 0.00015101400003914023,
         "outcome": "passed"
       }
     },
@@ -5968,15 +6075,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00011859100050060079,
+        "duration": 7.889300013630418e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001008809995255433,
+        "duration": 9.280699987357366e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 7.540300066466443e-05,
+        "duration": 6.84240001191938e-05,
         "outcome": "passed"
       }
     },
@@ -5993,15 +6100,15 @@
         ""
       ],
       "setup": {
-        "duration": 7.018399992375635e-05,
+        "duration": 6.23529999757011e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 8.022800102480687e-05,
+        "duration": 6.790500015085854e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.913499964866787e-05,
+        "duration": 6.429199993363e-05,
         "outcome": "passed"
       }
     },
@@ -6018,15 +6125,15 @@
         ""
       ],
       "setup": {
-        "duration": 6.543700146721676e-05,
+        "duration": 6.243799998628674e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 7.285600077011622e-05,
+        "duration": 6.797800006097532e-05,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 6.508300066343509e-05,
+        "duration": 7.946300002004136e-05,
         "outcome": "passed"
       }
     },
@@ -6043,15 +6150,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.00024792200201773085,
+        "duration": 0.00026967099984176457,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0027238510010647587,
+        "duration": 0.0026424449999922217,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.0001282759985770099,
+        "duration": 0.0001981100001557934,
         "outcome": "passed"
       }
     },
@@ -6068,16 +6175,16 @@
         ""
       ],
       "setup": {
-        "duration": 6.988899986026809e-05,
+        "duration": 8.240000011028314e-05,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.05105662899950403,
+        "duration": 0.038597015000050305,
         "outcome": "passed",
-        "stdout": "\n============================================================\nMODFLOW Buckman Depletion Model Update\nUpdating from CY2023 to CY2024\n============================================================\n\n======================================================================\nSTEP 2: UPDATE MODFLOW - YEAR 2024\n======================================================================\n\ud83d\udccb Input Sources:\n  - Source year: 2023\n  - Mode: BASELINE (using 2023 input files)\n  - WEL file: input/modflow/2023/thruCY2165.wel\n  - Table 2: output/ingested_data/2024_Table_2_output.csv\n\n\ud83d\udce6 Outputs (after completion):\n  - thruCY2165_2024.wel (extended well file)\n  - CY2024.nam (MODFLOW name file)\n  - 10 baseline files copied from 2023\n\n\u27a1\ufe0f  Next Step:\n  ./step3_run_modflow.sh --year 2024\n======================================================================\n\n\n[1/8] Reading Table 2 pumping data...\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n  \u2713 Read pumping data for 13 wells\n\n[2/8] Converting acre-feet to ft\u00b3/s...\n  \u2713 Conversion formula: rate = -(AF/2) \u00d7 43560 / (days \u00d7 86400)\n  \u2713 2024 is leap year (February = 29 days)\n\n[3/8] Parsing 2023 .wel file...\nRead 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n  \u2713 Pre-2024: 8797 lines\n  \u2713 2024: 324 lines\n  \u2713 Post-2024: 45684 lines\n\n[4/8] Generating 2024 well entries...\n  \u2713 Generated 324 lines (12 months \u00d7 27 lines)\n\n[5/8] Writing updated .wel file...\nWrote 54805 lines to output/modflow/2024/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n  \u2713 Written to output/modflow/2024/thruCY2165_2024.wel\n\n[6/8] Generating updated .nam file...\nWrote .nam file to output/modflow/2024/CY2024.nam\n  \u2713 Written to output/modflow/2024/CY2024.nam\n\n[7/8] Copying baseline MODFLOW files...\n  \u2713 Copied 10 files from input/modflow/2023:\n    - modflow96.exe\n    - sflcs.bcf\n    - sflcs.sip\n    - thruCY2165.bas\n    - thruCY2165.ghb\n    - thruCY2165.oc\n    - thruCY2165.riv\n    - sfmodflx_2245.exe\n    - verify_modflow_run.py\n    - verify_depletion.py\n\n[7.5/8] Verifying NAM file references...\n  \u2713 NAM file verified: all 10 referenced files exist\n\n======================================================================\n2024 MONTHLY PUMPING SUMMARY\n======================================================================\nWell            Month     Acre-Feet    ft\u00b3/s (per layer)\n----------------------------------------------------------------------\nBUCKMAN 1       JAN       16.887963             -0.13733\nBUCKMAN 1       FEB       38.805796             -0.33732\nBUCKMAN 1       MAR       10.882195             -0.08849\nBUCKMAN 1       APR       40.702355             -0.34201\nBUCKMAN 1       MAY       41.500260             -0.33747\nBUCKMAN 1       JUN       68.454100             -0.57520\nBUCKMAN 1       JUL      162.493326             -1.32135\nBUCKMAN 1       AUG      124.365749             -1.01131\nBUCKMAN 1       SEP       45.139933             -0.37930\nBUCKMAN 1       OCT       52.047948             -0.42324\nBUCKMAN 1       NOV        0.000000             -0.00000\nBUCKMAN 1       DEC        0.000000             -0.00000\nBUCKMAN 2       JAN        0.000000             -0.00000\nBUCKMAN 2       FEB        0.000000             -0.00000\nBUCKMAN 2       MAR        0.000000             -0.00000\nBUCKMAN 2       APR        0.000000             -0.00000\nBUCKMAN 2       MAY        0.000000             -0.00000\nBUCKMAN 2       JUN        0.003069             -0.00003\nBUCKMAN 2       JUL        0.000000             -0.00000\nBUCKMAN 2       AUG        0.000000             -0.00000\nBUCKMAN 2       SEP        0.000000             -0.00000\nBUCKMAN 2       OCT        0.006138             -0.00005\nBUCKMAN 2       NOV        0.000000             -0.00000\nBUCKMAN 2       DEC        0.000000             -0.00000\nBUCKMAN 3A      JAN        0.000000             -0.00000\nBUCKMAN 3A      FEB        0.067515             -0.00059\nBUCKMAN 3A      MAR        0.064446             -0.00052\nBUCKMAN 3A      APR        0.067515             -0.00057\nBUCKMAN 3A      MAY        0.380539             -0.00309\nBUCKMAN 3A      JUN       23.108552             -0.19418\nBUCKMAN 3A      JUL        0.791767             -0.00644\nBUCKMAN 3A      AUG        8.540651             -0.06945\nBUCKMAN 3A      SEP        0.049102             -0.00041\nBUCKMAN 3A      OCT        6.380170             -0.05188\nBUCKMAN 3A      NOV       16.725314             -0.14054\nBUCKMAN 3A      DEC        0.052171             -0.00042\nBUCKMAN 4       JAN        0.000000             -0.00000\nBUCKMAN 4       FEB        0.012275             -0.00011\nBUCKMAN 4       MAR        0.174925             -0.00142\nBUCKMAN 4       APR        0.082859             -0.00070\nBUCKMAN 4       MAY        0.082859             -0.00067\nBUCKMAN 4       JUN       24.468060             -0.20560\nBUCKMAN 4       JUL       20.156304             -0.16391\nBUCKMAN 4       AUG        8.249109             -0.06708\nBUCKMAN 4       SEP        3.213102             -0.02700\nBUCKMAN 4       OCT        6.895739             -0.05607\nBUCKMAN 4       NOV        0.000000             -0.00000\nBUCKMAN 4       DEC        0.000000             -0.00000\nBUCKMAN 5       JAN        0.000000             -0.00000\nBUCKMAN 5       FEB        0.000000             -0.00000\nBUCKMAN 5       MAR        0.000000             -0.00000\nBUCKMAN 5       APR        0.000000             -0.00000\nBUCKMAN 5       MAY        0.000000             -0.00000\nBUCKMAN 5       JUN        0.000000             -0.00000\nBUCKMAN 5       JUL        0.000000             -0.00000\nBUCKMAN 5       AUG        0.000000             -0.00000\nBUCKMAN 5       SEP        0.000000             -0.00000\nBUCKMAN 5       OCT        0.000000             -0.00000\nBUCKMAN 5       NOV        0.000000             -0.00000\nBUCKMAN 5       DEC        0.000000             -0.00000\nBUCKMAN 6       JAN        0.150374             -0.00122\nBUCKMAN 6       FEB        0.199476             -0.00173\nBUCKMAN 6       MAR        0.969761             -0.00789\nBUCKMAN 6       APR        0.000000             -0.00000\nBUCKMAN 6       MAY       19.536394             -0.15886\nBUCKMAN 6       JUN        5.606816             -0.04711\nBUCKMAN 6       JUL        0.125823             -0.00102\nBUCKMAN 6       AUG       72.099911             -0.58630\nBUCKMAN 6       SEP       40.444570             -0.33985\nBUCKMAN 6       OCT       13.088709             -0.10643\nBUCKMAN 6       NOV        0.000000             -0.00000\nBUCKMAN 6       DEC        0.000000             -0.00000\nBUCKMAN 7       JAN        0.076722             -0.00062\nBUCKMAN 7       FEB        0.113548             -0.00099\nBUCKMAN 7       MAR        0.073653             -0.00060\nBUCKMAN 7       APR        0.736528             -0.00619\nBUCKMAN 7       MAY        0.000000             -0.00000\nBUCKMAN 7       JUN        0.000000             -0.00000\nBUCKMAN 7       JUL        0.000000             -0.00000\nBUCKMAN 7       AUG        0.000000             -0.00000\nBUCKMAN 7       SEP        0.000000             -0.00000\nBUCKMAN 7       OCT        0.000000             -0.00000\nBUCKMAN 7       NOV        0.000000             -0.00000\nBUCKMAN 7       DEC        0.000000             -0.00000\nBUCKMAN 8       JAN        2.099104             -0.01707\nBUCKMAN 8       FEB        0.049102             -0.00043\nBUCKMAN 8       MAR        0.865420             -0.00704\nBUCKMAN 8       APR        2.850975             -0.02396\nBUCKMAN 8       MAY       26.926220             -0.21896\nBUCKMAN 8       JUN       11.133842             -0.09356\nBUCKMAN 8       JUL        0.079790             -0.00065\nBUCKMAN 8       AUG        1.740046             -0.01415\nBUCKMAN 8       SEP        2.623879             -0.02205\nBUCKMAN 8       OCT       15.595971             -0.12682\nBUCKMAN 8       NOV        0.000000             -0.00000\nBUCKMAN 8       DEC       47.502959             -0.38628\nBUCKMAN 9       JAN        0.067515             -0.00055\nBUCKMAN 9       FEB        0.055240             -0.00048\nBUCKMAN 9       MAR        0.064446             -0.00052\nBUCKMAN 9       APR        0.049102             -0.00041\nBUCKMAN 9       MAY        0.046033             -0.00037\nBUCKMAN 9       JUN        0.052171             -0.00044\nBUCKMAN 9       JUL        0.076722             -0.00062\nBUCKMAN 9       AUG        0.064446             -0.00052\nBUCKMAN 9       SEP        0.049102             -0.00041\nBUCKMAN 9       OCT        0.000000             -0.00000\nBUCKMAN 9       NOV        0.000000             -0.00000\nBUCKMAN 9       DEC        0.000000             -0.00000\nBUCKMAN 10      JAN        0.098204             -0.00080\nBUCKMAN 10      FEB        0.082859             -0.00072\nBUCKMAN 10      MAR        0.000000             -0.00000\nBUCKMAN 10      APR        0.000000             -0.00000\nBUCKMAN 10      MAY        0.181063             -0.00147\nBUCKMAN 10      JUN        0.067515             -0.00057\nBUCKMAN 10      JUL       60.269437             -0.49009\nBUCKMAN 10      AUG       44.219274             -0.35958\nBUCKMAN 10      SEP       24.102865             -0.20253\nBUCKMAN 10      OCT       10.084290             -0.08200\nBUCKMAN 10      NOV        0.076722             -0.00064\nBUCKMAN 10      DEC       12.235564             -0.09950\nBUCKMAN 11      JAN        0.000000             -0.00000\nBUCKMAN 11      FEB        0.000000             -0.00000\nBUCKMAN 11      MAR        0.000000             -0.00000\nBUCKMAN 11      APR        0.000000             -0.00000\nBUCKMAN 11      MAY        0.000000             -0.00000\nBUCKMAN 11      JUN        0.058308             -0.00049\nBUCKMAN 11      JUL        0.055240             -0.00045\nBUCKMAN 11      AUG        0.052171             -0.00042\nBUCKMAN 11      SEP        7.294692             -0.06130\nBUCKMAN 11      OCT        0.000000             -0.00000\nBUCKMAN 11      NOV        3.612054             -0.03035\nBUCKMAN 11      DEC        2.547158             -0.02071\nBUCKMAN 12      JAN        0.000000             -0.00000\nBUCKMAN 12      FEB        0.000000             -0.00000\nBUCKMAN 12      MAR        0.000000             -0.00000\nBUCKMAN 12      APR        0.000000             -0.00000\nBUCKMAN 12      MAY        0.000000             -0.00000\nBUCKMAN 12      JUN        0.082859             -0.00070\nBUCKMAN 12      JUL        0.000000             -0.00000\nBUCKMAN 12      AUG        5.112729             -0.04158\nBUCKMAN 12      SEP        3.025901             -0.02543\nBUCKMAN 12      OCT        0.199476             -0.00162\nBUCKMAN 12      NOV        0.076722             -0.00064\nBUCKMAN 12      DEC        1.304268             -0.01061\nBUCKMAN 13      JAN        0.000000             -0.00000\nBUCKMAN 13      FEB        0.000000             -0.00000\nBUCKMAN 13      MAR        0.000000             -0.00000\nBUCKMAN 13      APR        0.000000             -0.00000\nBUCKMAN 13      MAY        0.000000             -0.00000\nBUCKMAN 13      JUN       34.985059             -0.29397\nBUCKMAN 13      JUL       57.995408             -0.47160\nBUCKMAN 13      AUG       69.509789             -0.56523\nBUCKMAN 13      SEP       15.651211             -0.13151\nBUCKMAN 13      OCT       31.538724             -0.25646\nBUCKMAN 13      NOV        0.294611             -0.00248\nBUCKMAN 13      DEC        2.043864             -0.01662\n----------------------------------------------------------------------\n\nAnnual Totals (acre-feet):\n  BUCKMAN 1             601.28 AF\n  BUCKMAN 2               0.01 AF\n  BUCKMAN 3A             56.23 AF\n  BUCKMAN 4              63.34 AF\n  BUCKMAN 5               0.00 AF\n  BUCKMAN 6             152.22 AF\n  BUCKMAN 7               1.00 AF\n  BUCKMAN 8             111.47 AF\n  BUCKMAN 9               0.52 AF\n  BUCKMAN 10            151.42 AF\n  BUCKMAN 11             13.62 AF\n  BUCKMAN 12              9.80 AF\n  BUCKMAN 13            212.02 AF\n  TOTAL                1372.92 AF\n======================================================================\n\n[8/8] Validating against known-good files...\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n\n\u2713 All steps completed successfully!\n"
+        "stdout": "\n============================================================\nMODFLOW Buckman Depletion Model Update\nUpdating from CY2023 to CY2024\n============================================================\n\n======================================================================\nSTEP 2: UPDATE MODFLOW - YEAR 2024\n======================================================================\n\ud83d\udccb Input Sources:\n  - Source year: 2023\n  - Mode: BASELINE (using 2023 input files)\n  - WEL file: input/modflow/2023/thruCY2165.wel\n  - Table 2: output/ingested_data/2024/2024_Table_2_output.csv\n\n\ud83d\udce6 Outputs (after completion):\n  - thruCY2165_2024.wel (extended well file)\n  - CY2024.nam (MODFLOW name file)\n  - 10 baseline files copied from 2023\n\n\u27a1\ufe0f  Next Step:\n  ./step3_run_modflow.sh --year 2024\n======================================================================\n\n\n[1/8] Reading Table 2 pumping data...\nAnnual pumping totals (acre-feet):\n  BUCKMAN 1: 601.28 AF\n  BUCKMAN 2: 0.01 AF\n  BUCKMAN 3A: 56.23 AF\n  BUCKMAN 4: 63.34 AF\n  BUCKMAN 5: 0.00 AF\n  BUCKMAN 6: 152.22 AF\n  BUCKMAN 7: 1.00 AF\n  BUCKMAN 8: 111.47 AF\n  BUCKMAN 9: 0.52 AF\n  BUCKMAN 10: 151.42 AF\n  BUCKMAN 11: 13.62 AF\n  BUCKMAN 12: 9.80 AF\n  BUCKMAN 13: 212.02 AF\n  \u2713 Read pumping data for 13 wells\n\n[2/8] Converting acre-feet to ft\u00b3/s...\n  \u2713 Conversion formula: rate = -(AF/2) \u00d7 43560 / (days \u00d7 86400)\n  \u2713 2024 is leap year (February = 29 days)\n\n[3/8] Parsing 2023 .wel file...\nRead 54805 lines from input/modflow/2023/thruCY2165.wel\nParsed .wel file: 8797 pre-2024, 324 2024, 45684 post-2024 lines\n  \u2713 Pre-2024: 8797 lines\n  \u2713 2024: 324 lines\n  \u2713 Post-2024: 45684 lines\n\n[4/8] Generating 2024 well entries...\n  \u2713 Generated 324 lines (12 months \u00d7 27 lines)\n\n[5/8] Writing updated .wel file...\nWrote 54805 lines to output/modflow/2024/thruCY2165_2024.wel (pre: 8797, 2024: 324, post: 45684)\n  \u2713 Written to output/modflow/2024/thruCY2165_2024.wel\n\n[6/8] Generating updated .nam file...\nWrote .nam file to output/modflow/2024/CY2024.nam\n  \u2713 Written to output/modflow/2024/CY2024.nam\n\n[7/8] Copying baseline MODFLOW files...\n  \u2713 Copied 10 files from input/modflow/2023:\n    - modflow96.exe\n    - sflcs.bcf\n    - sflcs.sip\n    - thruCY2165.bas\n    - thruCY2165.ghb\n    - thruCY2165.oc\n    - thruCY2165.riv\n    - sfmodflx_2245.exe\n    - verify_modflow_run.py\n    - verify_depletion.py\n\n[7.5/8] Verifying NAM file references...\n  \u2713 NAM file verified: all 10 referenced files exist\n\n======================================================================\n2024 MONTHLY PUMPING SUMMARY\n======================================================================\nWell            Month     Acre-Feet    ft\u00b3/s (per layer)\n----------------------------------------------------------------------\nBUCKMAN 1       JAN       16.887963             -0.13733\nBUCKMAN 1       FEB       38.805796             -0.33732\nBUCKMAN 1       MAR       10.882195             -0.08849\nBUCKMAN 1       APR       40.702355             -0.34201\nBUCKMAN 1       MAY       41.500260             -0.33747\nBUCKMAN 1       JUN       68.454100             -0.57520\nBUCKMAN 1       JUL      162.493326             -1.32135\nBUCKMAN 1       AUG      124.365749             -1.01131\nBUCKMAN 1       SEP       45.139933             -0.37930\nBUCKMAN 1       OCT       52.047948             -0.42324\nBUCKMAN 1       NOV        0.000000             -0.00000\nBUCKMAN 1       DEC        0.000000             -0.00000\nBUCKMAN 2       JAN        0.000000             -0.00000\nBUCKMAN 2       FEB        0.000000             -0.00000\nBUCKMAN 2       MAR        0.000000             -0.00000\nBUCKMAN 2       APR        0.000000             -0.00000\nBUCKMAN 2       MAY        0.000000             -0.00000\nBUCKMAN 2       JUN        0.003069             -0.00003\nBUCKMAN 2       JUL        0.000000             -0.00000\nBUCKMAN 2       AUG        0.000000             -0.00000\nBUCKMAN 2       SEP        0.000000             -0.00000\nBUCKMAN 2       OCT        0.006138             -0.00005\nBUCKMAN 2       NOV        0.000000             -0.00000\nBUCKMAN 2       DEC        0.000000             -0.00000\nBUCKMAN 3A      JAN        0.000000             -0.00000\nBUCKMAN 3A      FEB        0.067515             -0.00059\nBUCKMAN 3A      MAR        0.064446             -0.00052\nBUCKMAN 3A      APR        0.067515             -0.00057\nBUCKMAN 3A      MAY        0.380539             -0.00309\nBUCKMAN 3A      JUN       23.108552             -0.19418\nBUCKMAN 3A      JUL        0.791767             -0.00644\nBUCKMAN 3A      AUG        8.540651             -0.06945\nBUCKMAN 3A      SEP        0.049102             -0.00041\nBUCKMAN 3A      OCT        6.380170             -0.05188\nBUCKMAN 3A      NOV       16.725314             -0.14054\nBUCKMAN 3A      DEC        0.052171             -0.00042\nBUCKMAN 4       JAN        0.000000             -0.00000\nBUCKMAN 4       FEB        0.012275             -0.00011\nBUCKMAN 4       MAR        0.174925             -0.00142\nBUCKMAN 4       APR        0.082859             -0.00070\nBUCKMAN 4       MAY        0.082859             -0.00067\nBUCKMAN 4       JUN       24.468060             -0.20560\nBUCKMAN 4       JUL       20.156304             -0.16391\nBUCKMAN 4       AUG        8.249109             -0.06708\nBUCKMAN 4       SEP        3.213102             -0.02700\nBUCKMAN 4       OCT        6.895739             -0.05607\nBUCKMAN 4       NOV        0.000000             -0.00000\nBUCKMAN 4       DEC        0.000000             -0.00000\nBUCKMAN 5       JAN        0.000000             -0.00000\nBUCKMAN 5       FEB        0.000000             -0.00000\nBUCKMAN 5       MAR        0.000000             -0.00000\nBUCKMAN 5       APR        0.000000             -0.00000\nBUCKMAN 5       MAY        0.000000             -0.00000\nBUCKMAN 5       JUN        0.000000             -0.00000\nBUCKMAN 5       JUL        0.000000             -0.00000\nBUCKMAN 5       AUG        0.000000             -0.00000\nBUCKMAN 5       SEP        0.000000             -0.00000\nBUCKMAN 5       OCT        0.000000             -0.00000\nBUCKMAN 5       NOV        0.000000             -0.00000\nBUCKMAN 5       DEC        0.000000             -0.00000\nBUCKMAN 6       JAN        0.150374             -0.00122\nBUCKMAN 6       FEB        0.199476             -0.00173\nBUCKMAN 6       MAR        0.969761             -0.00789\nBUCKMAN 6       APR        0.000000             -0.00000\nBUCKMAN 6       MAY       19.536394             -0.15886\nBUCKMAN 6       JUN        5.606816             -0.04711\nBUCKMAN 6       JUL        0.125823             -0.00102\nBUCKMAN 6       AUG       72.099911             -0.58630\nBUCKMAN 6       SEP       40.444570             -0.33985\nBUCKMAN 6       OCT       13.088709             -0.10643\nBUCKMAN 6       NOV        0.000000             -0.00000\nBUCKMAN 6       DEC        0.000000             -0.00000\nBUCKMAN 7       JAN        0.076722             -0.00062\nBUCKMAN 7       FEB        0.113548             -0.00099\nBUCKMAN 7       MAR        0.073653             -0.00060\nBUCKMAN 7       APR        0.736528             -0.00619\nBUCKMAN 7       MAY        0.000000             -0.00000\nBUCKMAN 7       JUN        0.000000             -0.00000\nBUCKMAN 7       JUL        0.000000             -0.00000\nBUCKMAN 7       AUG        0.000000             -0.00000\nBUCKMAN 7       SEP        0.000000             -0.00000\nBUCKMAN 7       OCT        0.000000             -0.00000\nBUCKMAN 7       NOV        0.000000             -0.00000\nBUCKMAN 7       DEC        0.000000             -0.00000\nBUCKMAN 8       JAN        2.099104             -0.01707\nBUCKMAN 8       FEB        0.049102             -0.00043\nBUCKMAN 8       MAR        0.865420             -0.00704\nBUCKMAN 8       APR        2.850975             -0.02396\nBUCKMAN 8       MAY       26.926220             -0.21896\nBUCKMAN 8       JUN       11.133842             -0.09356\nBUCKMAN 8       JUL        0.079790             -0.00065\nBUCKMAN 8       AUG        1.740046             -0.01415\nBUCKMAN 8       SEP        2.623879             -0.02205\nBUCKMAN 8       OCT       15.595971             -0.12682\nBUCKMAN 8       NOV        0.000000             -0.00000\nBUCKMAN 8       DEC       47.502959             -0.38628\nBUCKMAN 9       JAN        0.067515             -0.00055\nBUCKMAN 9       FEB        0.055240             -0.00048\nBUCKMAN 9       MAR        0.064446             -0.00052\nBUCKMAN 9       APR        0.049102             -0.00041\nBUCKMAN 9       MAY        0.046033             -0.00037\nBUCKMAN 9       JUN        0.052171             -0.00044\nBUCKMAN 9       JUL        0.076722             -0.00062\nBUCKMAN 9       AUG        0.064446             -0.00052\nBUCKMAN 9       SEP        0.049102             -0.00041\nBUCKMAN 9       OCT        0.000000             -0.00000\nBUCKMAN 9       NOV        0.000000             -0.00000\nBUCKMAN 9       DEC        0.000000             -0.00000\nBUCKMAN 10      JAN        0.098204             -0.00080\nBUCKMAN 10      FEB        0.082859             -0.00072\nBUCKMAN 10      MAR        0.000000             -0.00000\nBUCKMAN 10      APR        0.000000             -0.00000\nBUCKMAN 10      MAY        0.181063             -0.00147\nBUCKMAN 10      JUN        0.067515             -0.00057\nBUCKMAN 10      JUL       60.269437             -0.49009\nBUCKMAN 10      AUG       44.219274             -0.35958\nBUCKMAN 10      SEP       24.102865             -0.20253\nBUCKMAN 10      OCT       10.084290             -0.08200\nBUCKMAN 10      NOV        0.076722             -0.00064\nBUCKMAN 10      DEC       12.235564             -0.09950\nBUCKMAN 11      JAN        0.000000             -0.00000\nBUCKMAN 11      FEB        0.000000             -0.00000\nBUCKMAN 11      MAR        0.000000             -0.00000\nBUCKMAN 11      APR        0.000000             -0.00000\nBUCKMAN 11      MAY        0.000000             -0.00000\nBUCKMAN 11      JUN        0.058308             -0.00049\nBUCKMAN 11      JUL        0.055240             -0.00045\nBUCKMAN 11      AUG        0.052171             -0.00042\nBUCKMAN 11      SEP        7.294692             -0.06130\nBUCKMAN 11      OCT        0.000000             -0.00000\nBUCKMAN 11      NOV        3.612054             -0.03035\nBUCKMAN 11      DEC        2.547158             -0.02071\nBUCKMAN 12      JAN        0.000000             -0.00000\nBUCKMAN 12      FEB        0.000000             -0.00000\nBUCKMAN 12      MAR        0.000000             -0.00000\nBUCKMAN 12      APR        0.000000             -0.00000\nBUCKMAN 12      MAY        0.000000             -0.00000\nBUCKMAN 12      JUN        0.082859             -0.00070\nBUCKMAN 12      JUL        0.000000             -0.00000\nBUCKMAN 12      AUG        5.112729             -0.04158\nBUCKMAN 12      SEP        3.025901             -0.02543\nBUCKMAN 12      OCT        0.199476             -0.00162\nBUCKMAN 12      NOV        0.076722             -0.00064\nBUCKMAN 12      DEC        1.304268             -0.01061\nBUCKMAN 13      JAN        0.000000             -0.00000\nBUCKMAN 13      FEB        0.000000             -0.00000\nBUCKMAN 13      MAR        0.000000             -0.00000\nBUCKMAN 13      APR        0.000000             -0.00000\nBUCKMAN 13      MAY        0.000000             -0.00000\nBUCKMAN 13      JUN       34.985059             -0.29397\nBUCKMAN 13      JUL       57.995408             -0.47160\nBUCKMAN 13      AUG       69.509789             -0.56523\nBUCKMAN 13      SEP       15.651211             -0.13151\nBUCKMAN 13      OCT       31.538724             -0.25646\nBUCKMAN 13      NOV        0.294611             -0.00248\nBUCKMAN 13      DEC        2.043864             -0.01662\n----------------------------------------------------------------------\n\nAnnual Totals (acre-feet):\n  BUCKMAN 1             601.28 AF\n  BUCKMAN 2               0.01 AF\n  BUCKMAN 3A             56.23 AF\n  BUCKMAN 4              63.34 AF\n  BUCKMAN 5               0.00 AF\n  BUCKMAN 6             152.22 AF\n  BUCKMAN 7               1.00 AF\n  BUCKMAN 8             111.47 AF\n  BUCKMAN 9               0.52 AF\n  BUCKMAN 10            151.42 AF\n  BUCKMAN 11             13.62 AF\n  BUCKMAN 12              9.80 AF\n  BUCKMAN 13            212.02 AF\n  TOTAL                1372.92 AF\n======================================================================\n\n[8/8] Validating against known-good files...\n\nValidating generated files against known-good validation files...\n\n============================================================\nVALIDATION REPORT\n============================================================\n\n--- .nam File Validation ---\n\u2713 CY2024.nam matches validation file (ignoring comments)\n\n--- .wel File Validation ---\nPre-2024 section: \u2713 PASSED (byte-identical)\nPost-2024 section: \u2713 PASSED (byte-identical)\n\n2024 pumping rates validation:\n  Wells checked: 312\n  Months checked: 12\n  Passed: 312\n  Failed: 0\n\n------------------------------------------------------------\nValidation PASSED - generated files match validation files\n============================================================\n\n\u2713 All steps completed successfully!\n"
       },
       "teardown": {
-        "duration": 0.00015483200331800617,
+        "duration": 0.0001480949999859149,
         "outcome": "passed"
       }
     },
@@ -6094,15 +6201,15 @@
         ""
       ],
       "setup": {
-        "duration": 0.0002840490014932584,
+        "duration": 0.0002945300000192219,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.04125508099969011,
+        "duration": 0.04251896999994642,
         "outcome": "passed"
       },
       "teardown": {
-        "duration": 0.00035629600097308867,
+        "duration": 0.0003252330000123038,
         "outcome": "passed"
       }
     }

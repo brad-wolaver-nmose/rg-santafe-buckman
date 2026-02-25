@@ -1,14 +1,15 @@
 {
-  "created": 1771535121.8300807,
-  "duration": 0.36808061599731445,
+  "created": 1772046529.4187698,
+  "duration": 0.26795196533203125,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
   "summary": {
-    "passed": 4,
+    "passed": 1,
+    "skipped": 3,
     "total": 4,
-    "collected": 224,
-    "deselected": 220
+    "collected": 240,
+    "deselected": 236
   },
   "collectors": [
     {
@@ -618,6 +619,108 @@
       ]
     },
     {
+      "nodeid": "tests/test_modflow_geometry.py",
+      "outcome": "passed",
+      "result": [
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_exists",
+          "type": "Function",
+          "lineno": 56,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_returns_list",
+          "type": "Function",
+          "lineno": 62,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_expected_count",
+          "type": "Function",
+          "lineno": 71,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_cell_coordinates",
+          "type": "Function",
+          "lineno": 80,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_parse_ghb_file_missing_file",
+          "type": "Function",
+          "lineno": 103,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_in_fortran_range_exists",
+          "type": "Function",
+          "lineno": 114,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_in_fortran_range_passes",
+          "type": "Function",
+          "lineno": 120,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_all_in_layer_1",
+          "type": "Function",
+          "lineno": 131,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_spatial_extent",
+          "type": "Function",
+          "lineno": 141,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_within_fortran_buffer",
+          "type": "Function",
+          "lineno": 157,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_outside_range_raises_error",
+          "type": "Function",
+          "lineno": 180,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_validate_ghb_cells_error_message_includes_solution",
+          "type": "Function",
+          "lineno": 200,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_integration_ghb_validation_with_step4",
+          "type": "Function",
+          "lineno": 225,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_fortran_rectangle_oversizing",
+          "type": "Function",
+          "lineno": 246,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_modflow_cell_mapping_doc_exists",
+          "type": "Function",
+          "lineno": 281,
+          "deselected": true
+        },
+        {
+          "nodeid": "tests/test_modflow_geometry.py::test_modflow_cell_mapping_doc_mentions_fortran_range",
+          "type": "Function",
+          "lineno": 290,
+          "deselected": true
+        }
+      ]
+    },
+    {
       "nodeid": "tests/test_stream_depletions.py",
       "outcome": "passed",
       "result": [
@@ -954,97 +1057,97 @@
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_formatting",
           "type": "Function",
-          "lineno": 1042,
+          "lineno": 1043,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_2024_value",
           "type": "Function",
-          "lineno": 1065,
+          "lineno": 1066,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_write_table5_xlsx_default_years",
           "type": "Function",
-          "lineno": 1087,
+          "lineno": 1088,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validation_constants_exist",
           "type": "Function",
-          "lineno": 1121,
+          "lineno": 1122,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_exists",
           "type": "Function",
-          "lineno": 1129,
+          "lineno": 1130,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_exists",
           "type": "Function",
-          "lineno": 1135,
+          "lineno": 1136,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_exists",
           "type": "Function",
-          "lineno": 1141,
+          "lineno": 1142,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_exists",
           "type": "Function",
-          "lineno": 1147,
+          "lineno": 1148,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_print_validation_results_exists",
           "type": "Function",
-          "lineno": 1153,
+          "lineno": 1154,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_missing_file",
           "type": "Function",
-          "lineno": 1159,
+          "lineno": 1160,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_missing_file",
           "type": "Function",
-          "lineno": 1174,
+          "lineno": 1175,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_returns_dict",
           "type": "Function",
-          "lineno": 1189,
+          "lineno": 1190,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table5_passing",
           "type": "Function",
-          "lineno": 1208,
+          "lineno": 1209,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_all_tables_returns_dict",
           "type": "Function",
-          "lineno": 1224,
+          "lineno": 1225,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table3_with_real_file",
           "type": "Function",
-          "lineno": 1246,
+          "lineno": 1247,
           "deselected": true
         },
         {
           "nodeid": "tests/test_stream_depletions.py::test_validate_table4_with_real_file",
           "type": "Function",
-          "lineno": 1278,
+          "lineno": 1279,
           "deselected": true
         }
       ]
@@ -1478,6 +1581,10 @@
           "type": "Module"
         },
         {
+          "nodeid": "tests/test_modflow_geometry.py",
+          "type": "Module"
+        },
+        {
           "nodeid": "tests/test_stream_depletions.py",
           "type": "Module"
         },
@@ -1502,23 +1609,23 @@
         ""
       ],
       "setup": {
-        "duration": 0.0018572869994386565,
+        "duration": 0.00035602499997366976,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.030398417002288625,
+        "duration": 0.0208945730000778,
         "outcome": "passed",
         "stdout": "Check 1: Volumetric Budget Closure\n  Parsing: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/modflow/CY2024.lst\n"
       },
       "teardown": {
-        "duration": 0.00014673300029244274,
+        "duration": 0.0001639730000988493,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
       "lineno": 921,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_pumping_conservation_2024",
         "test_conservation.py",
@@ -1528,23 +1635,23 @@
         ""
       ],
       "setup": {
-        "duration": 0.00017945999934454449,
+        "duration": 0.00018977100012307346,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.06562339499942027,
-        "outcome": "passed",
-        "stdout": "Check 2: Pumping Conservation (Input = Applied)\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  WEL file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/thruCY2165_2024.wel\n"
+        "duration": 0.0001318409999839787,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 928, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
       },
       "teardown": {
-        "duration": 0.00016428899834863842,
+        "duration": 9.414699979970464e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
       "lineno": 935,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_depletion_constraint_2024",
         "test_conservation.py",
@@ -1554,23 +1661,23 @@
         ""
       ],
       "setup": {
-        "duration": 0.00021345200002542697,
+        "duration": 0.0001483739999912359,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.002035167002759408,
-        "outcome": "passed",
-        "stdout": "Check 3: Depletion <= Pumping (Physics Constraint)\n  Depletion file: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/depletions/CY2024\n  Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n"
+        "duration": 0.00013971600014883734,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 944, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
       },
       "teardown": {
-        "duration": 0.00010919499982264824,
+        "duration": 8.535500001016771e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
       "lineno": 949,
-      "outcome": "passed",
+      "outcome": "skipped",
       "keywords": [
         "test_table_sum_integrity_2024",
         "test_conservation.py",
@@ -1580,16 +1687,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00016017400048440322,
+        "duration": 0.00014363300010700186,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00023446700288332067,
-        "outcome": "passed",
-        "stdout": "Check 4: Table Sum Integrity\n  Checking Table 2: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv\n  Checking Table 3: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx\n  Checking Table 4: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx\n  Checking Table 5: /home/bradwolaver/projects/rg/santafe/buckman/output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx\n"
+        "duration": 9.675599994807271e-05,
+        "outcome": "skipped",
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 953, 'Skipped: Table 2 not found')"
       },
       "teardown": {
-        "duration": 8.970199996838346e-05,
+        "duration": 8.455300007881306e-05,
         "outcome": "passed"
       }
     }

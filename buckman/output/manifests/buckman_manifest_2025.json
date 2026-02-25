@@ -3,14 +3,6 @@
   "year": 2025,
   "input_manifest": [
     {
-      "name": "Buckman_Well_Prod_2025.csv",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/csv/Buckman_Well_Prod_2025.csv",
-      "sha256": "abca197c956010ae3a40fa07a9f94242fb4707bf7fc227a9acb8449bbc67c0c2",
-      "size_bytes": 17719,
-      "row_count": 369,
-      "date_range": null
-    },
-    {
       "name": "thruCY2165.wel",
       "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.wel",
       "sha256": "7bb62f160837d5862318482916011d31f021d03d1c536df2d27c2baf9ef40a59",
@@ -75,46 +67,6 @@
       "date_range": null
     },
     {
-      "name": "Table_1_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_1_historical.xlsx",
-      "sha256": "cc0c3b2b70f93a29bf839e3b5242bacfb9298a8b24292025756a13768bfb42b1",
-      "size_bytes": 5341,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_2_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_2_historical.xlsx",
-      "sha256": "5d02ecab134a0d7fa44b253b0b3c4dc90379261101aa0cad39a6228277b30ba9",
-      "size_bytes": 7906,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_3_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_3_historical.xlsx",
-      "sha256": "8874b59665e99579235e864935fb760486a4f2e411c5fc77fbb2f2b35ae810ae",
-      "size_bytes": 5044,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_4_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_4_historical.xlsx",
-      "sha256": "fc50c3d180299fff1e62beb658153af43eb7aeef65915e7e1f1a5a354a1d24a7",
-      "size_bytes": 5045,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_5_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_5_historical.xlsx",
-      "sha256": "36b5b1032c62a6e5115cb44ee1e4ff808e10bda82014f6476ecd3db919fe7b12",
-      "size_bytes": 5000,
-      "row_count": null,
-      "date_range": null
-    },
-    {
       "name": "bounds.yaml",
       "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/bounds.yaml",
       "sha256": "27645f14c927ee3002c93e6cf329f27575a3ae4b2f29cf8d389d302240ff95f3",
@@ -134,30 +86,30 @@
   "hash_verification": {
     "status": "VERIFIED",
     "baseline_file": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/hashes.json",
-    "files_checked": 22,
+    "files_checked": 17,
     "mismatches": [],
     "override_flag_used": false
   },
   "pipeline_manifest": {
-    "git_commit": "11267c06e2b2752eb5884f6fedeb5faa05fd22ea",
+    "git_commit": "965ca40fd7933663a9f97a1d7f35cdec8c02a5fd",
     "git_status": "dirty",
     "python_version": "3.10.12",
     "scripts": [
       {
         "name": "step1_ingest_buckman_data.py",
-        "modified": "2026-02-18T17:31:48.065948"
+        "modified": "2026-02-23T10:13:56.843457"
       },
       {
         "name": "step2_update_modflow.py",
-        "modified": "2026-02-18T17:28:50.705773"
+        "modified": "2026-02-23T10:13:59.483440"
       },
       {
         "name": "step3_run_modflow.sh",
-        "modified": "2026-02-18T11:30:38.126086"
+        "modified": "2026-02-23T10:04:03.295307"
       },
       {
         "name": "step4_generate_depletion_tables.py",
-        "modified": "2026-02-18T17:24:53.115467"
+        "modified": "2026-02-23T10:14:03.173419"
       },
       {
         "name": "step5_verify_workflow.py",
@@ -165,7 +117,7 @@
       },
       {
         "name": "stream_depletions.py",
-        "modified": "2026-02-19T11:55:14.271298"
+        "modified": "2026-02-23T10:14:05.373407"
       }
     ],
     "executables": [
@@ -183,11 +135,11 @@
   },
   "test_results_manifest": {
     "layer_0_smoke": {
-      "total": 224,
-      "passed": 224,
+      "total": 234,
+      "passed": 234,
       "failed": 0,
       "status": "PASS",
-      "timestamp": "2026-02-19T14:05:27.466901"
+      "timestamp": "2026-02-25T12:08:56.298165"
     },
     "layer_1_conservation": {
       "total": 0,
@@ -196,14 +148,14 @@
       "status": "SKIPPED",
       "reason": "P3_conservation_results_2025.json not found",
       "tests": [],
-      "timestamp": "2026-02-19T14:05:27.467064"
+      "timestamp": "2026-02-25T12:08:56.298271"
     },
     "ballpark_check": {
       "status": "HARD_FAIL",
       "exit_code": 4,
       "hard_fails": 0,
       "soft_flags": 0,
-      "timestamp": "2026-02-19T14:05:27.788223"
+      "timestamp": "2026-02-25T12:08:56.598785"
     }
   },
   "flag_register": {
@@ -219,9 +171,9 @@
     }
   },
   "run_metadata": {
-    "pipeline_start": "2026-02-19T14:05:23.134917",
-    "pipeline_end": "2026-02-19T14:05:23.134923",
-    "total_runtime_seconds": 6e-06,
+    "pipeline_start": "2026-02-25T12:08:50.288373",
+    "pipeline_end": "2026-02-25T12:08:50.288378",
+    "total_runtime_seconds": 5e-06,
     "machine_name": "OSE-HYDRO-D0P3",
     "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
     "os_version": "#1 SMP Tue Nov 5 00:21:55 UTC 2024",
@@ -231,10 +183,10 @@
     "layers": [
       {
         "name": "Layer 0 (smoke)",
-        "passed": 190,
+        "passed": 187,
         "failed": 0,
-        "skipped": 0,
-        "duration_sec": 4.09934401512146,
+        "skipped": 3,
+        "duration_sec": 3.4925312995910645,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -243,16 +195,16 @@
         "passed": 30,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.30962681770324707,
+        "duration_sec": 0.32116127014160156,
         "hard_fail": false,
         "failed_tests": []
       },
       {
         "name": "Layer 1 (conservation)",
-        "passed": 4,
+        "passed": 1,
         "failed": 0,
-        "skipped": 0,
-        "duration_sec": 0.36808061599731445,
+        "skipped": 3,
+        "duration_sec": 0.26795196533203125,
         "hard_fail": false,
         "failed_tests": []
       }

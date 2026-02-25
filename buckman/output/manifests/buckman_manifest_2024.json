@@ -3,14 +3,6 @@
   "year": 2024,
   "input_manifest": [
     {
-      "name": "Buckman_Well_Prod_2024.csv",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/csv/Buckman_Well_Prod_2024.csv",
-      "sha256": "dd987f16e44e440696f40c3632745b710812383c5c3c4248b01c3aa06e76d52c",
-      "size_bytes": 17937,
-      "row_count": 370,
-      "date_range": null
-    },
-    {
       "name": "thruCY2165.wel",
       "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/input/modflow/2023/thruCY2165.wel",
       "sha256": "7bb62f160837d5862318482916011d31f021d03d1c536df2d27c2baf9ef40a59",
@@ -75,46 +67,6 @@
       "date_range": null
     },
     {
-      "name": "Table_1_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_1_historical.xlsx",
-      "sha256": "cc0c3b2b70f93a29bf839e3b5242bacfb9298a8b24292025756a13768bfb42b1",
-      "size_bytes": 5341,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_2_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_2_historical.xlsx",
-      "sha256": "5d02ecab134a0d7fa44b253b0b3c4dc90379261101aa0cad39a6228277b30ba9",
-      "size_bytes": 7906,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_3_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_3_historical.xlsx",
-      "sha256": "8874b59665e99579235e864935fb760486a4f2e411c5fc77fbb2f2b35ae810ae",
-      "size_bytes": 5044,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_4_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_4_historical.xlsx",
-      "sha256": "fc50c3d180299fff1e62beb658153af43eb7aeef65915e7e1f1a5a354a1d24a7",
-      "size_bytes": 5045,
-      "row_count": null,
-      "date_range": null
-    },
-    {
-      "name": "Table_5_historical.xlsx",
-      "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/Table_5_historical.xlsx",
-      "sha256": "36b5b1032c62a6e5115cb44ee1e4ff808e10bda82014f6476ecd3db919fe7b12",
-      "size_bytes": 5000,
-      "row_count": null,
-      "date_range": null
-    },
-    {
       "name": "bounds.yaml",
       "full_path": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/bounds.yaml",
       "sha256": "27645f14c927ee3002c93e6cf329f27575a3ae4b2f29cf8d389d302240ff95f3",
@@ -134,30 +86,30 @@
   "hash_verification": {
     "status": "VERIFIED",
     "baseline_file": "/home/bradwolaver/projects/rg/santafe/buckman/validation/historical/hashes.json",
-    "files_checked": 22,
+    "files_checked": 17,
     "mismatches": [],
     "override_flag_used": false
   },
   "pipeline_manifest": {
-    "git_commit": "a5bf7f9819c4329e1b5e114bc9c77d5af192f8a6",
+    "git_commit": "965ca40fd7933663a9f97a1d7f35cdec8c02a5fd",
     "git_status": "dirty",
     "python_version": "3.10.12",
     "scripts": [
       {
         "name": "step1_ingest_buckman_data.py",
-        "modified": "2026-02-18T17:31:48.065948"
+        "modified": "2026-02-23T10:13:56.843457"
       },
       {
         "name": "step2_update_modflow.py",
-        "modified": "2026-02-18T17:28:50.705773"
+        "modified": "2026-02-23T10:13:59.483440"
       },
       {
         "name": "step3_run_modflow.sh",
-        "modified": "2026-02-18T11:30:38.126086"
+        "modified": "2026-02-23T10:04:03.295307"
       },
       {
         "name": "step4_generate_depletion_tables.py",
-        "modified": "2026-02-18T17:24:53.115467"
+        "modified": "2026-02-23T10:14:03.173419"
       },
       {
         "name": "step5_verify_workflow.py",
@@ -165,7 +117,7 @@
       },
       {
         "name": "stream_depletions.py",
-        "modified": "2026-02-19T11:55:14.271298"
+        "modified": "2026-02-23T10:14:05.373407"
       }
     ],
     "executables": [
@@ -183,55 +135,27 @@
   },
   "test_results_manifest": {
     "layer_0_smoke": {
-      "total": 224,
-      "passed": 224,
+      "total": 234,
+      "passed": 234,
       "failed": 0,
       "status": "PASS",
-      "timestamp": "2026-02-19T11:55:41.725196"
+      "timestamp": "2026-02-25T12:06:27.633053"
     },
     "layer_1_conservation": {
-      "total": 4,
-      "passed": 4,
+      "total": 0,
+      "passed": 0,
       "failed": 0,
-      "status": "PASS",
-      "tests": [
-        {
-          "test_name": "budget_closure",
-          "status": "PASS",
-          "value_tested": 0.01,
-          "threshold": 0.1,
-          "timestamp": "2026-02-17T13:55:55.778578"
-        },
-        {
-          "test_name": "pumping_conservation",
-          "status": "PASS",
-          "value_tested": 1372.9215867768594,
-          "threshold": 0.1,
-          "timestamp": "2026-02-17T13:55:55.824780"
-        },
-        {
-          "test_name": "depletion_constraint",
-          "status": "PASS",
-          "value_tested": 0.7487811337480802,
-          "threshold": 0.001,
-          "timestamp": "2026-02-17T13:55:55.826764"
-        },
-        {
-          "test_name": "table_sum_integrity",
-          "status": "PASS",
-          "value_tested": null,
-          "threshold": 0.01,
-          "timestamp": "2026-02-17T13:55:55.826874"
-        }
-      ],
-      "timestamp": "2026-02-17T13:55:55.826887"
+      "status": "SKIPPED",
+      "reason": "P3_conservation_results_2024.json not found",
+      "tests": [],
+      "timestamp": "2026-02-25T12:06:27.633163"
     },
     "ballpark_check": {
       "status": "PASS",
       "exit_code": 0,
       "hard_fails": 0,
       "soft_flags": 0,
-      "timestamp": "2026-02-19T11:55:42.134412"
+      "timestamp": "2026-02-25T12:06:28.023700"
     }
   },
   "flag_register": {
@@ -247,8 +171,8 @@
     }
   },
   "run_metadata": {
-    "pipeline_start": "2026-02-19T11:55:35.577423",
-    "pipeline_end": "2026-02-19T11:55:35.577429",
+    "pipeline_start": "2026-02-25T12:06:21.537060",
+    "pipeline_end": "2026-02-25T12:06:21.537066",
     "total_runtime_seconds": 6e-06,
     "machine_name": "OSE-HYDRO-D0P3",
     "os": "Linux 5.15.167.4-microsoft-standard-WSL2",
@@ -259,10 +183,10 @@
     "layers": [
       {
         "name": "Layer 0 (smoke)",
-        "passed": 190,
+        "passed": 187,
         "failed": 0,
-        "skipped": 0,
-        "duration_sec": 3.899099826812744,
+        "skipped": 3,
+        "duration_sec": 3.469301700592041,
         "hard_fail": false,
         "failed_tests": []
       },
@@ -271,16 +195,16 @@
         "passed": 30,
         "failed": 0,
         "skipped": 0,
-        "duration_sec": 0.32483863830566406,
+        "duration_sec": 0.3102991580963135,
         "hard_fail": false,
         "failed_tests": []
       },
       {
         "name": "Layer 1 (conservation)",
-        "passed": 4,
+        "passed": 1,
         "failed": 0,
-        "skipped": 0,
-        "duration_sec": 0.3615376949310303,
+        "skipped": 3,
+        "duration_sec": 0.27970170974731445,
         "hard_fail": false,
         "failed_tests": []
       }

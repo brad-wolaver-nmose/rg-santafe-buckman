@@ -157,8 +157,10 @@ def load_current_year_pumping(year: int, project_root: Path) -> dict:
     Returns:
         Dict with 'total_annual', 'monthly' (dict of month->AF), and 'by_well'.
     """
-    # Try Table 2 output (monthly pumping)
-    table2_path = project_root / "output/ingested_data" / f"{year}_Table_2_output.csv"
+    # Try Table 2 output (monthly pumping) - check new nested path first, fall back to flat
+    table2_path = project_root / "output/ingested_data" / str(year) / f"{year}_Table_2_output.csv"
+    if not table2_path.exists():
+        table2_path = project_root / "output/ingested_data" / f"{year}_Table_2_output.csv"
 
     if not table2_path.exists():
         raise FileNotFoundError(f"Table 2 output not found: {table2_path}")

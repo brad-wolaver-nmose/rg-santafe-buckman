@@ -346,6 +346,7 @@ def get_table5_la_cienega(table5: pd.DataFrame, year: int) -> float | None:
 
     # La Cienega column names
     la_cienega_cols = [
+        "Total",
         "Total (AF)",
         "La_Cienega_Depletion_AF",
         "La_Cienega",
