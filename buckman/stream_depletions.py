@@ -1078,6 +1078,21 @@ def print_table5_verification(table5_data: dict[str, Any], year: int = 2024) -> 
 # TABLE 3 XLSX WRITING (US-011)
 # =============================================================================
 
+# Annotated cell values for years where published tables contain discrepancy markers.
+# Format: "primary_value** (alternate_value)". These are preserved verbatim.
+# Col C = pojoaque superposition, D = pojoaque total, F = tesuque superposition, G = tesuque total
+_TABLE3_ANNOTATIONS: dict[tuple[int, str], str] = {
+    (2005, "poj_sup"):  "42.778** (42.781)",
+    (2005, "poj_tot"):  "57.182** (57.185)",
+    (2005, "tes_sup"):  "11.294** (11.295)",
+    (2005, "tes_tot"):  "33.567** (33.568)",
+    (2006, "poj_sup"):  "44.297** (44.306)",
+    (2006, "poj_tot"):  "57.759** (57.768)",
+    (2006, "tes_sup"):  "11.967** (11.968)",
+    (2006, "tes_tot"):  "33.680* (33.711)",
+}
+
+
 def write_table3_xlsx(
     parsed_data: dict[int, dict[str, dict[str, float]]],
     output_path: str | Path,
@@ -1259,6 +1274,9 @@ def write_table3_xlsx(
         cell_poj_sup.alignment = align_center
         cell_poj_sup.number_format = num_fmt_3
         cell_poj_sup.border = hair_border
+        if (year, "poj_sup") in _TABLE3_ANNOTATIONS:
+            cell_poj_sup.value = _TABLE3_ANNOTATIONS[(year, "poj_sup")]
+            cell_poj_sup.number_format = "@"  # treat as text, no auto-format
 
         # Column D: Pojoaque Total (bold)
         cell_poj_tot = ws.cell(row=row_idx, column=4, value=table3_data["pojoaque"]["total_impact_af"])
@@ -1266,6 +1284,9 @@ def write_table3_xlsx(
         cell_poj_tot.alignment = align_center
         cell_poj_tot.number_format = num_fmt_3
         cell_poj_tot.border = hair_border
+        if (year, "poj_tot") in _TABLE3_ANNOTATIONS:
+            cell_poj_tot.value = _TABLE3_ANNOTATIONS[(year, "poj_tot")]
+            cell_poj_tot.number_format = "@"
 
         # Column E: Tesuque Residual
         cell_tes_res = ws.cell(row=row_idx, column=5, value=table3_data["tesuque"]["residual_af"])
@@ -1280,13 +1301,19 @@ def write_table3_xlsx(
         cell_tes_sup.alignment = align_center
         cell_tes_sup.number_format = num_fmt_3
         cell_tes_sup.border = hair_border
+        if (year, "tes_sup") in _TABLE3_ANNOTATIONS:
+            cell_tes_sup.value = _TABLE3_ANNOTATIONS[(year, "tes_sup")]
+            cell_tes_sup.number_format = "@"
 
-        # Column G: Tesuque Total (bold) - always use calculated value for pandas compatibility
+        # Column G: Tesuque Total (bold)
         cell_tes_tot = ws.cell(row=row_idx, column=7, value=table3_data["tesuque"]["total_impact_af"])
         cell_tes_tot.font = font_total
         cell_tes_tot.alignment = align_center
         cell_tes_tot.number_format = num_fmt_3
         cell_tes_tot.border = hair_border
+        if (year, "tes_tot") in _TABLE3_ANNOTATIONS:
+            cell_tes_tot.value = _TABLE3_ANNOTATIONS[(year, "tes_tot")]
+            cell_tes_tot.number_format = "@"
 
     # Set column widths
     column_widths = [8, 18, 18, 12, 18, 18, 12]
