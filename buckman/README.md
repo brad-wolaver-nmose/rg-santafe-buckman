@@ -10,7 +10,7 @@ Annual stream depletion calculations for Santa Fe water rights compliance.
 
 ```
 ┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
-│ STEP 1        │──▶│ STEP 2        │──▶│ STEP 3        │──▶│ STEP 4a       │──▶│ STEP 4b       │
+│ STEP 1        │──▶│ STEP 2        │──▶│ STEP 3        │──▶│ STEP 4       │──▶│ STEP 5       │
 │ Ingest Data   │   │ MODFLOW Files │   │ Run MODFLOW96 │   │ Post-Process  │   │ Depletion Tbl │
 ├───────────────┤   ├───────────────┤   ├───────────────┤   ├───────────────┤   ├───────────────┤
 │ IN:  CSV      │   │ IN:  .wel     │   │ IN:  .nam     │   │ IN:  .flx     │   │ IN:  CY{YYYY} │
@@ -20,9 +20,9 @@ Annual stream depletion calculations for Santa Fe water rights compliance.
 └───────────────┘   └───────────────┘   └───────────────┘   └───────────────┘   └───────────────┘
 ```
 
-**Note:** Steps 4a and 4b are both run by `step4_generate_depletion_tables.py`:
-- **4a:** Runs `sfmodflx_2245.exe` (FORTRAN post-processor) to extract depletions from binary `.flx` files
-- **4b:** Parses post-processor output and generates Excel tables
+**Note:** Steps 4 and 5 are both run by `step4_generate_depletion_tables.py`:
+- **4:** Runs `sfmodflx_2245.exe` (FORTRAN post-processor) to extract depletions from binary `.flx` files
+- **5:** Parses post-processor output and generates Excel tables
 
 ### Commands
 
@@ -47,8 +47,8 @@ python3 run_all_tests.py --year 2024            # Full test suite
 | 1 | `input/csv/YYYY/Buckman_Well_Prod_YYYY.csv` | Tables 1 & 2 (XLSX) | python3 |
 | 2 | Prior year `.wel` file | `.wel`, `.nam`, baseline files | python3 |
 | 3 | `.nam` file | `.flx` flux files (~31 MB each) | wine modflow96.exe |
-| 4a | `.flx` files | `CY{YYYY}` depletion file | wine sfmodflx_2245.exe |
-| 4b | `CY{YYYY}` file | Tables 3, 4, 5 (XLSX) | python3 |
+| 4 | `.flx` files | `CY{YYYY}` depletion file | wine sfmodflx_2245.exe |
+| 5 | `CY{YYYY}` file | Tables 3, 4, 5 (XLSX) | python3 |
 
 ### Expected Outputs
 
