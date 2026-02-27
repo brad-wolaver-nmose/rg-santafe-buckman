@@ -6,4 +6,3 @@ __pycache__/
 .ralph_test_output.txt
 archive/
 .ruff_cache/
-docs/specs/*.docx
