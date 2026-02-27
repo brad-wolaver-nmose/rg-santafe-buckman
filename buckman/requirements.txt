@@ -3,6 +3,14 @@ pandas>=1.5.0
 pint>=0.20.0
 openpyxl>=3.0.0
 
+# Validation
+pyyaml>=6.0
+numpy>=1.21.0
+scipy>=1.7.0
+
+# Documentation
+python-docx>=0.8.11
+
 # Development
 pytest>=7.0.0
 ruff>=0.1.0

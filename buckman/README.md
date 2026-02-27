@@ -44,21 +44,23 @@ python3 run_all_tests.py --year 2024            # Full test suite
 
 | Step | Input | Output | Executable |
 |------|-------|--------|------------|
-| 1 | `input/csv/Buckman_Well_Prod_YYYY.csv` | Tables 1 & 2 (XLSX) | python3 |
+| 1 | `input/csv/YYYY/Buckman_Well_Prod_YYYY.csv` | Tables 1 & 2 (XLSX) | python3 |
 | 2 | Prior year `.wel` file | `.wel`, `.nam`, baseline files | python3 |
 | 3 | `.nam` file | `.flx` flux files (~31 MB each) | wine modflow96.exe |
 | 4a | `.flx` files | `CY{YYYY}` depletion file | wine sfmodflx_2245.exe |
 | 4b | `CY{YYYY}` file | Tables 3, 4, 5 (XLSX) | python3 |
 
-### Expected Outputs (2024)
+### Expected Outputs
 
-| Table | File | Description |
-|-------|------|-------------|
-| 1 | `output/ingested_data/2024_Table_1_updated.xlsx` | Historical pumping by well (1988-2024) |
-| 2 | `output/ingested_data/2024_Table_2_output.xlsx` | Monthly pumping detail |
-| 3 | `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_2024.xlsx` | Rio Pojoaque & Rio Tesuque depletions |
-| 4 | `output/depletion/TABLE_4_Rio_Grande_Otowi_2024.xlsx` | Rio Grande above/below Otowi |
-| 5 | `output/depletion/TABLE_5_La_Cienega_Springs_2024.xlsx` | La Cienega Springs cumulative |
+| Table | File Pattern | Description |
+|-------|-------------|-------------|
+| 1 | `output/ingested_data/YYYY/YYYY_Table_1_updated.xlsx` | Historical pumping by well (1988-YYYY) |
+| 2 | `output/ingested_data/YYYY/YYYY_Table_2_output.xlsx` | Monthly pumping detail |
+| 3 | `output/depletion/TABLE_3_Rio_Pojoaque_Tesuque_YYYY.xlsx` | Rio Pojoaque & Rio Tesuque depletions |
+| 4 | `output/depletion/TABLE_4_Rio_Grande_Otowi_YYYY.xlsx` | Rio Grande above/below Otowi |
+| 5 | `output/depletion/TABLE_5_La_Cienega_Springs_YYYY.xlsx` | La Cienega Springs cumulative |
+
+Outputs exist for **2024** and **2025**.
 
 ---
 
@@ -68,7 +70,7 @@ When annual pumping data arrives (e.g., 2025):
 
 ```bash
 # 1. Place input CSV
-#    input/csv/Buckman_Well_Prod_2025.csv
+#    input/csv/2025/Buckman_Well_Prod_2025.csv
 
 # 2. Run full workflow
 python3 step1_ingest_buckman_data.py --year 2025
@@ -101,11 +103,11 @@ git commit -m "Complete 2025 Buckman workflow"
 python3 step1_ingest_buckman_data.py --year YYYY
 ```
 
-**Input:** `input/csv/Buckman_Well_Prod_YYYY.csv` (daily pumping data from City of Santa Fe)
+**Input:** `input/csv/YYYY/Buckman_Well_Prod_YYYY.csv` (daily pumping data from City of Santa Fe)
 
 **Outputs:**
-- `output/ingested_data/YYYY_Table_1_updated.xlsx` - Historical pumping by well
-- `output/ingested_data/YYYY_Table_2_output.xlsx` - Current year monthly pumping
+- `output/ingested_data/YYYY/YYYY_Table_1_updated.xlsx` - Historical pumping by well
+- `output/ingested_data/YYYY/YYYY_Table_2_output.xlsx` - Current year monthly pumping
 
 **What it does:**
 - Reads daily pumping CSV (365/366 rows per year)
@@ -193,7 +195,7 @@ python3 verify_depletion.py --year YYYY
 
 ### Core Libraries
 
-**`stream_depletions.py`** - Core depletion calculation library (~2,700 lines)
+**`stream_depletions.py`** - Core depletion calculation library (~2,650 lines)
 - Parses `sfmodflx_2245.exe` post-processor output (`CY{YYYY}` file)
 - Converts cfs → acre-feet with proper unit handling
 - Applies Core (2003) analytical residuals for pre-1988 pumping
@@ -203,6 +205,7 @@ python3 verify_depletion.py --year YYYY
 
 | Module | Purpose |
 |--------|---------|
+| `constants.py` | Centralized constants: unit conversions, well mappings, cell mappings, tolerance thresholds, directory paths. Imported by step1, step2, step4, and stream_depletions.py |
 | `pipeline_manifest.py` | Generate SHA-256 manifest of all pipeline input/output files |
 | `workflow_logger.py` | Generate regulatory compliance logs (MD + DOCX) |
 | `generate_workflow_log.py` | CLI wrapper for standalone log generation |
@@ -213,18 +216,18 @@ python3 verify_depletion.py --year YYYY
 
 ### Software
 
-- Python 3.10+ with pandas, openpyxl
+- Python 3.10+ with pandas, openpyxl, pint, pyyaml, numpy, scipy, python-docx
 - Wine (for running MODFLOW96 and post-processor on Linux)
 
 ### Input Data
 
-- Daily pumping CSV from City of Santa Fe: `input/csv/Buckman_Well_Prod_YYYY.csv`
+- Daily pumping CSV from City of Santa Fe: `input/csv/YYYY/Buckman_Well_Prod_YYYY.csv`
 - Format: 365/366 daily rows with MGD values for all 13 Buckman wells
 
 ### Installation
 
 ```bash
-pip install pandas openpyxl
+pip install -r requirements.txt
 ```
 
 ---
@@ -510,34 +513,44 @@ Use when you need to regenerate a log after the fact, or document a run without 
 ```
 .
 ├── input/
-│   ├── csv/                            # Daily pumping CSV
+│   ├── csv/YYYY/                       # Daily pumping CSV (year subdirectory)
 │   │   └── Buckman_Well_Prod_YYYY.csv
 │   └── modflow/2023/                   # Baseline MODFLOW files
 │
 ├── output/
-│   ├── ingested_data/                  # Tables 1 & 2
+│   ├── ingested_data/YYYY/             # Tables 1 & 2 (year subdirectory)
 │   ├── depletion/                      # Tables 3, 4, 5
 │   ├── logs/                           # Workflow logs (MD + DOCX)
 │   └── modflow/YYYY/                   # MODFLOW files per year
 │
+├── src/
+│   ├── constants.py                    # Centralized constants and paths
+│   ├── pipeline_manifest.py            # SHA-256 manifest generator
+│   ├── workflow_logger.py              # Compliance log generator
+│   └── generate_workflow_log.py        # CLI wrapper for log generation
+│
 ├── tests/                              # Unit tests (pytest)
 │   ├── test_conservation.py
+│   ├── test_edge_cases.py
+│   ├── test_generate_depletion_tables.py
 │   ├── test_ingest_buckman_data.py
-│   ├── test_update_modflow.py
-│   └── ...
+│   ├── test_modflow_geometry.py
+│   ├── test_stream_depletions.py
+│   └── test_update_modflow.py
 │
 ├── validation/
 │   ├── ballpark_check.py               # Physical bounds validation
 │   ├── temporal_consistency.py         # YoY anomaly detection
 │   └── 2024/
 │       ├── expected_outputs/           # Reference files
+│       ├── tolerances.yaml             # Regression tolerances
 │       └── run_regression_2024.py      # Regression test
 │
 ├── step1_ingest_buckman_data.py        # Tables 1 & 2
 ├── step2_update_modflow.py             # MODFLOW WEL/NAM
 ├── step3_run_modflow.sh                # Run MODFLOW96
 ├── step4_generate_depletion_tables.py  # Tables 3, 4, 5
-├── verify_depletion.py                # Cross-model depletion check
+├── verify_depletion.py                 # Cross-model depletion check
 ├── step5_verify_workflow.py            # Comprehensive verify
 ├── run_all_tests.py                    # Full test suite orchestrator
 └── stream_depletions.py                # Depletion library
@@ -578,13 +591,13 @@ Use when you need to regenerate a log after the fact, or document a run without 
 ### Verification & Validation
 
 - [Appendix B: Automated V&V](docs/v_v/Appx_B_Automated_Verification_Validation_20260220.md) — Comprehensive documentation of all automated checks, tolerances, and thresholds
+- [Manual V&V](docs/v_v/MSC_2026_XXX_Buckman%20Depletions%202025_20260225_MANUAL_V&V.docx) — Manual verification of 2025 pipeline outputs
+- [Part I Draft](docs/v_v/PART_I_DRAFT.md) — V&V Part I narrative draft
 - [MODFLOW Cell Mapping](docs/MODFLOW_CELL_MAPPING.md) — La Cienega Springs cell identification and FORTRAN post-processor geometry
 
 ### Specifications (After-the-Fact)
 
-- [Specification Index](docs/specs/SPEC_INDEX.md) — Complete specification suite for reproducibility and maintainer documentation
-- Domain Specifications (DS-01 through DS-06): Scientific basis, assumptions, domain knowledge
-- Implementation Specifications (IS-01 through IS-12): Claude Code session-sized prompts
+- [Consolidated Specifications](docs/specs/Specifications%20for%20Buckman%20Depletion%20Pipeline%20-%20DS%20%26%20IS%20-%202026%2002%2027.docx) — All domain specs (DS-01 through DS-06) and implementation specs (IS-01 through IS-12) in a single document
 
 ### Reference
 
