@@ -1422,7 +1422,7 @@ def write_table1_xlsx(
 
     # --- Average rows ---
     avg_row_1 = last_year_excel_row + 1  # "Average, 1988-2024"
-    avg_row_2 = last_year_excel_row + 2  # "Average, 2022-2024"
+    avg_row_2 = last_year_excel_row + 2  # "Average, {year-2}-{year}" (3-year)
 
     # Average 1988-2024
     cell_a = ws.cell(row=avg_row_1, column=1, value=f'Average,\n1988\u2013{year}')
@@ -1438,9 +1438,9 @@ def write_table1_xlsx(
         cell.number_format = num_fmt
         cell.border = medium_top_hair_bottom
 
-    # Average 2022-2024 (last 3 years)
-    last_3_start = last_year_excel_row - 2  # Row for 2022
-    cell_a = ws.cell(row=avg_row_2, column=1, value=f'Average,\n2022\u2013{year}')
+    # Average {year-2} to {year} (last 3 years)
+    last_3_start = last_year_excel_row - 2  # Row for year-2 (3-year window)
+    cell_a = ws.cell(row=avg_row_2, column=1, value=f'Average,\n{year - 2}\u2013{year}')
     cell_a.font = font_bold
     cell_a.alignment = Alignment(wrap_text=True)
     cell_a.border = hair_top_medium_bottom
