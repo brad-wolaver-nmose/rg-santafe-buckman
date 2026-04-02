@@ -1,0 +1,232 @@
+  You are Claude Code Opus 4.6 working in this repository:
+
+  /home/bradwolaver/projects/rg/santafe/buckman
+
+  This is a focused correctness revision for one specific issue only:
+  replace the invalid annual “stream depletion in year N must be <= pumping in year N” conservation test and align the
+related report/prose/comments to the corrected physical interpretation.
+
+  Operating mode
+  - Be strict about scope.
+  - Treat the requirements below as hard requirements.
+  - The worktree may be dirty and may contain generated/unrelated noise. Ignore unrelated files, `.pyc` files, caches,
+logs, screenshots, diagrams, and other non-task artifacts.
+  - Do not revert unrelated changes.
+  - Do not make destructive git changes.
+  - Do not commit unless explicitly asked.
+  - Prefer small, targeted fixes over broad refactors.
+  - Use existing repo patterns where possible.
+  - Use `apply_patch` for edits.
+  - Before editing, inspect the current implementation and confirm where the invalid annual test and related text
+currently live.
+
+  Mission
+  Correct the repo so it no longer asserts or tests that annual stream depletion must always be less than or equal to
+annual pumping for the same year.
+
+  This annual test is physically invalid for the Buckman system because depletion is a lagged response to the full
+pumping history. Annual depletion can exceed annual pumping in low-pumping years due to residual effects from prior
+pumping. A concrete historical example is 2019, when pumping was about 314 ac-ft but stream depletions were larger due
+to lagged effects of earlier pumping.
+
+  Use this revised conceptual wording as the report-level basis:
+
+  “Cumulative stream depletion summed across all reaches does not exceed cumulative Buckman pumping. This conservation-
+of-mass constraint is evaluated over the full simulation period (1972–present) rather than on an annual basis, because
+the superposition model computes depletion as the integrated aquifer response to the entire pumping history;
+consequently, annual depletion may exceed annual pumping in years of reduced well-field operation.”
+
+  Important repo-specific constraint
+  The current repo appears to provide maintained pumping totals from 1988-present, but not an obvious maintained 1972-
+1987 pumping time series suitable for an exact automated 1972-present pumping-side conservation check. Also, Table 4
+does not provide a historical annual Rio Grande series by itself.
+
+  Therefore, your implementation must do two things honestly:
+  1. Update the report/prose to reflect the corrected conceptual statement above.
+  2. Implement the automated code check as the closest defensible operational version supported by the repo:
+     cumulative modeled depletion attributable to 1988-present pumping compared against cumulative Buckman pumping from
+1988-present.
+
+  This means:
+  - Do not keep the invalid annual year-N depletion vs year-N pumping hard fail.
+  - Do not pretend the automated check is a full exact 1972-present closed-form conservation test if the repo does not
+contain maintained 1972-1987 pumping totals.
+  - Be explicit in comments/docstrings/report text about what the automated implementation includes and excludes.
+
+  Execution plan
+  Work in this order unless you discover a direct blocker.
+
+  Phase 1. Inspect and confirm
+  - Inspect the current implementation before editing.
+  - Find the current invalid annual constraint logic and all related statements that still claim or imply annual
+depletion must be <= annual pumping.
+  - Confirm where the code, comments, and report prose currently describe this test.
+  - Confirm the available data sources for:
+    - cumulative pumping history
+    - Pojoaque/Tesuque depletion components
+    - La Cienega cumulative/annual values
+    - Rio Grande annual values across history
+
+  Phase 2. Replace the invalid test with a defensible cumulative one
+  - Replace the existing annual hard-fail conservation test with a cumulative modeled-depletion conservation check.
+  - Use all reaches in the automated check:
+    - Rio Pojoaque-Nambe
+    - Rio Tesuque
+    - Rio Grande above Otowi
+    - Rio Grande below Otowi
+    - La Cienega Springs
+  - Use the modeled 1988-present component only for the automated conservation comparison.
+  - Exclude pre-1988 analytical residual depletion from the automated conservation comparison unless you find maintained
+1972-1987 pumping totals in the repo that make an exact full-period comparison defensible.
+
+  Required implementation shape
+  - Rename the check to something explicit, such as:
+    - `cumulative_modeled_depletion_constraint`
+    or another equally clear name that communicates:
+    - cumulative, not annual
+    - modeled 1988-present component, not total reported depletion including analytical residuals
+  - Update the result payload, check descriptions, failure messages, and any related manifest/log/report labels so they
+match the new semantics.
+
+  How to compute the automated check
+  Use a hybrid source approach. Specifically:
+  - “Hybrid source” means: use final tables where they already expose the needed series cleanly, but reconstruct missing
+historical annual series from raw `CY{year}` output where the final report tables do not provide them.
+  - Do not invent a second inconsistent method if an existing parser/helper already exists.
+
+  Apply that as follows:
+  - For Pojoaque and Tesuque:
+    - use the modeled/superposition component only, not the total-impact column that includes pre-1988 analytical
+residuals
+  - For La Cienega Springs:
+    - use the modeled annual component derived from the cumulative series
+  - For Rio Grande above/below Otowi:
+    - reconstruct annual AF by year from parsed raw `CY{year}` output using the repo’s existing parsing/conversion
+conventions, because Table 4 is current-year monthly and does not itself provide a historical annual series
+  - For pumping:
+    - use cumulative Buckman pumping from 1988 through the target year
+
+  Tolerance and pass/fail semantics
+  - Use only a small tolerance for floating-point or numerical noise.
+  - Do not preserve the old annual ratio semantics.
+  - Do not convert the old annual constraint into a hard fail under a different name.
+  - If you keep the old annual ratio as an informational/debug value anywhere, it must not be framed as a physical
+invariant and must not be a gate.
+
+  Phase 3. Update report text, comments, and related prose
+  - Update the draft report bullet under the list that begins “In this pipeline, validation includes checks that:” so it
+no longer states the invalid annual constraint.
+  - Use the revised conceptual wording above as the basis.
+  - Where the repo describes the automated test in more detail, tighten the language so it is technically honest:
+    - the conceptual conservation statement is full-period and cumulative
+    - the implemented automated check is cumulative modeled depletion from 1988-present versus cumulative pumping from
+1988-present
+    - pre-1988 analytical residuals are not included in the automated comparison unless defensible maintained pumping
+totals are available
+    - annual depletion may exceed annual pumping in years like 2019 because of lagged aquifer response
+
+  Global cleanup required, but stay narrow
+  - Update this specific issue globally where it appears in:
+    - the conservation test code
+    - nearby docstrings/comments/messages
+    - any validation/provenance/workflow text directly describing this check
+    - the relevant report text
+  - Keep this narrow to this exact physical-constraint revision.
+
+  Concrete requirements
+
+  1. Fix the invalid conservation test
+  Likely file:
+  - `tests/test_conservation.py`
+
+  Required behavior:
+  - remove the annual year-N depletion <= year-N pumping hard-fail logic
+  - replace it with a cumulative modeled depletion vs cumulative pumping check
+  - include all reaches in the automated check
+  - use a data-source strategy that is physically consistent and honest about repo limitations
+  - rename the check to reflect the new semantics
+
+  Hard constraints:
+  - do not leave any hard-fail logic that asserts annual depletion must always be <= annual pumping
+  - do not silently keep the old semantics under the same or a similar misleading name
+  - do not include pre-1988 analytical residual depletion in the automated mass-balance comparison unless exact
+maintained pumping inputs for 1972-1987 are present and defensible
+
+  2. Update related text and messages
+  Likely files to inspect:
+  - `tests/test_conservation.py`
+  - report/doc text in `reporting/`
+  - any nearby validation/workflow text that directly describes this check
+
+  Required behavior:
+  - comments, docstrings, and messages must match the new cumulative semantics
+  - if you mention the physical principle, distinguish clearly between:
+    - conceptual full-period cumulative conservation
+    - implemented 1988-present modeled-component automated check
+  - include the 2019 example where it materially improves clarity
+
+  Hard constraints:
+  - do not leave stale statements saying annual depletion must be <= annual pumping
+  - do not broaden edits into unrelated style cleanup
+
+  3. Keep scope tight
+  This is a focused correctness revision, not a broader V&V rewrite.
+
+  What NOT to do
+  - do not redesign the overall V&V framework
+  - do not rewrite unrelated sections of the report
+  - do not refactor unrelated test layers
+  - do not change thresholds or semantics in unrelated validation checks
+  - do not redesign the depletion pipeline
+  - do not retune temporal consistency checks
+  - do not change unrelated workflow logs/manifests except where needed to rename or describe this exact check correctly
+  - do not perform opportunistic cleanup in unrelated files
+  - do not add new APIs, new report sections, or new abstractions unless directly needed for this fix
+  - do not commit
+  - do not make destructive git changes
+
+  Success criteria
+  The task is only successful if all of the following are true and demonstrated:
+
+  A. Invalid annual invariant removed
+  - no remaining hard-fail logic asserts year-N depletion must be <= year-N pumping
+  - no nearby code/comments still frame that as a physical invariant
+
+  - it uses all reaches
+  - it uses modeled 1988-present depletion against cumulative 1988-present pumping
+  - it clearly excludes pre-1988 analytical residual depletion from the automated comparison unless exact maintained
+pumping totals are found
+
+  C. Report/prose alignment is fixed
+  - technical wording near the code/check matches the actual implemented semantics
+  - the 2019 example is used where helpful to explain why the annual test was wrong
+
+  D. Scope is controlled
+  Required verification
+  Run and report the strongest directly relevant verification you can for the touched code.
+
+  3. If you add helpers to reconstruct cumulative modeled depletion, add targeted tests for them
+  4. Report exactly what was and was not verified
+
+  Suggested files to inspect first
+  - `tests/test_conservation.py`
+  - relevant report file in `reporting/`
+  - any helper/parser functions used by the conservation test
+  - any directly related validation text that describes this exact check
+
+  How to decide ambiguous cases
+  - choose the smallest change that makes the code and prose physically honest
+  - if a broader improvement is tempting, do not do it; note it as a follow-up
+  - if exact 1972-1987 maintained pumping totals are not present, do not fake a full 1972-present automated test
+
+  Required final report format
+  Respond at the end with these exact sections:
+  1. What I changed
+  2. What works now
+  3. What I deliberately did not change
+  4. Verification run
+  5. Remaining risks or follow-ups
+
+  Reminder
+  This is a narrow correctness revision. Fix this one invalid conservation test and align the related wording. Do not
+let the work expand beyond that.
