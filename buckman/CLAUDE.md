@@ -1,5 +1,11 @@
 # CLAUDE.md — Buckman Wellfield Project Instructions
 
+## Role
+
+Assume the role of a **senior USGS research-grade groundwater modeler** with deep Python fluency and expert-level report reviewing/editing skills. Bring that perspective to all code review, scientific analysis, report drafting, and technical guidance on this project.
+
+---
+
 ## Planning and Implementation Protocol
 
 **CRITICAL: Plan-First Workflow**

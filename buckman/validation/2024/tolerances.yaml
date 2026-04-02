@@ -5,12 +5,16 @@
 #   - PASS if |actual - expected| <= absolute_tolerance
 #   - OR PASS if |actual - expected| / |expected| <= relative_tolerance
 #   This handles both small and large values appropriately.
+#
+# Uniform tolerances (0.01 ac-ft absolute, 0.1% relative) are applied
+# to all tables. These are tight enough to detect any meaningful
+# computational error while accommodating floating-point differences.
 
 tables:
   Table_1:
     description: "Annual pumping by well (acre-feet/year)"
     tolerance_type: hybrid
-    absolute_tolerance: 0.01  # 0.01 AF
+    absolute_tolerance: 0.01
     relative_tolerance: 0.001  # 0.1%
 
   Table_2:
@@ -22,20 +26,20 @@ tables:
   Table_3:
     description: "Rio Pojoaque-Nambe & Rio Tesuque depletions"
     tolerance_type: hybrid
-    absolute_tolerance: 0.001   # 3-decimal place precision (acre-feet)
-    relative_tolerance: 0.001   # 0.1%
+    absolute_tolerance: 0.01
+    relative_tolerance: 0.001
 
   Table_4:
     description: "Rio Grande above/below Otowi depletions"
     tolerance_type: hybrid
-    absolute_tolerance: 0.1   # FLAG: May need adjustment after first run
-    relative_tolerance: 0.01  # 1%
+    absolute_tolerance: 0.01
+    relative_tolerance: 0.001
 
   Table_5:
     description: "La Cienega Springs cumulative depletions"
     tolerance_type: hybrid
     absolute_tolerance: 0.01
-    relative_tolerance: 0.005  # 0.5%
+    relative_tolerance: 0.001
     max_year: 2024  # Only compare through 2024 (future years are projections)
 
 global:
