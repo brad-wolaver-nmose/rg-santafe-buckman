@@ -358,11 +358,40 @@ def check_depletion_monotonicity(
     that has already been removed from stream flow.
 
     Hard fails:
+        - Negative cumulative depletion (physically impossible)
         - Current year depletion < previous year depletion
     """
     results = []
     time_series = bounds["time_series"]
     tolerance = bounds["thresholds"]["monotonic_tolerance_af"]
+
+    # Get current year values (needed for both non-negative and monotonicity checks)
+    current_pojoaque, current_tesuque = get_table3_depletions(table3, year)
+    current_la_cienega = get_table5_la_cienega(table5, year)
+
+    # Non-negative depletion check (physics: cumulative depletion cannot be < 0).
+    # This runs for ALL years including the first year, where the monotonicity
+    # check would skip due to no prior-year baseline.
+    for name, value in [
+        ("pojoaque", current_pojoaque),
+        ("tesuque", current_tesuque),
+        ("la_cienega", current_la_cienega),
+    ]:
+        if value is not None and value < 0:
+            results.append(
+                CheckResult(
+                    name=f"depletion_non_negative_{name}",
+                    passed=False,
+                    is_hard_fail=True,
+                    message=(
+                        f"HARD FAIL: {name} cumulative depletion is negative "
+                        f"({value:.4f} ac-ft). Physically impossible — "
+                        f"cumulative stream depletion cannot be less than zero."
+                    ),
+                    actual_value=value,
+                    expected_range=">= 0.0",
+                )
+            )
 
     # Get previous year's values if available
     years = time_series["years"]
@@ -378,10 +407,6 @@ def check_depletion_monotonicity(
         return results
 
     prev_idx = years.index(year - 1)
-
-    # Get current year values
-    current_pojoaque, current_tesuque = get_table3_depletions(table3, year)
-    current_la_cienega = get_table5_la_cienega(table5, year)
 
     # Check Rio Pojoaque/Nambe
     prev_pojoaque = time_series["rio_pojoaque_nambe_depletion_af"]["values"][prev_idx]
