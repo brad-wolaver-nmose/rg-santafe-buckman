@@ -1,6 +1,6 @@
 {
-  "created": 1772046529.4187698,
-  "duration": 0.26795196533203125,
+  "created": 1775507068.1189573,
+  "duration": 0.31157445907592773,
   "exitcode": 0,
   "root": "/home/bradwolaver/projects/rg/santafe/buckman",
   "environment": {},
@@ -29,22 +29,22 @@
         {
           "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
           "type": "Function",
-          "lineno": 911
+          "lineno": 952
         },
         {
           "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
           "type": "Function",
-          "lineno": 921
+          "lineno": 962
         },
         {
           "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
           "type": "Function",
-          "lineno": 935
+          "lineno": 976
         },
         {
           "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
           "type": "Function",
-          "lineno": 949
+          "lineno": 990
         }
       ]
     },
@@ -1598,7 +1598,7 @@
   "tests": [
     {
       "nodeid": "tests/test_conservation.py::test_budget_closure_2024",
-      "lineno": 911,
+      "lineno": 952,
       "outcome": "passed",
       "keywords": [
         "test_budget_closure_2024",
@@ -1609,22 +1609,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.00035602499997366976,
+        "duration": 0.0010138760007976089,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0208945730000778,
+        "duration": 0.040788756999972975,
         "outcome": "passed",
         "stdout": "Check 1: Volumetric Budget Closure\n  Parsing: /home/bradwolaver/projects/rg/santafe/buckman/output/modflow/2024/modflow/CY2024.lst\n"
       },
       "teardown": {
-        "duration": 0.0001639730000988493,
+        "duration": 0.0001358379995508585,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_pumping_conservation_2024",
-      "lineno": 921,
+      "lineno": 962,
       "outcome": "skipped",
       "keywords": [
         "test_pumping_conservation_2024",
@@ -1635,22 +1635,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.00018977100012307346,
+        "duration": 0.0001913050000439398,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.0001318409999839787,
+        "duration": 0.00012642000001505949,
         "outcome": "skipped",
-        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 928, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 969, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
       },
       "teardown": {
-        "duration": 9.414699979970464e-05,
+        "duration": 9.099000089918263e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_depletion_constraint_2024",
-      "lineno": 935,
+      "lineno": 976,
       "outcome": "skipped",
       "keywords": [
         "test_depletion_constraint_2024",
@@ -1661,22 +1661,22 @@
         ""
       ],
       "setup": {
-        "duration": 0.0001483739999912359,
+        "duration": 0.00014252500113798305,
         "outcome": "passed"
       },
       "call": {
-        "duration": 0.00013971600014883734,
+        "duration": 0.0001239200028066989,
         "outcome": "skipped",
-        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 944, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 985, 'Skipped: Table 2 not found: /home/bradwolaver/projects/rg/santafe/buckman/output/ingested_data/2024_Table_2_output.csv')"
       },
       "teardown": {
-        "duration": 8.535500001016771e-05,
+        "duration": 8.867900032782927e-05,
         "outcome": "passed"
       }
     },
     {
       "nodeid": "tests/test_conservation.py::test_table_sum_integrity_2024",
-      "lineno": 949,
+      "lineno": 990,
       "outcome": "skipped",
       "keywords": [
         "test_table_sum_integrity_2024",
@@ -1687,16 +1687,16 @@
         ""
       ],
       "setup": {
-        "duration": 0.00014363300010700186,
+        "duration": 0.0002178390022891108,
         "outcome": "passed"
       },
       "call": {
-        "duration": 9.675599994807271e-05,
+        "duration": 0.0006307229996309616,
         "outcome": "skipped",
-        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 953, 'Skipped: Table 2 not found')"
+        "longrepr": "('/home/bradwolaver/projects/rg/santafe/buckman/tests/test_conservation.py', 994, 'Skipped: Table 2 not found')"
       },
       "teardown": {
-        "duration": 8.455300007881306e-05,
+        "duration": 0.00010321800073143095,
         "outcome": "passed"
       }
     }

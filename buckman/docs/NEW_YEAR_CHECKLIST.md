@@ -197,13 +197,11 @@ wine sfmodflx_2245.exe
 
 - Step 1 (Ingest): ~1 minute
 - Step 2 (MODFLOW Setup): ~1 minute
-- Step 3 (Run MODFLOW96): ~5-10 minutes
+- Step 3 (Run MODFLOW96): ~seconds
 - Step 4 (Post-processor): ~1 minute
 - Step 5 (Depletion Tables): ~1 minute
 - Step 6 (Verification): ~2 minutes
 - Step 7 (Manual Spot-Check): ~15-30 minutes
-
-**Total time:** ~30-45 minutes per year
 
 ## See Also
 

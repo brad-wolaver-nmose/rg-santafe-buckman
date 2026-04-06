@@ -91,8 +91,6 @@ python validation/2024/run_regression_2024.py
 - Before deploying config changes (bounds.yaml, tolerances.yaml)
 - When something seems wrong and you want to verify baseline
 
-**Runtime:** ~45 minutes (runs full MODFLOW model)
-
 ## What to Do When Tests Fail
 
 ### Hard Fail (exit 1 or 3)
