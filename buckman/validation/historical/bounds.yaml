@@ -1,13 +1,18 @@
 # Historical Bounds for Buckman Wellfield Validation
-# Generated: 2026-02-17
-# Years included: 2022, 2023, 2024
+# Generated: 2026-04-06 (pumping bounds updated to 1988-2025 full record)
+# Pumping bounds: 1988-2025 (38 years, full operational record)
+# Depletion/ratio bounds: 2022-2024 (3 years, validated pipeline outputs)
 #
 # Usage: Load with PyYAML and compare year N outputs against these bounds.
 # Hard fails indicate physics violations. Soft flags indicate statistical outliers.
 
 metadata:
-  generated: "2026-02-17"
-  years_included: [2022, 2023, 2024]
+  generated: "2026-04-06"
+  pumping_years_included: [1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995,
+    1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,
+    2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019,
+    2020, 2021, 2022, 2023, 2024, 2025]
+  depletion_years_included: [2022, 2023, 2024]
   units: "acre-feet (AF)"
   source: "validation/historical/extraction_log.md"
 
@@ -18,14 +23,17 @@ table1_annual_pumping:
   description: "Annual groundwater pumping by well (acre-feet)"
 
   total_annual:
-    min: 866.48
-    max: 1372.90
-    mean: 1071.62
-    std: 266.95
-    # For ballpark: allow 2x historical max as soft flag, 3x as hard fail
-    soft_max: 2745.80  # 2x historical max
-    hard_max: 4118.70  # 3x historical max
-    hard_min: 0.0      # Cannot have negative pumping
+    # Full operational record 1988-2025 (38 years)
+    # Range reflects pre-diversion (1988-2010, ~3,000-6,000 AF) and
+    # post-diversion (2011-2025, ~300-1,700 AF) operational regimes.
+    # Historical max: 5,936.84 AF in 2004.
+    min: 314.09
+    max: 5936.84
+    mean: 3234.59
+    std: 1978.10
+    # For ballpark: 2x historical max as sole pumping soft flag
+    soft_max: 11873.68  # 2x historical max (1988-2025)
+    hard_min: 0.0       # Cannot have negative pumping
 
   # Individual well bounds (min, max observed 2022-2024)
   wells:

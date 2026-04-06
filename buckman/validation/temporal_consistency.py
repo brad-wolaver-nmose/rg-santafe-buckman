@@ -54,10 +54,13 @@ Year-over-Year Ratio Changes:
 THRESHOLD DERIVATIONS:
 ---------------------
 1. YoY Pumping Change:
-   Formula: max_observed_change + 10% buffer = 58.5% + 10% = 68.5% -> 65%
-   Rationale: 58.5% change (2023->2024) was observed and legitimate.
-              Buffer ensures we only flag changes exceeding ALL historical.
-              10% buffer accounts for measurement uncertainty.
+   Formula: max_observed_change (1988-2025) + buffer = 175.2% + ~25% = 200%
+   Rationale: Full operational record (1988-2025) shows YoY changes up to
+              175.2% (2012->2013 rebound). Four years exceed 65%, seven exceed
+              50%. Large swings are normal for this wellfield, especially
+              during transitions between surface-water availability regimes.
+              200% threshold catches data-entry errors (e.g., decimal shift)
+              while allowing all historically observed operational variability.
 
 2. YoY Ratio Change:
    Formula: max_observed_change + 10% buffer = 36.5% + 10% = 46.5% -> 45%
@@ -95,8 +98,8 @@ from scipy import stats
 # DATA-DRIVEN THRESHOLDS (see derivation documentation above)
 # =============================================================================
 
-# YoY Pumping Change: max_observed (58.5%) + 10% buffer = 65%
-PUMPING_CHANGE_THRESHOLD_PCT = 65.0
+# YoY Pumping Change: max_observed 1988-2025 (175.2%) + buffer = 200%
+PUMPING_CHANGE_THRESHOLD_PCT = 200.0
 
 # YoY Ratio Change: max_observed (36.5%) + 10% buffer = 45%
 RATIO_CHANGE_THRESHOLD_PCT = 45.0

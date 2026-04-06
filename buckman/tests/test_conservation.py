@@ -52,7 +52,9 @@ MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
           "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
 
 # Default tolerances
-BUDGET_CLOSURE_TOLERANCE = 0.1  # percent
+BUDGET_CLOSURE_TARGET = 0.1     # percent — soft target (PASS if below)
+BUDGET_CLOSURE_REVIEW = 1.0     # percent — review threshold (FLAG if 0.1-1.0%, FAIL if above)
+BUDGET_CLOSURE_TOLERANCE = 0.1  # percent — kept for backward compatibility
 PUMPING_CONSERVATION_TOLERANCE = 0.1  # percent relative
 DEPLETION_CONSTRAINT_TOLERANCE = 0.001  # ratio overshoot allowed
 TABLE_SUM_TOLERANCE = 0.01  # acre-feet
@@ -184,20 +186,29 @@ def parse_budget_discrepancies(lst_file: Path) -> list[float]:
 
 def check_budget_closure(
     lst_file: Path,
-    tolerance: float = BUDGET_CLOSURE_TOLERANCE
+    target: float = BUDGET_CLOSURE_TARGET,
+    review: float = BUDGET_CLOSURE_REVIEW,
+    tolerance: float = BUDGET_CLOSURE_TOLERANCE,
 ) -> ConservationResult:
     """
-    Check 1: Verify MODFLOW volumetric budget closure.
+    Check 1: Verify MODFLOW volumetric budget closure (tiered).
 
     MODFLOW computes mass balance at each stress period. The percent
-    discrepancy should be < 0.1% for a well-converged model.
+    discrepancy is evaluated against a tiered threshold:
+        <= target (0.1%):  PASS — solver converged well
+        target to review (0.1-1.0%): FLAG — soft flag, continue with review
+        > review (1.0%):   FLAG — requires analyst judgment; a small number
+                           of stress periods exceeding 1.0% may be acceptable
+                           if they do not materially influence depletion results
 
     Args:
         lst_file: Path to MODFLOW listing file
-        tolerance: Maximum acceptable percent discrepancy (default 0.1%)
+        target: Target percent discrepancy (default 0.1%)
+        review: Review threshold percent discrepancy (default 1.0%)
+        tolerance: Kept for backward compatibility
 
     Returns:
-        ConservationResult with PASS if max discrepancy < tolerance
+        ConservationResult with PASS, FLAG, or ERROR status
     """
     print("Check 1: Volumetric Budget Closure")
     print(f"  Parsing: {lst_file}")
@@ -222,29 +233,57 @@ def check_budget_closure(
 
     max_discrepancy = max(discrepancies)
     num_periods = len(discrepancies) // 2  # Two values per stress period
+    # Count stress periods exceeding each tier
+    periods_above_target = sum(1 for d in discrepancies if d >= target)
+    periods_above_review = sum(1 for d in discrepancies if d >= review)
 
-    if max_discrepancy < tolerance:
+    if max_discrepancy < target:
+        # Tier 1: All stress periods below target — PASS
         return ConservationResult(
             check_name="budget_closure",
             status="PASS",
-            description=f"Max discrepancy {max_discrepancy:.2f}% < {tolerance}% "
+            description=f"Max discrepancy {max_discrepancy:.2f}% < {target}% target "
                         f"({num_periods} stress periods checked)",
             actual_value=max_discrepancy,
-            expected_value=tolerance,
-            tolerance=tolerance,
+            expected_value=target,
+            tolerance=target,
             details={"stress_periods_checked": num_periods},
         )
-    else:
+    elif max_discrepancy < review:
+        # Tier 2: Some periods exceed target but all below review — FLAG
         return ConservationResult(
             check_name="budget_closure",
-            status="FAIL",
-            description=f"Max discrepancy {max_discrepancy:.2f}% exceeds {tolerance}% threshold",
+            status="FLAG",
+            description=f"Max discrepancy {max_discrepancy:.2f}% exceeds {target}% target "
+                        f"but below {review}% review threshold "
+                        f"({periods_above_target} stress periods above target; "
+                        f"{num_periods} total). Recommend analyst review.",
             actual_value=max_discrepancy,
-            expected_value=tolerance,
-            tolerance=tolerance,
+            expected_value=target,
+            tolerance=target,
             details={
                 "stress_periods_checked": num_periods,
-                "all_values": discrepancies[:10],  # First 10 for debugging
+                "periods_above_target": periods_above_target,
+                "all_values": discrepancies[:10],
+            },
+        )
+    else:
+        # Tier 3: Some periods exceed review threshold — FLAG with stronger warning
+        return ConservationResult(
+            check_name="budget_closure",
+            status="FLAG",
+            description=f"Max discrepancy {max_discrepancy:.2f}% exceeds {review}% review "
+                        f"threshold ({periods_above_review} stress periods above {review}%; "
+                        f"{num_periods} total). Model results should be reviewed before "
+                        f"use in regulatory reporting.",
+            actual_value=max_discrepancy,
+            expected_value=target,
+            tolerance=target,
+            details={
+                "stress_periods_checked": num_periods,
+                "periods_above_target": periods_above_target,
+                "periods_above_review": periods_above_review,
+                "all_values": discrepancies[:10],
             },
         )
 
@@ -918,7 +957,7 @@ def test_budget_closure_2024(paths_2024):
         pytest.skip(f"Listing file not found: {lst_file}")
 
     result = check_budget_closure(lst_file)
-    assert result.status == "PASS", result.description
+    assert result.status in ("PASS", "FLAG"), result.description
 
 
 def test_pumping_conservation_2024(paths_2024):

@@ -2,7 +2,8 @@
 """
 ballpark_check.py - Fast sanity check for Buckman Wellfield outputs.
 
-Validates year N outputs against historical bounds (2022-2024) before
+Validates year N outputs against historical bounds (pumping: 1988-2025;
+depletions: 2022-2024) before
 running the full 45-minute regression test. Completes in <5 seconds.
 
 Scientific Basis:
@@ -212,31 +213,9 @@ def check_total_pumping(table1: pd.DataFrame, bounds: dict, year: int) -> list[C
             )
         )
 
-    # Hard fail: Exceeds 3x historical max
-    hard_max = pumping_bounds["hard_max"]
-    if total_pumping > hard_max:
-        results.append(
-            CheckResult(
-                name="pumping_hard_max",
-                passed=False,
-                is_hard_fail=True,
-                message=f"HARD FAIL: Pumping {total_pumping:.2f} AF exceeds 3x historical max ({hard_max:.2f} AF)",
-                actual_value=total_pumping,
-                expected_range=f"<= {hard_max:.2f}",
-            )
-        )
-    else:
-        results.append(
-            CheckResult(
-                name="pumping_hard_max",
-                passed=True,
-                is_hard_fail=False,
-                message=f"PASS: Pumping within hard limits: {total_pumping:.2f} AF",
-                actual_value=total_pumping,
-            )
-        )
-
-    # Soft flag: Exceeds 2x historical max
+    # Soft flag: Exceeds 2x historical max (1988-2025)
+    # Single threshold based on full operational record.
+    # Historical max is 5,937 AF (2004); 2x = 11,874 AF.
     soft_max = pumping_bounds["soft_max"]
     if total_pumping > soft_max:
         results.append(
@@ -247,6 +226,16 @@ def check_total_pumping(table1: pd.DataFrame, bounds: dict, year: int) -> list[C
                 message=f"SOFT FLAG: Pumping {total_pumping:.2f} AF exceeds 2x historical max ({soft_max:.2f} AF)",
                 actual_value=total_pumping,
                 expected_range=f"<= {soft_max:.2f}",
+            )
+        )
+    else:
+        results.append(
+            CheckResult(
+                name="pumping_soft_max",
+                passed=True,
+                is_hard_fail=False,
+                message=f"PASS: Pumping within 2x historical max: {total_pumping:.2f} AF",
+                actual_value=total_pumping,
             )
         )
 
