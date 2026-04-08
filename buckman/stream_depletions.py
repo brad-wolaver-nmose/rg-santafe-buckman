@@ -1372,7 +1372,7 @@ def write_table4_xlsx(
         Compare generated file to validation/TABLE 4 - Rio Grande, above below Otowi.xlsx
     """
     from openpyxl import Workbook
-    from openpyxl.styles import Alignment, Font
+    from openpyxl.styles import Alignment, Border, Color, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
     output_path = Path(output_path)
@@ -1390,10 +1390,21 @@ def write_table4_xlsx(
     font_header = Font(name='Aptos', size=11, bold=True)
     font_normal = Font(name='Aptos', size=11, bold=False)
     align_center = Alignment(horizontal='center')
+    align_right = Alignment(horizontal='right')
+
+    # Border and fill styles for AF summary section
+    border_top_bottom = Border(
+        top=Side(style='medium'),
+        bottom=Side(style='medium'),
+    )
+    border_bottom = Border(bottom=Side(style='medium'))
+    fill_white = PatternFill(patternType='solid', fgColor=Color(theme=0))
+    font_total = Font(name='Aptos', size=11, bold=False, color=Color(theme=1))
 
     # Number formats
     num_fmt_6 = '0.000000'  # 6 decimal places for cfs
     num_fmt_3 = '0.000'     # 3 decimal places for AF
+    num_fmt_2 = '0.00'      # 2 decimal places for AF summary
 
     # Days per month (use validation values - non-leap year pattern for the row)
     days_validation = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -1505,33 +1516,54 @@ def write_table4_xlsx(
     # Row 55: Month headers for AF section (JAN-DEC, Total)
     af_header_row = below_cfs_row + 1
     for month_idx, month in enumerate(months_upper):
-        ws.cell(row=af_header_row, column=6 + month_idx, value=month).font = font_header
-    ws.cell(row=af_header_row, column=18, value="Total").font = font_header
+        cell = ws.cell(row=af_header_row, column=6 + month_idx, value=month)
+        cell.font = font_header
+        cell.alignment = align_right
+        cell.border = border_top_bottom
+        cell.fill = fill_white
+    cell = ws.cell(row=af_header_row, column=18, value="Total")
+    cell.font = font_header
+    cell.alignment = align_right
+    cell.border = border_top_bottom
+    cell.fill = fill_white
 
     # Row 56: Rio Grande above Otowi (AF values for pandas compatibility)
     above_af_row = af_header_row + 1
     ws.cell(row=above_af_row, column=3, value="Rio Grande above Otowi").font = font_normal
-    ws.cell(row=above_af_row, column=5, value="Above Otowi").font = font_normal
+    cell = ws.cell(row=above_af_row, column=5, value="Above Otowi")
+    cell.font = font_normal
+    cell.fill = fill_white
     for month_idx in range(12):
         af_value = table4_data["above_otowi_af"][month_idx]
         cell = ws.cell(row=above_af_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
-        cell.number_format = num_fmt_3
+        cell.number_format = num_fmt_2
+        cell.fill = fill_white
     # Annual total (column 18)
     cell = ws.cell(row=above_af_row, column=18, value=table4_data["above_otowi_annual_af"])
-    cell.number_format = num_fmt_3
+    cell.number_format = num_fmt_2
+    cell.font = font_total
+    cell.fill = fill_white
 
     # Row 57: Rio Grande below Otowi (AF values for pandas compatibility)
     below_af_row = above_af_row + 1
     ws.cell(row=below_af_row, column=3, value="Rio Grande below Otowi").font = font_normal
-    ws.cell(row=below_af_row, column=5, value="Below Otowi").font = font_normal
+    cell = ws.cell(row=below_af_row, column=5, value="Below Otowi")
+    cell.font = font_normal
+    cell.fill = fill_white
+    cell.border = border_bottom
     for month_idx in range(12):
         af_value = table4_data["below_otowi_af"][month_idx]
         cell = ws.cell(row=below_af_row, column=6 + month_idx, value=af_value)
         cell.font = font_normal
-        cell.number_format = num_fmt_3
+        cell.number_format = num_fmt_2
+        cell.fill = fill_white
+        cell.border = border_bottom
     cell = ws.cell(row=below_af_row, column=18, value=table4_data["below_otowi_annual_af"])
-    cell.number_format = num_fmt_3
+    cell.number_format = num_fmt_2
+    cell.font = font_total
+    cell.fill = fill_white
+    cell.border = border_bottom
 
     # Row 58: Total RG (sum) values for pandas compatibility
     total_sum_row = below_af_row + 1

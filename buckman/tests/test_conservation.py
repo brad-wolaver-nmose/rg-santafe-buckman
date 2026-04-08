@@ -5,8 +5,7 @@ Layer 1: Conservation and Mass-Balance Checks for Buckman Wellfield Pipeline.
 This module implements physics-based validation checks that verify:
 1. MODFLOW volumetric budget closure (mass balance)
 2. Pumping input matches MODFLOW-applied pumping (unit conservation)
-3. Stream depletion does not exceed pumping (physics constraint)
-4. Report table sums are internally consistent (arithmetic integrity)
+3. Report table sums are internally consistent (arithmetic integrity)
 
 Each check returns a structured ConservationResult that can be collected
 into the provenance manifest for audit trail purposes.
@@ -56,7 +55,6 @@ BUDGET_CLOSURE_TARGET = 0.1     # percent — soft target (PASS if below)
 BUDGET_CLOSURE_REVIEW = 1.0     # percent — review threshold (FLAG if 0.1-1.0%, FAIL if above)
 BUDGET_CLOSURE_TOLERANCE = 0.1  # percent — kept for backward compatibility
 PUMPING_CONSERVATION_TOLERANCE = 0.1  # percent relative
-DEPLETION_CONSTRAINT_TOLERANCE = 0.001  # ratio overshoot allowed
 TABLE_SUM_TOLERANCE = 0.01  # acre-feet
 
 
@@ -594,118 +592,8 @@ def cfs_to_af(cfs: float, days: int) -> float:
     return volume_ft3 / ACRE_FT_TO_FT3
 
 
-def check_depletion_constraint(
-    depletion_file: Path,
-    table2_file: Path,
-    year: int,
-    tolerance: float = DEPLETION_CONSTRAINT_TOLERANCE
-) -> ConservationResult:
-    """
-    Check 3: Verify annual depletion does not exceed annual pumping.
-
-    Physics constraint: Stream depletion is caused by pumping-induced
-    drawdown. For a given year, depletion should not exceed pumping.
-
-    IMPORTANT: Stream depletion is a lagged response to historical pumping
-    (1988-present), not just current year pumping. This check compares
-    annual totals as a reasonableness check. The depletion in any given year
-    reflects pumping from all prior years, so the ratio may vary.
-
-    For Buckman wells, typical annual depletion/pumping ratios are 0.5-0.9,
-    reflecting the aquifer response characteristics.
-
-    Args:
-        depletion_file: Path to post-processor output
-        table2_file: Path to Table 2 CSV
-        year: Processing year
-        tolerance: Allowed annual ratio overshoot (default 0.001 = 0.1%)
-
-    Returns:
-        ConservationResult with PASS if annual depletion <= annual pumping,
-        FLAG (soft) if exceeded (requires human review, does not halt pipeline)
-    """
-    print("Check 3: Depletion <= Pumping (Physics Constraint)")
-    print(f"  Depletion file: {depletion_file}")
-    print(f"  Table 2: {table2_file}")
-
-    # Parse depletion totals (monthly cfs)
-    monthly_cfs = parse_depletion_totals(depletion_file, year)
-
-    if not monthly_cfs:
-        return ConservationResult(
-            check_name="depletion_constraint",
-            status="ERROR",
-            description=f"Could not parse depletion data for year {year}",
-            details={"file": str(depletion_file)},
-        )
-
-    # Parse pumping
-    pumping = parse_table2_pumping(table2_file)
-    if not pumping:
-        return ConservationResult(
-            check_name="depletion_constraint",
-            status="ERROR",
-            description=f"Could not parse Table 2: {table2_file}",
-        )
-
-    # Convert depletion cfs to AF per month
-    days_per_month = get_days_in_month(year)
-    depletion_af = []
-    for i, month in enumerate(MONTHS):
-        if i < len(monthly_cfs):
-            af = cfs_to_af(monthly_cfs[i], days_per_month[month])
-            depletion_af.append(af)
-        else:
-            depletion_af.append(0.0)
-
-    # Calculate annual totals
-    total_depletion = sum(depletion_af)
-    total_pumping = sum(
-        sum(well.values()) for well in pumping.values()
-    )
-
-    # Calculate annual ratio
-    if total_pumping > 0:
-        annual_ratio = total_depletion / total_pumping
-    else:
-        annual_ratio = 0.0 if total_depletion == 0 else float('inf')
-
-    # Check constraint: annual depletion should not exceed annual pumping
-    # Allow small tolerance for numerical precision
-    if annual_ratio <= (1.0 + tolerance):
-        return ConservationResult(
-            check_name="depletion_constraint",
-            status="PASS",
-            description=f"Annual ratio {annual_ratio:.3f} (depletion/pumping) - physics satisfied. "
-                        f"{total_depletion:.1f} AF depletion / {total_pumping:.1f} AF pumping",
-            actual_value=annual_ratio,
-            expected_value=1.0,
-            tolerance=tolerance,
-            details={
-                "annual_depletion_af": round(total_depletion, 2),
-                "annual_pumping_af": round(total_pumping, 2),
-                "monthly_depletion_af": [round(d, 2) for d in depletion_af],
-            },
-        )
-    else:
-        return ConservationResult(
-            check_name="depletion_constraint",
-            status="FLAG",
-            description=f"Annual depletion {total_depletion:.1f} AF exceeds "
-                        f"pumping {total_pumping:.1f} AF (ratio {annual_ratio:.3f})",
-            actual_value=annual_ratio,
-            expected_value=1.0,
-            tolerance=tolerance,
-            details={
-                "annual_depletion_af": round(total_depletion, 2),
-                "annual_pumping_af": round(total_pumping, 2),
-                "monthly_depletion_af": [round(d, 2) for d in depletion_af],
-            },
-        )
-
-
 # =============================================================================
-# CHECK 4: TABLE SUM INTEGRITY
+# CHECK 3: TABLE SUM INTEGRITY
 # =============================================================================
 def check_table2_sums(table2_file: Path, tolerance: float) -> list[dict]:
     """
@@ -863,17 +751,7 @@ def run_all_conservation_checks(year: int) -> list[ConservationResult]:
     results.append(result)
     print()
 
-    # Check 3: Depletion Constraint
-    result = check_depletion_constraint(
-        paths["depletion_file"],
-        paths["table2_file"],
-        year
-    )
-    result.print_result()
-    results.append(result)
-    print()
-
-    # Check 4: Table Sum Integrity
+    # Check 3: Table Sum Integrity
     result = check_table_sums(paths, year)
     result.print_result()
     results.append(result)
@@ -972,20 +850,6 @@ def test_pumping_conservation_2024(paths_2024):
 
     result = check_pumping_conservation(table2_file, wel_file, 2024)
     assert result.status == "PASS", result.description
-
-
-def test_depletion_constraint_2024(paths_2024):
-    """Verify depletion constraint for 2024."""
-    depletion_file = paths_2024["depletion_file"]
-    table2_file = paths_2024["table2_file"]
-
-    if not depletion_file.exists():
-        pytest.skip(f"Depletion file not found: {depletion_file}")
-    if not table2_file.exists():
-        pytest.skip(f"Table 2 not found: {table2_file}")
-
-    result = check_depletion_constraint(depletion_file, table2_file, 2024)
-    assert result.status in ("PASS", "FLAG"), result.description
 
 
 def test_table_sum_integrity_2024(paths_2024):

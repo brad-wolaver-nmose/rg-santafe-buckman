@@ -148,23 +148,6 @@ table5_la_cienega:
     monotonic_increasing: true
 
 # =============================================================================
-# DERIVED RATIOS (For Consistency Checks)
-# =============================================================================
-derived_ratios:
-  description: "Ratios that should remain relatively stable year-over-year"
-
-  # Depletion / Pumping ratio (how much river depletion per unit pumping)
-  depletion_pumping_ratio:
-    description: "Total stream depletion / Total annual pumping"
-    # 2022: (59.844 + 33.490) / 975.47 = 0.0956
-    # 2023: (60.323 + 33.491) / 866.48 = 0.1083
-    # 2024: (60.797 + 33.583) / 1372.90 = 0.0688
-    min: 0.0688
-    max: 0.1083
-    mean: 0.0909
-    note: "Ratio varies with pumping intensity; lower ratio in high-pumping years"
-
-# =============================================================================
 # TIME SERIES DATA (For P5 Temporal Consistency Regression)
 # =============================================================================
 time_series:

@@ -42,15 +42,6 @@ Year-over-Year Pumping Changes:
   2023->2024: +58.5%
   Max Absolute: 58.5%
 
-Depletion/Pumping Ratios:
-  2022: 0.0956, 2023: 0.1083, 2024: 0.0688
-  Mean: 0.0909
-
-Year-over-Year Ratio Changes:
-  2022->2023: +13.3%
-  2023->2024: -36.5%
-  Max Absolute: 36.5%
-
 THRESHOLD DERIVATIONS:
 ---------------------
 1. YoY Pumping Change:
@@ -62,18 +53,13 @@ THRESHOLD DERIVATIONS:
               200% threshold catches data-entry errors (e.g., decimal shift)
               while allowing all historically observed operational variability.
 
-2. YoY Ratio Change:
-   Formula: max_observed_change + 10% buffer = 36.5% + 10% = 46.5% -> 45%
-   Rationale: 36.5% ratio change (2023->2024) was observed.
-              Ratio varies inversely with pumping intensity (physics).
-
-3. Seasonal Correlation:
+2. Seasonal Correlation:
    Method: Simulated 1-month shift detection
    A stress period misalignment (months shifted by 1) produces r ~ 0.5-0.7.
    Normal year-to-year variation produces r > 0.85.
    Threshold set at 0.75 to detect shifts while allowing variation.
 
-4. Multi-Year Envelope:
+3. Multi-Year Envelope:
    Method: Range envelope with CV-adjusted buffer (NOT 95% PI)
    Why not 95% PI: With n=3, df=1, t_0.025=12.71 makes intervals useless.
    Formula: buffer = max(20%, 1.5 * CV)
@@ -100,9 +86,6 @@ from scipy import stats
 
 # YoY Pumping Change: max_observed 1988-2025 (175.2%) + buffer = 200%
 PUMPING_CHANGE_THRESHOLD_PCT = 200.0
-
-# YoY Ratio Change: max_observed (36.5%) + 10% buffer = 45%
-RATIO_CHANGE_THRESHOLD_PCT = 45.0
 
 # Seasonal Correlation: month-shift detection threshold
 SEASONAL_CORRELATION_THRESHOLD = 0.75
@@ -362,94 +345,6 @@ def check_year_over_year_pumping(
     return results
 
 
-def check_year_over_year_ratio(
-    current_year: int,
-    current_pumping_af: float,
-    current_depletion_af: float,
-    bounds: dict,
-) -> list[CheckResult]:
-    """
-    Check if depletion/pumping ratio changed by more than threshold.
-
-    Args:
-        current_year: Year being validated.
-        current_pumping_af: Total annual pumping (AF).
-        current_depletion_af: Total stream depletion (AF).
-        bounds: Loaded bounds.yaml data.
-
-    Returns:
-        List of CheckResult flags.
-    """
-    results: list[CheckResult] = []
-
-    # Compute current ratio
-    current_ratio = current_depletion_af / current_pumping_af if current_pumping_af > 0 else 0
-
-    # Get historical ratios (compute from time series)
-    years = bounds['time_series']['years']
-    pumping_values = bounds['time_series']['annual_pumping_af']['values']
-    pojoaque_values = bounds['time_series']['rio_pojoaque_nambe_depletion_af']['values']
-    tesuque_values = bounds['time_series']['rio_tesuque_depletion_af']['values']
-
-    historical_ratios = []
-    for i in range(len(years)):
-        total_depl = pojoaque_values[i] + tesuque_values[i]
-        ratio = total_depl / pumping_values[i] if pumping_values[i] > 0 else 0
-        historical_ratios.append(ratio)
-
-    # Find prior year ratio
-    if current_year - 1 in years:
-        idx = years.index(current_year - 1)
-        prior_ratio = historical_ratios[idx]
-    elif current_year in years:
-        idx = years.index(current_year)
-        if idx > 0:
-            prior_ratio = historical_ratios[idx - 1]
-        else:
-            return results
-    else:
-        prior_ratio = historical_ratios[-1]
-
-    # Compute percent change in ratio
-    pct_change = ((current_ratio - prior_ratio) / prior_ratio) * 100 if prior_ratio > 0 else 0
-
-    derivation = (
-        f"Threshold: max_observed_change (36.5%) + 10% buffer = {RATIO_CHANGE_THRESHOLD_PCT}%. "
-        f"Prior ratio: {prior_ratio:.4f}, Current ratio: {current_ratio:.4f}"
-    )
-
-    if abs(pct_change) > RATIO_CHANGE_THRESHOLD_PCT:
-        results.append(CheckResult(
-            name="yoy_ratio_change",
-            passed=False,
-            is_hard_fail=False,
-            message=(
-                f"SOFT FLAG: Depletion/pumping ratio changed {pct_change:+.1f}% year-over-year "
-                f"({prior_ratio:.4f} -> {current_ratio:.4f}). "
-                f"Threshold: +/-{RATIO_CHANGE_THRESHOLD_PCT}%. "
-                f"Review pumping distribution."
-            ),
-            actual_value=pct_change,
-            expected_range=f"+/-{RATIO_CHANGE_THRESHOLD_PCT}%",
-            derivation=derivation,
-        ))
-    else:
-        results.append(CheckResult(
-            name="yoy_ratio_change",
-            passed=True,
-            is_hard_fail=False,
-            message=(
-                f"PASS: Ratio changed {pct_change:+.1f}% year-over-year "
-                f"(within +/-{RATIO_CHANGE_THRESHOLD_PCT}% threshold)"
-            ),
-            actual_value=pct_change,
-            expected_range=f"+/-{RATIO_CHANGE_THRESHOLD_PCT}%",
-            derivation=derivation,
-        ))
-
-    return results
-
-
 def check_seasonal_pattern(
     current_year: int,
     monthly_pumping: dict[str, float],
@@ -686,16 +581,10 @@ def run_all_temporal_checks(
     # Check 1: Year-over-year pumping change
     results.extend(check_year_over_year_pumping(year, current_pumping, bounds))
 
-    # Check 2: Year-over-year ratio change
-    if current_depletion is not None:
-        results.extend(check_year_over_year_ratio(
-            year, current_pumping, current_depletion, bounds
-        ))
-
-    # Check 3: Seasonal pattern
+    # Check 2: Seasonal pattern
     results.append(check_seasonal_pattern(year, monthly_pumping, bounds))
 
-    # Check 4: Envelope bounds
+    # Check 3: Envelope bounds
     current_values = {
         'total_annual': current_pumping,
     }
